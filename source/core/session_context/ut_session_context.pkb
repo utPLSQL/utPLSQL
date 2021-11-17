@@ -1,7 +1,7 @@
 create or replace package body ut_session_context as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@ create or replace package body ut_session_context as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  $IF $$SELF_TESTING_INSTALL $THEN
   gc_context_name constant varchar2(30) := ut_utils.ut_owner()||'_INFO';
-  $ELSE
-  gc_context_name constant varchar2(30) := 'UT3_INFO';
-  $END
 
   procedure set_context(a_name varchar2, a_value varchar2) is
   begin

@@ -8,22 +8,22 @@ create or replace package body expectations as
     --Arrange
     --Act
     execute immediate 'begin some_pkg.some_procedure; end;';
-    ut3.ut.expect(1).to_equal(0);
-    ut3.ut.expect(0).to_equal(0);
+    ut3_develop.ut.expect(1).to_equal(0);
+    ut3_develop.ut.expect(0).to_equal(0);
 
     --Assert
     l_actual := ut3_tester_helper.main_helper.get_dbms_output_as_clob();
 
     l_expected := q'[FAILURE
   Actual: 1 (number) was expected to equal: 0 (number)
-  at "UT3$USER#.SOME_PKG%", line 4 ut3.ut.expect(1).to_equal(0);
+  at "UT3$USER#.SOME_PKG%", line 4 ut3_develop.ut.expect(1).to_equal(0);
   at "anonymous block", line 1
   at "UT3$USER#.EXPECTATIONS%", line 10
 SUCCESS
   Actual: 0 (number) was expected to equal: 0 (number)
 FAILURE
   Actual: 1 (number) was expected to equal: 0 (number)
-  at "UT3$USER#.EXPECTATIONS%", line 11 ut3.ut.expect(1).to_equal(0);
+  at "UT3$USER#.EXPECTATIONS%", line 11 ut3_develop.ut.expect(1).to_equal(0);
 SUCCESS
   Actual: 0 (number) was expected to equal: 0 (number)
 ]';
@@ -44,8 +44,8 @@ SUCCESS
     create or replace package body some_pkg is
       procedure some_procedure is
       begin
-        ut3.ut.expect(1).to_equal(0);
-        ut3.ut.expect(0).to_equal(0);
+        ut3_develop.ut.expect(1).to_equal(0);
+        ut3_develop.ut.expect(0).to_equal(0);
       end;
     end;]';
   end;

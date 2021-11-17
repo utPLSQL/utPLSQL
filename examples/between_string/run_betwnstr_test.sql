@@ -1,5 +1,6 @@
 @@betwnstr.sql
-@@test_betwnstr.pkg
+@@test_betwnstr.pks
+@@test_betwnstr.pkb
 
 set serveroutput on size unlimited format truncated
 

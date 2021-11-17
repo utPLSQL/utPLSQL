@@ -1,7 +1,7 @@
 create or replace package ut_coverage_helper authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ create or replace package ut_coverage_helper authid definer is
     full_name      ut_coverage_sources_tmp.full_name%type,
     owner          ut_coverage_sources_tmp.owner%type,
     name           ut_coverage_sources_tmp.name%type,
+    type           ut_coverage_sources_tmp.type%type,
     line           ut_coverage_sources_tmp.line%type,
     to_be_skipped  ut_coverage_sources_tmp.to_be_skipped%type,
     text           ut_coverage_sources_tmp.text%type
@@ -42,6 +43,7 @@ create or replace package ut_coverage_helper authid definer is
   type t_tmp_table_object is record(
     owner              ut_coverage_sources_tmp.owner%type,
     name               ut_coverage_sources_tmp.name%type,
+    type               ut_coverage_sources_tmp.type%type,
     full_name          ut_coverage_sources_tmp.full_name%type,
     lines_count        integer,
     to_be_skipped_list ut_varchar2_list
@@ -58,6 +60,8 @@ create or replace package ut_coverage_helper authid definer is
   function get_tmp_table_objects_cursor return t_tmp_table_objects_crsr;
 
   function get_tmp_table_object_lines(a_owner varchar2, a_object_name varchar2) return ut_varchar2_list;
+
+  procedure set_coverage_run_ids( a_coverage_run_id raw, a_line_coverage_id integer, a_block_coverage_id integer );
 
 end;
 /

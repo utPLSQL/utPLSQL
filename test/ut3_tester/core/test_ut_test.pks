@@ -29,7 +29,7 @@ create or replace package test_ut_test is
 
   --%test(Fails test when aftereach procedure name invalid)
   procedure after_each_proc_name_invalid;
-  --%test(Tails test when aftereach procedure name null)
+  --%test(Fails test when aftereach procedure name null)
   procedure after_each_procedure_name_null;
 
   procedure create_app_info_package;

@@ -43,10 +43,11 @@ Your local environment can be of any flavor (Unix/Linux/Windows/Mac).
 At minimum you need to have Oracle database 11.2 XE accessible for the project and SYS account access to install and develop utPLSQL.
 
 We use four different database accounts (users) for development process.
-* `ut3_latest_release` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.
-* `ut3` - holds the version of utPLSQL of your current branch. This is the schema you will be working on.
+* `ut3` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.
+* `ut3_develop` - holds the version of utPLSQL of your current branch. This is the schema you will be working on.
 * `ut3_tester` - holds unit test packages for development of utPLSQL.
 * `ut3$user#` - used for testing accessibility to schema names with special characters.
+* `ut3_tester_helper` - elevated privileges user, used for creating and dropping objects in other schemas during test run.
 
 
 
@@ -89,12 +90,6 @@ export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 ```
 
-### Download Oracle JDBC drivers
-
-Download `ojdbc8-xxx.jar` and `orai18n-xxx.jar` from [Oracle](https://www.oracle.com/technetwork/database/features/jdbc/jdbc-ucp-122-3110062.html).
-Place them in `development` directory of the project.
-  
-
 ### Download utPLSQL release sources and utplsq-cli
 
 The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
@@ -112,7 +107,7 @@ development/install.sh
 
 You now have the following:
 - sources from `develop` branch of your fork of utPLSQL repository in `utPLSQL/ut3_latest_release` directory
-- sources from `master` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
+- sources from `main` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
 - binaries of `utplsql-cli` in `utPLSQL/utPLSQL-cli` directory
 - database users created
 - your current branch of utPLSQL deployed into `ut3` schema

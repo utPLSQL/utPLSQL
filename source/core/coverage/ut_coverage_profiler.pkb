@@ -1,7 +1,7 @@
 create or replace package body ut_coverage_profiler is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ create or replace package body ut_coverage_profiler is
   /**
   * Public functions
   */
-  function get_coverage_data(a_coverage_options ut_coverage_options, a_coverage_id integer) return ut_coverage.t_coverage is
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
     l_line_calls            ut_coverage_helper.t_unit_line_calls;
     l_result                ut_coverage.t_coverage;
     l_new_unit              ut_coverage.t_unit_coverage;
@@ -34,7 +34,7 @@ create or replace package body ut_coverage_profiler is
       exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_coverage_helper_profiler.get_raw_coverage_data( l_source_object.owner, l_source_object.name, a_coverage_id);
+      l_line_calls := ut_coverage_helper_profiler.get_raw_coverage_data( l_source_object, a_coverage_options.coverage_run_id);
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then

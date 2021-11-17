@@ -2,7 +2,7 @@ create or replace package body ut is
 
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -674,7 +674,7 @@ create or replace package body ut is
   procedure set_nls is
   begin
     if g_nls_date_format is null then
-      select nsp.value
+      select /*+ no_parallel */ nsp.value
        into g_nls_date_format
        from nls_session_parameters nsp
       where parameter = 'NLS_DATE_FORMAT';

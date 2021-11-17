@@ -14,7 +14,7 @@ fs.readFile('../coverage.json',function (err,data) {
 		return console.log(err);
 	}
 	req = JSON.parse(data);
-	req.service_job_id = process.env.TRAVIS_JOB_ID;
+	req.service_job_id = process.env.JOB_ID;
 	req.service_name = 'travis-ci';
 	if (process.env.COVERALLS_REPO_TOKEN) {
 		req.repo_token = process.env.COVERALLS_REPO_TOKEN;

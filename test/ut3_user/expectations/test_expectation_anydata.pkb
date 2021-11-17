@@ -23,7 +23,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( cast(null as ut3_tester_helper.test_dummy_object) );
     g_test_actual   := anydata.convertObject( cast(null as ut3_tester_helper.other_dummy_object) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual (ut3_tester_helper.other_dummy_object) cannot be compared to Expected (ut3_tester_helper.test_dummy_object) using matcher 'equal'.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -39,7 +39,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.other_dummy_object(1, 'A', '0') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual (ut3_tester_helper.other_dummy_object) cannot be compared to Expected (ut3_tester_helper.test_dummy_object) using matcher 'equal'.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -53,7 +53,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, null, '0') );
     --Act
-    ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).not_to_equal( g_test_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -66,7 +66,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertObject( cast(null as ut3_tester_helper.test_dummy_object) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object was expected to equal: ut3_tester_helper.test_dummy_object
 %Diff:
@@ -86,7 +86,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(ut3_tester_helper.test_dummy_object(1, 'A', '0')) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual (ut3_tester_helper.test_dummy_object_list) cannot be compared to Expected (ut3_tester_helper.test_dummy_object) using matcher 'equal'.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -103,7 +103,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list() );
     g_test_actual   := anydata.convertCollection( l_null_list );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ null ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 0 ]]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -121,7 +121,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(ut3_tester_helper.test_dummy_object(1, 'A', '0')) );
     g_test_actual   := anydata.convertCollection( l_null_list );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ null ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 1 ]
 %Diff:
@@ -140,7 +140,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(ut3_tester_helper.test_dummy_object(1, 'A', '0')) );
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list() );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 0 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 1 ]
 %Diff:
@@ -161,7 +161,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(l_obj) );
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(l_obj, l_obj) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 1 ]
 %Diff:
@@ -178,7 +178,7 @@ create or replace package body test_expectation_anydata is
     l_null_anydata anydata;
   begin
     --Act
-    ut3.ut.expect( l_null_anydata ).to_equal( l_null_anydata );
+    ut3_develop.ut.expect( l_null_anydata ).to_equal( l_null_anydata );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -189,7 +189,7 @@ create or replace package body test_expectation_anydata is
     l_anydata     anydata := anydata.convertObject(l_null_object);
   begin
     --Act
-    ut3.ut.expect( l_anydata ).to_equal( l_anydata );
+    ut3_develop.ut.expect( l_anydata ).to_equal( l_anydata );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -200,7 +200,7 @@ create or replace package body test_expectation_anydata is
     l_anydata         anydata := anydata.convertCollection(l_null_collection);
     begin
       --Act
-      ut3.ut.expect( l_anydata ).to_equal( l_anydata );
+      ut3_develop.ut.expect( l_anydata ).to_equal( l_anydata );
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -211,7 +211,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(ut3_tester_helper.test_dummy_object(1, 'A', '0')) );
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(ut3_tester_helper.test_dummy_object(1, 'A', '0')) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -226,7 +226,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(l_first_obj, l_second_obj) );
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list(l_second_obj, l_first_obj) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -237,20 +237,20 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_attributes_as_list is
-    l_list ut3.ut_varchar2_list;
+    l_list ut3_develop.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('Value','/ID');
+    l_list := ut3_develop.ut_varchar2_list('Value','/ID');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>3, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -263,7 +263,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -276,7 +276,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -289,20 +289,20 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_exclude );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_exclude );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_attributes_as_list is
-    l_list ut3.ut_varchar2_list;
+    l_list ut3_develop.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('Value','ID');
+    l_list := ut3_develop.ut_varchar2_list('Value','ID');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'b',"Value"=>'0') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_list );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_list );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -315,7 +315,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -328,7 +328,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -341,7 +341,7 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_include );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_include );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -356,24 +356,24 @@ create or replace package body test_expectation_anydata is
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_exclude_attrib_list is
-    l_exclude ut3.ut_varchar2_list;
-    l_include ut3.ut_varchar2_list;
+    l_exclude ut3_develop.ut_varchar2_list;
+    l_include ut3_develop.ut_varchar2_list;
     l_expected varchar2(32767);
     l_actual   varchar2(32767);
   begin
     --Arrange
-    l_include := ut3.ut_varchar2_list('key','ID','Value');
-    l_exclude := ut3.ut_varchar2_list('key','Value');
+    l_include := ut3_develop.ut_varchar2_list('key','ID','Value');
+    l_exclude := ut3_develop.ut_varchar2_list('key','Value');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -391,7 +391,7 @@ Rows: [ 1 differences ]
   Row No. 1 - Actual:   <name/>
   Row No. 1 - Expected: <name>A</name>]';
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_actual := ut3_tester_helper.main_helper.get_failed_expectations(1);
     ut.expect(l_actual).to_be_like(l_expected);
@@ -411,7 +411,7 @@ Diff:
 Rows: [ 1 differences ]
   Row No. 2 - Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
     l_actual := ut3_tester_helper.main_helper.get_failed_expectations(1);
     ut.expect(l_actual).to_be_like(l_expected);
@@ -425,7 +425,7 @@ Rows: [ 1 differences ]
   procedure deprec_to_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
+    ut3_develop.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -434,7 +434,7 @@ Rows: [ 1 differences ]
   procedure deprec_to_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    ut3_develop.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -443,7 +443,7 @@ Rows: [ 1 differences ]
   procedure deprec_not_to_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
+    ut3_develop.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -452,7 +452,7 @@ Rows: [ 1 differences ]
   procedure deprec_not_to_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    ut3_develop.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -461,7 +461,7 @@ Rows: [ 1 differences ]
   procedure deprec_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).to_(ut3.equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col'));
+    ut3_develop.ut.expect(get_anydata()).to_(ut3_develop.equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -470,7 +470,7 @@ Rows: [ 1 differences ]
   procedure deprec_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_anydata()).to_(ut3.equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col')));
+    ut3_develop.ut.expect(get_anydata()).to_(ut3_develop.equal(get_anydata(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col')));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -491,7 +491,7 @@ Rows: [ 1 differences ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
     l_expected_message := q'[Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 Diff:
@@ -521,7 +521,7 @@ Rows: [ 2 differences ]
       bulk collect into l_expected
       from dual connect by level <=110;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
     l_expected_message := q'[Actual: ut3_tester_helper.test_dummy_object_list [ count = 100 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 110 ]
 Diff:
@@ -543,9 +543,9 @@ Rows: [ 60 differences, showing first 20 ]
   procedure collection_include_list is
     l_actual           ut3_tester_helper.test_dummy_object_list;
     l_expected         ut3_tester_helper.test_dummy_object_list;
-    l_list ut3.ut_varchar2_list;
+    l_list ut3_develop.ut_varchar2_list;
   begin
-    l_list := ut3.ut_varchar2_list('Value','ID');
+    l_list := ut3_develop.ut_varchar2_list('Value','ID');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
       bulk collect into l_actual
@@ -554,7 +554,7 @@ Rows: [ 60 differences, showing first 20 ]
       bulk collect into l_expected
       from dual connect by level <=2;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
 
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -562,9 +562,9 @@ Rows: [ 60 differences, showing first 20 ]
   procedure collection_exclude_list is
     l_actual           ut3_tester_helper.test_dummy_object_list;
     l_expected         ut3_tester_helper.test_dummy_object_list;
-    l_list ut3.ut_varchar2_list;
+    l_list ut3_develop.ut_varchar2_list;
   begin
-    l_list := ut3.ut_varchar2_list('Value','ID');
+    l_list := ut3_develop.ut_varchar2_list('Value','ID');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum*2, 'Something '||rownum, rownum*2)
       bulk collect into l_actual
@@ -573,7 +573,7 @@ Rows: [ 60 differences, showing first 20 ]
       bulk collect into l_expected
       from dual connect by level <=2;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude( l_list );
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude( l_list );
 
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -581,11 +581,11 @@ Rows: [ 60 differences, showing first 20 ]
   procedure collection_include_list_fail is
     l_actual           ut3_tester_helper.test_dummy_object_list;
     l_expected         ut3_tester_helper.test_dummy_object_list;
-    l_list ut3.ut_varchar2_list;
+    l_list ut3_develop.ut_varchar2_list;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
-    l_list := ut3.ut_varchar2_list('name');
+    l_list := ut3_develop.ut_varchar2_list('name');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
       bulk collect into l_actual
@@ -594,7 +594,7 @@ Rows: [ 60 differences, showing first 20 ]
       bulk collect into l_expected
       from dual connect by level <=2;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
 
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 %Diff:
@@ -614,7 +614,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_tab_varchar('A') );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('A')  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
@@ -626,7 +626,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_tab_varchar('A') );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('B')  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester_helper.t_tab_varchar [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -640,7 +640,7 @@ Rows: [ 60 differences, showing first 20 ]
   procedure array_is_null is
    l_is_null ut3_tester_helper.t_tab_varchar ;
   begin
-    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
+    ut3_develop.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
 
@@ -648,7 +648,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null ut3_tester_helper.t_tab_varchar ;
    l_is_null_bis ut3_tester_helper.t_tab_varchar ;
   begin
-    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
+    ut3_develop.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
   
@@ -661,7 +661,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( l_is_null );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('A')  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester_helper.t_tab_varchar [ null ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -673,7 +673,7 @@ Rows: [ 60 differences, showing first 20 ]
   
   procedure empty_array_have_zero_elem is
   begin
-     ut3.ut.expect( anydata.convertCollection(ut3_tester_helper.t_tab_varchar())).to_have_count(0);
+     ut3_develop.ut.expect( anydata.convertCollection(ut3_tester_helper.t_tab_varchar())).to_have_count(0);
      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
@@ -683,7 +683,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection(ut3_tester_helper.t_tab_varchar());
     g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar());
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);  
   end;
   
@@ -696,7 +696,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_tab_varchar() );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('A')  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester_helper.t_tab_varchar [ count = 0 ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -712,7 +712,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Arrange
     g_test_actual   := anydata.convertCollection( l_null_list );
     --Act
-    ut3.ut.expect( g_test_actual ).to_be_null;
+    ut3_develop.ut.expect( g_test_actual ).to_be_null;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -722,7 +722,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Arrange
     g_test_actual   := anydata.convertCollection( ut3_tester_helper.test_dummy_object_list() );
     --Act
-    ut3.ut.expect( g_test_actual ).to_have_count(0);
+    ut3_develop.ut.expect( g_test_actual ).to_have_count(0);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
       
@@ -734,7 +734,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_varray(1) );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(1)  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
@@ -746,7 +746,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_varray(1) );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(2) );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_varray [ count = 1 ] was expected to equal: ut3_tester_helper.t_varray [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -760,7 +760,7 @@ Rows: [ 60 differences, showing first 20 ]
   procedure varray_is_null is
    l_is_null ut3_tester_helper.t_varray ;
   begin
-    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
+    ut3_develop.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
 
@@ -768,7 +768,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null ut3_tester_helper.t_varray ;
    l_is_null_bis ut3_tester_helper.t_varray ;
   begin
-    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
+    ut3_develop.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
   
@@ -781,7 +781,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( l_is_null );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(1)  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_varray [ count = 1 ] was expected to equal: ut3_tester_helper.t_varray [ null ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -793,7 +793,7 @@ Rows: [ 60 differences, showing first 20 ]
   
   procedure empty_varray_have_zero_elem is
   begin
-     ut3.ut.expect( anydata.convertCollection(ut3_tester_helper.t_varray())).to_have_count(0);
+     ut3_develop.ut.expect( anydata.convertCollection(ut3_tester_helper.t_varray())).to_have_count(0);
      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
@@ -803,7 +803,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection(ut3_tester_helper.t_varray());
     g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_varray());
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);  
   end;
   
@@ -816,7 +816,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_expected := anydata.convertCollection( ut3_tester_helper.t_varray() );
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(1)  );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
     l_expected_message := q'[%Actual: ut3_tester_helper.t_varray [ count = 1 ] was expected to equal: ut3_tester_helper.t_varray [ count = 0 ]
 %Diff:
 %Rows: [ 1 differences ]
@@ -841,7 +841,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID'); 
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID');
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
@@ -860,7 +860,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID'); 
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID');
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 %Diff:
 %Rows: [ 3 differences ]
@@ -886,7 +886,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=3
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered; 
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered;
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
  
@@ -913,7 +913,7 @@ Rows: [ 60 differences, showing first 20 ]
 %Missing:  <TEST_DUMMY_OBJECT><ID>4</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT>
 %Missing:  <TEST_DUMMY_OBJECT><ID>2</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT>]';
 
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered; 
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered;
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -926,7 +926,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     
     --Act
-    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('ID'); 
+    ut3_develop.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('ID');
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
@@ -936,7 +936,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     
     --Act
-    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).unordered;
+    ut3_develop.ut.expect(g_test_actual).to_equal(g_test_expected).unordered;
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;   
  
@@ -953,7 +953,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_contain(anydata.convertCollection(l_expected)); 
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).to_contain(anydata.convertCollection(l_expected));
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
   
@@ -964,7 +964,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     
     --Act
-    ut3.ut.expect(g_test_actual).to_contain(g_test_expected); 
+    ut3_develop.ut.expect(g_test_actual).to_contain(g_test_expected);
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
    
@@ -975,7 +975,7 @@ Rows: [ 60 differences, showing first 20 ]
    g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar(null));
 
    --Act
-   ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).unordered();
+   ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected ).unordered();
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);   
 
   end;   
@@ -987,7 +987,7 @@ Rows: [ 60 differences, showing first 20 ]
    g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar(' '));
 
    --Act
-   ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected ).unordered();
+   ut3_develop.ut.expect( g_test_actual ).not_to_equal( g_test_expected ).unordered();
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
 
   end;  

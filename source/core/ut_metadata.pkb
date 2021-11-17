@@ -1,7 +1,7 @@
 create or replace package body ut_metadata as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ create or replace package body ut_metadata as
     l_view_name      varchar2(200) := get_objects_view_name;
   begin
 
-    execute immediate q'[select count(*)
+    execute immediate q'[select /*+ no_parallel */ count(*)
       from ]'||l_view_name||q'[
      where owner = :a_owner_name
        and object_name = :a_package_name
@@ -58,7 +58,7 @@ create or replace package body ut_metadata as
     l_view_name      varchar2(200) := get_dba_view('dba_procedures');
   begin
     execute immediate
-      'select count(*) from '||l_view_name
+      'select /*+ no_parallel */ count(*) from '||l_view_name
         ||' where owner = :l_schema and object_name = :l_package_name and procedure_name = :l_procedure_name and rownum = 1'
     into l_cnt using a_owner_name, a_package_name, a_procedure_name;
 
@@ -77,7 +77,7 @@ create or replace package body ut_metadata as
     if not nvl(c_key = g_cached_object, false) then
       g_cached_object := c_key;
       execute immediate
-      'select trim(text) text
+      'select /*+ no_parallel */ trim(text) text
         from '||l_view_name||q'[ s
        where s.owner = :a_owner
          and s.name = :a_object_name
@@ -121,9 +121,26 @@ create or replace package body ut_metadata as
   end;
 
   function user_has_execute_any_proc return boolean is
-    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_has_execute_any varchar2(1);
   begin
-    return is_object_visible(l_ut_owner||'.ut_utils') and sys_context('userenv','current_schema') != l_ut_owner;
+    select /*+ no_parallel */ decode( count( 1 ), 0, 'N', 'Y' )
+      into l_has_execute_any
+      from dual
+      where
+        exists(
+          select 1
+            from
+              role_sys_privs
+              join session_roles
+              using ( role )
+            where privilege = 'EXECUTE ANY PROCEDURE'
+          ) or
+        exists(
+          select 1
+            from user_sys_privs
+            where privilege = 'EXECUTE ANY PROCEDURE'
+          );
+    return l_has_execute_any = 'Y';
   end;
 
   function is_object_visible(a_object_name varchar2) return boolean is
@@ -140,7 +157,7 @@ create or replace package body ut_metadata as
     l_cnt            number;
     c_current_schema constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
   begin
-    select count(*)
+    select /*+ no_parallel */ count(*)
       into l_cnt
       from all_objects t
      where t.object_name = a_object_name

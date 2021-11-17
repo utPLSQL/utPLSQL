@@ -1,7 +1,7 @@
 create or replace type ut_coverage_options force as object (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -16,9 +16,18 @@ create or replace type ut_coverage_options force as object (
   limitations under the License.
   */
 
+  coverage_run_id  raw(32),
   schema_names     ut_varchar2_rows,
   exclude_objects  ut_object_names,
   include_objects  ut_object_names,
-  file_mappings    ut_file_mappings
+  file_mappings    ut_file_mappings,
+  constructor function ut_coverage_options(
+    self       in out nocopy ut_coverage_options,
+    coverage_run_id          raw,
+    schema_names             ut_varchar2_rows := null,
+    exclude_objects          ut_varchar2_rows := null,
+    include_objects          ut_varchar2_rows := null,
+    file_mappings            ut_file_mappings := null
+    ) return self as result
 )
 /

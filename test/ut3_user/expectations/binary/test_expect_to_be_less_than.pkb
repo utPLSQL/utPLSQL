@@ -254,7 +254,7 @@ create or replace package body test_expect_to_be_less_than is
   procedure actual_clob is
   begin
     --Act
-    ut3.ut.expect(to_clob('3')).to_( ut3.be_less_than(4) );
+    ut3_develop.ut.expect(to_clob('3')).to_( ut3_develop.be_less_than(4) );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;

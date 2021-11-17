@@ -1,7 +1,7 @@
 create or replace package body ut_expectation_processor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ create or replace package body ut_expectation_processor as
   function get_session_parameters return tt_nls_params is
     l_session_params tt_nls_params;
   begin
-    select nsp.parameter, nsp.value
+    select /*+ no_parallel */ nsp.parameter, nsp.value
       bulk collect into l_session_params
      from nls_session_parameters nsp
     where parameter

@@ -1,7 +1,7 @@
 create or replace type body ut_output_reporter_base is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ create or replace type body ut_output_reporter_base is
 
   final member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural) return ut_output_data_rows pipelined is
   begin
-    for i in (select value(x) val from table(self.output_buffer.get_lines(a_initial_timeout, a_timeout_sec)) x ) loop
+    for i in (select /*+ no_parallel */ value(x) val from table(self.output_buffer.get_lines(a_initial_timeout, a_timeout_sec)) x ) loop
       pipe row (i.val);
     end loop;
   end;

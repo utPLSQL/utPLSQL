@@ -1,12 +1,11 @@
 #!/bin/bash
 
 set -ev
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd ${SCRIPT_DIR}/../examples
 
-"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR <<SQL
-whenever sqlerror exit failure rollback
-whenever oserror exit failure rollback
+"$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR <<SQL
 
-cd examples
 @RunAllExamplesAsTests.sql
 
 exit

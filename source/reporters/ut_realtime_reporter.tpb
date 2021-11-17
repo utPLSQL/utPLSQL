@@ -1,7 +1,7 @@
 create or replace type body ut_realtime_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -252,7 +252,7 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     if a_content is not null then
-       self.print_xml_fragment('<' || a_name || '><![CDATA[' || a_content || ']]></' || a_name || '>');
+       self.print_xml_fragment('<' || a_name || '>' || ut_utils.to_cdata(a_content) || '</' || a_name || '>');
     end if;
   end print_cdata_node;
 

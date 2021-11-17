@@ -8,7 +8,7 @@ is
     l_package_spec  varchar2(32737);
     l_package_body  varchar2(32737);
     l_exception_spec varchar2(32737);
-    l_test_results  ut3.ut_varchar2_list;
+    l_test_results  ut3_develop.ut_varchar2_list;
   begin
     l_exception_spec := q'[
         create or replace package exc_pkg is
@@ -251,9 +251,9 @@ is
     execute immediate l_package_body;
 
     
-    select * bulk collect into l_test_results from table(ut3.ut.run(('annotated_package_with_throws')));
+    select * bulk collect into l_test_results from table(ut3_develop.ut.run(('annotated_package_with_throws')));
 
-    g_tests_results := ut3.ut_utils.table_to_clob(l_test_results);
+    g_tests_results := ut3_develop.ut_utils.table_to_clob(l_test_results);
   end;
 
   procedure throws_same_annotated_except is

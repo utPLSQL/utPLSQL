@@ -48,7 +48,7 @@ create or replace package body test_expectations_cursor is
       select 'Other test entry' as value from dual;
     open l_actual for 'select * from gtt_test_table';
     --Act - execute the expectation on cursor opened on GTT
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     --Cleanup
@@ -62,7 +62,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     -- Arrange
-    ut3.ut.set_nls;
+    ut3_develop.ut.set_nls;
     open l_expected for
       select 1 as my_num,
              'This is my test string' as my_string,
@@ -76,10 +76,10 @@ create or replace package body test_expectations_cursor is
              to_date('1984-09-05', 'YYYY-MM-DD') as my_date
       from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
-    ut3.ut.reset_nls;
+    ut3_develop.ut.reset_nls;
   end;
 
   procedure success_on_same_data_float
@@ -88,7 +88,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     -- Arrange
-    ut3.ut.set_nls;
+    ut3_develop.ut.set_nls;
     open l_expected for
       select cast(3.14 as binary_double) as pi_double,
              cast(3.14 as binary_float) as pi_float
@@ -98,10 +98,10 @@ create or replace package body test_expectations_cursor is
              cast(3.14 as binary_float) as pi_float
       from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
-    ut3.ut.reset_nls;
+    ut3_develop.ut.reset_nls;
   end;
 
   procedure success_on_empty
@@ -113,7 +113,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select * from dual where 1=0;
     open l_actual for select * from dual where 1=0;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -124,7 +124,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -134,7 +134,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     --Act
-    ut3.ut.expect( l_actual ).to_be_null();
+    ut3_develop.ut.expect( l_actual ).to_be_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -144,7 +144,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_not_null();
+    ut3_develop.ut.expect( l_actual ).not_to_be_not_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -156,7 +156,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_be_not_null();
+    ut3_develop.ut.expect( l_actual ).to_be_not_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -168,7 +168,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_be_not_null();
+    ut3_develop.ut.expect( l_actual ).to_be_not_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -180,7 +180,7 @@ create or replace package body test_expectations_cursor is
   --Arrange
     open l_actual for select * from dual where 0=1;
     --Act
-    ut3.ut.expect( l_actual ).to_be_empty();
+    ut3_develop.ut.expect( l_actual ).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -192,7 +192,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_empty();
+    ut3_develop.ut.expect( l_actual ).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -204,7 +204,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_be_null();
+    ut3_develop.ut.expect( l_actual ).to_be_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -214,7 +214,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_null();
+    ut3_develop.ut.expect( l_actual ).not_to_be_null();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -226,7 +226,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_be_empty();
+    ut3_develop.ut.expect( l_actual ).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -238,7 +238,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_actual for select * from dual where 0=1;
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_empty();
+    ut3_develop.ut.expect( l_actual ).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -251,7 +251,7 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_expected for select * from dual where 1=0;
     --Act
-    ut3.ut.expect( l_actual ).not_to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).not_to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -265,7 +265,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select to_clob('This is an even longer test clob') as my_clob from dual;
     open l_actual for select to_clob('Another totally different story') as my_clob from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -279,7 +279,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as my_num from dual;
     open l_actual   for select 1 as my_num from dual union all select 1 as my_num from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -293,7 +293,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as my_num from dual union all select 1 as my_num from dual;
     open l_actual   for select 1 as my_num from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -307,7 +307,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1 from dual;
     open l_actual   for select 1 as col_2 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -322,7 +322,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -336,7 +336,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -350,7 +350,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).uc;
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).uc;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -366,7 +366,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -389,7 +389,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).uc;
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).uc;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -410,7 +410,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as my_num from dual union all select 2 as my_num from dual;
     open l_actual   for select 2 as my_num from dual union all select 1 as my_num from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -419,18 +419,17 @@ create or replace package body test_expectations_cursor is
   as
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
-    l_date     date   := sysdate;
-    l_second   number := 1/24/60/60;
+    c_second   constant number := 1/24/60/60;
   begin
     --Arrange
-    ut3.ut.set_nls;
-    open l_actual for select l_date as some_date from dual;
-    open l_expected for select l_date-l_second some_date from dual;
+    ut3_develop.ut.set_nls;
+    open l_actual for select gc_date as some_date from dual;
+    open l_expected for select gc_date - c_second some_date from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
-    ut3.ut.reset_nls;
+    ut3_develop.ut.reset_nls;
   end;
 
   procedure uses_default_nls_for_date
@@ -439,10 +438,10 @@ create or replace package body test_expectations_cursor is
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual   for select sysdate as some_date from dual;
-    open l_expected for select to_date(to_char(sysdate)) as some_date from dual;
+    open l_actual   for select gc_date as some_date from dual;
+    open l_expected for select to_date(to_char(gc_date)) as some_date from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -456,7 +455,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -470,7 +469,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -483,7 +482,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','/ROW/Some_Col'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3_develop.ut_varchar2_list('A_COLUMN','/ROW/Some_Col'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -496,7 +495,7 @@ create or replace package body test_expectations_cursor is
       open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
       open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
       --Act
-      ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,/ROW/Some_Col');
+      ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,/ROW/Some_Col');
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     end;
@@ -512,7 +511,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
       --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN,\\//Some_Col');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN,\\//Some_Col');
       --Assert
     l_expected_message := q'[Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]
 %Diff:
@@ -537,7 +536,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual;
     open l_expected for select 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN|/ROW/Some_Col');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN|/ROW/Some_Col');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -551,7 +550,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'c' as A_COLUMN from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'd' as A_COLUMN from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','non_existing_column'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3_develop.ut_varchar2_list('A_COLUMN','non_existing_column'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -565,7 +564,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -579,7 +578,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include('RN,//A_Column, SOME_COL');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('RN,//A_Column, SOME_COL');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -593,7 +592,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include('/ROW/RN|//A_Column|//SOME_COL');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('/ROW/RN|//A_Column|//SOME_COL');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -607,7 +606,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'c' as A_COLUMN from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'd' as A_COLUMN from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list(' RN ',' non_existing_column '));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list(' RN ',' non_existing_column '));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -621,7 +620,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude('Some_Col').include('/ROW/RN|//Some_Col');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).exclude('Some_Col').include('/ROW/RN|//Some_Col');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -635,7 +634,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN')).include(ut3.ut_varchar2_list('RN','A_Column','A_COLUMN'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).exclude(ut3_develop.ut_varchar2_list('A_COLUMN')).include(ut3_develop.ut_varchar2_list('RN','A_Column','A_COLUMN'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -651,7 +650,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select 1 rn from dual union all select 6 rn from dual;
     open l_expected for select rownum rn from dual connect by level <=3;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
 Diff:
@@ -674,7 +673,7 @@ Rows: [ 2 differences ]
     open l_actual   for select cast('a' as char(1))      a_column, 1 as id from dual;
     open l_expected for select cast('a' as varchar2(10)) a_column          from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 Diff:
 Columns:
@@ -696,7 +695,7 @@ Rows: [ 1 differences ]
     open l_actual   for select to_char(rownum) rn, rownum another_rn from dual connect by level <=2;
     open l_expected for select rownum rn,          rownum another_rn from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -719,7 +718,7 @@ Rows: [ all different ]
     open l_actual   for select rownum rn, rownum bad_column_name      from dual connect by level <=2;
     open l_expected for select rownum rn, rownum expected_column_name from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -741,7 +740,7 @@ Columns:%
     open l_actual   for select rownum+1 col_1, rownum+2 col_2, rownum+3 col_3, rownum+4 col_4 from dual connect by level <=2;
     open l_expected for select rownum+1 col_1, rownum+4 col_4, rownum+2 col_2, rownum+3 col_3 from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -766,7 +765,7 @@ Rows: [ all different ]
     open l_actual   for select rownum+1 col_1, rownum+2 col_2, rownum+3 col_3, rownum+4 col_4 from dual connect by level <=2;
     open l_expected for select rownum+1 col_1, rownum+4 col_4, rownum+2 col_2, rownum+3 col_3 from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
 
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -782,7 +781,7 @@ Rows: [ all different ]
     open l_actual   for select rownum good_col, -rownum bad_col from dual connect by level <=2;
     open l_expected for select rownum good_col,  rownum bad_col from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -810,7 +809,7 @@ Rows: [ 2 differences ]
        from dual connect by level <=100;
     open l_expected for select rownum bad_col, rownum good_col from dual connect by level <=110;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 100 ] was expected to equal: refcursor [ count = 110 ]
 Diff:
@@ -850,7 +849,7 @@ Rows: [ 60 differences, showing first 20 ]
       select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY from dual union all
       select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     l_expected_message := q'[Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
 Diff:
 Columns:
@@ -887,7 +886,7 @@ Rows: [ 4 differences ]
       select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY from dual union all
       select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
     l_expected_message := q'[Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
 Diff:
 Columns:
@@ -957,7 +956,7 @@ Rows: [ 4 differences ]
     from dual;
     open l_actual for q'[select * from test_table_for_cursors]';
     --Act
-    ut3.ut.expect(l_expected).to_equal(l_actual);
+    ut3_develop.ut.expect(l_expected).to_equal(l_actual);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -969,7 +968,7 @@ Rows: [ 4 differences ]
     --Arrange
     open l_actual  for select 1 as value from dual;
     --Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(l_actual%isopen).to_be_false();
   end;
@@ -982,7 +981,7 @@ Rows: [ 4 differences ]
     open l_actual  for select 1/0 as value from dual;
     --Act
     begin
-      ut3.ut.expect(l_actual).to_be_empty();
+      ut3_develop.ut.expect(l_actual).to_be_empty();
     exception
       when others then
         null;
@@ -997,7 +996,7 @@ Rows: [ 4 differences ]
   begin
     --Act
     open l_actual for select 1/0 as error_column from dual connect by level < 10;
-      ut3.ut.expect(l_actual).to_be_empty();
+      ut3_develop.ut.expect(l_actual).to_be_empty();
 
     ut.fail('Expected exception on cursor fetch');
   exception
@@ -1015,7 +1014,7 @@ Rows: [ 4 differences ]
     open l_actual for select * from dual;
     close l_actual;
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_null;
+    ut3_develop.ut.expect( l_actual ).not_to_be_null;
   exception
     when others then
         --Assert
@@ -1031,7 +1030,7 @@ Rows: [ 4 differences ]
     open l_actual for select rownum object_name from dual connect by level <=1100;
     open l_expected for select rownum object_name from dual connect by level <=1100;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
@@ -1047,7 +1046,7 @@ Rows: [ 4 differences ]
   procedure deprec_to_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
+    ut3_develop.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1056,7 +1055,7 @@ Rows: [ 4 differences ]
   procedure deprec_to_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    ut3_develop.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1065,7 +1064,7 @@ Rows: [ 4 differences ]
   procedure deprec_not_to_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
+    ut3_develop.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1074,7 +1073,7 @@ Rows: [ 4 differences ]
   procedure deprec_not_to_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    ut3_develop.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1083,7 +1082,7 @@ Rows: [ 4 differences ]
   procedure deprec_equal_excl_varch is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col'));
+    ut3_develop.ut.expect(get_cursor()).to_(ut3_develop.equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col'));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1092,7 +1091,7 @@ Rows: [ 4 differences ]
   procedure deprec_equal_excl_list is
   begin
     --Act
-    ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col')));
+    ut3_develop.ut.expect(get_cursor()).to_(ut3_develop.equal(get_cursor(), a_exclude => ut3_develop.ut_varchar2_list('A_COLUMN','Some_Col')));
     --Assert
     ut.expect(cardinality(ut3_tester_helper.main_helper.get_warnings())).to_equal(1);
     ut.expect(ut3_tester_helper.main_helper.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
@@ -1108,7 +1107,7 @@ Rows: [ 4 differences ]
     open l_actual   for select '1' , '2'      from dual connect by level <=2;
     open l_expected for select rownum , rownum expected_column_name from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 %Diff:
@@ -1134,7 +1133,7 @@ Rows: [ 4 differences ]
     open l_actual   for select '1' , rownum  from dual connect by level <=2;
     open l_expected for select '1' , rownum  from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1147,7 +1146,7 @@ Rows: [ 4 differences ]
     open l_actual for select username , user_id  from all_users order by username asc;
     open l_expected for select username , user_id  from all_users order by username desc;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1160,7 +1159,7 @@ Rows: [ 4 differences ]
     open l_actual for select user_id, username  from all_users order by username asc;
     open l_expected for select username , user_id  from all_users order by username desc;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered().uc();
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered().uc();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end; 
@@ -1182,7 +1181,7 @@ Rows: [ 4 differences ]
                           select 'test' username,-667 user_id from dual
                           order by 1 desc;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered;
     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 2 differences ]%
@@ -1202,7 +1201,7 @@ Rows: [ 4 differences ]
     open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID').uc();
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID').uc();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1216,7 +1215,7 @@ Rows: [ 4 differences ]
     open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1232,7 +1231,7 @@ Rows: [ 4 differences ]
     open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).join_by('COL_1').unordered_columns;
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).join_by('COL_1').unordered_columns;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -1253,7 +1252,7 @@ Rows: [ 4 differences ]
     open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OBJECT_ID,OBJECT_NAME'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('OBJECT_ID,OBJECT_NAME'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1269,7 +1268,7 @@ Rows: [ 4 differences ]
     open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OWNER');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('OWNER');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1292,7 +1291,7 @@ Diff:%
     open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OWNER,USER_ID'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('OWNER,USER_ID'));
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1317,7 +1316,7 @@ Diff:%
     open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('SOME_COL').exclude('SOME_COL');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('SOME_COL').exclude('SOME_COL');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1340,7 +1339,7 @@ Diff:%
     open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,SOME_COL')).exclude('RN');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('RN,SOME_COL')).exclude('RN');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1363,7 +1362,7 @@ Diff:%
     open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1385,7 +1384,7 @@ Diff:%
     open l_expected for select rownum as rni, 'x' SOME_COL  from dual a connect by level < 4;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
@@ -1404,7 +1403,7 @@ Diff:%
     open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
     open l_expected for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1417,7 +1416,7 @@ Diff:%
     open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
     open l_expected for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end; 
@@ -1436,7 +1435,7 @@ Diff:%
     select 'TEST' username, -610 user_id from dual order by 1 asc;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('USERNAME');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('USERNAME');
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
@@ -1462,7 +1461,7 @@ Diff:%
     select 'TEST' username, -610 user_id from dual order by 1 asc;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('USERNAME,USER_ID'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('USERNAME,USER_ID'));
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
@@ -1488,7 +1487,7 @@ Diff:%
     select 'TEST' username, -610 user_id,'Y' is_valid from dual order by 1 asc;
      
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('USERNAME,IS_VALID'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('USERNAME,IS_VALID'));
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
@@ -1509,7 +1508,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL')).unordered;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1523,7 +1522,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1537,7 +1536,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).exclude(ut3_develop.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1551,7 +1550,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col')).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).exclude(ut3_develop.ut_varchar2_list('A_COLUMN|//Some_Col')).unordered;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1565,7 +1564,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).exclude(ut3_develop.ut_varchar2_list('A_COLUMN'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1579,7 +1578,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list('RN'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1593,7 +1592,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN')).exclude(ut3.ut_varchar2_list('A_COLUMN'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include(ut3_develop.ut_varchar2_list('RN')).exclude(ut3_develop.ut_varchar2_list('A_COLUMN'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1610,7 +1609,7 @@ Diff:%
       from dual connect by level <=2 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1627,7 +1626,7 @@ Diff:%
       from dual connect by level <=2 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1646,7 +1645,7 @@ Diff:%
       from dual connect by level <=3 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).unordered;
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 Rows: [ 5 differences%
@@ -1672,7 +1671,7 @@ Rows: [ 5 differences%
       from dual connect by level <=2 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -1689,7 +1688,7 @@ Rows: [ 5 differences%
       from dual connect by level <=2 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,COLVAL/ID'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('RN,COLVAL/ID'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -1708,7 +1707,7 @@ Rows: [ 5 differences%
       from dual connect by level <=2 order by rownum desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/IDS'); 
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/IDS');
     
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 Diff:%
@@ -1723,16 +1722,16 @@ Diff:%
   procedure compare_nest_tab_col_jb is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1744,7 +1743,7 @@ Diff:%
       from table(l_expected_tab) order by 1 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('KEY');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('KEY');
 
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
@@ -1753,16 +1752,16 @@ Diff:%
   procedure compare_nest_tab_col_jb_fail is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Somethings '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1774,7 +1773,7 @@ Diff:%
       from table(l_expected_tab) order by 1 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('KEY');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('KEY');
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 2 differences ]%
@@ -1790,16 +1789,16 @@ Diff:%
   procedure compare_nest_tab_cols_jb is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1811,7 +1810,7 @@ Diff:%
       from table(l_expected_tab) order by 1 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('KEY,VALUE'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('KEY,VALUE'));
 
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
@@ -1820,16 +1819,16 @@ Diff:%
    procedure compare_nest_tab_cols_jb_fail is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Somethings '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1841,7 +1840,7 @@ Diff:%
       from table(l_expected_tab) order by 1 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('KEY,VALUE'));
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by(ut3_develop.ut_varchar2_list('KEY,VALUE'));
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 4 differences ]%
@@ -1857,16 +1856,16 @@ Diff:%
   procedure compare_tabtype_as_cols_jb is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Somethings '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1878,7 +1877,7 @@ Diff:%
       from dual connect by level <=2;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
     
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
@@ -1897,16 +1896,16 @@ Diff:%
   procedure compare_tabtype_as_cols is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2 order by rownum asc;
  
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2 order by rownum asc;
       
@@ -1918,7 +1917,7 @@ Diff:%
       from dual connect by level <=2;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
       --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
@@ -1927,16 +1926,16 @@ Diff:%
   procedure compare_tabtype_as_cols_coll is
       l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Apples '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Apples '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Peaches '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Peaches '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1948,7 +1947,7 @@ Diff:%
       from dual connect by level <=2;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/UT_KEY_VALUE_PAIRS');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/UT_KEY_VALUE_PAIRS');
     
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
@@ -1970,10 +1969,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_actual_tab from dual;
  
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_expected_tab from dual;
       
     --Arrange
@@ -1982,7 +1981,7 @@ Diff:%
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
@@ -1994,10 +1993,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_expected_tab from dual;
       
     --Arrange
@@ -2006,7 +2005,7 @@ Diff:%
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
@@ -2018,10 +2017,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
@@ -2030,7 +2029,7 @@ Diff:%
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
@@ -2043,12 +2042,11 @@ Diff:%
     l_expected_tab     some_object;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
-    l_date             date := sysdate;
   begin
-    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
@@ -2059,7 +2057,7 @@ Diff:%
       from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
     
     --Assert
      l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
@@ -2080,10 +2078,10 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
@@ -2092,7 +2090,7 @@ Diff:%
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS/ID');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS/ID');
     
     --Assert
     l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]%
@@ -2126,7 +2124,7 @@ Diff:%
       select 'Table' as name from dual;
      
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered();
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).unordered();
     
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
@@ -2150,7 +2148,7 @@ Diff:%
     and rownum < 20;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2166,7 +2164,7 @@ Diff:%
     and rownum < 20;
 
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).uc();
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).uc();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2183,7 +2181,7 @@ Diff:%
       select rownum owner, rownum||'name' object_name,'PACKAGE' object_type from dual connect by level < 10;
 
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).unordered();
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).unordered();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2199,7 +2197,7 @@ Diff:%
     open l_expected for select rownum owner,rownum  object_name, 'PACKAGE' object_type from dual connect by level < 10;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected);
    --Assert
      l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to contain: refcursor [ count = 9 ]
 %Diff:
@@ -2223,7 +2221,7 @@ Diff:%
     open l_expected for select username ,user_id from all_users where rownum < 5;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2245,7 +2243,7 @@ Diff:%
     order by 1 asc;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
     --Assert
      l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to contain: refcursor [ count = % ]
 %Diff:
@@ -2267,7 +2265,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 6;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2281,7 +2279,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2295,7 +2293,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).exclude(ut3_develop.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2309,7 +2307,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col'));
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected).exclude(ut3_develop.ut_varchar2_list('A_COLUMN|//Some_Col'));
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
@@ -2326,7 +2324,7 @@ Diff:%
     select 'TEST1' username, -601 user_id from dual;
     
     --Act
-    ut3.ut.expect(l_actual).not_to_contain(l_expected);   
+    ut3_develop.ut.expect(l_actual).not_to_contain(l_expected);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
@@ -2345,7 +2343,7 @@ Diff:%
     select 'TEST' username, -600 user_id from dual;
     
     --Act
-    ut3.ut.expect(l_actual).not_to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).not_to_contain(l_expected);
     --Assert
      l_expected_message := q'[%Actual: (refcursor [ count = % ])%
 %Data-types:%
@@ -2370,7 +2368,7 @@ Diff:%
     open l_expected for select username||to_char(rownum) username ,rownum user_id from all_users where rownum < 5;
     
     --Act
-    ut3.ut.expect(l_actual).not_to_contain(l_expected).join_by('USER_ID');
+    ut3_develop.ut.expect(l_actual).not_to_contain(l_expected).join_by('USER_ID');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2383,7 +2381,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum  * 20 rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).not_to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).not_to_contain(l_expected).include(ut3_develop.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2396,7 +2394,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum * 20 as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).not_to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
+    ut3_develop.ut.expect(l_actual).not_to_contain(l_expected).exclude(ut3_develop.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2412,7 +2410,7 @@ Diff:%
     open l_expected for select rownum as rn from dual a connect by level < 4;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected);
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2429,7 +2427,7 @@ Diff:%
     union all select rownum as rn from dual a connect by level < 4;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected);
    --Assert
      l_expected_message := q'[%Actual: refcursor [ count = 9 ] was expected to contain: refcursor [ count = 6 ]
 %Diff:
@@ -2445,11 +2443,11 @@ Diff:%
   procedure udt_messg_format_eq is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
-    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin 
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
     
@@ -2458,7 +2456,7 @@ Diff:%
     open l_expected for select value(x) as udt from table(l_expected_tab) x;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3_develop.ut.expect(l_actual).to_contain(l_expected);
    --Assert
      l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to contain: refcursor [ count = 2 ]
 %Diff:
@@ -2476,11 +2474,11 @@ Diff:%
 
  procedure udt_messg_format_empt is
     l_actual   sys_refcursor;
-    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_tab ut3_develop.ut_key_value_pairs := ut3_develop.ut_key_value_pairs();
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin 
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3_develop.ut_key_value_pair(rownum,'Something '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
     
@@ -2488,7 +2486,7 @@ Diff:%
     open l_actual for select value(x) as udt from table(l_actual_tab) x;
     
     --Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
    --Assert
      l_expected_message := q'[%Actual: (refcursor [ count = 2 ])
 %Data-types:
@@ -2509,7 +2507,7 @@ Diff:%
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3_develop.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_actual for
@@ -2517,7 +2515,7 @@ Check the query and data for errors.';
     open l_expected for
       select 1/0 as test from dual;
       
-    ut3.ut.expect(l_actual).to_equal(l_expected); 
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     --Line that error relates to in expected messag
 
     ut.fail('Expected exception on cursor fetch');
@@ -2534,7 +2532,7 @@ Check the query and data for errors.';
   
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3_develop.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_expected for
@@ -2542,7 +2540,7 @@ Check the query and data for errors.';
     open l_actual for
       select 1 as test from dual;
       
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
 
     ut.fail('Expected exception on cursor fetch');
   exception
@@ -2554,7 +2552,7 @@ Check the query and data for errors.';
     l_actual  sys_refcursor;
     l_expected sys_refcursor;
   begin
-    ut3.ut.set_nls;
+    ut3_develop.ut.set_nls;
     open l_expected for
       select cast(3.14 as binary_double) as pi_double,
              cast(3.14 as binary_float) as pi_float,
@@ -2571,10 +2569,10 @@ Check the query and data for errors.';
              numtoyminterval(1.1, 'year') row_ym_interval
       from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
-    ut3.ut.reset_nls;
+    ut3_develop.ut.reset_nls;
       
   end;
   
@@ -2599,7 +2597,7 @@ Check the query and data for errors.';
    OPEN l_exp_cur FOR SELECT l_exp.key, l_exp.value
      FROM dual;
    
-   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);
+   ut3_develop.ut.expect(l_act_cur).to_equal(l_exp_cur);
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
   end;
@@ -2615,7 +2613,7 @@ Check the query and data for errors.';
    OPEN l_exp_cur FOR SELECT 1 as "$Test", 2 as "&Test"
      FROM dual;
    
-   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);  
+   ut3_develop.ut.expect(l_act_cur).to_equal(l_exp_cur);
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
   end;
@@ -2631,7 +2629,7 @@ Check the query and data for errors.';
    OPEN l_exp_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
      FROM dual;
    
-   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur); 
+   ut3_develop.ut.expect(l_act_cur).to_equal(l_exp_cur);
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
   end;  
@@ -2647,7 +2645,7 @@ Check the query and data for errors.';
 	open l_actual for
 	  select column_value t1 from table(ut_varchar2_list(' '));
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
 	  ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
 
@@ -2661,7 +2659,7 @@ Check the query and data for errors.';
 	open l_actual for
 	  select column_value t1 from table(ut_varchar2_list(chr(9)));
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
 	  ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
@@ -2675,7 +2673,7 @@ Check the query and data for errors.';
 	open l_actual for
 	  select 't' t1 from dual;
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
 	  ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
   
@@ -2689,7 +2687,7 @@ Check the query and data for errors.';
 	open l_actual for
 	  select ' t ' t1 from dual;
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
 	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
   
@@ -2703,7 +2701,7 @@ Check the query and data for errors.';
 	open l_actual for
 	  select chr(9)||'t' t1 from dual;
     --Assert
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
 	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;     
   
@@ -2730,7 +2728,7 @@ Check the query and data for errors.';
       7456123.9 as n6,
       7456123.89 as n7
     from dual;
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
    end;
 
@@ -2762,7 +2760,7 @@ Check the query and data for errors.';
         ,-1 as col5
       from dual;
 
-    ut3.ut.expect(l_actual).to_equal(a_expected => l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(a_expected => l_expected);
 
     l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -2785,7 +2783,7 @@ Check the query and data for errors.';
     open v_actual for
     select 'ok' name, to_number(null) id from dual;
 
-    ut3.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
+    ut3_develop.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
@@ -2801,7 +2799,7 @@ Check the query and data for errors.';
       open l_expected for
         select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
 
-      ut3.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
+      ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     $else
@@ -2818,9 +2816,9 @@ Check the query and data for errors.';
       return l_result;
     end;
   begin
-    ut3.ut.expect(get_cursor()).to_equal(get_cursor());
-    ut3.ut.expect(get_cursor()).to_equal(get_cursor()).unordered();
-    ut3.ut.expect(get_cursor()).to_equal(get_cursor()).join_by('ITEM_DATA,DATA_ID,ITEM_NO,DUP_NO');
+    ut3_develop.ut.expect(get_cursor()).to_equal(get_cursor());
+    ut3_develop.ut.expect(get_cursor()).to_equal(get_cursor()).unordered();
+    ut3_develop.ut.expect(get_cursor()).to_equal(get_cursor()).join_by('ITEM_DATA,DATA_ID,ITEM_NO,DUP_NO');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -2831,10 +2829,10 @@ Check the query and data for errors.';
   begin
     open l_actual   for select rownum rn from dual connect by level < 5;
     open l_expected for select rownum rn from dual connect by level = 1;
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     open l_actual   for select rownum rn from dual connect by level < 3;
     open l_expected for select * from (select rownum rn from dual connect by level < 3) order by 1 desc;
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations(1)).to_equal(
 'Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 1 ]
 Diff:

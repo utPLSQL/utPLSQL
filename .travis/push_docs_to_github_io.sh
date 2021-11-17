@@ -15,12 +15,12 @@
 # Required ENV Variables
 LATEST_DOCS_BRANCH="develop"
 GITHUB_IO_REPO='utPLSQL/utPLSQL.github.io'
-GITHUB_IO_BRANCH='master'
+GITHUB_IO_BRANCH='main'
 
 #  TRAVIS_* variables are set by travis directly and only need to be if testing externally
 
 # We deploy only when building on develop branch or on TAG (release)
-if [ "$TRAVIS_PULL_REQUEST" == "false" ] && { [ "${CURRENT_BRANCH}" == "${LATEST_DOCS_BRANCH}" ] || [ -n "${TRAVIS_TAG}" ]; }; then
+if [ "${PULL_REQUEST_NAME}" == "false" ] && { [ "${CURRENT_BRANCH}" == "${LATEST_DOCS_BRANCH}" ] || [ -n "${TAG_NAME}" ]; }; then
 
   # ENV Variable checks are to help with configuration troubleshooting, they silently exit with unique message.
   # Anyone one of them not set can be used to turn off this functionality.
@@ -47,7 +47,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && { [ "${CURRENT_BRANCH}" == "${LATEST
   cp -a ../../docs/. ./develop
 
   # If a Tagged Build then copy to it's own directory as well and to the 'latest' release directory
-  if [ -n "$TRAVIS_TAG" ]; then
+  if [ -n "${TAG_NAME}" ]; then
     echo "Creating directory ./${UTPLSQL_VERSION}"
     mkdir -p ./${UTPLSQL_VERSION}
     rm -rf ./${UTPLSQL_VERSION}/**./* || exit 0
@@ -81,10 +81,10 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && { [ "${CURRENT_BRANCH}" == "${LATEST
     echo "" >>index.md
   fi
   #If build running on a TAG - it's a new release - need to add it to documentation
-  if [ -n "${TRAVIS_TAG}" ]; then
-    sed -i '7s@.*@'" - [Latest ${TRAVIS_TAG} documentation](latest/) - Created $now"'@' index.md
+  if [ -n "${TAG_NAME}" ]; then
+    sed -i '7s@.*@'" - [Latest ${TAG_NAME} documentation](latest/) - Created $now"'@' index.md
     #add entry to the top of version history (line end of file - ## Released Version Doc History
-    sed -i '12i'" - [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now" index.md
+    sed -i '12i'" - [${TAG_NAME} documentation](${UTPLSQL_VERSION}/) - Created $now" index.md
   fi
   #replace 4th line in log
   sed -i '8s@.*@'" - [Latest development version](develop/) - Created $now"'@'  index.md

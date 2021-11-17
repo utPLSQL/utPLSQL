@@ -24,13 +24,13 @@ create or replace package body test_ut_run is
 
   procedure ut_version is
   begin
-    ut.expect(ut3.ut.version()).to_match('^v\d+\.\d+\.\d+\.\d+(-\w+)?$');
+    ut.expect(ut3_develop.ut.version()).to_match('^v\d+\.\d+\.\d+\.\d+(-\w+)?$');
   end;
 
   procedure ut_fail is
   begin
     --Act
-    ut3.ut.fail('Testing failure message');
+    ut3_develop.ut.fail('Testing failure message');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations(1))
       .to_be_like('%Testing failure message%');
@@ -49,7 +49,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     --Act
-    ut3.ut.run('ut3_tester_helper',a_reporter => ut3.ut_documentation_reporter() );
+    ut3_develop.ut.run('ut3_tester_helper',a_reporter => ut3_develop.ut_documentation_reporter() );
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
@@ -59,11 +59,11 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     --Act
-    ut3.ut.run(
+    ut3_develop.ut.run(
       'ut3_tester_helper',
-      a_reporter => ut3.ut_sonar_test_reporter(), 
-      a_source_files => ut3.ut_varchar2_list(),
-      a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+      a_reporter => ut3_develop.ut_sonar_test_reporter(),
+      a_source_files => ut3_develop.ut_varchar2_list(),
+      a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
         'tests/ut3_tester_helper.test_package_2.pkb',
         'tests/ut3_tester_helper.test_package_3.pkb')
       );
@@ -78,7 +78,7 @@ create or replace package body test_ut_run is
   procedure run_proc_pkg_name is
     l_results clob;
   begin
-    ut3.ut.run('ut3_tester_helper.test_package_1');
+    ut3_develop.ut.run('ut3_tester_helper.test_package_1');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -89,10 +89,10 @@ create or replace package body test_ut_run is
   procedure run_proc_pkg_name_file_list is
     l_results clob;
   begin
-     ut3.ut.run(
+     ut3_develop.ut.run(
        'ut3_tester_helper.test_package_3',
-       ut3.ut_sonar_test_reporter(), a_source_files => ut3.ut_varchar2_list(),
-       a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+       ut3_develop.ut_sonar_test_reporter(), a_source_files => ut3_develop.ut_varchar2_list(),
+       a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
          'tests/ut3_tester_helper.test_package_2.pkb',
          'tests/ut3_tester_helper.test_package_3.pkb')
        );
@@ -106,7 +106,7 @@ create or replace package body test_ut_run is
   procedure run_proc_path_list is
     l_results clob;
   begin
-    ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'));
+    ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'));
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -118,9 +118,9 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
      ut3_tester_helper.run_helper.run(
-       a_paths => ut3.ut_varchar2_list(':tests.test_package_1',':tests'),
-       a_reporter => ut3.ut_sonar_test_reporter(), 
-       a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+       a_paths => ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),
+       a_reporter => ut3_develop.ut_sonar_test_reporter(),
+       a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
          'tests/ut3_tester_helper.test_package_2.pkb',
          'tests/ut3_tester_helper.test_package_3.pkb')
        );
@@ -135,7 +135,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     --Act
-    ut3.ut.run('ut3_tester_helper', cast(null as ut3.ut_reporter_base));
+    ut3_develop.ut.run('ut3_tester_helper', cast(null as ut3_develop.ut_reporter_base));
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%tests%test_package_1%test_package_2%tests2%test_package_3%' );
@@ -153,7 +153,7 @@ create or replace package body test_ut_run is
 
   procedure run_proc_null_path_list is
     l_results clob;
-    l_paths   ut3.ut_varchar2_list;
+    l_paths   ut3_develop.ut_varchar2_list;
   begin
     --Act
     ut3_tester_helper.run_helper.run(l_paths);
@@ -166,7 +166,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     --Act
-    ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list());
+    ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list());
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
@@ -185,7 +185,7 @@ create or replace package body test_ut_run is
     execute immediate 'create or replace package body test_commit_warning is
       procedure does_commit is
       begin
-        ut3.ut.expect(1).to_equal(1);
+        ut3_develop.ut.expect(1).to_equal(1);
         commit;
       end;
     end;';
@@ -200,7 +200,7 @@ create or replace package body test_ut_run is
   procedure run_proc_warn_on_commit is
     l_results clob;
   begin
-    ut3.ut.run('test_commit_warning');
+    ut3_develop.ut.run('test_commit_warning');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     ut.expect(l_results).to_be_like(
       '%Unable to perform automatic rollback after test%'||
@@ -236,7 +236,7 @@ create or replace package body test_ut_run is
     execute immediate 'create or replace package body child_suite is
       procedure does_stuff is
       begin
-        ut3.ut.expect(1).to_equal(1);
+        ut3_develop.ut.expect(1).to_equal(1);
       end;
     end;';
   end;
@@ -251,7 +251,7 @@ create or replace package body test_ut_run is
   procedure run_proc_fail_child_suites is
     l_results clob;
   begin
-    ut3.ut.run('child_suite');
+    ut3_develop.ut.run('child_suite');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     ut.expect(l_results).to_be_like(
       '%1) does_stuff%' ||
@@ -314,7 +314,7 @@ create or replace package body test_ut_run is
       insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
 
     --Act
-    ut3.ut.run('test_transaction.insert_row', a_force_manual_rollback => true);
+    ut3_develop.ut.run('test_transaction.insert_row', a_force_manual_rollback => true);
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
 
     --Assert
@@ -339,7 +339,7 @@ create or replace package body test_ut_run is
       insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
 
     --Act
-    ut3.ut.run('test_transaction.insert_and_raise', a_force_manual_rollback => true);
+    ut3_develop.ut.run('test_transaction.insert_and_raise', a_force_manual_rollback => true);
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
 
     --Assert
@@ -364,7 +364,7 @@ create or replace package body test_ut_run is
       insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
 
     --Act
-    ut3.ut.run('test_transaction.insert_row');
+    ut3_develop.ut.run('test_transaction.insert_row');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
 
     --Assert
@@ -377,7 +377,7 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_no_params is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     l_results := ut3_tester_helper.run_helper.run();
     --Assert
@@ -385,23 +385,23 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_specific_reporter is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     --Act
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_documentation_reporter());
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_documentation_reporter());
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
 
   procedure run_func_cov_file_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     --Act
   select * bulk collect into l_results from table (
-    ut3.ut.run('ut3_tester_helper',
-      ut3.ut_sonar_test_reporter(), 
-      a_source_files => ut3.ut_varchar2_list(),
-      a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+    ut3_develop.ut.run('ut3_tester_helper',
+      ut3_develop.ut_sonar_test_reporter(),
+      a_source_files => ut3_develop.ut_varchar2_list(),
+      a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
         'tests/ut3_tester_helper.test_package_2.pkb',
         'tests/ut3_tester_helper.test_package_3.pkb')
       ));
@@ -410,9 +410,9 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_pkg_name is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run('ut3_tester_helper.test_package_1'));
+    select * bulk collect into l_results from table (ut3_develop.ut.run('ut3_tester_helper.test_package_1'));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
@@ -420,13 +420,13 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_pkg_name_file_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
   select * bulk collect into l_results from table (
-    ut3.ut.run('ut3_tester_helper.test_package_3',
-      ut3.ut_sonar_test_reporter(), 
-      a_source_files => ut3.ut_varchar2_list(),
-      a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+    ut3_develop.ut.run('ut3_tester_helper.test_package_3',
+      ut3_develop.ut_sonar_test_reporter(),
+      a_source_files => ut3_develop.ut_varchar2_list(),
+      a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
         'tests/ut3_tester_helper.test_package_2.pkb',
         'tests/ut3_tester_helper.test_package_3.pkb')
       ));
@@ -437,9 +437,9 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_path_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'));
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
@@ -447,12 +447,12 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_path_list_file_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     l_results := ut3_tester_helper.run_helper.run(
-      a_paths => ut3.ut_varchar2_list(':tests.test_package_1',':tests'),
-      a_reporter => ut3.ut_sonar_test_reporter(), 
-      a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+      a_paths => ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),
+      a_reporter => ut3_develop.ut_sonar_test_reporter(),
+      a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
         'tests/ut3_tester_helper.test_package_2.pkb',
         'tests/ut3_tester_helper.test_package_3.pkb')
       );
@@ -463,16 +463,16 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_null_reporter is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     --Act
-    select * bulk collect into l_results from table (ut3.ut.run('ut3_tester_helper',cast(null as ut3.ut_reporter_base)));
+    select * bulk collect into l_results from table (ut3_develop.ut.run('ut3_tester_helper',cast(null as ut3_develop.ut_reporter_base)));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%tests%test_package_1%test_package_2%tests2%test_package_3%' );
   end;
 
   procedure run_func_null_path is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     --Act
     l_results := ut3_tester_helper.run_helper.run(cast(null as varchar2));
@@ -481,8 +481,8 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_null_path_list is
-    l_results   ut3.ut_varchar2_list;
-    l_paths   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
+    l_paths   ut3_develop.ut_varchar2_list;
   begin
     --Act
     l_results := ut3_tester_helper.run_helper.run(l_paths);
@@ -491,29 +491,29 @@ create or replace package body test_ut_run is
   end;
 
   procedure run_func_empty_path_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     --Act
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list());
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list());
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
 
   procedure run_func_cov_file_lst_null_rep is
-    l_results  ut3.ut_varchar2_list;
+    l_results  ut3_develop.ut_varchar2_list;
   begin
     --Act
     l_results := ut3_tester_helper.run_helper.run(
-      a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+      a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
       'tests/ut3_tester_helper.test_package_2.pkb',
       'tests/ut3_tester_helper.test_package_3.pkb'),
-      a_reporter => cast(null as ut3.ut_reporter_base));
+      a_reporter => cast(null as ut3_develop.ut_reporter_base));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
 
   procedure run_func_empty_suite is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_expected  varchar2(32767);
     pragma autonomous_transaction;
   begin
@@ -528,7 +528,7 @@ create or replace package body test_ut_run is
     end;]';
     l_expected := '%empty_suite%0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%';
     --Act
-    select * bulk collect into l_results from table(ut3.ut.run('empty_suite'));
+    select * bulk collect into l_results from table(ut3_develop.ut.run('empty_suite'));
 
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
@@ -538,7 +538,7 @@ create or replace package body test_ut_run is
   end;
 
   procedure raise_in_invalid_state is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_expected  varchar2(32767);
   begin
     --Arrange
@@ -554,7 +554,7 @@ Failures:%
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
 
     --Act
-    select * bulk collect into l_results from table(ut3.ut.run('ut3_tester_helper.test_stateful'));
+    select * bulk collect into l_results from table(ut3_develop.ut.run('ut3_tester_helper.test_stateful'));
   
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
@@ -576,11 +576,11 @@ Failures:%
   end;
 
   procedure run_in_invalid_state is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
     l_expected  varchar2(32767);
   begin
-    select * bulk collect into l_results from table(ut3.ut.run('failing_invalid_spec'));
+    select * bulk collect into l_results from table(ut3_develop.ut.run('failing_invalid_spec'));
     
     l_actual :=  ut3_tester_helper.main_helper.table_to_clob(l_results);
     ut.expect(l_actual).to_be_like('%Call params for % are not valid: package %FAILING_INVALID_SPEC% does not exist or is invalid.%');
@@ -618,7 +618,7 @@ Failures:%
   end;
 
   procedure run_and_revalidate_specs is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
     l_is_invalid number;
   begin
@@ -626,7 +626,7 @@ Failures:%
             and o.status = 'INVALID' and o.object_name= :object_name]' into l_is_invalid
             using 'UT3$USER#','INVALID_PCKAG_THAT_REVALIDATES';
 
-    select * bulk collect into l_results from table(ut3.ut.run('invalid_pckag_that_revalidates'));
+    select * bulk collect into l_results from table(ut3_develop.ut.run('invalid_pckag_that_revalidates'));
     
     l_actual :=  ut3_tester_helper.main_helper.table_to_clob(l_results);
     ut.expect(1).to_equal(l_is_invalid);
@@ -681,11 +681,11 @@ Failures:%
   end;
 
   procedure run_and_report_warnings is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
   begin
 
-    select * bulk collect into l_results from table(ut3.ut.run('bad_annotations'));
+    select * bulk collect into l_results from table(ut3_develop.ut.run('bad_annotations'));
     l_actual :=  ut3_tester_helper.main_helper.table_to_clob(l_results);
 
     ut.expect(l_actual).to_be_like('%Missing "--%endcontext" annotation for a "--%context" annotation. The end of package is considered end of context.%
@@ -733,12 +733,12 @@ Failures:%
   procedure savepoints_on_db_links is
     l_results clob;
   begin
-    ut3.ut.run('ut3_tester_helper.test_distributed_savepoint');
+    ut3_develop.ut.run('ut3_tester_helper.test_distributed_savepoint');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     ut.expect(l_results).to_be_like('%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%');
   end;
 
-    procedure remove_time_from_results(a_results in out nocopy ut3.ut_varchar2_list) is
+    procedure remove_time_from_results(a_results in out nocopy ut3_develop.ut_varchar2_list) is
   begin
     for i in 1 .. a_results.count loop
       a_results(i) := regexp_replace(a_results(i),'\[[0-9]*[\.,][0-9]+ sec\]','');
@@ -747,11 +747,11 @@ Failures:%
   end;
 
   procedure run_schema_name_test is
-    l_results    ut3.ut_varchar2_list;
+    l_results    ut3_develop.ut_varchar2_list;
     l_expected   clob;
   begin
     select * bulk collect into l_results
-      from table ( ut3.ut.run( gc_owner||'.'||gc_owner ) );
+      from table ( ut3_develop.ut.run( gc_owner||'.'||gc_owner ) );
     l_expected := '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%';
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
   end;
@@ -780,17 +780,85 @@ Failures:%
     execute immediate 'drop package '||gc_owner||'.'||gc_owner;
   end;
 
+  procedure create_suites_with_path is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut_abc is
+      -- %suite
+      -- %suitepath(main.abc)
+
+      -- %test
+      procedure ut_test_01;
+    end ut_abc;]';
+
+    execute immediate q'[create or replace package body ut_abc
+    is
+      procedure ut_test_01 as begin ut.expect(true).to_be_true(); end;
+    end;]';
+
+    execute immediate q'[create or replace package ut_abc_def
+    is
+      -- %suite
+      -- %suitepath(main.abc_def)
+
+      -- %test
+      procedure ut_test_01;
+    end ut_abc_def;]';
+
+    execute immediate q'[create or replace package body ut_abc_def
+    is
+      procedure ut_test_01 as begin ut.expect(true).to_be_true(); end;
+    end;]';
+
+  end;
+
+  procedure drop_suites_with_path is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut_abc]';
+    execute immediate q'[drop package ut_abc_def]';
+  end;
+
+  procedure run_suite_with_nls_sort is
+    L_current_sort varchar2(2000);
+    l_results    ut3_develop.ut_varchar2_list;
+    l_expected   clob;
+  begin
+    --Arrange
+    select value
+      into l_current_sort
+      from nls_session_parameters where parameter = 'NLS_SORT';
+
+    execute immediate 'alter session set nls_sort=GERMAN';
+
+    --Act
+    select *
+      bulk collect into l_results
+                   from table ( ut3_develop.ut.run( gc_owner||':main' ) );
+    --Assert
+    l_expected := q'[main%
+  abc_def%
+    ut_abc_def%
+      ut_test_01%
+  abc%
+    ut_abc%
+      ut_test_01%]';
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
+
+    execute immediate 'alter session set nls_sort='||l_current_sort;
+  end;
+
   procedure run_with_random_order is
-    l_random_results ut3.ut_varchar2_list;
-    l_results        ut3.ut_varchar2_list;
+    l_random_results ut3_develop.ut_varchar2_list;
+    l_results        ut3_develop.ut_varchar2_list;
   begin
     select * bulk collect into l_random_results
-      from table ( ut3.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) )
+      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) )
      where trim(column_value) is not null and column_value not like 'Finished in %'
       and column_value not like '%Tests were executed with random order %';
 
     select * bulk collect into l_results
-    from table ( ut3.ut.run( 'ut3_tester_helper.test_package_1' ) )
+    from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1' ) )
     --TODO this condition should be removed once issues with unordered compare and 'blank text rows' are resolved.
     where trim(column_value) is not null and column_value not like 'Finished in %';
 
@@ -802,23 +870,23 @@ Failures:%
   end;
 
   procedure run_and_report_random_ord_seed is
-    l_actual ut3.ut_varchar2_list;
+    l_actual ut3_develop.ut_varchar2_list;
   begin
     select * bulk collect into l_actual
-      from table ( ut3.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 123456789 ) );
+      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 123456789 ) );
 
     ut.expect( ut3_tester_helper.main_helper.table_to_clob(l_actual) ).to_be_like( q'[%Tests were executed with random order seed '123456789'.%]' );
   end;
 
   procedure run_with_random_order_seed is
-    l_expected ut3.ut_varchar2_list;
-    l_actual   ut3.ut_varchar2_list;
+    l_expected ut3_develop.ut_varchar2_list;
+    l_actual   ut3_develop.ut_varchar2_list;
   begin
 
     select * bulk collect into l_expected
-      from table ( ut3.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) );
+      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) );
     select * bulk collect into l_actual
-      from table ( ut3.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) );
+      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) );
 
     remove_time_from_results(l_actual);
     remove_time_from_results(l_expected);
@@ -948,7 +1016,7 @@ Failures:%
   procedure run_proc_pkg_name_tag is
     l_results clob;
   begin
-    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
+    ut3_develop.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -961,7 +1029,7 @@ Failures:%
   procedure run_pkg_name_file_list_tag is
     l_results clob;
   begin
-    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
+    ut3_develop.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -974,10 +1042,10 @@ Failures:%
   procedure run_proc_path_list_tag is
     l_results clob;
   begin
-     ut3.ut.run(
+     ut3_develop.ut.run(
        'ut3_tester_helper.test_package_1',
-       ut3.ut_sonar_test_reporter(), a_source_files => ut3.ut_varchar2_list(),a_tags => 'suite1',
-       a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+       ut3_develop.ut_sonar_test_reporter(), a_source_files => ut3_develop.ut_varchar2_list(),a_tags => 'suite1',
+       a_test_files => ut3_develop.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
          'tests/ut3_tester_helper.test_package_2.pkb',
          'tests/ut3_tester_helper.test_package_3.pkb')
        );
@@ -989,7 +1057,7 @@ Failures:%
   end;
 
   procedure tag_run_func_no_params is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     l_results := ut3_tester_helper.run_helper.run(a_tags => 'helper');
     --Assert
@@ -997,9 +1065,9 @@ Failures:%
   end;
 
   procedure tag_run_func_pkg_name is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run('ut3_tester_helper.test_package_1', a_tags => 'suite1test1'));
+    select * bulk collect into l_results from table (ut3_develop.ut.run('ut3_tester_helper.test_package_1', a_tags => 'suite1test1'));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
@@ -1008,9 +1076,9 @@ Failures:%
   end;
 
   procedure tag_run_func_path_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1');
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
@@ -1022,9 +1090,9 @@ Failures:%
   end;
 
   procedure tag_inc_exc_run_func_path_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1,-suite2');
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1,-suite2');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
@@ -1034,9 +1102,9 @@ Failures:%
   end;
 
   procedure tag_exclude_run_func_path_list is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
-    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests,:tests2'),a_tags => '-suite1test2,-suite2test1,-test1suite3');
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests,:tests2'),a_tags => '-suite1test2,-suite2test1,-test1suite3');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
@@ -1050,7 +1118,7 @@ Failures:%
   end;
 
   procedure tag_include_exclude_run_func is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     l_results := ut3_tester_helper.run_helper.run(a_tags => 'suite1,-suite1test2,-suite2test1,-test1suite3');
     --Assert
@@ -1120,7 +1188,7 @@ Failures:%
         begin
           select attribute||'='||value
           bulk collect into l_results
-           from session_context where namespace = 'UT3_INFO'
+           from session_context where namespace = 'UT3_DEVELOP_INFO'
           order by attribute;
           for i in 1 .. l_results.count loop
             dbms_output.put_line( upper(a_procedure_name) ||':'|| l_results(i) );
@@ -1188,9 +1256,9 @@ Failures:%
   end;
 
   procedure run_context_test_suite is
-    l_lines  ut3.ut_varchar2_list;
+    l_lines  ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_lines from table(ut3.ut.run('check_context'));
+    select * bulk collect into l_lines from table(ut3_develop.ut.run('check_context'));
     g_context_test_results := ut3_tester_helper.main_helper.table_to_clob(l_lines);
   end;
 
@@ -1393,7 +1461,7 @@ Failures:%
   begin
     open l_actual for
       select attribute||'='||value
-        from session_context where namespace = 'UT3_INFO';
+        from session_context where namespace = 'UT3_DEVELOP_INFO';
 
     ut.expect(l_actual).to_be_empty();
   end;

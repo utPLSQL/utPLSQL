@@ -1,10 +1,63 @@
-![version](https://img.shields.io/badge/version-v3.1.10.3347-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.11.3557-blue.svg)
 
-# Downloading latest version of utPLSQL
+# Supported database versions
 
-To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below snippets.
+utPLSQL is continuously tested against following versions of Oracle databases
+* 11g R2 
+* 12c
+* 12c R2
+* 18c
+* 19c
 
-## Unix/Linux
+We do our best to assure full compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
+
+# Requirements
+
+utPLSQL will run on any Oracle Database version 11g relase 2 or above.
+
+## Licensed features required
+
+utPLSQL doesn't require any extra licensed features of Oracle database. It can be installed on any Standard Edition Oracle Database.
+
+In fact, it even supports Oracle 11g XE which is a free Oracle Database version with minimal features and storage limits.
+
+## Storage requirements
+
+utPLSQL will use tablespace for the following:
+- storage of annotation cache
+- storage of suite cache
+- storage of profiler results
+- storage for staging utPLSQL reports outputs
+
+
+utPLSQL purges the staging storage for reports while fetching reports to screen / saving reports to files.
+
+Suite and annotation cache storage requirements are minimal and unless you have hundreds of thousands of tests, you'll probably not even notice the space used. 
+
+Profiler results may require regular purging to assure low space consumption.
+utPLSQl does not purge profiler tables as those tables can can be shared with other tools.
+     
+
+# Downloading utPLSQL
+
+## Manual download
+
+- Go to GitHub releases page for utPLSQL [`https://github.com/utPLSQL/utPLSQL/releases`](https://github.com/utPLSQL/utPLSQL/releases)
+- Choose the version to download - latest is always greatest
+- Download one of files
+    - utPLSQL.tar.gz
+    - utPLSQL.zip
+    
+The files have identical content but use different compression (tar / zip ) so choose whichever you prefer depending on your platform (Win/Mac/Unix/Linux). 
+
+
+## Scripted download of latest utPLSQL version
+
+The below snippets can be used to download latest version of utPLSQL from github releases.
+
+After downloading follow the installation instructions in next sections of this document.
+
+### Unix/Linux
 
 ```bash
 #!/bin/bash
@@ -22,7 +75,7 @@ You may download with a one-liner if that is more convenient.
 curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g') 
 ```
 
-## Windows
+### Windows
 
 To run the script on windows you will need [PowerShell 3.0](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/) or above. 
 You will also need .NET 4.0 Framework or above.
@@ -50,29 +103,6 @@ foreach ($i in $urlList) {
    }
 }
 ```
-
-# Checking environment and utPLSQL version
-
-To check the framework version execute the following query:
-```sql
-select substr(ut.version(),1,60) as ut_version from dual;
-```
-
-Additionally you may retrieve more information about your environment by executing the following query:
-```sql
-select 
-  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
-  from dual;
-```
-
-# Supported database versions
-
-The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
-* 11g R2 
-* 12c
-* 12c R2
-* 18c
-* 19c
 
 # Headless installation
 
@@ -140,7 +170,7 @@ sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_ver
 
 # Recommended Schema
 It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
-Installing uPLSQL into shared schema is really not recommended as you loose isolation of framework.
+Installing uPLSQL into a shared schema is really not recommended as you loose isolation of framework.
 
 If the installing user and utPLSQL owner is one and the same, the user must have the following Oracle system permissions before you can proceed with the installation.
 
@@ -225,7 +255,7 @@ To grant utPLSQL to an individual user, execute scripts `source/create_user_gran
 Example invocation:
 ```bash
 cd source
-sqlplus ut3_user/ut3_password@database @create_user_grants.sql ut3 hr
+sqlplus ut3_owner_schema/ut3_password@database @create_user_grants.sql ut3 hr
 sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
 ```
 
@@ -235,6 +265,20 @@ The following tools that support the SQL*Plus commands can be used to run the in
   - [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
   - [Oracle SQL Developer](http://www.oracle.com/technetwork/developer-tools/sql-developer/overview/index.html)
  
+# Checking environment and utPLSQL version
+
+To check the framework version execute the following query:
+```sql
+select substr(ut.version(),1,60) as ut_version from dual;
+```
+
+Additionally you may retrieve more information about your environment by executing the following query:
+```sql
+select 
+  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
+  from dual;
+```
+
 # Additional requirements
 
 In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.

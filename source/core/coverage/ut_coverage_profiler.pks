@@ -1,7 +1,7 @@
 create or replace package ut_coverage_profiler authid current_user is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ create or replace package ut_coverage_profiler authid current_user is
   limitations under the License.
   */
 
-  function get_coverage_data(a_coverage_options ut_coverage_options, a_coverage_id integer) return ut_coverage.t_coverage;
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
 
 end;
 /

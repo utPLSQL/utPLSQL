@@ -1,7 +1,7 @@
 create or replace package body ut_coverage is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -16,26 +16,20 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  g_coverage_id   tt_coverage_id_arr;
-  g_develop_mode  boolean not null := false;
-  g_is_started    boolean not null := false;
+  g_develop_mode    boolean not null := false;
+  g_is_started      boolean not null := false;
 
   procedure set_develop_mode(a_develop_mode in boolean) is
-    begin
-      g_develop_mode := a_develop_mode;
-    end;
-
-  function get_coverage_id(a_coverage_type in varchar2) return integer is
-    begin
-      return g_coverage_id(a_coverage_type);
-    end;
+  begin
+    g_develop_mode := a_develop_mode;
+  end;
 
   function is_develop_mode return boolean is
-    begin
-      return g_develop_mode;
-    end;
+  begin
+    return g_develop_mode;
+  end;
 
-  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skip_objects  ut_object_names) return varchar2 is
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skip_objects ut_object_names) return varchar2 is
     l_result                varchar2(32767);
     l_full_name             varchar2(32767);
     l_join_mappings         varchar2(32767);
@@ -54,7 +48,7 @@ create or replace package body ut_coverage is
       ),
       sources as (
         select /*+ cardinality(f {mappings_cardinality}) */
-               {l_full_name} as full_name, s.owner, s.name,
+               {l_full_name} as full_name, s.owner, s.name, s.type,
                s.line - case when s.type = 'TRIGGER' then o.offset else 0 end as line,
                s.text
           from {sources_view} s {join_file_mappings}
@@ -64,7 +58,7 @@ create or replace package body ut_coverage is
            {filters}
       ),
       coverage_sources as (
-        select full_name, owner, name, line, text,
+        select full_name, owner, name, type, line, text,
                case
                  when
                    -- to avoid execution of regexp_like on every line
@@ -83,7 +77,7 @@ create or replace package body ut_coverage is
                end as to_be_skipped
           from sources s
       )
-    select full_name, owner, name, line, to_be_skipped, text
+    select /*+ no_parallel */ full_name, owner, name, type, line, to_be_skipped, text
       from coverage_sources s
            -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
      where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )
@@ -99,7 +93,7 @@ create or replace package body ut_coverage is
              and s.type  = f.object_type
              and s.owner = f.object_owner';
     else
-      l_full_name := q'[lower(s.owner||'.'||s.name)]';
+      l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       l_filters := case
         when a_coverage_options.include_objects is not empty then '
            and (s.owner, s.name) in (
@@ -177,14 +171,16 @@ create or replace package body ut_coverage is
   /**
   * Public functions
   */
-  procedure coverage_start(a_coverage_options ut_coverage_options default null) is
+  procedure coverage_start(a_coverage_run_id t_coverage_run_id) is
     l_run_comment varchar2(200) := 'utPLSQL Code coverage run '||ut_utils.to_string(systimestamp);
+    l_line_coverage_id  integer;
+    l_block_coverage_id integer;
   begin
     if not is_develop_mode() and not g_is_started then
-      ut_coverage_helper_block.coverage_start( l_run_comment, g_coverage_id(gc_block_coverage) );
-      ut_coverage_helper_profiler.coverage_start( l_run_comment, g_coverage_id(gc_proftab_coverage) );
-      coverage_pause();
+      l_line_coverage_id  := ut_coverage_helper_profiler.coverage_start( l_run_comment );
+      l_block_coverage_id := ut_coverage_helper_block.coverage_start( l_run_comment );
       g_is_started := true;
+      ut_coverage_helper.set_coverage_run_ids(a_coverage_run_id, l_line_coverage_id, l_block_coverage_id);
     end if;
   end;
 
@@ -200,20 +196,6 @@ create or replace package body ut_coverage is
     ut_coverage_helper_profiler.coverage_resume();
   end;
 
-  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2) is
-  begin
-    g_develop_mode := true;
-    g_is_started := true;
-    g_coverage_id(a_coverage_type) := a_coverage_id;
-  end;
-
-  procedure mock_coverage_id(a_coverage_id tt_coverage_id_arr) is
-  begin
-    g_develop_mode := true;
-    g_is_started := true;
-    g_coverage_id := a_coverage_id;
-  end;
-
   procedure coverage_stop is
   begin
     if not is_develop_mode() then
@@ -227,22 +209,23 @@ create or replace package body ut_coverage is
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
     l_result_block           ut_coverage.t_coverage;
     l_result_profiler_enrich ut_coverage.t_coverage;
-    l_object                 ut_coverage.t_full_name;
+    l_object                 ut_coverage.t_object_name;
     l_line_no                binary_integer;
+    l_coverage_options       ut_coverage_options := a_coverage_options;
   begin
     --prepare global temp table with sources
     ut_event_manager.trigger_event('about to populate coverage temp table');
-    populate_tmp_table(a_coverage_options);
+    populate_tmp_table(l_coverage_options);
     ut_event_manager.trigger_event('coverage temp table populated');
 
     -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate
     -- tmp table for block again.
-    l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data( a_coverage_options, get_coverage_id(gc_proftab_coverage) );
+    l_result_profiler_enrich := ut_coverage_profiler.get_coverage_data( l_coverage_options );
     ut_event_manager.trigger_event('profiler coverage data retrieved');
 
     -- If block coverage available we will use it.
     $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      l_result_block := ut_coverage_block.get_coverage_data( a_coverage_options, get_coverage_id(gc_block_coverage) );
+      l_result_block := ut_coverage_block.get_coverage_data( l_coverage_options );
       ut_event_manager.trigger_event('block coverage data retrieved');
 
       -- Enrich profiler results with some of the block results

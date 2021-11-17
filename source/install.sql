@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -34,14 +34,7 @@ alter session set current_schema = &&ut3_owner;
 @@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE', 'CREATE CONTEXT'"
 --set define off
 
-begin
-  $if $$self_testing_install $then
-    execute immediate 'create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context';
-  $else
-    execute immediate 'create or replace context ut3_info using &&ut3_owner..ut_session_context';
-  $end
-end;
-/
+create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context;
 
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
@@ -172,9 +165,6 @@ end;
 prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@core/coverage/proftab.sql
 
-prompt Installing PLSQL profiler objects into &&ut3_owner schema
-@@core/coverage/proftab.sql
-
 prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@core/coverage/dbms_plssqlcode.sql
 
@@ -184,6 +174,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 
 --gathering coverage
 @@install_component.sql 'core/coverage/ut_coverage_sources_tmp.sql'
+@@install_component.sql 'core/coverage/ut_coverage_runs.sql'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pks'
 @@install_component.sql 'core/coverage/ut_coverage_helper_block.pks'
 @@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pks'
@@ -206,6 +197,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_logical_suite.tpb'
 @@install_component.sql 'core/types/ut_suite.tpb'
 @@install_component.sql 'core/types/ut_suite_context.tpb'
+@@install_component.sql 'core/types/ut_coverage_options.tpb'
 @@install_component.sql 'core/types/ut_run.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'

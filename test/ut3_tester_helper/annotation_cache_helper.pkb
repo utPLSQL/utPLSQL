@@ -4,7 +4,7 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace package ut3_cache_test_owner.granted_test_suite is
+      'create or replace package ut3_cache_test_owner.granted_test_suite authid definer is
         --%suite
 
         --%test
@@ -15,11 +15,11 @@ create or replace package body annotation_cache_helper as
 
     execute immediate
       'create or replace package body ut3_cache_test_owner.granted_test_suite is
-        procedure test1 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
-        procedure test2 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test1 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test2 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
         end;';
     execute immediate
-      'create or replace package ut3_cache_test_owner.not_granted_test_suite is
+      'create or replace package ut3_cache_test_owner.not_granted_test_suite authid definer is
         --%suite
 
         --%test
@@ -29,8 +29,8 @@ create or replace package body annotation_cache_helper as
         end;';
     execute immediate
       'create or replace package body ut3_cache_test_owner.not_granted_test_suite is
-        procedure test1 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
-        procedure test2 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test1 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test2 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
         end;';
 
     execute immediate
@@ -54,7 +54,7 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace package ut3_cache_test_owner.new_suite is
+      'create or replace package ut3_cache_test_owner.new_suite authid definer is
         --%suite
 
         --%test
@@ -65,8 +65,8 @@ create or replace package body annotation_cache_helper as
 
     execute immediate
       'create or replace package body ut3_cache_test_owner.new_suite is
-        procedure test1 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
-        procedure test2 is begin ut3.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test1 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        procedure test2 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
         end;';
     execute immediate
       'grant execute on ut3_cache_test_owner.new_suite to
@@ -101,42 +101,42 @@ create or replace package body annotation_cache_helper as
 
   procedure purge_annotation_cache is
   begin
-    ut3.ut_runner.purge_cache( 'UT3_CACHE_TEST_OWNER' );
+    ut3_develop.ut_runner.purge_cache( 'UT3_CACHE_TEST_OWNER' );
   end;
 
 
   procedure disable_ddl_trigger is
     pragma autonomous_transaction;
   begin
-    execute immediate 'alter trigger ut3.ut_trigger_annotation_parsing disable';
-    execute immediate 'begin ut3.ut_trigger_check.is_alive( ); end;';
+    execute immediate 'alter trigger ut3_develop.ut_trigger_annotation_parsing disable';
+    execute immediate 'begin ut3_develop.ut_trigger_check.is_alive( ); end;';
   end;
 
   procedure enable_ddl_trigger is
     pragma autonomous_transaction;
   begin
-    execute immediate 'alter trigger ut3.ut_trigger_annotation_parsing enable';
+    execute immediate 'alter trigger ut3_develop.ut_trigger_annotation_parsing enable';
   end;
 
   procedure create_run_function_for_user(a_user varchar2) is
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace function ' || a_user || '.ut_run return clob is
-        l_data    ut3.ut_varchar2_list;
+      'create or replace function ' || a_user || '.call_ut_run return clob is
+        l_data    ut3_develop.ut_varchar2_list;
         l_results clob;
       begin
-        select * bulk collect into l_data from table (ut3.ut.run( ''ut3_cache_test_owner'' ));
+        select * bulk collect into l_data from table (ut3_develop.ut.run( ''ut3_cache_test_owner'' ));
         return ut3_tester_helper.main_helper.table_to_clob( l_data );
       end;
       ';
-    execute immediate 'grant execute on ' || a_user || '.ut_run to public ';
+    execute immediate 'grant execute on ' || a_user || '.call_ut_run to public ';
   end;
 
   procedure drop_run_function_for_user(a_user varchar2) is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop function ' || a_user || '.ut_run';
+    execute immediate 'drop function ' || a_user || '.call_ut_run';
   end;
 
   procedure create_run_function_for_users is
@@ -146,6 +146,7 @@ create or replace package body annotation_cache_helper as
     create_run_function_for_user( 'ut3_select_any_table_user' );
     create_run_function_for_user( 'ut3_execute_any_proc_user' );
     create_run_function_for_user( 'ut3_cache_test_owner' );
+    create_run_function_for_user( 'ut3_develop' );
   end;
 
   procedure drop_run_function_for_users is
@@ -155,12 +156,13 @@ create or replace package body annotation_cache_helper as
     drop_run_function_for_user( 'ut3_select_any_table_user' );
     drop_run_function_for_user( 'ut3_execute_any_proc_user' );
     drop_run_function_for_user( 'ut3_cache_test_owner' );
+    drop_run_function_for_user( 'ut3_develop' );
   end;
 
   function run_tests_as(a_user varchar2) return clob is
     l_results clob;
   begin
-    execute immediate 'begin :x := '||a_user||'.ut_run; end;' using out l_results;
+    execute immediate 'begin :x := '||a_user||'.call_ut_run; end;' using out l_results;
     return l_results;
   end;
 end;

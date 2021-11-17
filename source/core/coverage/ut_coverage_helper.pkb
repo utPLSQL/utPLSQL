@@ -1,7 +1,7 @@
 create or replace package body ut_coverage_helper is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ create or replace package body ut_coverage_helper is
   procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows) is
   begin
     forall i in 1 .. a_data.count
-      insert into ut_coverage_sources_tmp
-             (full_name,owner,name,line,text, to_be_skipped)
-       values(a_data(i).full_name,a_data(i).owner,a_data(i).name,a_data(i).line,a_data(i).text,a_data(i).to_be_skipped);
+      insert /*+ no_parallel */ into ut_coverage_sources_tmp
+             (full_name,owner,name,type,line,text,to_be_skipped)
+       values(a_data(i).full_name,a_data(i).owner,a_data(i).name,a_data(i).type,a_data(i).line,a_data(i).text,a_data(i).to_be_skipped);
   end;
 
   procedure cleanup_tmp_table is
@@ -49,7 +49,7 @@ create or replace package body ut_coverage_helper is
   function is_tmp_table_populated return boolean is
     l_result integer;
   begin
-    select 1 into l_result from ut_coverage_sources_tmp where rownum = 1;
+    select /*+ no_parallel */ 1 into l_result from ut_coverage_sources_tmp where rownum = 1;
     return (l_result = 1);
   exception
     when no_data_found then
@@ -60,12 +60,12 @@ create or replace package body ut_coverage_helper is
     l_result t_tmp_table_objects_crsr;
   begin
     open l_result for
-      select o.owner, o.name, o.full_name, max(o.line) lines_count,
+      select /*+ no_parallel */ o.owner, o.name, o.type, o.full_name, max(o.line) as lines_count,
              cast(
                collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
-             ) to_be_skipped_list
+             ) as to_be_skipped_list
         from ut_coverage_sources_tmp o
-       group by o.owner, o.name, o.full_name;
+       group by o.owner, o.name, o.type, o.full_name;
 
     return l_result;
   end;
@@ -73,7 +73,7 @@ create or replace package body ut_coverage_helper is
   function get_tmp_table_object_lines(a_owner varchar2, a_object_name varchar2) return ut_varchar2_list is
     l_result ut_varchar2_list;
   begin
-    select rtrim(s.text,chr(10)) text
+    select /*+ no_parallel */ rtrim(s.text,chr(10)) as text
       bulk collect into l_result
       from ut_coverage_sources_tmp s
      where s.owner = a_owner
@@ -81,6 +81,16 @@ create or replace package body ut_coverage_helper is
      order by s.line;
 
     return l_result;
+  end;
+
+  procedure set_coverage_run_ids( a_coverage_run_id raw, a_line_coverage_id integer, a_block_coverage_id integer ) is
+    pragma autonomous_transaction;
+  begin
+    insert /*+ no_parallel */ into ut_coverage_runs
+      ( coverage_run_id, line_coverage_id, block_coverage_id )
+    values
+      ( a_coverage_run_id, a_line_coverage_id, a_block_coverage_id );
+    commit;
   end;
 
 end;

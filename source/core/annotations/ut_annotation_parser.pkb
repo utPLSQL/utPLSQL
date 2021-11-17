@@ -1,7 +1,7 @@
 create or replace package body ut_annotation_parser as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ create or replace package body ut_annotation_parser as
 
     dbms_lob.freetemporary(l_source);
 
-    select value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
+    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
 
     return l_result;
   end parse_object_annotations;

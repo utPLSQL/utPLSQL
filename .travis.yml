@@ -1,12 +1,10 @@
 sudo: required
 language: python
+os: linux
+
+jdk: openjdk10
 
 addons:
-  apt:
-    packages:
-      - unzip
-      # Java9+ Required for Sonar and SQLCL
-      - openjdk-9-jre-headless
   sonarcloud:
     organization: utplsql
     token:   ${SONAR_TOKEN}
@@ -16,16 +14,26 @@ services:
 
 env:
   global:
-    - UT3_OWNER=ut3
-    - UT3_OWNER_PASSWORD=ut3
-    - UT3_RELEASE_VERSION_SCHEMA=UT3_LATEST_RELEASE
+    - UT3_DEVELOP_SCHEMA=UT3_DEVELOP
+    - UT3_DEVELOP_SCHEMA_PASSWORD=ut3
+    - UT3_RELEASE_VERSION_SCHEMA=UT3
+    - UT3_RELEASE_VERSION_SCHEMA_PASSWORD=ut3
     - UT3_USER="UT3\$USER#"
     - UT3_USER_PASSWORD=ut3
-    - UT3_TESTER=ut3_tester
+    - UT3_TESTER=UT3_TESTER
     - UT3_TESTER_PASSWORD=ut3
-    - UT3_TESTER_HELPER=ut3_tester_helper
+    - UT3_TESTER_HELPER=UT3_TESTER_HELPER
     - UT3_TESTER_HELPER_PASSWORD=ut3
     - UT3_TABLESPACE=users
+    - BUILD_DIR=${TRAVIS_BUILD_DIR}
+    - JOB_ID=${TRAVIS_JOB_ID}
+    - JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+    - PULL_REQUEST_NAME=${TRAVIS_PULL_REQUEST}
+    - PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
+    - TAG_NAME=${TRAVIS_TAG}
+    - REPO_SLUG=${TRAVIS_REPO_SLUG}
+    - PR_SLUG=${TRAVIS_PULL_REQUEST_SLUG}
+    - BRANCH_NAME=${TRAVIS_BRANCH}
     # Environment for building a release
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
     - UTPLSQL_REPO="utPLSQL/utPLSQL"
@@ -36,11 +44,12 @@ env:
     - UTPLSQL_BUILD_USER_NAME="Travis CI"
     - CACHE_DIR=$HOME/.cache
     # Database Env
-    - SQLCLI="$HOME/sqlcl/bin/sql"
-    - OJDBC_HOME="$HOME/sqlcl/lib"
+    - SQLCLI="${BUILD_DIR}/sqlcl/bin/sql"
+    - OJDBC_HOME="${BUILD_DIR}/ojdbc"
     - ORACLE_PWD="oracle"
-    - UT3_DOCKER_REPO="utplsqlv3/oracledb"
-    - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
+    - DOCKHER_HUB_REPO="utplsqlv3/oracledb"
+    - DOCKER_VOLUME="/home/oracle/host"
+    - DOCKER_ENV="-e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
     - SELFTESTING_BRANCH=${TRAVIS_BRANCH}
@@ -48,12 +57,15 @@ env:
     # Maven
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
-  matrix:
-    - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"         CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  
-    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+  jobs:
+    - ORACLE_VERSION="11g-r2-xe"           CONNECTION_STR='127.0.0.1:1521/XE'                                          DOCKER_VOLUME="/mnt/host" DOCKER_OPTIONS='--shm-size=1g'
+#    - ORACLE_VERSION="11-full"             CONNECTION_STR='127.0.0.1:1521/XE'      DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle --shm-size=1g' DOCKER_VOLUME="/mnt/host"
+    - ORACLE_VERSION="12c-r1-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="12c-r2-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="18-slim"             CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
+    - ORACLE_VERSION="18c-se2-small"       CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="19c-se2-small"       CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="21-full"             CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
 
 cache:
   pip: true
@@ -64,6 +76,7 @@ cache:
     - $MAVEN_CFG
 
 before_install:
+
   #cache to be used between stages. Based on https://github.com/travis-ci/docs-travis-ci-com/issues/1329
   #delete all files in cache that are older than 5 days
   - mkdir -p $CACHE_DIR/stages_cache; find $CACHE_DIR/stages_cache/ -mtime +5 -exec rm {} \;
@@ -72,24 +85,29 @@ before_install:
   #Allow for sonar to blame issues
   - git fetch --unshallow
   # download latest utPLSQL release
-  #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
-  - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+  - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-main} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
   # download latest utPLSQL-cli release
   - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
 
 install:
-  #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-  - bash .travis/install_sqlcl.sh
+#  - curl -Lk -o sqlcl-latest.zip https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip
+#  - unzip -q sqlcl-latest.zip -d $HOME
+  - mkdir -p ${OJDBC_HOME} #get JDBC driver and orai18n
+  - curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar https://download.oracle.com/otn-pub/otn_software/jdbc/213/ojdbc8.jar
+  - curl -Lk -o ${OJDBC_HOME}/orai18n.jar https://download.oracle.com/otn-pub/otn_software/jdbc/213/orai18n.jar
+  # Chmod is needed to allow for write access within from docker container volume
+  - chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then docker exec ${ORACLE_VERSION} ${DOCKER_VOLUME}/.travis/install.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then docker exec ${ORACLE_VERSION} ${DOCKER_VOLUME}/.travis/install_utplsql_release.sh; fi
 
 before_script:
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install_utplsql_release.sh; fi
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_examples.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then docker exec ${ORACLE_VERSION} ${DOCKER_VOLUME}/.travis/run_examples.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then docker exec ${ORACLE_VERSION} ${DOCKER_VOLUME}/test/install_tests.sh; fi
 
 script:
-  - if [[ ! $TRAVIS_TAG ]]; then bash test/install_and_run_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash test/run_tests.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/validate_report_files.sh; fi
   - if [[ ! $TRAVIS_TAG ]] && [[ ("${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" && "${TRAVIS_PULL_REQUEST}" == false) || ("${TRAVIS_PULL_REQUEST_SLUG}" = "${UTPLSQL_REPO}") ]]; then bash .travis/run_sonar_scanner.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/coveralls_uploader.sh; fi

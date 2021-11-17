@@ -1,7 +1,7 @@
 create or replace type body ut_data_value_anydata as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -48,11 +48,11 @@ create or replace type body ut_data_value_anydata as
         begin
           l_status := l_value.get'||self.compound_type||'(l_data); '||
           case when self.compound_type = 'collection' then
-            q'[ open :l_tmp_refcursor for select value(x) as "]'||
+            q'[ open :l_tmp_refcursor for select /*+ no_parallel */ value(x) as "]'||
             ut_metadata.get_object_name(ut_metadata.get_collection_element(a_data_value))||
             q'[" from table(l_data) x;]'
           else
-            q'[ open :l_tmp_refcursor for select l_data as "]'||ut_metadata.get_object_name(self.data_type)||
+            q'[ open :l_tmp_refcursor for select /*+ no_parallel */ l_data as "]'||ut_metadata.get_object_name(self.data_type)||
             q'[" from dual;]'            
           end ||
         'end;';  

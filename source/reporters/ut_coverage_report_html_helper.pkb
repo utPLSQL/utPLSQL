@@ -1,7 +1,7 @@
 create or replace package body ut_coverage_report_html_helper is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
   
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ create or replace package body ut_coverage_report_html_helper is
 
   function object_id(a_object_full_name varchar2) return varchar2 is
   begin
-    return rawtohex(utl_raw.cast_to_raw(dbms_obfuscation_toolkit.md5(input_string => a_object_full_name)));
+    return rawtohex(dbms_crypto.hash(src => utl_raw.cast_to_raw(a_object_full_name), typ => dbms_crypto.hash_md5));
   end;
 
   function link_to_source_file(a_object_full_name varchar2) return varchar2 is
@@ -287,7 +287,7 @@ create or replace package body ut_coverage_report_html_helper is
     l_coverage_pct  number(5, 2);
     l_time_str      varchar2(50);
     l_using         varchar2(1000);
-    l_unit          ut_coverage.t_full_name;
+    l_unit          ut_coverage.t_object_name;
     l_charset       varchar2(1000);
   begin
     l_charset := coalesce(upper(a_charset),'UTF-8');

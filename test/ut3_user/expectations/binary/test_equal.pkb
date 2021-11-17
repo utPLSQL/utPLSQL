@@ -26,7 +26,7 @@ create or replace package body test_equal is
       l_actual   '||a_actual_type||' := '||a_actual||';
       l_expected '||a_expected_type||' := '||a_expected||';
     begin
-      ut3.ut.expect( l_actual ).'||a_matcher_name||'(l_expected, a_nulls_are_equal=>'||l_nulls_equal||');
+      ut3_develop.ut.expect( l_actual ).'||a_matcher_name||'(l_expected, a_nulls_are_equal=>'||l_nulls_equal||');
     end;';
   end;
 

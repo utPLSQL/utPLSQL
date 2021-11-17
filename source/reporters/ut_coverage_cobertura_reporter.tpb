@@ -1,7 +1,7 @@
 create or replace type body ut_coverage_cobertura_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ create or replace type body ut_coverage_cobertura_reporter is
     ) return ut_varchar2_rows is
       l_file_part       varchar2(32767);
       l_result          ut_varchar2_rows := ut_varchar2_rows();
-      l_unit            ut_coverage.t_full_name;
+      l_unit            ut_coverage.t_object_name;
       l_obj_name        ut_coverage.t_object_name;
       c_coverage_def    constant varchar2(200) := '<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">';
       c_file_footer     constant varchar2(30) := '</file>';
@@ -79,8 +79,10 @@ create or replace type body ut_coverage_cobertura_reporter is
       c_packages_footer constant varchar2(30) := '</packages>';
       c_package_footer  constant varchar2(30) := '</package>';
       c_class_footer    constant varchar2(30) := '</class>';
+      c_classes_footer  constant varchar2(30) := '</classes>';
       c_lines_footer    constant varchar2(30) := '</lines>';
       l_epoch           varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
+      l_lines_valid     integer := a_coverage_data.covered_lines + a_coverage_data.uncovered_lines;
       begin
    
       ut_utils.append_to_list( l_result, ut_utils.get_xml_header(a_run.client_character_set) );
@@ -89,9 +91,11 @@ create or replace type body ut_coverage_cobertura_reporter is
       --write header
       ut_utils.append_to_list(
         l_result,
-        '<coverage line-rate="0" branch-rate="0.0" lines-covered="'
+        '<coverage line-rate="'
+          ||to_char(round((case l_lines_valid when 0 then 0 else a_coverage_data.covered_lines/(l_lines_valid) end), 17), rpad('FM0.0',20,'9') , 'NLS_NUMERIC_CHARACTERS=''. ''')
+          ||'" branch-rate="0.0" lines-covered="'
           ||a_coverage_data.covered_lines||'" lines-valid="'
-          ||TO_CHAR(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines)
+          ||to_char(l_lines_valid)
           ||'" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="'||l_epoch||'">'
       );
       
@@ -116,6 +120,11 @@ create or replace type body ut_coverage_cobertura_reporter is
           l_result,
           '<package name="'||dbms_xmlgen.convert(l_obj_name)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'
         );
+
+        ut_utils.append_to_list(
+          l_result,
+          '<classes>'
+        );
         
         ut_utils.append_to_list(
           l_result,
@@ -129,6 +138,7 @@ create or replace type body ut_coverage_cobertura_reporter is
 
         ut_utils.append_to_list(l_result, c_lines_footer);
         ut_utils.append_to_list(l_result, c_class_footer);
+        ut_utils.append_to_list(l_result, c_classes_footer);
         ut_utils.append_to_list(l_result, c_package_footer);
        
         l_unit := a_coverage_data.objects.next(l_unit);

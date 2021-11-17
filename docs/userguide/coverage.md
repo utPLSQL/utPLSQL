@@ -1,7 +1,7 @@
-![version](https://img.shields.io/badge/version-v3.1.10.3347-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.11.3557-blue.svg)
 
 # Coverage
-utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting is based on the DBMS_PROFILER package provided with Oracle database.
+utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting uses DBMS_PROFILER package provided with Oracle database.
 Code coverage is gathered for the following source types:
 * package bodies
 * type bodies
@@ -11,9 +11,9 @@ Code coverage is gathered for the following source types:
 
 **Note**
 
-> The package and type specifications are explicitly excluded from code coverage analysis. This limitation is introduced to avoid false-negatives. Typically package specifications contain no executable code. The only exception is initialization of global constants and variables in package specification. Since most package specifications are not executable at all, there is no information available on the number of lines covered and those would be reported as 0% covered, which is not desirable.
+> The package and type specifications are excluded from code coverage analysis. This limitation is introduced to avoid false-negatives. Typically package specifications contain no executable code. The only exception is initialization of global constants and variables in package specification. Since most package specifications are not executable at all, there is no information available on the number of lines covered and those would be reported as 0% covered, which is not desirable.
 
-To obtain information about code coverage of your unit tests, all you need to do is run your unit tests with one of built-in code coverage reporters.
+To obtain information about code coverage for unit tests, run utPLSQL with one of built-in code coverage reporters.
 The following code coverage reporters are supplied with utPLSQL:
 * `ut_coverage_html_reporter` - generates a HTML coverage report providing summary and detailed information on code coverage. The HTML reporter is based on the open-source [simplecov-html](https://github.com/colszowka/simplecov-html) reporter for Ruby. It includes source code of the code that was covered (if possible)  
 * `ut_coveralls_reporter` - generates a [Coveralls compatible JSON](https://coveralls.zendesk.com/hc/en-us/articles/201774865-API-Introduction) coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [Coveralls](https://coveralls.io)
@@ -33,8 +33,8 @@ If you have `execute` privilege only on the unit tests, but do not have `execute
 If the code that is being tested is complied as NATIVE, the code coverage will not be reported as well.
 
 ## Running unit tests with coverage
-Using the code coverage functionality is as easy as using any other [reporter](reporters.md) for the utPLSQL project. You just run your tests from your preferred SQL tool and save the reporter results to a file.
-All you need to do is pass the constructor of the reporter to your `ut.run`
+Using the code coverage functionality is as easy as using any other [reporter](reporters.md) for the utPLSQL test-run. You just run your tests from your preferred SQL tool and save the reporter results to a file.
+All you need to do is pass the constructor of the reporter to the `ut.run` procedure call.
 
 Example:
 ```sql
@@ -43,10 +43,10 @@ begin
 end;
 /
 ```
-Executes all unit tests in the current schema, gathers information about code coverage and outputs the HTML text into DBMS_OUTPUT.
+The above command executes all unit tests in the **current schema**, gathers information about code coverage and outputs the HTML report as text into DBMS_OUTPUT.
 The `ut_coverage_html_reporter` will produce an interactive HTML report. You can see a sample of code coverage for the utPLSQL project [here](https://utplsql.github.io/utPLSQL-coverage-html/)
 
-The report provides summary information with a list of source code that was expected to be covered.
+The report provides summary information with a list of source code that should be covered.
 
 ![Coverage Summary page](../images/coverage_html_summary.png)
 
@@ -57,8 +57,8 @@ The report allow you to navigate to each source file and inspect line by line co
 
 #### Oracle 12.2 extended coverage with profiler and block coverage
 Using data collected from profiler and block coverage running parallel we are able to enrich information about coverage.
-For every line recorded by profiler if we have a partially covered same line in block coverage we will display that information
-presenting line as partially covered, displaying number of block and how many blocks been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.
+For every line recorded by the profiler if we have a partially covered same line in block coverage we will display that information
+presenting line as partially covered, displaying number of block and how many blocks have been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.
 
 utPLSQL installation automatically creates tables needed by `dbms_plsql_code_coverage` on databases in versions above 12c Release 1.
 Due to security model of `dbms_plsql_code_coverage` package, utPLSQL grants access to those tables and creates synonyms for those tables.
@@ -92,7 +92,8 @@ The default behavior of coverage reporting can be altered using invocation param
 
 ### Schema based Coverage
 
-To simply gather coverage for all objects in your current schema execute tests with coverage reporting.
+To gather coverage for all objects in the **current schema** execute tests with coverage report as argument.
+This is the default reporting option and therefore additional coverage options don't need to be provided. 
 
 ```sql
 exec ut.run(ut_coverage_html_reporter());
@@ -109,7 +110,7 @@ exec ut.run(ut_coverage_html_reporter());
 #### Setting coverage schema(s)
 
 By default, coverage is gathered on the schema(s) derived from suite paths provided to execute tests.
-This is correct as long as your test packages and tested code share the same schema.
+This is a valid approach as long as your test packages and tested code share the same schema.
 
 So when you run:
 ```sql
@@ -243,7 +244,7 @@ By default, utPLSQL will convert file paths into database objects using the foll
 > This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    
 
 **Note**
-> Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases), extracted it into your projects root directory (my_project) and placed ojdbc8.jar and orai18n.jar files in utPLSQL-cli\lib directory.
+> Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases) and extracted it into your projects root directory (my_project).
 > The examples assume that you run the utPLSQL-cli from `my_project` directory.    
 
 Windows:
@@ -531,8 +532,8 @@ Unit test code is mapped to files in `test_results.xml`
 
 In order to allow deterministic and accurate mapping of database source-code into project files, the project directory and file structure needs to meet certain criteria.  
 - Source code is kept separate from test code (separate directories)
-- Each database (source-code) object is stored in individual file. Package/type specification is kept separate from it's body.
-- File name (file path) contains name of database object
+- Each database (source-code) object is stored in an individual file. Package/type specification is kept separate from its body.
+- File name (file path) contains the name of database object
 - Each file-path clearly identifies object type (by file extension)
 - Each file contains representation of database object "as is". No extra commands (like `set echo off` `ALTER SESSION SET PLSQL_CCFLAGS = 'debug:TRUE';`) or blank lines are present before `CREATE TYPE`,`CREATE TYPE` etc.
 - When project is spanning across multiple database schemes, each file-path clearly and uniformly identifies object owner
@@ -659,3 +660,119 @@ begin
 end;
 ```
 
+## Reporting coverage outside of utPLSQL
+
+utPSLQL allows fo standalone reporting code coverage across multiple database sessions. This functionality enables coverage reporting for external testing tools.
+
+Following API calls enable the  standalone coverage reporting.
+
+- `ut_runner.coverage_start( coverage_run_id );` - initiates code coverage within a session    
+- `ut_runner.coverage_stop();` - stops gathering of code coverage within a session
+- `.get_report( ... )` - coverage reporters function producing coverage report as pipelined data-set (to be used in SQL query) 
+- `.get_report_cursor( ... )` - coverage reporters function producing coverage report as ref-cursor 
+
+Example:
+```sql
+--SESSION 1
+-- gather coverage on code using specific coverage_run_id value
+declare
+  l_coverage_run_id raw(32);
+begin
+  l_coverage_run_id := 'A6AA5B7361251CE6E053020011ACA055';
+--  l_coverage_run_id := sys_guid;
+  ut_runner.coverage_start(l_coverage_run_id);
+  
+  --The code to gather coverage on goes here   
+
+  ut_runner.coverage_stop();
+end;
+/
+```
+
+```sql
+--SESSION 2
+-- alternative approach
+-- gather coverage on code using specific coverage_run_id value
+exec ut_runner.coverage_start('A6AA5B7361251CE6E053020011ACA055');  
+
+--The code to gather coverage on goes here   
+
+exec ut_runner.coverage_stop();
+```
+
+
+```sql
+--SESSION 1 or SESSION2 2 or SESSION 3 
+-- run after calls in SESSION 1 & 2 are finshed
+-- retrieve coverage report in HTML format coverage_run_id value
+select *
+  from table(
+    ut_coverage_html_reporter().get_report(
+      a_coverage_options => ut_coverage_options(
+        coverage_run_id => 'A6AA5B7361251CE6E053020011ACA055'
+      )
+    )
+  ); 
+```  
+
+```sql
+--SESSION 1 or SESSION2 2 or SESSION 3 
+-- run after calls in SESSION 1 & 2 are finshed
+declare
+  l_results_cursor sys_refcursor;
+begin
+  l_results_cursor :=  ut_coverage_html_reporter().get_report_cursor(
+      a_coverage_options => ut_coverage_options(
+        coverage_run_id => 'A6AA5B7361251CE6E053020011ACA055'
+      )
+    );
+  --fetch and process the cursor results
+  close l_results_cursor;
+end;
+/
+```  
+
+Specification of parameters for `get_report` and `get_report_cursor`
+```sql
+function get_report(
+   a_coverage_options ut_coverage_options,
+   a_client_character_set varchar2 := null 
+) return ut_varchar2_rows pipelined
+```
+ 
+```sql
+function get_report_cursor(
+   a_coverage_options ut_coverage_options,
+   a_client_character_set varchar2 := null 
+) return sys_refcursor
+```
+```sql
+ut_coverage_options(
+  coverage_run_id          raw,
+  schema_names             ut_varchar2_rows := null,
+  exclude_objects          ut_varchar2_rows := null,
+  include_objects          ut_varchar2_rows := null,
+  file_mappings            ut_file_mappings := null
+);
+```
+
+The `a_client_character_set` is used to provide character set to the report. Coverage reports in XML and HTML format include this information to assure that HMTL/XML encoding tag is aligned with encoding of the report produced.
+Use this parameter to provide encoding of your client application.   
+
+The `a_coverage_options` parameter is used to control the scope and formatting of data returned by report.
+
+`ut_coverage_options` object accepts the following arguments
+
+- `coverage_run_id` - identifier of coverage run to generate report for - data-type `RAW(32)` 
+- `schema_names` - optional - list of schema names to include in coverage report - data-type `UT_VARCHAR2_ROWS` 
+- `exclude_objects` - optional - list of object names to exclude from report - data-type `UT_VARCHAR2_ROWS`   
+- `include_objects` - optional - list of object names to gather coverage on - data-type `UT_VARCHAR2_ROWS`
+- `file_mappings` - optional - list of schema names to gather coverage on - data-type `UT_FILE_MAPPINGS`
+
+`coverage_run_id` parameter identifies a common coverage run. The valid value type for that parameter is RAW(32).
+It is recommended to use `sys_guid()` to generate a common, unique identifier for a specific coverage run.
+If the identifier is not unique, previous runs of coverage that used the same `coverage_run_id` will be aggregated to the resulting coverage report.    
+
+For details on the meaning of `schema_names`, `exclude_objects`, `include_objects`, `file_mappings` see sections above.
+Note that data-types of include/exclude/schema lists are different when calling `ut.run` vs. calling `get_report/get_report_cursor`.    
+   

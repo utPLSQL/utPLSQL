@@ -101,14 +101,14 @@ create or replace package body test_annotation_manager is
   begin
     select max(cache_id)
            into l_actual_cache_id
-      from ut3.ut_annotation_cache_info
+      from ut3_develop.ut_annotation_cache_info
      where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_PACKAGE'
        and parse_time >= a_start_date;
     ut.expect(l_actual_cache_id).to_be_not_null;
 
     open l_actual for
       select annotation_position, annotation_name, annotation_text, subobject_name
-        from ut3.ut_annotation_cache where cache_id = l_actual_cache_id
+        from ut3_develop.ut_annotation_cache where cache_id = l_actual_cache_id
        order by annotation_position;
 
     ut.expect(l_actual).to_be_empty();
@@ -116,26 +116,26 @@ create or replace package body test_annotation_manager is
 
   procedure assert_dummy_test_package(a_start_time timestamp) is
     l_actual_cache_id integer;
-    l_data            ut3.ut_annotated_objects;
+    l_data            ut3_develop.ut_annotated_objects;
     l_result          sys_refcursor;
     l_actual          sys_refcursor;
     l_expected        sys_refcursor;
   begin
     open l_expected for
       select
-        ut3.ut_annotated_object(
+        ut3_develop.ut_annotated_object(
           sys_context('USERENV', 'CURRENT_USER'),
           'DUMMY_TEST_PACKAGE', 'PACKAGE', a_start_time,
-          ut3.ut_annotations(
-            ut3.ut_annotation( 2, 'suite', 'dummy_test_suite', null ),
-            ut3.ut_annotation( 3, 'rollback', 'manual', null ),
-            ut3.ut_annotation( 7, 'test', 'dummy_test', 'some_dummy_test_procedure' ),
-            ut3.ut_annotation( 8, 'beforetest', 'some_procedure', 'some_dummy_test_procedure' )
+          ut3_develop.ut_annotations(
+            ut3_develop.ut_annotation( 2, 'suite', 'dummy_test_suite', null ),
+            ut3_develop.ut_annotation( 3, 'rollback', 'manual', null ),
+            ut3_develop.ut_annotation( 7, 'test', 'dummy_test', 'some_dummy_test_procedure' ),
+            ut3_develop.ut_annotation( 8, 'beforetest', 'some_procedure', 'some_dummy_test_procedure' )
           )
         ) annotated_object
        from dual;
 
-    l_result := ut3.ut_annotation_manager.get_annotated_objects(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE', a_start_time);
+    l_result := ut3_develop.ut_annotation_manager.get_annotated_objects(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE', a_start_time);
     fetch l_result bulk collect into l_data;
     open l_actual for select value(x) as annotated_object from table(l_data) x where object_name = 'DUMMY_TEST_PACKAGE';
     ut.expect(l_actual).to_equal(l_expected).exclude('ANNOTATED_OBJECT/PARSE_TIME').join_by('ANNOTATED_OBJECT/OBJECT_NAME');
@@ -153,7 +153,7 @@ create or replace package body test_annotation_manager is
     --Assert
     select max(cache_id)
            into l_actual_cache_id
-      from ut3.ut_annotation_cache_info
+      from ut3_develop.ut_annotation_cache_info
      where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE';
 
     ut.expect(l_actual_cache_id).to_be_null;
@@ -185,7 +185,7 @@ create or replace package body test_annotation_manager is
     --Act
     annotation_cache_helper.enable_ddl_trigger();
     l_start_date := sysdate;
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     --Assert
     assert_dummy_test_package(l_start_date);
     assert_dummy_package(l_start_date);
@@ -197,7 +197,7 @@ create or replace package body test_annotation_manager is
     --Arrange
     open l_actual for
       select *
-        from ut3.ut_annotation_cache_info
+        from ut3_develop.ut_annotation_cache_info
        where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_PACKAGE';
 
     ut.expect(l_actual).to_be_empty();
@@ -207,7 +207,7 @@ create or replace package body test_annotation_manager is
     --Assert
     open l_actual for
       select *
-        from ut3.ut_annotation_cache_info
+        from ut3_develop.ut_annotation_cache_info
        where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_PACKAGE';
 
     ut.expect(l_actual).to_be_empty();
@@ -233,7 +233,7 @@ create or replace package body test_annotation_manager is
     --Assert
     open l_actual for
       select *
-        from ut3.ut_annotation_cache_info
+        from ut3_develop.ut_annotation_cache_info
        where object_owner = sys_context('USERENV', 'CURRENT_USER')
          and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE';
 
@@ -247,7 +247,7 @@ create or replace package body test_annotation_manager is
     --Arrange
     create_dummy_test_package();
     l_start_date := sysdate;
-    ut3.ut_annotation_manager.purge_cache(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE');
+    ut3_develop.ut_annotation_manager.purge_cache(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE');
     --Act & Assert
     assert_dummy_test_package(l_start_date);
   end;
@@ -273,7 +273,7 @@ create or replace package body test_annotation_manager is
 
     --Assert
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
       ),
       'Annotations are empty after package was dropped'
@@ -287,7 +287,7 @@ create or replace package body test_annotation_manager is
     create_dummy_package();
     --Act & Assert
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
         ),
       'Annotations are empty for not annotated package'
@@ -300,7 +300,7 @@ create or replace package body test_annotation_manager is
     --Arrange
     create_dummy_package();
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
         ),
       'Annotations are empty for non annotated package'
@@ -311,7 +311,7 @@ create or replace package body test_annotation_manager is
 
     --Assert
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
         ),
       'Annotations are empty after non annoteted package was dropped'
@@ -332,7 +332,7 @@ create or replace package body test_annotation_manager is
 
     --Assert
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
       )
     ).to_be_empty();
@@ -346,7 +346,7 @@ create or replace package body test_annotation_manager is
         procedure some_dummy_test_procedure;
       end;]');
     ut.expect(
-      ut3.ut_annotation_manager.get_annotated_objects(
+      ut3_develop.ut_annotation_manager.get_annotated_objects(
         sys_context( 'USERENV', 'CURRENT_USER' ), 'PACKAGE', l_start_time
         )
       ).to_be_empty();
@@ -365,15 +365,15 @@ create or replace package body test_annotation_manager is
     l_start_date date;
   begin
     --Arrange
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     l_start_date := sysdate;
     modify_dummy_test_package();
     --Act
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     --Assert
     select max(cache_id)
       into l_actual_cache_id
-      from ut3.ut_annotation_cache_info
+      from ut3_develop.ut_annotation_cache_info
      where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE'
        and parse_time >= l_start_date;
 
@@ -381,7 +381,7 @@ create or replace package body test_annotation_manager is
 
     open l_actual for
       select annotation_position, annotation_name, annotation_text, subobject_name
-        from ut3.ut_annotation_cache where cache_id = l_actual_cache_id
+        from ut3_develop.ut_annotation_cache where cache_id = l_actual_cache_id
        order by annotation_position;
 
     open l_expected for
@@ -407,7 +407,7 @@ create or replace package body test_annotation_manager is
     --Assert
     select count(1)
            into l_cache_count
-      from ut3.ut_annotation_cache_info
+      from ut3_develop.ut_annotation_cache_info
      where object_owner = sys_context('USERENV', 'CURRENT_USER')
        and object_type = 'PACKAGE'
        and object_name = 'DUMMY_TEST_PACKAGE'
@@ -417,14 +417,14 @@ create or replace package body test_annotation_manager is
 
   procedure no_data_for_dropped_object is
     l_result     sys_refcursor;
-    l_data       ut3.ut_annotated_objects;
+    l_data       ut3_develop.ut_annotated_objects;
     l_actual     sys_refcursor;
     l_start_time timestamp := systimestamp;
   begin
     --Arrange
     drop_dummy_test_package();
     --Act
-    l_result := ut3.ut_annotation_manager.get_annotated_objects( sys_context('USERENV', 'CURRENT_USER'),'PACKAGE', l_start_time );
+    l_result := ut3_develop.ut_annotation_manager.get_annotated_objects( sys_context('USERENV', 'CURRENT_USER'),'PACKAGE', l_start_time );
     fetch l_result bulk collect into l_data;
     open l_actual for select object_name from table(l_data) where object_name = 'DUMMY_TEST_PACKAGE';
     --Assert
@@ -435,14 +435,14 @@ create or replace package body test_annotation_manager is
     l_cache_count integer;
   begin
     --Arrange
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     drop_dummy_test_package();
     --Act
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     --Assert
     select count(1)
       into l_cache_count
-      from ut3.ut_annotation_cache_info
+      from ut3_develop.ut_annotation_cache_info
      where object_owner = sys_context('USERENV', 'CURRENT_USER')
        and object_type = 'PACKAGE'
        and object_name = 'DUMMY_TEST_PACKAGE';
@@ -457,7 +457,7 @@ create or replace package body test_annotation_manager is
     --Arrange
     create_dummy_test_package();
     l_start_date := sysdate;
-    ut3.ut_annotation_manager.purge_cache(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE');
+    ut3_develop.ut_annotation_manager.purge_cache(sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE');
     --Act & Assert
     assert_dummy_test_package(l_start_date);
   end;

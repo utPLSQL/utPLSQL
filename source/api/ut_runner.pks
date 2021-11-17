@@ -2,7 +2,7 @@ create or replace package ut_runner authid current_user is
 
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -144,6 +144,10 @@ create or replace package ut_runner authid current_user is
   * Returns a hash value of suitepath based on input path and random seed
   */
   function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
+
+  procedure coverage_start(a_coverage_run_id raw);
+
+  procedure coverage_stop;
 
 end ut_runner;
 /

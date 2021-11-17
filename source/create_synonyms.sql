@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ set termout off
 spool params.sql.tmp
 select
   case
-    when upper('&&ut3_user') = 'PUBLIC' then q'[define action_type='public'
+    when upper('&&ut3_user') = 'PUBLIC' then q'[define action_type='or replace public'
       ]'||q'[define ut3_user=''
       ]'||q'[define grantee='PUBLIC']'
     else q'[define action_type='or replace'
@@ -77,6 +77,7 @@ create &action_type. synonym &ut3_user.ut_file_mapper for &&ut3_owner..ut_file_m
 create &action_type. synonym &ut3_user.ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create &action_type. synonym &ut3_user.ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
 create &action_type. synonym &ut3_user.ut_run_info for &&ut3_owner..ut_run_info;
+create &action_type. synonym &ut3_user.ut_coverage_options for &&ut3_owner..ut_coverage_options;
 
 --generic types
 create &action_type. synonym &ut3_user.ut_varchar2_list for &&ut3_owner..ut_varchar2_list;

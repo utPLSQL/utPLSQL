@@ -3,9 +3,6 @@ create or replace package test_suite_manager is
   --%suite(suite_manager)
   --%suitepath(utplsql.ut3_tester.core)
 
-  procedure create_dummy_long_test_package;
-
-  procedure drop_dummy_long_test_package;
 
   --%beforeall
   procedure compile_dummy_packages;
@@ -170,6 +167,8 @@ create or replace package test_suite_manager is
   --%beforetest(create_dummy_long_test_package)
   --%aftertest(drop_dummy_long_test_package)
   procedure add_new_long_test_package;
+  procedure create_dummy_long_test_package;
+  procedure drop_dummy_long_test_package;
 
 end test_suite_manager;
 /

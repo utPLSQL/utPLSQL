@@ -1,6 +1,6 @@
 PROMPT Run user examples
-set echo off
-set feedback off
+set echo on
+set feedback on
 set linesize 1000
 
 prompt Common examples from web

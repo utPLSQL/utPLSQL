@@ -1,7 +1,7 @@
 create or replace package body ut_suite_manager is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -353,10 +353,10 @@ create or replace package body ut_suite_manager is
     );
     if a_skip_all_objects then
       open l_result for
-        select c.* from table(l_unfiltered_rows) c;
+        select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c;
     else
       open l_result for
-        select c.* from table(l_unfiltered_rows) c
+        select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
          where exists
            ( select 1
                from all_objects a
@@ -374,7 +374,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
+    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(
@@ -425,17 +425,18 @@ create or replace package body ut_suite_manager is
   ) is
     l_annotations_cursor    sys_refcursor;
     l_suite_cache_time      timestamp;
+    l_owner_name            varchar2(128) := upper(a_owner_name);
   begin
     ut_event_manager.trigger_event('refresh_cache - start');
-    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
+    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(l_owner_name);
     l_annotations_cursor := ut_annotation_manager.get_annotated_objects(
-      a_owner_name, 'PACKAGE', l_suite_cache_time
+      l_owner_name, 'PACKAGE', l_suite_cache_time
     );
 
-    build_and_cache_suites(a_owner_name, l_annotations_cursor);
+    build_and_cache_suites(l_owner_name, l_annotations_cursor);
 
-    if can_skip_all_objects_scan(a_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
-      ut_suite_cache_manager.remove_missing_objs_from_cache( a_owner_name );
+    if can_skip_all_objects_scan(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
+      ut_suite_cache_manager.remove_missing_objs_from_cache( l_owner_name );
     end if;
 
     ut_event_manager.trigger_event('refresh_cache - end');
@@ -595,12 +596,12 @@ create or replace package body ut_suite_manager is
     l_all_suite_info := ut_suite_cache_manager.get_cached_suite_info( l_owner_name, l_package_name );
     if can_skip_all_objects_scan( l_owner_name ) then
       open l_result for
-        select value(c)
+        select /*+ no_parallel */ value(c)
           from table(l_all_suite_info) c
          order by c.object_owner, c.object_name, c.item_line_no;
     else
       open l_result for
-        select value(c)
+        select /*+ no_parallel */ value(c)
           from table(l_all_suite_info) c
          where exists
                  ( select 1
@@ -630,7 +631,7 @@ create or replace package body ut_suite_manager is
     refresh_cache(l_owner_name);
     l_item_exists := ut_suite_cache_manager.suite_item_exists( l_owner_name, l_package_name, l_procedure_name );
     if not can_skip_all_objects_scan( l_owner_name ) and l_package_name is not null then
-      select count(1)
+      select /*+ no_parallel */ count(1)
         into l_count
         from dual c
        where exists
