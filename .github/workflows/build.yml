@@ -1,0 +1,122 @@
+name: Deploy and test
+env:
+  UT3_DEVELOP_SCHEMA: UT3_DEVELOP
+  UT3_DEVELOP_SCHEMA_PASSWORD: ut3
+  UT3_RELEASE_VERSION_SCHEMA: UT3
+  UT3_RELEASE_VERSION_SCHEMA_PASSWORD: ut3
+  UT3_USER: 'UT3\$USER#'
+  UT3_USER_PASSWORD: ut3
+  UT3_TESTER: UT3_TESTER
+  UT3_TESTER_PASSWORD: ut3
+  UT3_TESTER_HELPER: UT3_TESTER_HELPER
+  UT3_TESTER_HELPER_PASSWORD: ut3
+  UT3_TABLESPACE: users
+  BUILD_DIR: ${{env.GITHUB_WORKSPACE}}
+  JOB_ID: ${{env.GITHUB_RUN_ID}}
+  JOB_NUMBER: ${{env.GITHUB_RUN_NUMBER}}
+  PULL_REQUEST_NAME: ${env.GITHUB_HEAD_REF}
+  PULL_REQUEST_BRANCH: ${{env.GITHUB_HEAD_REF}}
+  TAG_NAME: ${TRAVIS_TAG}
+  REPO_SLUG: ${TRAVIS_REPO_SLUG}
+  PR_SLUG: ${{env.GITHUB_REPOSITORY}}
+  BRANCH_NAME: ${TRAVIS_BRANCH}
+  # Environment for building a release
+  CURRENT_BRANCH: ${TRAVIS_BRANCH}
+  UTPLSQL_REPO: "utPLSQL/utPLSQL"
+  UTPLSQL_BUILD_NO: ${{env.GITHUB_RUN_ID}}
+  UTPLSQL_VERSION: $(. .travis/get_project_version.sh)
+  UTPLSQL_BUILD_VERSION: $(. .travis/get_project_build_version.sh)
+  UTPLSQL_SOURCES_DIR: 'source'
+  UTPLSQL_BUILD_USER_NAME: "Travis CI"
+  CACHE_DIR: $HOME/.cache
+  # Database Env
+  SQLCLI: "${BUILD_DIR}/sqlcl/bin/sql"
+  OJDBC_HOME: "${BUILD_DIR}/ojdbc"
+  ORACLE_PWD: "oracle"
+  DOCKHER_HUB_REPO: "utplsqlv3/oracledb"
+  DOCKER_VOLUME: "/home/oracle/host"
+  DOCKER_ENV: "-e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR"
+  #utPLSQL released version directory
+  UTPLSQL_DIR: "utPLSQL_latest_release"
+  SELFTESTING_BRANCH: ${TRAVIS_BRANCH}
+  UTPLSQL_CLI_VERSION: "3.1.8"
+  # Maven
+  MAVEN_HOME: /usr/local/maven
+  MAVEN_CFG: $HOME/.m2
+
+on:
+  push:
+    branches: [ develop, feature/github_actions ]
+  pull_request:
+    branches: [ develop ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    env:
+      UTPLSQL_VERSION: ${{matrix.utplsql-version}}
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - oracle-version: "gvenzl/oracle-xe:11-slim"
+            connection-str: '127.0.0.1:1521/XE'
+#            docker-options: '--shm-size=1g'
+#          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+#          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+          - oracle-version: "gvenzl/oracle-xe:18-slim"
+            connection-str: '127.0.0.1:1521/XE'
+            docker-options: '-e ORACLE_PASSWORD=oracle'
+#          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+#          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+          - oracle-version: "gvenzl/oracle-xe:21-full"
+            connection-str: '127.0.0.1:1521/XE'
+            docker-options: '-e ORACLE_PASSWORD=oracle'
+
+    services:
+      oracle:
+        image: ${matrix.oracle-version}
+        env:
+          CONNECTION_STR: ${matrix.connection-str}
+          ORACLE_PASSWORD: oracle
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          ${matrix.docker-options}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install utPLSQL ${{matrix.utplsql-version}}
+        run: echo Installing ${UTPLSQL_VERSION} && sh ${{ github.workspace }}/scripts/1_install_utplsql.sh
+
+      - name: Install utPLSQL-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+
+      - name: Install demo project
+        run: sh ${{ github.workspace }}/scripts/2_install_demo_project.sh
+
+      - name: Install unit tests
+        run: sh ${{ github.workspace }}/scripts/3_install_tests.sh
+
+      - name: Run unit tests
+        run: sh ${{ github.workspace }}/scripts/4_run_tests.sh
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
