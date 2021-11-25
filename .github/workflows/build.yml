@@ -79,8 +79,8 @@ jobs:
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
-#          - oracle-version: "gvenzl/oracle-xe:21-full"
-#            connection-str: '127.0.0.1:1521/XE'
+          - oracle-version: "gvenzl/oracle-xe:21-full"
+            connection-str: '127.0.0.1:1521/XE'
 
     services:
       oracle:
