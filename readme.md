@@ -9,8 +9,8 @@
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://travis-ci.com/utPLSQL/utPLSQL.svg?branch=develop)](https://travis-ci.com/utPLSQL/utPLSQL)
-[![sonar](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
-[![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
+[![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL)
 
 ----------
 utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
