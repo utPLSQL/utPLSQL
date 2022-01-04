@@ -111,13 +111,14 @@ jobs:
       - name: Set version
         run: echo "UTPLSQL_VERSION=$(. .travis/get_project_version.sh)" >> $GITHUB_ENV
 
-      - name: Set version build no
+      - name: Set version with build no
+        run: echo UTPLSQL_BUILD_VERSION=$(sed -E "s/(v?[0-9]+\.)([0-9]+\.)([0-9]+)(-.*)?/\1\2\3\.${UTPLSQL_BUILD_NO}\4/" <<< "${UTPLSQL_VERSION}") >> $GITHUB_ENV
 
-        run: echo "UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)" >> $GITHUB_ENV
       - name: Output Run numbers
         run: echo github.run_id is ${{ github.run_id }} github.run_number is ${{ github.run_number }} UTPLSQL_BUILD_NO is $UTPLSQL_BUILD_NO UTPLSQL_VERSION is $UTPLSQL_VERSION UTPLSQL_BUILD_VERSION is $UTPLSQL_BUILD_VERSION
-#      - name: Update project version & build number
-#        run:  sh ${{ github.workspace }}/.travis/update_project_version.sh
+
+      - name: Update project version & build number
+        run:  sh ${{ github.workspace }}/.travis/update_project_version.sh
 
       - name: Download latest utPLSQL release
         run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
