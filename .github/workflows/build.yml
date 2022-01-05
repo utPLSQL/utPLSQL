@@ -17,11 +17,8 @@ env:
   PULL_REQUEST_NAME: ${github.head_ref}
   PULL_REQUEST_BRANCH: ${{github.head_ref}}
   TAG_NAME: ${TRAVIS_TAG}
-  REPO_SLUG: ${TRAVIS_REPO_SLUG}
+  REPO_SLUG: ${{github.repository}}
   PR_SLUG: ${{github.repository}}
-  BRANCH_NAME: ${github.ref}
-  # Environment for building a release
-  CURRENT_BRANCH: ${{github.ref}}
   UTPLSQL_REPO: "utPLSQL/utPLSQL"
   UTPLSQL_BUILD_NO_OFFSET: 3563
   UTPLSQL_BUILD_NO: $( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )
@@ -70,6 +67,7 @@ jobs:
         include:
           - oracle-version: "gvenzl/oracle-xe:11-full"
             connection-str: '127.0.0.1:1521/XE'
+# TODO - need to add healthcheck.sh into our containers
 #          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
@@ -104,6 +102,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Set current branch name
+        run: echo "CURRENT_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Set build no
         run: echo "UTPLSQL_BUILD_NO=$( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )" >> $GITHUB_ENV
