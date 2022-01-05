@@ -105,20 +105,19 @@ jobs:
 
       - uses: nelonoel/branch-name@v1.0.1
 
-      - name: Set current branch name
-        run: echo "CURRENT_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
+      - name: Set dynamic environment variables
+        run: |
+          echo "CURRENT_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "UTPLSQL_BUILD_NO=$( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )" >> $GITHUB_ENV
+          echo "UTPLSQL_VERSION=$(. .travis/get_project_version.sh)" >> $GITHUB_ENV
+          echo UTPLSQL_BUILD_VERSION=$(sed -E "s/(v?[0-9]+\.)([0-9]+\.)([0-9]+)(-.*)?/\1\2\3\.${UTPLSQL_BUILD_NO}\4/" <<< "${UTPLSQL_VERSION}") >> $GITHUB_ENV
 
-      - name: Set build no
-        run: echo "UTPLSQL_BUILD_NO=$( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )" >> $GITHUB_ENV
-
-      - name: Set version
-        run: echo "UTPLSQL_VERSION=$(. .travis/get_project_version.sh)" >> $GITHUB_ENV
-
-      - name: Set version with build no
-        run: echo UTPLSQL_BUILD_VERSION=$(sed -E "s/(v?[0-9]+\.)([0-9]+\.)([0-9]+)(-.*)?/\1\2\3\.${UTPLSQL_BUILD_NO}\4/" <<< "${UTPLSQL_VERSION}") >> $GITHUB_ENV
-
-      - name: Output Run numbers
-        run: echo github.run_id is ${{ github.run_id }} github.run_number is ${{ github.run_number }} UTPLSQL_BUILD_NO is $UTPLSQL_BUILD_NO UTPLSQL_VERSION is $UTPLSQL_VERSION UTPLSQL_BUILD_VERSION is $UTPLSQL_BUILD_VERSION
+#      - name: print variables
+#        run: |
+#          echo github.run_number is ${{ github.run_number }}
+#          echo UTPLSQL_BUILD_NO is $UTPLSQL_BUILD_NO
+#          echo UTPLSQL_VERSION is $UTPLSQL_VERSION
+#          echo UTPLSQL_BUILD_VERSION is $UTPLSQL_BUILD_VERSION
 
       - name: Update project version & build number
         run:  .travis/update_project_version.sh
