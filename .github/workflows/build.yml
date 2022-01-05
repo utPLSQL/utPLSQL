@@ -19,9 +19,9 @@ env:
   TAG_NAME: ${TRAVIS_TAG}
   REPO_SLUG: ${TRAVIS_REPO_SLUG}
   PR_SLUG: ${{github.repository}}
-  BRANCH_NAME: ${TRAVIS_BRANCH}
+  BRANCH_NAME: ${github.ref}
   # Environment for building a release
-  CURRENT_BRANCH: ${TRAVIS_BRANCH}
+  CURRENT_BRANCH: ${{github.ref}}
   UTPLSQL_REPO: "utPLSQL/utPLSQL"
   UTPLSQL_BUILD_NO_OFFSET: 3563
   UTPLSQL_BUILD_NO: $( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )
@@ -118,7 +118,7 @@ jobs:
         run: echo github.run_id is ${{ github.run_id }} github.run_number is ${{ github.run_number }} UTPLSQL_BUILD_NO is $UTPLSQL_BUILD_NO UTPLSQL_VERSION is $UTPLSQL_VERSION UTPLSQL_BUILD_VERSION is $UTPLSQL_BUILD_VERSION
 
       - name: Update project version & build number
-        run:  sh ${{ github.workspace }}/.travis/update_project_version.sh
+        run:  .travis/update_project_version.sh
 
       - name: Download latest utPLSQL release
         run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
@@ -145,7 +145,7 @@ jobs:
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./test/install_tests.sh
 
       - name: Run Tests
-        run: bash $(pwd)/test/run_tests.sh
+        run: bash test/run_tests.sh
 
       - name: Validate utPLSQL reports format
         run:  bash .travis/validate_report_files.sh
