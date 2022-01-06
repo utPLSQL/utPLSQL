@@ -197,7 +197,7 @@ jobs:
             source/**
             docs/**
           commit-msg: Updated project version after build [skip ci]
-          github-token: ${{ secrets.PUSH_TOKEN }}
+          github-token: ${{ secrets.API_TOKEN_GITHUB }}
           branch: ${{ env.CURRENT_BRANCH }}
         if:  |
           ${{ 
