@@ -209,6 +209,24 @@ jobs:
              ) 
           }}
 
+      - name: Copy and push documentation to utPLSQL-github-io repo
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: .travis/push_docs_to_github_io.sh
+        shell: bash
+        if:  |
+          ${{ 
+            github.repository == 'utPLSQL/utPLSQL'
+            && (github.ref_type == 'branch'
+              && ( startsWith(env.CURRENT_BRANCH,'release/') 
+                || env.CURRENT_BRANCH == 'develop'
+                || env.CURRENT_BRANCH == 'feature/github_actions'  
+              )
+              || github.ref_type == 'tag'
+            )
+          }}
+        
+
 
 # TODO - add slack notifications
 # TODO - add push of documentation
