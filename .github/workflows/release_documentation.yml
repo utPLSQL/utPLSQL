@@ -1,0 +1,56 @@
+name: Create and publish release artifacts
+env:
+  BUILD_DIR: ${{github.workspace}}
+  JOB_NUMBER: ${{github.run_number}}
+  PULL_REQUEST_NAME: ${{github.head_ref}}
+  PULL_REQUEST_BRANCH: ${{github.head_ref}}
+  REPO_SLUG: ${{github.repository}}
+  PR_SLUG: ${{github.repository}}
+
+on:
+  release:
+    types: [ created ]
+#See: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-using-multiple-events-with-activity-types-or-configuration
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Set buid version number env variables
+        run: .github/scripts/set_version_numbers_env.sh
+
+      - name: Setup git config
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Install MkDocs
+        run: pip install mkdocs
+
+      - name: Update project version & build number in source code and documentation
+        run:  .travis/update_project_version.sh
+        
+      - name: Push version update to repository
+        run:  .travis/push_project_version.sh
+
+      - name: Copy and push documentation to utPLSQL-github-io repo
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: .travis/push_docs_to_github_io.sh
+
+
+# TODO - add slack notifications
+# TODO - add building of release archive
+# TODO - add publishing of release

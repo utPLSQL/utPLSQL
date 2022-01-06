@@ -1,42 +1,7 @@
-name: Deploy and test
+name: Build and test
 env:
-  #utPLSQL install env
-  UT3_DEVELOP_SCHEMA: UT3_DEVELOP
-  UT3_DEVELOP_SCHEMA_PASSWORD: ut3
-  UT3_RELEASE_VERSION_SCHEMA: UT3
-  UT3_RELEASE_VERSION_SCHEMA_PASSWORD: ut3
-  UT3_USER: 'UT3$USER#'
-  UT3_USER_PASSWORD: ut3
-  UT3_TESTER: UT3_TESTER
-  UT3_TESTER_PASSWORD: ut3
-  UT3_TESTER_HELPER: UT3_TESTER_HELPER
-  UT3_TESTER_HELPER_PASSWORD: ut3
-  UT3_TABLESPACE: users
-  #Build env
   BUILD_DIR: ${{github.workspace}}
-  JOB_ID: ${{github.run_id}}
   JOB_NUMBER: ${{github.run_number}}
-  PULL_REQUEST_NAME: ${{github.head_ref}}
-  PULL_REQUEST_BRANCH: ${{github.head_ref}}
-  TAG_NAME: ${TRAVIS_TAG}
-  REPO_SLUG: ${{github.repository}}
-  PR_SLUG: ${{github.repository}}
-  UTPLSQL_REPO: "utPLSQL/utPLSQL"
-  UTPLSQL_BUILD_NO_OFFSET: 3563
-  # Database Env
-  SQLCLI: "sqlplus"
-  OJDBC_HOME: ${{github.workspace}}/ojdbc
-  OJDBC_URL: "https://download.oracle.com/otn-pub/otn_software/jdbc/213"
-  ORACLE_PWD: "oracle"
-  DOCKHER_HUB_REPO: "utplsqlv3/oracledb"
-  #utPLSQL released version directory
-  UTPLSQL_DIR: "utPLSQL_latest_release"
-  SELFTESTING_BRANCH: ${TRAVIS_BRANCH}
-  UTPLSQL_CLI_VERSION: "3.1.8"
-  TZ: "Europe/London"
-  # Maven
-  MAVEN_HOME: /usr/local/maven
-  MAVEN_CFG: $HOME/.m2
 
 on:
   push:
@@ -46,189 +11,138 @@ on:
 
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
 
-#  build:
-#    env:
-#      ORACLE_VERSION: ${{matrix.oracle-version}}
-#      CONNECTION_STR: ${{matrix.connection-str}}
-#      ORACLE_PASSWORD: oracle
-#      DOCKER_VOLUME: ${{matrix.docker-volume}}
-#      DOCKER_ENV: "-e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR"
-#
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        include:
-#          - oracle-version: "gvenzl/oracle-xe:11-full"
-#            connection-str: '127.0.0.1:1521/XE'
-## TODO - need to add healthcheck.sh into our containers
-##          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
-##            connection-str: '127.0.0.1:1521/ORCLCDB'
-##          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
-##            connection-str: '127.0.0.1:1521/ORCLCDB'
-#          - oracle-version: "gvenzl/oracle-xe:18-slim"
-#            connection-str: '127.0.0.1:1521/XE'
-##          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
-##            connection-str: '127.0.0.1:1521/ORCLCDB'
-##          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
-##            connection-str: '127.0.0.1:1521/ORCLCDB'
-#          - oracle-version: "gvenzl/oracle-xe:21-slim"
-#            connection-str: '127.0.0.1:1521/XE'
-#
-#    services:
-#      oracle:
-#        image: ${{matrix.oracle-version}}
-#        env:
-#          ORACLE_PASSWORD: oracle
-##        credentials:
-##          username: ${{ secrets.DOCKER_USER }}
-##          password: ${{ secrets.DOCKER_PASSWORD }}
-#        ports:
-#          - 1521:1521
-#        options: >-
-#          --health-cmd healthcheck.sh
-#          --health-interval 10s
-#          --health-timeout 5s
-#          --health-retries 10
-#          -e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR
-#
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0
-#
-#      - uses: nelonoel/branch-name@v1.0.1
-#
-#      - name: Set dynamic environment variables
-#        run: |
-#          echo "CURRENT_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
-#          echo "UTPLSQL_BUILD_NO=$( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )" >> $GITHUB_ENV
-#          echo "UTPLSQL_VERSION=$(.travis/get_project_version.sh)" >> $GITHUB_ENV
-#        shell: bash
-#
-#      - name: Set buid version number
-#        run: echo UTPLSQL_BUILD_VERSION=$(echo ${UTPLSQL_VERSION} | sed -E "s/(v?[0-9]+\.)([0-9]+\.)([0-9]+)(-.*)?/\1\2\3\.${UTPLSQL_BUILD_NO}\4/")  >> $GITHUB_ENV
-#        shell: bash
-#
-#      - name: print variables
-#        run: |
-#          echo github.run_number is ${{ github.run_number }}
-#          echo UTPLSQL_BUILD_NO is $UTPLSQL_BUILD_NO
-#          echo UTPLSQL_VERSION is $UTPLSQL_VERSION
-#          echo UTPLSQL_BUILD_VERSION is $UTPLSQL_BUILD_VERSION
-#
-#      - name: Update project version & build number to verify that code is deployable after the update
-#        run:  .travis/update_project_version.sh
-#
-#      - name: Download latest utPLSQL release
-#        run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
-#
-#      - name: Add OJDBC home
-#        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
-#
-#      - name: Install utPLSQL-cli
-#        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-#
-#      - name: Update privileges on sources
-#        run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
-#
-#      - name: Install utPLSQL
-#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .travis/install.sh
-#
-#      - name: Install utPLSQL release
-#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/install_utplsql_release.sh
-#
-#      - name: Run Examples
-#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/run_examples.sh
-#
-#      - name: Install tests
-#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./test/install_tests.sh
-#
-#      - name: Run Tests
-#        run: bash test/run_tests.sh
-#
-#      - name: Validate utPLSQL reports format
-#        run:  bash .travis/validate_report_files.sh
-#
-#      - name: SonarCloud Scan
-#        uses: SonarSource/sonarcloud-github-action@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  build:
+    env:
+      ORACLE_VERSION: ${{matrix.oracle-version}}
+      CONNECTION_STR: ${{matrix.connection-str}}
+      ORACLE_PASSWORD: oracle
+      DOCKER_VOLUME: ${{matrix.docker-volume}}
 
-  publish:
-#    needs: build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - oracle-version: "gvenzl/oracle-xe:11-full"
+            connection-str: '127.0.0.1:1521/XE'
+# TODO - need to add healthcheck.sh into our containers
+#          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+#          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+          - oracle-version: "gvenzl/oracle-xe:18-slim"
+            connection-str: '127.0.0.1:1521/XE'
+#          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+#          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            connection-str: '127.0.0.1:1521/ORCLCDB'
+          - oracle-version: "gvenzl/oracle-xe:21-slim"
+            connection-str: '127.0.0.1:1521/XE'
+
+    services:
+      oracle:
+        image: ${{matrix.oracle-version}}
+        env:
+          ORACLE_PASSWORD: oracle
+#        credentials:
+#          username: ${{ secrets.DOCKER_USER }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - uses: nelonoel/branch-name@v1.0.1
-
-      - name: Set dynamic environment variables
-        run: |
-          echo "CURRENT_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
-          echo "UTPLSQL_BUILD_NO=$( expr ${{github.run_number}} + ${UTPLSQL_BUILD_NO_OFFSET} )" >> $GITHUB_ENV
-          echo "UTPLSQL_VERSION=$(.travis/get_project_version.sh)" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Set buid version number
-        run: echo UTPLSQL_BUILD_VERSION=$(echo ${UTPLSQL_VERSION} | sed -E "s/(v?[0-9]+\.)([0-9]+\.)([0-9]+)(-.*)?/\1\2\3\.${UTPLSQL_BUILD_NO}\4/")  >> $GITHUB_ENV
-        shell: bash
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
 
 
-      - name: Install MkDocs
-        run: pip install mkdocs
+      - name: Set buid version number env variables
+        run: .github/scripts/set_version_numbers_env.sh
+
+      - name: Update project version & build number to verify that code is deployable after the update
+        run:  .travis/update_project_version.sh
+
+      - name: Download latest utPLSQL release
+        run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+
+      - name: Add OJDBC home
+        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
+
+      - name: Install utPLSQL-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+
+      - name: Update privileges on sources
+        run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
+
+      - name: Install utPLSQL
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .travis/install.sh
+
+      - name: Install utPLSQL release
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/install_utplsql_release.sh
+
+      - name: Run Examples
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/run_examples.sh
+
+      - name: Install tests
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./test/install_tests.sh
+
+      - name: Run Tests
+        run: bash test/run_tests.sh
+
+      - name: Validate utPLSQL reports format
+        run:  bash .travis/validate_report_files.sh
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: |
+      ${{ github.repository == 'utPLSQL/utPLSQL' && github.base_ref == null
+        && ( startsWith( github.ref, 'refs/heads/release/v' )  || github.ref == 'refs/heads/develop' ) 
+      }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      #Populates the value of BRANCH_NAME env variable
+      - uses: nelonoel/branch-name@v1.0.1
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
+
+      - name: Set buid version number env variables
+        run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number in source code and documentation
         run:  .travis/update_project_version.sh
-        shell: bash
         
       - name: Push version update to repository
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: |
-            sonar-project.properties
-            VERSION
-            source/**
-            docs/**
-          commit-msg: Updated project version after build [skip ci]
-          github-token: ${{ secrets.API_TOKEN_GITHUB }}
-          branch: ${{ env.CURRENT_BRANCH }}
-        if:  |
-          ${{ 
-             github.ref_type == 'branch'
-          && github.repository == 'utPLSQL/utPLSQL'
-          && ( startsWith(env.CURRENT_BRANCH,'release/') 
-             || env.CURRENT_BRANCH == 'develop' 
-             || env.CURRENT_BRANCH == 'feature/github_actions' 
-             ) 
-          }}
+        run:  .travis/push_project_version.sh
 
       - name: Copy and push documentation to utPLSQL-github-io repo
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: .travis/push_docs_to_github_io.sh
-        shell: bash
-        if:  |
-          ${{ 
-            github.repository == 'utPLSQL/utPLSQL'
-            && (github.ref_type == 'branch'
-              && ( startsWith(env.CURRENT_BRANCH,'release/') 
-                || env.CURRENT_BRANCH == 'develop'
-                || env.CURRENT_BRANCH == 'feature/github_actions'  
-              )
-              || github.ref_type == 'tag'
-            )
-          }}
-        
-
 
 # TODO - add slack notifications
-# TODO - add push of documentation
-# TODO - add building of release archive
-# TODO - add publishing of release

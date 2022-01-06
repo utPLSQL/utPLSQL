@@ -34,9 +34,6 @@ mkdir pages
 cd ./pages
 git clone --depth 1 https://${API_TOKEN_GITHUB}@github.com/${GITHUB_IO_REPO} -b ${GITHUB_IO_BRANCH} .
 
-git config user.email "github-actions[bot]@users.noreply.github.com"
-git config user.name "github-actions[bot]"
-
 mkdir -p utPLSQL
 cd ./utPLSQL
 #clear out develop documentation directory and copy docs contents to it.
