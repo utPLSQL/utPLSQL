@@ -165,7 +165,7 @@ jobs:
 
   publish:
     name: Deploy documentation
-    needs: [build-and-test]
+    needs: [ build-and-test ]
     concurrency: publish
     runs-on: ubuntu-latest
     if: |
@@ -207,7 +207,7 @@ jobs:
   slack-workflow-status:
     if: always()
     name: Post Workflow Status To Slack
-    needs: [build-and-test, publish]
+    needs: [ build-and-test, publish ]
     runs-on: ubuntu-latest
     steps:
       - name: Slack Workflow Notification
@@ -219,3 +219,4 @@ jobs:
           # Optional Input
           name: 'Github Actions[bot]'
           icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
+#TODO - add triggering of builds on other repositories

@@ -1,13 +1,7 @@
 name: Create and publish release artifacts
-env:
-  PULL_REQUEST_NAME: ${{github.head_ref}}
-  PULL_REQUEST_BRANCH: ${{github.head_ref}}
-  REPO_SLUG: ${{github.repository}}
-  PR_SLUG: ${{github.repository}}
-
 on:
   release:
-    types: [ created ]
+    types: [ released ]
 #See: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-using-multiple-events-with-activity-types-or-configuration
 
 defaults:
@@ -17,6 +11,7 @@ defaults:
 jobs:
 
   publish:
+    name: Deploy documentation
     concurrency: publish
     runs-on: ubuntu-latest
 
@@ -37,9 +32,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Install MkDocs
-        run: pip install mkdocs
-
       - name: Update project version & build number in source code and documentation
         run:  .travis/update_project_version.sh
         
@@ -48,11 +40,52 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: .travis/push_docs_to_github_io.sh
 
+  upload_artifacts:
+    name: Upload archives
+    concurrency: upload
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Update project version & build number in source code and documentation
+        run: .travis/update_project_version.sh
+
+      - name: Setup git config
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Build html documentation
+        run: |
+          pip install mkdocs
+          mkdocs build --clean --strict          
+          rm -rf docs/* 
+          cp -r -v site/* docs
+          git add .
+          git commit -m "tmp commit of HTML documentation for building a release archive"
+
+      - name: Build release archives
+        run: |
+          git archive --prefix=utPLSQL/ -o utPLSQL.zip    --format=zip    HEAD
+          git archive --prefix=utPLSQL/ -o utPLSQL.tar.gz --format=tar.gz HEAD
+          md5sum utPLSQL.zip  --tag > utPLSQL.zip.md5
+          md5sum utPLSQL.tar.gz  --tag > utPLSQL.tar.gz.md5
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            utPLSQL.zip
+            utPLSQL.zip.md5
+            utPLSQL.tar.gz
+            utPLSQL.tar.gz.md5
 
   slack-workflow-status:
     if: always()
     name: Post Workflow Status To Slack
-    needs: [publish]
+    needs: [ publish, upload_artifacts ]
     runs-on: ubuntu-latest
     steps:
       - name: Slack Workflow Notification
@@ -65,5 +98,3 @@ jobs:
           name: 'Github Actions[bot]'
           icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
 
-# TODO - add building of release archive
-# TODO - add publishing of release
