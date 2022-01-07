@@ -1,4 +1,4 @@
-name: Build and test
+name: Build, test, deploy documentation
 env:
   BUILD_DIR: ${{github.workspace}}
   JOB_NUMBER: ${{github.run_number}}
@@ -11,13 +11,16 @@ on:
 
   workflow_dispatch:
 
+concurrency: ${{github.ref}}
+
 defaults:
   run:
     shell: bash
 
 jobs:
 
-  build:
+  build-and-test:
+    name: Build and test on ${{matrix.db_version_name}} DB
     env:
       ORACLE_VERSION: ${{matrix.oracle-version}}
       CONNECTION_STR: ${{matrix.connection-str}}
@@ -31,19 +34,33 @@ jobs:
         include:
           - oracle-version: "gvenzl/oracle-xe:11-full"
             connection-str: '127.0.0.1:1521/XE'
+            id: 1
+            db_version_name: '11xe'
 # TODO - need to add healthcheck.sh into our containers
 #          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
+#            id: 2
+#            db_version_name: '12.1se'
 #          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
+#            id: 3
+#            db_version_name: '12.2se'
           - oracle-version: "gvenzl/oracle-xe:18-slim"
             connection-str: '127.0.0.1:1521/XE'
+            id: 4
+            db_version_name: '18xe'
 #          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
+#            id: 5
+#            db_version_name: '18se'
 #          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
+#            id: 6
+#            db_version_name: '19se'
           - oracle-version: "gvenzl/oracle-xe:21-slim"
             connection-str: '127.0.0.1:1521/XE'
+            id: 7
+            db_version_name: '21xe'
 
     services:
       oracle:
@@ -71,50 +88,63 @@ jobs:
           env-file: .github/variables/.env
 
 
-      - name: Set buid version number env variables
+      - name: Set build version number env variables
+        id: set-build-version-number-vars
         run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number to verify that code is deployable after the update
+        id: update-project-version
         run:  .travis/update_project_version.sh
 
       - name: Download latest utPLSQL release
         run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
 
-      - name: Add OJDBC home
-        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
-
-      - name: Install utPLSQL-cli
-        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
 
+      - name: Add OJDBC home
+        id: get-ojdbc
+        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
+
+      - name: Install utPLSQL-cli
+        id: install-utplsql-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+
       - name: Install utPLSQL
+        id: install-utplsql
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .travis/install.sh
 
       - name: Install utPLSQL release
+        id: install-utplsql-release
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/install_utplsql_release.sh
 
       - name: Run Examples
+        id: run-examples
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/run_examples.sh
 
       - name: Install tests
+        id: install-tests
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./test/install_tests.sh
 
       - name: Run Tests
+        id: run-tests
         run: bash test/run_tests.sh
 
       - name: Validate utPLSQL reports format
+        id: validate-reports-format
         run:  bash .travis/validate_report_files.sh
 
       - name: SonarCloud Scan
+        id: sonar
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   publish:
-    needs: build
+    name: Deploy documentation
+    needs: [build-and-test]
+    concurrency: publish
     runs-on: ubuntu-latest
     if: |
       ${{ github.repository == 'utPLSQL/utPLSQL' && github.base_ref == null
@@ -132,17 +162,35 @@ jobs:
           env-file: .github/variables/.env
 
       - name: Set buid version number env variables
+        id: set-build-version-number-vars
         run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number in source code and documentation
+        id: update-project-version
         run:  .travis/update_project_version.sh
         
       - name: Push version update to repository
+        id: push-version-number-update
         run:  .travis/push_project_version.sh
 
       - name: Copy and push documentation to utPLSQL-github-io repo
+        id: push-documentation
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: .travis/push_docs_to_github_io.sh
 
-# TODO - add slack notifications
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status To Slack
+    needs: [build-and-test, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@master
+        with:
+          # Required Input
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          # Optional Input
+          name: 'Github Actions[bot]'
+          icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
