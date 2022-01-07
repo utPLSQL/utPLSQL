@@ -78,9 +78,9 @@ if [ ! -f index.md ]; then
 fi
 #If build running on a TAG - it's a new release - need to add it to documentation
 if [ "${GITHUB_REF_TYPE}" == "tag" ]; then
-  sed -i '7s@.*@'" - [Latest ${CURRENT_BRANCH} documentation](latest/) - Created $now"'@' index.md
+  sed -i '7s@.*@'" - [Latest ${CI_ACTION_REF_NAME} documentation](latest/) - Created $now"'@' index.md
   #add entry to the top of version history (line end of file - ## Released Version Doc History
-  sed -i '12i'" - [${CURRENT_BRANCH} documentation](${UTPLSQL_VERSION}/) - Created $now" index.md
+  sed -i '12i'" - [${CI_ACTION_REF_NAME} documentation](${UTPLSQL_VERSION}/) - Created $now" index.md
 fi
 #replace 4th line in log
 sed -i '8s@.*@'" - [Latest development version](develop/) - Created $now"'@'  index.md

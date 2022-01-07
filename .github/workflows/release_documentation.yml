@@ -1,7 +1,5 @@
 name: Create and publish release artifacts
 env:
-  BUILD_DIR: ${{github.workspace}}
-  JOB_NUMBER: ${{github.run_number}}
   PULL_REQUEST_NAME: ${{github.head_ref}}
   PULL_REQUEST_BRANCH: ${{github.head_ref}}
   REPO_SLUG: ${{github.repository}}
@@ -26,8 +24,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - uses: nelonoel/branch-name@v1.0.1
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
 
       - name: Set buid version number env variables
         run: .github/scripts/set_version_numbers_env.sh
@@ -43,15 +43,27 @@ jobs:
       - name: Update project version & build number in source code and documentation
         run:  .travis/update_project_version.sh
         
-      - name: Push version update to repository
-        run:  .travis/push_project_version.sh
-
       - name: Copy and push documentation to utPLSQL-github-io repo
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: .travis/push_docs_to_github_io.sh
 
 
-# TODO - add slack notifications
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status To Slack
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@master
+        with:
+          # Required Input
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          # Optional Input
+          name: 'Github Actions[bot]'
+          icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
+
 # TODO - add building of release archive
 # TODO - add publishing of release

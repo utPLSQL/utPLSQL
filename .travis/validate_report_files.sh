@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 GL_VALID=1
-XSD_DIR="$BUILD_DIR/.travis/xsd"
-XML_JAR_DIR="$BUILD_DIR/.travis/lib"
+XSD_DIR=".travis/xsd"
+XML_JAR_DIR=".travis/lib"
 #XML Validator
 XML_VALIDATOR="$XML_JAR_DIR/xml_validator.jar"
 HTML_VALIDATOR_URL="https://validator.w3.org/nu/"

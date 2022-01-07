@@ -1,7 +1,4 @@
 name: Build, test, deploy documentation
-env:
-  BUILD_DIR: ${{github.workspace}}
-  JOB_NUMBER: ${{github.run_number}}
 
 on:
   push:
@@ -12,7 +9,6 @@ on:
   workflow_dispatch:
 
 concurrency: ${{github.ref}}
-
 defaults:
   run:
     shell: bash
@@ -21,13 +17,12 @@ jobs:
 
   build-and-test:
     name: Build and test on ${{matrix.db_version_name}} DB
+    runs-on: ubuntu-latest
     env:
       ORACLE_VERSION: ${{matrix.oracle-version}}
       CONNECTION_STR: ${{matrix.connection-str}}
       ORACLE_PASSWORD: oracle
       DOCKER_VOLUME: ${{matrix.docker-volume}}
-
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -67,9 +62,10 @@ jobs:
         image: ${{matrix.oracle-version}}
         env:
           ORACLE_PASSWORD: oracle
-#        credentials:
-#          username: ${{ secrets.DOCKER_USER }}
-#          password: ${{ secrets.DOCKER_PASSWORD }}
+          MATRIX_JOB_ID: ${{matrix.id}}
+        credentials:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
         ports:
           - 1521:1521
         options: >-
@@ -82,11 +78,37 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: nelonoel/branch-name@v1.0.1
       - uses: c-py/action-dotenv-to-setenv@v2
         with:
           env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
 
+      - name: Print environment variables
+        run: |
+          echo "CI_REPOSITORY_SLUG=$CI_REPOSITORY_SLUG"
+          echo "CI_REPOSITORY_OWNER=$CI_REPOSITORY_OWNER"
+          echo "CI_REPOSITORY_OWNER_SLUG=$CI_REPOSITORY_OWNER_SLUG"
+          echo "CI_REPOSITORY_NAME=$CI_REPOSITORY_NAME"
+          echo "CI_REPOSITORY_NAME_SLUG=$CI_REPOSITORY_NAME_SLUG"
+          echo "CI_REPOSITORY=$CI_REPOSITORY"
+          echo "CI_REF_SLUG=$CI_REF_SLUG"
+          echo "CI_ACTION_REF_NAME=$CI_ACTION_REF_NAME"
+          echo "CI_ACTION_REF_NAME_SLUG=$CI_ACTION_REF_NAME_SLUG"
+          echo "CI_REF_NAME=$CI_REF_NAME"
+          echo "CI_REF_NAME_SLUG=$CI_REF_NAME_SLUG"
+          echo "CI_REF=$CI_REF"
+          echo "CI_HEAD_REF_SLUG=$CI_HEAD_REF_SLUG"
+          echo "CI_HEAD_REF=$CI_HEAD_REF"
+          echo "CI_BASE_REF_SLUG=$CI_BASE_REF_SLUG"
+          echo "CI_BASE_REF=$CI_BASE_REF"
+          echo "CI_SHA_SHORT=$CI_SHA_SHORT"
+          echo "CI_SHA=$CI_SHA"
+          echo "CI_ACTOR=$CI_ACTOR"
+          echo "CI_EVENT_NAME=$CI_EVENT_NAME"
+          echo "CI_RUN_ID=$CI_RUN_ID"
+          echo "CI_RUN_NUMBER=$CI_RUN_NUMBER"
+          echo "CI_WORKFLOW=$CI_WORKFLOW"
+          echo "CI_ACTION=$CI_ACTION"
 
       - name: Set build version number env variables
         id: set-build-version-number-vars
@@ -147,19 +169,19 @@ jobs:
     concurrency: publish
     runs-on: ubuntu-latest
     if: |
-      ${{ github.repository == 'utPLSQL/utPLSQL' && github.base_ref == null
-        && ( startsWith( github.ref, 'refs/heads/release/v' )  || github.ref == 'refs/heads/develop' ) 
-      }}
+      github.repository == 'utPLSQL/utPLSQL' && 
+      github.base_ref == null && 
+      ( startsWith( github.ref, 'refs/heads/release/v' )  || 
+        github.ref == 'refs/heads/develop' )
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      #Populates the value of BRANCH_NAME env variable
-      - uses: nelonoel/branch-name@v1.0.1
       - uses: c-py/action-dotenv-to-setenv@v2
         with:
           env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
 
       - name: Set buid version number env variables
         id: set-build-version-number-vars
@@ -171,7 +193,10 @@ jobs:
         
       - name: Push version update to repository
         id: push-version-number-update
-        run:  .travis/push_project_version.sh
+        run:  |
+          git add sonar-project.properties VERSION source/* docs/*
+          git commit -m 'Updated project version after build [skip ci]'
+          git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
 
       - name: Copy and push documentation to utPLSQL-github-io repo
         id: push-documentation
