@@ -162,7 +162,7 @@ We welcome new developers to join our community and contribute to the utPLSQL pr
 If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 The best place to start is to read the documentation and get familiar with the existing code base.
 A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
-To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA).
+To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww).
 
 
 ----------
@@ -182,7 +182,7 @@ __Project Directories__
 
 ----------
 
-If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [slack chat rooms](https://utplsql.slack.com/). Use [invite link](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA) to join the chat.  
+If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [slack chat rooms](https://utplsql.slack.com/). Use [invite link](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww) to join the chat.  
 
 
 # Version 2 to Version 3 Comparison
