@@ -4,6 +4,7 @@
 .travis.yml               export-ignore
 mkdocs.yml                export-ignore
 .travis                   export-ignore
+.github                   export-ignore
 sonar-project.properties  export-ignore
 tests                     export-ignore
 development               export-ignore

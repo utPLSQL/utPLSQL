@@ -7,7 +7,7 @@
 #   - index.md logging doc history
 
 # How to run:
-#  - From repository root .travis/push_docs_to_gh_pages.sh
+#  - From repository root .github/scripts/push_docs_to_gh_pages.sh
 
 # Required files / directories (relative from repo root)
 # - File: "docs/index.md" with that contains develop docs
@@ -16,7 +16,7 @@
 LATEST_DOCS_BRANCH="develop"
 GITHUB_IO_REPO='utPLSQL/utPLSQL.github.io'
 GITHUB_IO_BRANCH='main'
-
+DOCS_DIR='../../docs/.'
 
 # ENV Variable checks are to help with configuration troubleshooting, they silently exit with unique message.
 # Anyone one of them not set can be used to turn off this functionality.
@@ -40,18 +40,18 @@ cd ./utPLSQL
 echo "updating 'develop' documentation directory"
 mkdir -p ./develop
 rm -rf ./develop/**./* || exit 0
-cp -a ../../docs/. ./develop
+cp -a ${DOCS_DIR} ./develop
 
 # If a Tagged Build then copy to it's own directory as well and to the 'latest' release directory
 if [ "${GITHUB_REF_TYPE}" == "tag" ]; then
   echo "Creating directory ./${UTPLSQL_VERSION}"
   mkdir -p ./${UTPLSQL_VERSION}
   rm -rf ./${UTPLSQL_VERSION}/**./* || exit 0
-  cp -a ../../docs/. ./${UTPLSQL_VERSION}
+  cp -a ${DOCS_DIR} ./${UTPLSQL_VERSION}
   echo "Populating 'latest' directory"
   mkdir -p ./latest
   rm -rf ./latest/**./* || exit 0
-  cp -a ../../docs/. ./latest
+  cp -a ${DOCS_DIR} ./latest
 fi
 # Stage changes for commit
 git add .
@@ -67,7 +67,7 @@ if [ ! -f index.md ]; then
   echo "---" >>index.md
   echo "layout: default" >>index.md
   echo "---" >>index.md
-  echo "<!-- Auto generated from .travis/push_docs_to_github_io.sh -->" >>index.md
+  echo "<!-- Auto generated from .github/scripts/push_docs_to_github_io.sh -->" >>index.md
   echo "# Documentation versions" >>index.md
   echo "" >>index.md
   echo "" >>index.md #- 7th line - placeholder for latest release doc

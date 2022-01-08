@@ -10,11 +10,11 @@ if ! development/cleanup.sh; then
   echo -e ${header}"\nFailed to cleanup utPLSQL environment\n"${header}
   exit 1
 fi
-if ! .travis/install.sh; then
+if ! .github/scripts/install.sh; then
   echo -e ${header}"\nFailed to install utPLSQL from current branch into ${UT3_DEVELOP_SCHEMA} schema\n"${header}
   exit 1
 fi
-if ! .travis/install_utplsql_release.sh; then
+if ! .github/scripts/install_utplsql_release.sh; then
     echo -e ${header}"\nFailed to install utPLSQL from branch ${SELFTESTING_BRANCH} into ${UT3_RELEASE_VERSION_SCHEMA}\n"${header}
     exit 1
 fi

@@ -172,6 +172,7 @@ To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_i
 ----------
 __Project Directories__
 
+* .github - contains files needed for github Actions integration
 * .travis - contains files needed for travis-ci integration
 * client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
 * development - Set of useful scripts and utilities for development and debugging of utPLSQL 

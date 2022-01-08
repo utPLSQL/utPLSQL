@@ -1,8 +1,7 @@
 name: Build, test, deploy documentation
-
 on:
   push:
-    branches: [ develop, feature/github_actions ]
+    branches-ignore: [ main ]
   pull_request:
     branches: [ develop ]
 
@@ -15,7 +14,7 @@ defaults:
 
 jobs:
 
-  build-and-test:
+  build:
     name: Build and test on ${{matrix.db_version_name}} DB
     runs-on: ubuntu-latest
     env:
@@ -83,43 +82,17 @@ jobs:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
 
-      - name: Print environment variables
-        run: |
-          echo "CI_REPOSITORY_SLUG=$CI_REPOSITORY_SLUG"
-          echo "CI_REPOSITORY_OWNER=$CI_REPOSITORY_OWNER"
-          echo "CI_REPOSITORY_OWNER_SLUG=$CI_REPOSITORY_OWNER_SLUG"
-          echo "CI_REPOSITORY_NAME=$CI_REPOSITORY_NAME"
-          echo "CI_REPOSITORY_NAME_SLUG=$CI_REPOSITORY_NAME_SLUG"
-          echo "CI_REPOSITORY=$CI_REPOSITORY"
-          echo "CI_REF_SLUG=$CI_REF_SLUG"
-          echo "CI_ACTION_REF_NAME=$CI_ACTION_REF_NAME"
-          echo "CI_ACTION_REF_NAME_SLUG=$CI_ACTION_REF_NAME_SLUG"
-          echo "CI_REF_NAME=$CI_REF_NAME"
-          echo "CI_REF_NAME_SLUG=$CI_REF_NAME_SLUG"
-          echo "CI_REF=$CI_REF"
-          echo "CI_HEAD_REF_SLUG=$CI_HEAD_REF_SLUG"
-          echo "CI_HEAD_REF=$CI_HEAD_REF"
-          echo "CI_BASE_REF_SLUG=$CI_BASE_REF_SLUG"
-          echo "CI_BASE_REF=$CI_BASE_REF"
-          echo "CI_SHA_SHORT=$CI_SHA_SHORT"
-          echo "CI_SHA=$CI_SHA"
-          echo "CI_ACTOR=$CI_ACTOR"
-          echo "CI_EVENT_NAME=$CI_EVENT_NAME"
-          echo "CI_RUN_ID=$CI_RUN_ID"
-          echo "CI_RUN_NUMBER=$CI_RUN_NUMBER"
-          echo "CI_WORKFLOW=$CI_WORKFLOW"
-          echo "CI_ACTION=$CI_ACTION"
-
       - name: Set build version number env variables
         id: set-build-version-number-vars
         run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number to verify that code is deployable after the update
         id: update-project-version
-        run:  .travis/update_project_version.sh
+        run:  .github/scripts/update_project_version.sh
 
-      - name: Download latest utPLSQL release
-        run: git clone --depth=1 --branch=main https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+      - name: Download utPLSQL release for testing
+# For PR build - test using target branch as framework, for branch build use self as testing framework
+        run: git clone --depth=1 --branch=${CI_HEAD_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
 
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
@@ -134,19 +107,19 @@ jobs:
 
       - name: Install utPLSQL
         id: install-utplsql
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .travis/install.sh
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
 
       - name: Install utPLSQL release
         id: install-utplsql-release
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/install_utplsql_release.sh
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
 
       - name: Run Examples
         id: run-examples
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./.travis/run_examples.sh
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/run_examples.sh
 
       - name: Install tests
         id: install-tests
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} ./test/install_tests.sh
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} test/install_tests.sh
 
       - name: Run Tests
         id: run-tests
@@ -154,7 +127,7 @@ jobs:
 
       - name: Validate utPLSQL reports format
         id: validate-reports-format
-        run:  bash .travis/validate_report_files.sh
+        run:  bash .github/scripts/validate_report_files.sh
 
       - name: SonarCloud Scan
         id: sonar
@@ -165,15 +138,16 @@ jobs:
 
   publish:
     name: Deploy documentation
-    needs: [ build-and-test ]
+    needs: [ build ]
     concurrency: publish
     runs-on: ubuntu-latest
     if: |
       github.repository == 'utPLSQL/utPLSQL' && 
       github.base_ref == null && 
-      ( startsWith( github.ref, 'refs/heads/release/v' )  || 
-        github.ref == 'refs/heads/develop' )
-
+      ( startsWith( github.ref, 'refs/heads/release/v' ) 
+        || github.ref == 'refs/heads/develop'
+        || github.ref == 'refs/heads/feature/github_actions'
+      )
     steps:
       - uses: actions/checkout@v2
         with:
@@ -182,32 +156,52 @@ jobs:
         with:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
-
       - name: Set buid version number env variables
         id: set-build-version-number-vars
         run: .github/scripts/set_version_numbers_env.sh
-
       - name: Update project version & build number in source code and documentation
         id: update-project-version
-        run:  .travis/update_project_version.sh
-        
+        run:  .github/scripts/update_project_version.sh
       - name: Push version update to repository
         id: push-version-number-update
         run:  |
           git add sonar-project.properties VERSION source/* docs/*
           git commit -m 'Updated project version after build [skip ci]'
           git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
-
       - name: Copy and push documentation to utPLSQL-github-io repo
         id: push-documentation
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: .travis/push_docs_to_github_io.sh
+        run: .github/scripts/push_docs_to_github_io.sh
+
+  dispatch:
+    name: Dispatch downstream builds
+    concurrency: trigger
+    needs: [ build, publish ]
+    runs-on: ubuntu-latest
+    if: |
+      github.repository == 'utPLSQL/utPLSQL' && 
+      github.base_ref == null && 
+      ( startsWith( github.ref, 'refs/heads/release/v' ) 
+        || github.ref == 'refs/heads/develop'
+        || github.ref == 'refs/heads/feature/github_actions'
+      )
+    strategy:
+      matrix:
+        repo: ['utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project']
+#        repo: ['utPLSQL/utPLSQL-java-api', 'utPLSQL/utPLSQL-v2-v3-migration', 'utPLSQL/utPLSQL-cli', 'utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project']
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          repository: ${{ matrix.repo }}
+          event-type: utPLSQL-build
 
   slack-workflow-status:
     if: always()
     name: Post Workflow Status To Slack
-    needs: [ build-and-test, publish ]
+    needs: [ build, publish, dispatch ]
     runs-on: ubuntu-latest
     steps:
       - name: Slack Workflow Notification
@@ -219,4 +213,3 @@ jobs:
           # Optional Input
           name: 'Github Actions[bot]'
           icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
-#TODO - add triggering of builds on other repositories

@@ -2,7 +2,7 @@
 
 set -ev
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-cd ${SCRIPT_DIR}/../source
+cd ${SCRIPT_DIR}/../../source
 
 INSTALL_FILE="install_headless_with_trigger.sql"
 if [[ ! -f "${INSTALL_FILE}" ]]; then

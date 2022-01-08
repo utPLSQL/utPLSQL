@@ -1,7 +1,7 @@
 #!/bin/bash
 
 UTPLSQL_BUILD_NO=$( expr ${GITHUB_RUN_NUMBER} + ${UTPLSQL_BUILD_NO_OFFSET} )
-UTPLSQL_VERSION=$(.travis/get_project_version.sh)
+UTPLSQL_VERSION=$(.github/scripts/get_project_version.sh)
 
 echo "UTPLSQL_BUILD_NO=${UTPLSQL_BUILD_NO}" >> $GITHUB_ENV
 echo "UTPLSQL_VERSION=${UTPLSQL_VERSION}" >> $GITHUB_ENV
