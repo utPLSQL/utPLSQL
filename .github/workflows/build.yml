@@ -144,10 +144,7 @@ jobs:
     if: |
       github.repository == 'utPLSQL/utPLSQL' &&
       github.base_ref == null &&
-      ( startsWith( github.ref, 'refs/heads/release/v' )
-        || github.ref == 'refs/heads/develop'
-        || github.ref == 'refs/heads/feature/github_actions'
-      )
+      ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
     steps:
       - uses: actions/checkout@v2
         with:
