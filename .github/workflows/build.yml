@@ -174,7 +174,7 @@ jobs:
   dispatch:
     name: Dispatch downstream builds
     concurrency: trigger
-#    needs: [ build, publish ]
+    needs: [ build, publish ]
     runs-on: ubuntu-latest
     if: |
       github.repository == 'utPLSQL/utPLSQL' && 
