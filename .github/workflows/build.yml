@@ -177,12 +177,8 @@ jobs:
     needs: [ build, publish ]
     runs-on: ubuntu-latest
     if: |
-      github.repository == 'utPLSQL/utPLSQL' && 
-      github.base_ref == null && 
-      ( startsWith( github.ref, 'refs/heads/release/v' ) 
-        || github.ref == 'refs/heads/develop'
-        || github.ref == 'refs/heads/feature/github_actions'
-      )
+      github.repository == 'utPLSQL/utPLSQL' && github.base_ref == null && 
+      ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
     strategy:
       matrix:
         repo: ['utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project']
@@ -204,9 +200,7 @@ jobs:
       - name: Slack Workflow Notification
         uses: Gamesight/slack-workflow-status@master
         with:
-          # Required Input
           repo_token: ${{secrets.GITHUB_TOKEN}}
           slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
-          # Optional Input
           name: 'Github Actions[bot]'
           icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
