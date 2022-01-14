@@ -9,8 +9,8 @@
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://travis-ci.com/utPLSQL/utPLSQL.svg?branch=develop)](https://travis-ci.com/utPLSQL/utPLSQL)
-[![sonar](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
-[![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
+[![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL)
 
 ----------
 utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
@@ -172,6 +172,7 @@ To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_i
 ----------
 __Project Directories__
 
+* .github - contains files needed for github Actions integration
 * .travis - contains files needed for travis-ci integration
 * client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
 * development - Set of useful scripts and utilities for development and debugging of utPLSQL 

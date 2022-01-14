@@ -2,10 +2,10 @@
 
 UTPLSQL_VERSION_PATTERN="v?([0-9]+\.){3}[0-9]+[^']*"
 
-echo Current branch is "${CURRENT_BRANCH}"
+echo Current branch is "${CI_ACTION_REF_NAME}"
 
 echo Update version in project source files
-find ${UTPLSQL_SOURCES_DIR} -type f -name '*' -exec sed -i -r "s/${UTPLSQL_VERSION_PATTERN}/${UTPLSQL_BUILD_VERSION}/" {} \;
+find source -type f -name '*' -exec sed -i -r "s/${UTPLSQL_VERSION_PATTERN}/${UTPLSQL_BUILD_VERSION}/" {} \;
 echo Source files updated with version tag: ${UTPLSQL_BUILD_VERSION}
 
 echo Update version in documentation files

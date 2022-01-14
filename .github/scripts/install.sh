@@ -2,7 +2,7 @@
 
 set -ev
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-cd ${SCRIPT_DIR}/../source
+cd ${SCRIPT_DIR}/../../source
 
 INSTALL_FILE="install_headless_with_trigger.sql"
 if [[ ! -f "${INSTALL_FILE}" ]]; then
@@ -20,8 +20,7 @@ alter session set plsql_optimize_level=0;
 @${INSTALL_FILE} $UT3_DEVELOP_SCHEMA $UT3_DEVELOP_SCHEMA_PASSWORD
 SQL
 
-#Run this step only on second child job (12.1 - at it's fastest)
-if [[ "${JOB_NUMBER}" =~ \.2$ ]]; then
+if [[ "${MATRIX_JOB_ID}" == 1 ]]; then
 
     #check code-style for errors
     time "$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @../development/utplsql_style_check.sql
