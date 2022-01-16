@@ -141,14 +141,22 @@ jobs:
     needs: [ build ]
     concurrency: publish
     runs-on: ubuntu-latest
+    env:
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
     if: |
       github.repository == 'utPLSQL/utPLSQL' &&
       github.base_ref == null &&
       ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
     steps:
+      - name: 🔍 API_TOKEN_GITHUB
+        if: env.API_TOKEN_GITHUB == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "API_TOKEN_GITHUB=${GITHUB_TOKEN}" >> $GITHUB_ENV
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          token: ${{ env.API_TOKEN_GITHUB }}
       - uses: c-py/action-dotenv-to-setenv@v2
         with:
           env-file: .github/variables/.env
@@ -164,7 +172,7 @@ jobs:
 
       - name: Push version update to repository
         id: push-version-number-update
-        run:  |
+        run: |
           git add sonar-project.properties VERSION source/* docs/*
           git commit -m 'Updated project version after build [skip ci]'
           git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
