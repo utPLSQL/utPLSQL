@@ -194,7 +194,7 @@ jobs:
     strategy:
       matrix:
         repo: ['utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project','utPLSQL/utPLSQL-java-api']
-#        repo: ['utPLSQL/utPLSQL-java-api', 'utPLSQL/utPLSQL-v2-v3-migration', 'utPLSQL/utPLSQL-cli', 'utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project']
+#        repo: [ 'utPLSQL/utPLSQL-v2-v3-migration', 'utPLSQL/utPLSQL-cli' ]
     steps:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1

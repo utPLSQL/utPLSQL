@@ -8,7 +8,7 @@
 [![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
-[![build](https://travis-ci.com/utPLSQL/utPLSQL.svg?branch=develop)](https://travis-ci.com/utPLSQL/utPLSQL)
+[![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
 [![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL)
 
