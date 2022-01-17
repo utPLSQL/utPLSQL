@@ -193,8 +193,8 @@ jobs:
       ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
     strategy:
       matrix:
-        repo: ['utPLSQL/utPLSQL-maven-plugin', 'utPLSQL/utPLSQL-demo-project','utPLSQL/utPLSQL-java-api']
-#        repo: [ 'utPLSQL/utPLSQL-v2-v3-migration', 'utPLSQL/utPLSQL-cli' ]
+        repo: [ 'utPLSQL/utPLSQL-demo-project', 'utPLSQL/utPLSQL-java-api' ]
+#        repo: [ 'utPLSQL/utPLSQL-v2-v3-migration' ]
     steps:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
