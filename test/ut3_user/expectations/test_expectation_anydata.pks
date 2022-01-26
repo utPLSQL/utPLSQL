@@ -204,11 +204,28 @@ create or replace package test_expectation_anydata is
   --%test ( Empty Array not equal array with space )
   procedure arr_empty_nqua_arr_e_unord;  
   
-  --%test ( Failure of comparing nesting objects )
+  --%test ( Failure of comparing nested objects )
   procedure failure_nesting_objects;
  
   --%test ( Failure of comparing double nested objects ) 
   procedure failure_double_nested_objects;
   
+  --%test ( Success of comparing nested objects )
+  procedure success_nesting_objects;
+  
+  --%test ( Success of comparing double nested objects ) 
+  procedure success_double_nested_objects;  
+ 
+  --%test ( Failure of comparing nested object list )
+  procedure failure_nested_object_list;
+ 
+  --%test ( Success of comparing nested object list )
+  procedure success_nested_object_list;
+  
+  --%test(Nested VARRAYS with same data)
+  procedure nested_varray_same_data;
+  
+  --%test(Nested VARRAYS with different data)
+  procedure nested_varray_diff_data;  
 end;
 /

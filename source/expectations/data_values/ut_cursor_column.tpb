@@ -14,8 +14,11 @@ create or replace type body ut_cursor_column as
       self.column_len       := a_col_max_len; --length of column
       self.column_precision := a_col_precision;
       self.column_scale     := a_col_scale;
-      self.column_name      := TRIM( BOTH '''' FROM a_col_name); --name of the column
       self.column_type_name := coalesce(a_col_type_name,a_col_type); --type name e.g. test_dummy_object or varchar2
+      self.column_name      := case when a_col_name is null and a_collection = 1 then 
+                                 self.column_type_name 
+                               else TRIM( BOTH '''' FROM a_col_name) 
+                               end;  --name of the column, however in nested object for collection name is not defined in cursor.
       self.xml_valid_name   := ut_utils.get_valid_xml_name(self.column_name);
       self.display_path     := case when a_access_path is null then 
                                  self.column_name 
@@ -25,7 +28,7 @@ create or replace type body ut_cursor_column as
       self.access_path      := case when a_access_path is null then 
                                  self.xml_valid_name 
                                else 
-                                 a_access_path||'/'||self.xml_valid_name 
+                                 a_access_path||'/'||self.xml_valid_name
                                end; --Access path used for XMLTABLE query   
       self.filter_path      := '/'||self.access_path; --Filter path will differ from access path in anydata type
       --Transformed name needs to be build on full access path to avoid ambiguity when there is 3 or more levels of nesting.
