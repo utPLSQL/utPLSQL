@@ -206,6 +206,9 @@ create or replace package test_expectation_anydata is
   
   --%test ( Failure of comparing nesting objects )
   procedure failure_nesting_objects;
+ 
+  --%test ( Failure of comparing double nested objects ) 
+  procedure failure_double_nested_objects;
   
 end;
 /

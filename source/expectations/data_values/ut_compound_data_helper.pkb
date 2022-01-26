@@ -144,9 +144,7 @@ create or replace package body ut_compound_data_helper is
         l_index := a_pk_table.next(l_index);
       end loop;
     end if;  
-    if a_data_info.column_type in ('OBJECT') then    
-      null;  
-    elsif not(l_exists) then  
+    if not(l_exists) then  
       l_sql_stmt := ' (decode(a.'||a_data_info.transformed_name||','||' e.'||a_data_info.transformed_name||',1,0) = 0)';
     end if; 
     return l_sql_stmt;
@@ -163,9 +161,7 @@ create or replace package body ut_compound_data_helper is
     if l_pk_tab.count <> 0 then
     l_index:= l_pk_tab.first;
     loop
-      if a_data_info.column_type in ('OBJECT') then    
-          null;
-      elsif l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name)  then
+      if l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name)  then
         --When then table is nested and join is on whole table
         l_sql_stmt := l_sql_stmt ||' a.'||a_data_info.transformed_name||q'[ = ]'||' e.'||a_data_info.transformed_name;
       end if;
@@ -191,9 +187,7 @@ create or replace package body ut_compound_data_helper is
     if a_pk_table is not empty then
       l_index:= a_pk_table.first;
       loop
-        if a_data_info.column_type in ('OBJECT') then    
-          null;
-        elsif a_pk_table(l_index) in (a_data_info.access_path, a_data_info.parent_name) then
+        if a_pk_table(l_index) in (a_data_info.access_path, a_data_info.parent_name) then
           --When then table is nested and join is on whole table
           l_sql_stmt := l_sql_stmt ||a_alias||a_data_info.transformed_name;
         end if;        
@@ -201,11 +195,7 @@ create or replace package body ut_compound_data_helper is
         l_index := a_pk_table.next(l_index);
       end loop;
     else
-      if a_data_info.column_type in ('OBJECT') then    
-        null;   
-      else 
-       l_sql_stmt := a_alias||a_data_info.transformed_name;
-      end if;
+      l_sql_stmt := a_alias||a_data_info.transformed_name;
     end if;
     return l_sql_stmt; 
   end;   
@@ -216,9 +206,7 @@ create or replace package body ut_compound_data_helper is
     l_alias varchar2(10) := a_alias;
     l_col_syntax varchar2(4000);
   begin
-    if a_data_info.column_type in ('OBJECT') then    
-      null;
-    elsif a_data_info.is_sql_diffable = 0 then 
+    if a_data_info.is_sql_diffable = 0 then 
       l_col_syntax :=  'ut_utils.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
       l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||') as '|| a_data_info.transformed_name;
@@ -250,8 +238,6 @@ create or replace package body ut_compound_data_helper is
       --We cannot use a precision and scale as dbms_sql.describe_columns3 return precision 0 for dual table
       -- there is also no need for that as we not process data but only read and compare as they are stored
       l_col_type := a_data_info.column_type;
-    elsif a_data_info.column_type in ('OBJECT') then    
-      null;
     else 
       l_col_type := a_data_info.column_type
         ||case when a_data_info.column_len is not null
@@ -259,11 +245,7 @@ create or replace package body ut_compound_data_helper is
           else null
           end;
     end if;
-    if a_data_info.column_type in ('OBJECT') then    
-      return null;
-    else
-      return  a_data_info.transformed_name||' '||l_col_type||q'[ PATH ']'||a_data_info.access_path||q'[']';
-    end if;
+    return  a_data_info.transformed_name||' '||l_col_type||q'[ PATH ']'||a_data_info.access_path||q'[']';
   end;
   
   procedure gen_sql_pieces_out_of_cursor(
@@ -296,7 +278,7 @@ create or replace package body ut_compound_data_helper is
   begin
     if a_data_info is not empty then
       for i in 1..a_data_info.count loop
-        if a_data_info(i).has_nested_col = 0 then
+        if a_data_info(i).has_nested_col = 0 and a_data_info(i).column_type <> 'OBJECT' then
           --Get XMLTABLE column list
           add_element_to_list(l_xmltab_list,generate_xmltab_stmt(a_data_info(i)));
           --Get Select statment list of columns
