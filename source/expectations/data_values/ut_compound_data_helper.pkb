@@ -575,7 +575,6 @@ create or replace package body ut_compound_data_helper is
     xmlelement( name "ROW", a_diff_tab(idx).act_item_data), a_diff_tab(idx).act_data_id,
     xmlelement( name "ROW", a_diff_tab(idx).exp_item_data), a_diff_tab(idx).exp_data_id,
     a_diff_tab(idx).item_no, a_diff_tab(idx).dup_no);
-
   exception
     when ut_utils.ex_failure_for_all then
       raise_application_error(ut_utils.gc_dml_for_all,'Failure to insert a diff tmp data.');
