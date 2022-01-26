@@ -1016,10 +1016,10 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected_message varchar2(32767);	  
   begin
   --Arrange
-    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_object(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ),'Test'));
-    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_object(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'C', '0') ),'Test'));
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ),'Test'));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'C', '0') ),'Test'));
     --Act
-    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_double_nested_object was expected to equal: ut3_tester_helper.test_dummy_double_nested_object
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_double_nested_obj was expected to equal: ut3_tester_helper.test_dummy_double_nested_obj
 %Diff:
 %Rows: [ 1 differences ]
 %Row No. 1 - Actual:   <FIRST_DOUBLE_NESTED_OBJ><FIRST_NESTED_OBJ><ID>1</ID><name>A</name><Value>0</Value></FIRST_NESTED_OBJ><SEC_NESTED_OBJ><ID>1</ID><name>C</name><Value>0</Value></SEC_NESTED_OBJ></FIRST_DOUBLE_NESTED_OBJ>
