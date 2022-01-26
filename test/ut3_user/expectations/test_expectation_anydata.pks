@@ -203,5 +203,9 @@ create or replace package test_expectation_anydata is
  
   --%test ( Empty Array not equal array with space )
   procedure arr_empty_nqua_arr_e_unord;  
+  
+  --%test ( Failure of comparing nesting objects )
+  procedure failure_nesting_objects;
+  
 end;
 /

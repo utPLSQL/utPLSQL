@@ -6,6 +6,7 @@ alter session set plsql_optimize_level=0;
 --Install ut3_tester_helper
 @@ut3_tester_helper/test_dummy_object.tps
 @@ut3_tester_helper/other_dummy_object.tps
+@@ut3_tester_helper/test_dummy_nested_object.tps
 @@ut3_tester_helper/test_dummy_object_list.tps
 @@ut3_tester_helper/test_tab_varchar2.tps
 @@ut3_tester_helper/test_tab_varray.tps

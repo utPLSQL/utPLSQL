@@ -144,7 +144,9 @@ create or replace package body ut_compound_data_helper is
         l_index := a_pk_table.next(l_index);
       end loop;
     end if;  
-    if not(l_exists) then  
+    if a_data_info.column_type in ('OBJECT') then    
+      null;  
+    elsif not(l_exists) then  
       l_sql_stmt := ' (decode(a.'||a_data_info.transformed_name||','||' e.'||a_data_info.transformed_name||',1,0) = 0)';
     end if; 
     return l_sql_stmt;
@@ -161,7 +163,9 @@ create or replace package body ut_compound_data_helper is
     if l_pk_tab.count <> 0 then
     l_index:= l_pk_tab.first;
     loop
-      if l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name)  then
+      if a_data_info.column_type in ('OBJECT') then    
+          null;
+      elsif l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name)  then
         --When then table is nested and join is on whole table
         l_sql_stmt := l_sql_stmt ||' a.'||a_data_info.transformed_name||q'[ = ]'||' e.'||a_data_info.transformed_name;
       end if;
@@ -187,7 +191,9 @@ create or replace package body ut_compound_data_helper is
     if a_pk_table is not empty then
       l_index:= a_pk_table.first;
       loop
-        if a_pk_table(l_index) in (a_data_info.access_path, a_data_info.parent_name) then
+        if a_data_info.column_type in ('OBJECT') then    
+          null;
+        elsif a_pk_table(l_index) in (a_data_info.access_path, a_data_info.parent_name) then
           --When then table is nested and join is on whole table
           l_sql_stmt := l_sql_stmt ||a_alias||a_data_info.transformed_name;
         end if;        
@@ -195,7 +201,11 @@ create or replace package body ut_compound_data_helper is
         l_index := a_pk_table.next(l_index);
       end loop;
     else
-      l_sql_stmt := a_alias||a_data_info.transformed_name;
+      if a_data_info.column_type in ('OBJECT') then    
+        null;   
+      else 
+       l_sql_stmt := a_alias||a_data_info.transformed_name;
+      end if;
     end if;
     return l_sql_stmt; 
   end;   
@@ -206,7 +216,9 @@ create or replace package body ut_compound_data_helper is
     l_alias varchar2(10) := a_alias;
     l_col_syntax varchar2(4000);
   begin
-    if a_data_info.is_sql_diffable = 0 then 
+    if a_data_info.column_type in ('OBJECT') then    
+      null;
+    elsif a_data_info.is_sql_diffable = 0 then 
       l_col_syntax :=  'ut_utils.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
       l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||') as '|| a_data_info.transformed_name;
@@ -238,6 +250,8 @@ create or replace package body ut_compound_data_helper is
       --We cannot use a precision and scale as dbms_sql.describe_columns3 return precision 0 for dual table
       -- there is also no need for that as we not process data but only read and compare as they are stored
       l_col_type := a_data_info.column_type;
+    elsif a_data_info.column_type in ('OBJECT') then    
+      null;
     else 
       l_col_type := a_data_info.column_type
         ||case when a_data_info.column_len is not null
@@ -245,7 +259,11 @@ create or replace package body ut_compound_data_helper is
           else null
           end;
     end if;
-    return  a_data_info.transformed_name||' '||l_col_type||q'[ PATH ']'||a_data_info.access_path||q'[']';
+    if a_data_info.column_type in ('OBJECT') then    
+      return null;
+    else
+      return  a_data_info.transformed_name||' '||l_col_type||q'[ PATH ']'||a_data_info.access_path||q'[']';
+    end if;
   end;
   
   procedure gen_sql_pieces_out_of_cursor(
@@ -398,8 +416,12 @@ create or replace package body ut_compound_data_helper is
     l_column_list ut_varchar2_list := ut_varchar2_list();
   begin
     for i in 1..a_cursor_info.count loop
-      l_column_list.extend;
-      l_column_list(l_column_list.last) := a_cursor_info(i).access_path;
+      --This avoids extracting single columns from nested objects.
+      --as we can go down to any level but we will lose visibility of parent.
+      if a_cursor_info(i).hierarchy_level = 1 then
+        l_column_list.extend;
+        l_column_list(l_column_list.last) := a_cursor_info(i).access_path;
+      end if;
     end loop;
     return l_column_list;
   end;
@@ -571,6 +593,7 @@ create or replace package body ut_compound_data_helper is
     xmlelement( name "ROW", a_diff_tab(idx).act_item_data), a_diff_tab(idx).act_data_id,
     xmlelement( name "ROW", a_diff_tab(idx).exp_item_data), a_diff_tab(idx).exp_data_id,
     a_diff_tab(idx).item_no, a_diff_tab(idx).dup_no);
+
   exception
     when ut_utils.ex_failure_for_all then
       raise_application_error(ut_utils.gc_dml_for_all,'Failure to insert a diff tmp data.');
