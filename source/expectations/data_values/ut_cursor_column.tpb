@@ -28,12 +28,13 @@ create or replace type body ut_cursor_column as
                                  a_access_path||'/'||self.xml_valid_name 
                                end; --Access path used for XMLTABLE query   
       self.filter_path      := '/'||self.access_path; --Filter path will differ from access path in anydata type
+      --Transformed name needs to be build on full access path to avoid ambiguity when there is 3 or more levels of nesting.
       self.transformed_name := case when length(self.xml_valid_name) > 30 then
-                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.xml_valid_name)||'"'
+                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.access_path)||'"'
                                when self.parent_name is null then 
                                  '"'||self.xml_valid_name||'"'
                                else 
-                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.xml_valid_name)||'"'
+                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.access_path)||'"'
                                end; --when is nestd we need to hash name to make sure we dont exceed 30 char
       self.column_type      := a_col_type; --column type e.g. user_defined , varchar2
       self.column_schema    := a_col_schema_name; -- schema name
