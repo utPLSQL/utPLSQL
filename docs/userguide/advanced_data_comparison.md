@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3380--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3731--develop-blue.svg)
 
 # Advanced data comparison
 
@@ -250,8 +250,9 @@ FAILURE
   at "anonymous block", line 15
 ```
 **Note**
-> `join_by` matcher is much faster on performing data comparison, consider using `join_by` over unordered
-> `contain` matcher is not considering order of compared data-sets. Using `unordered` makes no difference (it's default)
+> Consider using `join_by( columns... )` over `unordered()` with the `equal` matcher. The `join_by` method is much faster at performing data comparison.
+>
+> The `contain` matcher is not considering the order of the compared data-sets. Using `unordered` makes no difference (it's default).
 
 
 ## Join By option

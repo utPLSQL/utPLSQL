@@ -1,6 +1,6 @@
 /*
 utPLSQL - Version 3
-Copyright 2016 - 2019 utPLSQL Project
+Copyright 2016 - 2021 utPLSQL Project
 Licensed under the Apache License, Version 2.0 (the "License"):
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -19,7 +19,7 @@ limitations under the License.
 declare
   l_tab_exist number;
 begin
-  select count(*) into l_tab_exist from 
+  select /*+ no_parallel */ count(*) into l_tab_exist from
   (select table_name from all_tables where table_name = 'UT_DBMS_OUTPUT_CACHE' and owner = sys_context('USERENV','CURRENT_SCHEMA')
    union all
    select synonym_name from all_synonyms where synonym_name = 'UT_DBMS_OUTPUT_CACHE' and owner = sys_context('USERENV','CURRENT_SCHEMA'));

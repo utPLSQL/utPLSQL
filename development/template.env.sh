@@ -2,7 +2,7 @@
 
 export SQLCLI=sql # For sqlcl client
 #export SQLCLI=sqlplus # For sqlplus client
-export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
+export CONNECTION_STR=127.0.0.1:1521/xe         ORACLE_VERSION=11g-r2-xe# Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 export UTPLSQL_CLI_VERSION="3.1.6"
 export SELFTESTING_BRANCH=develop
@@ -19,3 +19,4 @@ export UT3_TESTER_HELPER_PASSWORD=ut3
 export UT3_TABLESPACE=users
 export UT3_USER="UT3\$USER#"
 export UT3_USER_PASSWORD=ut3
+export DOCKER_ENV="-e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR"

@@ -107,7 +107,7 @@ development/install.sh
 
 You now have the following:
 - sources from `develop` branch of your fork of utPLSQL repository in `utPLSQL/ut3_latest_release` directory
-- sources from `master` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
+- sources from `main` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
 - binaries of `utplsql-cli` in `utPLSQL/utPLSQL-cli` directory
 - database users created
 - your current branch of utPLSQL deployed into `ut3` schema

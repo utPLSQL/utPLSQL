@@ -1,7 +1,7 @@
 create or replace type ut_coverage_reporter_base under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ create or replace type ut_coverage_reporter_base under ut_output_reporter_base(
   overriding final member procedure after_calling_after_each (self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable),
 
   overriding final member procedure before_calling_after_all(self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable),
-  overriding final member procedure after_calling_after_all (self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable)
-
+  overriding final member procedure after_calling_after_all (self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable),
+  final member function get_report( a_coverage_options ut_coverage_options, a_client_character_set varchar2 := null ) return ut_varchar2_rows pipelined,
+  final member function get_report_cursor( a_coverage_options ut_coverage_options, a_client_character_set varchar2 := null ) return sys_refcursor
 )
 not final not instantiable
 /

@@ -1466,5 +1466,99 @@ end;]';
       ut.expect(SQLCODE).to_equal(ut3_develop.ut_utils.gc_value_too_large);
   end;
 
+  procedure setup_remove_annot_test is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_removing_annotation as
+  --%suite
+
+  --%test
+  procedure test1;
+
+  --%test
+  procedure test2;
+
+end;]';
+  end;
+
+  procedure remove_annot_from_test is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_removing_annotation as
+
+  procedure test1;
+
+  procedure test2;
+
+end;]';
+  end;
+
+  procedure rem_one_annot_test is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_removing_annotation as
+  --%suite
+
+  procedure test1;
+
+  --%test
+  procedure test2;
+
+end;]';
+    execute immediate q'[create or replace package body test_removing_annotation as
+
+	 procedure test1 is
+	  begin
+		ut.expect(1).to_equal(1);
+	  end;
+
+	 procedure test2 is
+	  begin
+		ut.expect(1).to_equal(1);
+	  end;
+
+end;]';
+  end;
+
+  procedure clean_remove_annot_test is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_removing_annotation';
+  end;
+
+  procedure test_rem_cache_on_create is
+    l_test_report ut3_develop.ut_varchar2_list;
+  begin
+
+    select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.test_removing_annotation'));
+
+    -- drop all tests
+    remove_annot_from_test;
+    
+    begin
+      select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER') || '.test_removing_annotation'));
+    exception
+      when others then
+        ut.expect(sqlerrm).to_be_like('%ORA-20204: Suite package ut3_tester.test_removing_annotation does not exist%');
+    end;
+
+  end;
+
+  procedure test_rem_cache_on_crt_anno is
+    l_test_report ut3_develop.ut_varchar2_list;
+	l_results clob;
+  begin
+
+    select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.test_removing_annotation'));
+
+    -- drop single test
+    rem_one_annot_test;
+    ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER')|| '.test_removing_annotation',a_reporter => ut3_develop.ut_documentation_reporter() );
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%' );
+
+  end;
+
 end test_suite_manager;
 /

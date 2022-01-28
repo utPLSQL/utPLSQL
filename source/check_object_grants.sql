@@ -24,7 +24,7 @@ begin
   l_target_table := get_view('dba_tab_privs');
   l_owner_column := case when l_target_table like 'dba%' then 'owner' else 'table_schema' end;
   execute immediate q'[
-  select listagg(' -  '||object_name,CHR(10)) within group(order by object_name)
+  select /*+ no_parallel */ listagg(' -  '||object_name,CHR(10)) within group(order by object_name)
     from (
   select column_value as object_name
     from table(:l_expected_grants)

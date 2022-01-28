@@ -1,9 +1,9 @@
 #!/bin/bash
 set -ev
 
-#goto git root directory
-git rev-parse && cd "$(git rev-parse --show-cdup)"
-cd test
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd ${SCRIPT_DIR}
+
 
 "$SQLCLI" ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWORD}@//${CONNECTION_STR} @install_ut3_tester_helper.sql
 

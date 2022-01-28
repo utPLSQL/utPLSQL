@@ -1,7 +1,7 @@
 create or replace type body ut_output_table_buffer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ create or replace type body ut_output_table_buffer is
     pragma autonomous_transaction;
   begin
     self.last_message_id := self.last_message_id + 1;
-    insert into ut_output_buffer_tmp(output_id, message_id, is_finished)
+    insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, is_finished)
     values (self.output_id, self.last_message_id, 1);
     commit;
     self.is_closed := 1;
@@ -45,7 +45,7 @@ create or replace type body ut_output_table_buffer is
           );
       else
         self.last_message_id := self.last_message_id + 1;
-        insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+        insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
         values (self.output_id, self.last_message_id, a_text, a_item_type);
       end if;
       commit;
@@ -55,8 +55,8 @@ create or replace type body ut_output_table_buffer is
   overriding member procedure send_lines(self in out nocopy ut_output_table_buffer, a_text_list ut_varchar2_rows, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
-    insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-    select self.output_id, self.last_message_id + rownum, t.column_value, a_item_type
+    insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+    select /*+ no_parallel */ self.output_id, self.last_message_id + rownum, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
     self.last_message_id := self.last_message_id + SQL%rowcount;
@@ -76,7 +76,7 @@ create or replace type body ut_output_table_buffer is
           );
       else
         self.last_message_id := self.last_message_id + 1;
-        insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+        insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
         values (self.output_id, self.last_message_id, a_text, a_item_type);
       end if;
       commit;
@@ -107,8 +107,8 @@ create or replace type body ut_output_table_buffer is
     ) is
       pragma autonomous_transaction;
     begin
-      delete from (
-                    select *
+      delete /*+ no_parallel */ from (
+                    select /*+ no_parallel */ *
                       from ut_output_buffer_tmp o
                      where o.output_id = self.output_id
                        and o.message_id <= a_max_message_id

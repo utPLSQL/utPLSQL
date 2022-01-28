@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3380--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3731--develop-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
@@ -24,7 +24,7 @@ Expectation is a combination of:
 - the expected value
 - optional custom message for the expectation 
 - the matcher used to perform comparison
-- them matcher parameters (actual value), depending on the matcher type
+- the matcher parameters (actual value), depending on the matcher type
   
 
 Matcher defines the comparison operation to be performed on expected (and actual) value.
@@ -88,7 +88,7 @@ There are two ways to use expectations:
 - without invoking the utPLSQL framework - running expectations standalone
 
 ## Running expectations within utPLSQL framework
-When expectations are ran a part of test suite, the framework tracks:
+When expectations are ran as a part of a test suite, the framework tracks:
 - status of each expectation 
 - outcomes (messages) produced by each expectation
 - call stack to each expectation
@@ -161,7 +161,7 @@ When expectations are invoked outside of utPLSQL framework the outputs from expe
 > Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
 
 **Important**
-> Please do not use expectations as part of your production code. They are not designed to be used as part ot your code. Expectations are meant to be used only as part of your day-to-day testing activities.
+> Please do not use expectations as part of your production code. They are not designed to be used as part of your code. Expectations are meant to be used only as part of your day-to-day testing activities.
 
 **Note:**
 > The examples in the document will be only using standalone expectations, to keep the document brief.  
@@ -186,7 +186,7 @@ utPLSQL provides the following matchers to perform checks on the expected and ac
 - `match( a_patter {varchar2} [, a_modifiers {varchar2}] )`
 
 ## Providing a custom message
-You can provide a custom failure message as second argument for the expectation by passing message as the second parameter to the expectation.
+You can provide a custom failure message by passing it as the second parameter to the expectation.
 `ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher}`
 
 Example:
@@ -387,7 +387,7 @@ For more details see documentation of the [`--%throws` annotation.](annotations.
 
 # Matchers 
 
-You can choose different matchers to validate the your PL/SQL code is working as expected.
+You can choose different matchers to validate that your PL/SQL code is working as expected.
 
 
 ## be_between
@@ -760,7 +760,7 @@ FAILURE
 ## have_count
 Unary matcher that validates if the provided dataset count is equal to expected value.
 
-Can be used with `refcursor` , `json`or `table type`
+Can be used with `refcursor`, `json` or `table type`
 
 Usage:
 ```sql
@@ -828,8 +828,8 @@ FAILURE
 ```
 
 ## equal
-The equal matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
-If you are comparing `varchar2` to a `number` will fail even if the text contains the same numeric value as the number.
+The `equal` matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
+If you are comparing a `varchar2` to a `number`, it will fail even if the text contains the same numeric value as the number.
 The matcher will also fail when comparing a `timestamp` to a `timestamp with timezone` data-type etc.
 
 The matcher enables detection of data-type changes. 
@@ -917,13 +917,13 @@ To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal =
 
 This matcher supports only compound data-types comparison. It check if the actual set contains all values of expected subset.
 
-When comparing data using `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
+When comparing data using the `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
 
 The matcher supports all advanced comparison options as `equal` like: `include` , `exclude`, `join_by` etc..
 
 The matcher is successful when actual data set contains all of the values from expected results.
 
-The matcher will cause a test to fail if actual data set does not contain any of expected values.
+The matcher will cause a test to fail if actual data set does not contain some of expected values.
 
 ![included_set](../images/venn21.gif)
 
@@ -1190,7 +1190,7 @@ utPLSQL is capable of comparing compound data-types including:
 - Columns in compound data are compared as **ordered list of elements** by default. Use `unordered_columns` option when order of columns in cursor is not relevant
 - Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
-- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
+- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be cast to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
@@ -1623,7 +1623,7 @@ drop table events;
 
 In the above example:
 - The first expectation is successful, as the `l_expected` cursor contains different date-time then the cursor returned by `get_events` function call
-- The second expectation fails, as the column `event_date` will get compared as DATE without TIME (suing default current session NLS date format)
+- The second expectation fails, as the column `event_date` will get compared as DATE without TIME (using default current session NLS date format)
 
 Output via DBMS_OUTPUT from the above example:
 ```

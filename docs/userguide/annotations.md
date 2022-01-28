@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3380--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3731--develop-blue.svg)
 
 # Annotations
 
@@ -1029,7 +1029,7 @@ If `--%aftertest` raises an unhandled exception the following will happen:
 - the `--%afterall` procedures **will be executed**
 - test execution will continue uninterrupted for rest of the suite 
 
-When multiple `--%aftertest` procedures are defined for a test, all of them will be executed before invoking the test.
+When multiple `--%aftertest` procedures are defined for a test, all of them will be executed after invoking the test.
 
 The order of execution for `--%aftertest` procedures is defined by:
 - position of procedure on the list within single annotation

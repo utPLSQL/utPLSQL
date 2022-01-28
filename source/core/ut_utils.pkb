@@ -1,7 +1,7 @@
 create or replace package body ut_utils is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -229,6 +229,19 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function string_table_to_table(a_list ut_varchar2_list, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list is
+    l_result ut_varchar2_list;
+  begin
+    if a_delimiter is null then
+      l_result := a_list;
+    elsif a_list is not empty then
+      for i in 1 .. a_list.count loop
+        ut_utils.append_to_list(l_result, ut_utils.string_to_table(a_list(i), a_delimiter, a_skip_leading_delimiter) );
+      end loop;
+    end if;
+    return l_result;
+  end;
+
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
     l_offset         integer := 1;
     l_length         integer := dbms_lob.getlength(a_clob);
@@ -337,7 +350,7 @@ create or replace package body ut_utils is
   function get_utplsql_objects_list return ut_object_names is
     l_result ut_object_names;
   begin
-    select distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
+    select /*+ no_parallel */ distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
       bulk collect into l_result
       from user_objects o
      where o.object_name = 'UT' or object_name like 'UT\_%' escape '\'
@@ -361,6 +374,19 @@ create or replace package body ut_utils is
     if a_items is not null then
       if a_list is null then
         a_list := ut_varchar2_rows();
+      end if;
+      for i in 1 .. a_items.count loop
+        a_list.extend;
+        a_list(a_list.last) := a_items(i);
+      end loop;
+    end if;
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_items ut_varchar2_list) is
+  begin
+    if a_items is not null then
+      if a_list is null then
+        a_list := ut_varchar2_list();
       end if;
       for i in 1 .. a_items.count loop
         a_list.extend;
@@ -479,13 +505,6 @@ create or replace package body ut_utils is
     return l_xpath;
   end;
 
-  procedure cleanup_session_temp_tables is
-  begin
-    execute immediate 'truncate table dbmspcc_blocks';
-    execute immediate 'truncate table dbmspcc_units';
-    execute immediate 'truncate table dbmspcc_runs';
-  end;
-
   function to_version(a_version_no varchar2) return t_version is
     l_result             t_version;
     c_version_part_regex constant varchar2(20) := '[0-9]+';
@@ -513,8 +532,8 @@ create or replace package body ut_utils is
     procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
       if a_lines is not empty then
-        insert into ut_dbms_output_cache (seq_no,text)
-          select rownum+a_offset, column_value
+        insert /*+ no_parallel */ into ut_dbms_output_cache (seq_no,text)
+          select /*+ no_parallel */ rownum+a_offset, column_value
           from table(a_lines);
       end if;
     end;
@@ -539,7 +558,7 @@ create or replace package body ut_utils is
     c_lines_limit constant integer := 10000;
     pragma autonomous_transaction;
   begin
-    open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
+    open l_lines_data for select /*+ no_parallel */ text from ut_dbms_output_cache order by seq_no;
     loop
       fetch l_lines_data bulk collect into l_lines limit c_lines_limit;
       for i in 1 .. l_lines.count loop
@@ -627,10 +646,10 @@ create or replace package body ut_utils is
 
   function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
     l_result varchar2(4000) := a_string;
-    l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
+    l_sql varchar2(32767) := q'!select /*+ no_parallel */ q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
-      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
+      select /*+ no_parallel */ extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
     end if;
@@ -734,7 +753,7 @@ create or replace package body ut_utils is
       l_for_reporters := ut_reporters_info(ut_reporter_info('UT_REPORTER_BASE','N','N','N'));
     end if;
     
-    select /*+ cardinality(f 10) */
+    select  /*+ no_parallel cardinality(f 10) */
       ut_reporter_info(
         object_name => t.type_name,
         is_output_reporter =>
@@ -769,7 +788,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.11.3380-develop
+  * secion v3.1.12.3731-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
@@ -782,7 +801,7 @@ create or replace package body ut_utils is
   function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
     l_post_processed varchar2(4000);
   begin
-    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+    for i in (select /*+ no_parallel */ regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
               from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
     loop
       if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then
@@ -827,6 +846,9 @@ create or replace package body ut_utils is
   begin
     if a_clob is not null and a_clob != empty_clob() then
       l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+      l_result := to_clob(gc_cdata_start_tag)
+        || replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap )
+        || to_clob(gc_cdata_end_tag);
     else
       l_result := a_clob;
     end if;

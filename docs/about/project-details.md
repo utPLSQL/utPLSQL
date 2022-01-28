@@ -1,10 +1,10 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3380--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3731--develop-blue.svg)
 
 # utPLSQL Project Details
 
 [![chat](http://img.shields.io/badge/GitHub_Project-Active-blue.svg)](https://github.com/utPLSQL/utPLSQL)
 [![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![chat](http://img.shields.io/badge/chat-slack-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA)
+[![chat](http://img.shields.io/badge/chat-slack-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 

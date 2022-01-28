@@ -1,7 +1,7 @@
 create or replace type body ut_debug_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ create or replace type body ut_debug_reporter is
   member function event_item_to_clob(a_event_item ut_event_item) return clob is
     l_clob clob;
   begin
-    select xmlserialize( content deletexml(xmltype(a_event_item),'/*/ITEMS|/*/ALL_EXPECTATIONS|/*/FAILED_EXPECTATIONS') as clob indent size = 2 ) into l_clob from dual;
+    select /*+ no_parallel */ xmlserialize( content deletexml(xmltype(a_event_item),'/*/ITEMS|/*/ALL_EXPECTATIONS|/*/FAILED_EXPECTATIONS') as clob indent size = 2 ) into l_clob from dual;
     return l_clob;
   end;
 

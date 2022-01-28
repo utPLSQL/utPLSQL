@@ -1,7 +1,7 @@
 create or replace type body ut_data_value_refcursor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ create or replace type body ut_data_value_refcursor as
           l_missing_cols(l_missing_cols.last) := coalesce(a_column_diffs(i).expected_name, a_column_diffs(i).actual_name);
           end if;
       end loop;
-      select value(i) bulk collect into l_result
+      select /*+ no_parallel */ value(i) bulk collect into l_result
         from table(a_cursor_details) i
        where i.access_path not in (
          select c.column_value

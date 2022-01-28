@@ -51,36 +51,6 @@ create or replace package body test_ut_executable is
     ut.expect(l_executable.get_error_stack_trace()).to_be_like('ORA-06501: PL/SQL: program error%');
   end;
 
-  procedure modify_stateful_package is
-    l_job_name varchar2(30) := 'recreate_stateful_package';
-    l_cnt      integer      := 1;
-    pragma autonomous_transaction;
-  begin
-    dbms_scheduler.create_job(
-        job_name      =>  l_job_name,
-        job_type      =>  'PLSQL_BLOCK',
-        job_action    =>  q'/
-          begin
-            execute immediate q'[
-              create or replace package stateful_package as
-                g_state varchar2(3) := 'abc';
-              end;]';
-          end;/',
-        start_date    =>  localtimestamp,
-        enabled       =>  TRUE,
-        auto_drop     =>  TRUE,
-        comments      =>  'one-time job'
-    );
-    $if dbms_db_version.version >= 18 $then
-      dbms_session.sleep(0.4);
-    $else
-      dbms_lock.sleep(0.4);
-    $end
-    while l_cnt > 0 loop
-      l_cnt:=ut3_tester_helper.main_helper.get_job_count(l_job_name);
-    end loop;
-  end;
-
   procedure form_name is
   begin
     ut.expect(ut3_develop.ut_executable_test( user, ' package ', 'proc', null ).form_name()).to_equal(user||'.package.proc');

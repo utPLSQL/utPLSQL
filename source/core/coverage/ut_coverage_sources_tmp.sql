@@ -1,7 +1,7 @@
 create global temporary table ut_coverage_sources_tmp(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2021 utPLSQL Project
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -15,10 +15,11 @@ create global temporary table ut_coverage_sources_tmp(
   full_name varchar2(4000),
   owner varchar2(250),
   name  varchar2(250),
+  type  varchar2(250),
   line  number(38,0),
   to_be_skipped varchar2(1),
   text varchar2(4000),
-  constraint ut_coverage_sources_tmp_pk primary key (owner,name,line)
+  constraint ut_coverage_sources_tmp_pk primary key (owner,name,type,line)
 ) on commit preserve rows;
 
 --is this needed?

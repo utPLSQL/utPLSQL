@@ -68,9 +68,7 @@ create or replace package body test_expectations_json is
     --Act
     ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%Diff: 20 differences found
-%3 incorrect types, 4 unequal values, 13 missing properties
-%Missing property: "Alexander Skarsg?rd" on path: $
+    l_expected_message := q'[%Missing property: "Alexander Skarsg?rd" on path: $
 %Extra   property: "Alexander Skarsgard" on path: $
 %Missing property: "Alice Farmer" on path: $
 %Extra   property: "Clarke Peters" on path: $
@@ -93,6 +91,10 @@ create or replace package body test_expectations_json is
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut.expect(l_actual_message).to_be_like('%Diff: 20 differences found%');
+    ut.expect(l_actual_message).to_be_like('%13 missing properties%');
+    ut.expect(l_actual_message).to_be_like('%4 unequal values%');
+    ut.expect(l_actual_message).to_be_like('%3 incorrect types%');
   end;
  
   procedure null_json_variable
@@ -1556,9 +1558,7 @@ create or replace package body test_expectations_json is
     --Act
     ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%Diff: 133 differences found, showing first 20
-%132 unequal values, 1 missing properties
-%Extra   property: object on path: $[5]
+    l_expected_message := q'[%Extra   property: object on path: $[5]
 %Actual value: "5ce6ec46cb9977b050f15d97" was expected to be: "5ce6ec6660565269b16cf836" on path: $[0]."_id"
 %Actual value: "5ce6ec469ba57bef5c421021" was expected to be: "5ce6ec66383ddbf3c400e3ed" on path: $[1]."_id"
 %Actual value: "5ce6ec4632328a654d592cb6" was expected to be: "5ce6ec6600fb7aaee2d1243e" on path: $[3]."_id"
@@ -1582,6 +1582,9 @@ create or replace package body test_expectations_json is
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut.expect(l_actual_message).to_be_like('%Diff: 133 differences found, showing first 20%');
+    ut.expect(l_actual_message).to_be_like('%1 missing properties%');
+    ut.expect(l_actual_message).to_be_like('%132 unequal values%');
   end;
  
   procedure check_json_objects is
