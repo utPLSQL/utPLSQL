@@ -173,7 +173,7 @@ create or replace package body coverage_helper is
       auto_drop     =>  TRUE,
       comments      =>  'one-time-job'
       );
-    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 30 loop
+    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 150 loop
       l_status := get_job_status( l_job_name, l_timestamp );
       sleep(0.1);
       i := i + 1;
