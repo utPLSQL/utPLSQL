@@ -32,7 +32,7 @@ create or replace package body ut_annotation_cache_manager as
     end if;
 
     -- if not in trigger, or object has annotations
-    if ora_sysevent is null or a_object.annotations is not null and a_object.annotations.count > 0 then
+    if a_object.annotations is not null and a_object.annotations.count > 0 then
 
       update /*+ no_parallel */ ut_annotation_cache_info i
          set i.parse_time = l_timestamp
@@ -47,16 +47,19 @@ create or replace package body ut_annotation_cache_manager as
         values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, l_timestamp)
           returning cache_id into l_cache_id;
       end if;
+    
+      delete /*+ no_parallel */ from ut_annotation_cache c where cache_id = l_cache_id;
 
-    end if;
-
-    delete /*+ no_parallel */ from ut_annotation_cache c where cache_id = l_cache_id;
-
-    if a_object.annotations is not null and a_object.annotations.count > 0 then
       insert /*+ no_parallel */ into ut_annotation_cache
              (cache_id, annotation_position, annotation_name, annotation_text, subobject_name)
       select /*+ no_parallel */ l_cache_id, a.position, a.name, a.text, a.subobject_name
         from table(a_object.annotations) a;
+    elsif  a_object.annotations is null or a_object.annotations.count = 0 then
+      ut_annotation_cache_manager.remove_from_cache(
+          ut_annotation_objs_cache_info(
+            ut_annotation_obj_cache_info(a_object.object_owner, a_object.object_name, a_object.object_type, 'Y', null)
+          )
+        );
     end if;
     commit;
   end;
