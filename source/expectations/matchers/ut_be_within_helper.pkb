@@ -26,13 +26,13 @@ create or replace package body ut_be_within_helper as
               :result :=
                 case
                   when
-                    treat(:a_value_1 as ]'||dbms_assert.sql_object_name(a_value_1.self_type)||q'[).data_value
+                    treat(:a_value_1 as ]'||dbms_assert.simple_sql_name(a_value_1.self_type)||q'[).data_value
                       between
-                        treat(:a_value_2 as ]'||dbms_assert.sql_object_name(a_value_2.self_type)||q'[).data_value
-                        - treat(:a_distance as ]'||dbms_assert.sql_object_name(a_distance.self_type)||q'[).data_value
+                        treat(:a_value_2 as ]'||dbms_assert.simple_sql_name(a_value_2.self_type)||q'[).data_value
+                        - treat(:a_distance as ]'||dbms_assert.simple_sql_name(a_distance.self_type)||q'[).data_value
                       and
-                        treat(:a_value_2 as ]'||dbms_assert.sql_object_name(a_value_2.self_type)||q'[).data_value
-                        + treat(:a_distance as ]'||dbms_assert.sql_object_name(a_distance.self_type)||q'[).data_value
+                        treat(:a_value_2 as ]'||dbms_assert.simple_sql_name(a_value_2.self_type)||q'[).data_value
+                        + treat(:a_distance as ]'||dbms_assert.simple_sql_name(a_distance.self_type)||q'[).data_value
                   then 1
                   else 0
                 end;
