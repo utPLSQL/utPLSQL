@@ -226,6 +226,12 @@ create or replace package test_expectation_anydata is
   procedure nested_varray_same_data;
   
   --%test ( Reports diff between two not equal nested VARRAYS )
-  procedure nested_varray_diff_data;  
+  procedure nested_varray_diff_data; 
+  
+  --%test ( Comparision won't fail on user_defined type that is null as per issue 1098 )
+  procedure user_defined_type_null_issue_1098;
+  
+  --%test ( Reports success when comparing complex nested objects )
+  procedure complex_nested_object_success;      
 end;
 /

@@ -9,6 +9,7 @@ end;
 /
 
 create or replace type test_dummy_nested_object_list as object (
-  first_nested_obj test_dummy_object_list
+  first_nested_obj test_dummy_object_list,
+  somename varchar2(50)
 )
 /
