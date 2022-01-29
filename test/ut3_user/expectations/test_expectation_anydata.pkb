@@ -1130,7 +1130,7 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;  
   
-  procedure user_defined_type_null_issue_1098 is
+  procedure user_def_type_null_issue_1098 is
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);  
     l_actual ut3_tester_helper.test_dummy_dble_nest_lst_obj;
