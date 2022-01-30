@@ -17,7 +17,7 @@ create or replace package ut_be_within_helper authid definer as
   */
 
   function values_within_abs_distance(
-    a_value_1 ut_data_value, a_value_2 ut_data_value, a_distance ut_data_value
+    a_actual ut_data_value, a_expected ut_data_value, a_distance ut_data_value
   ) return boolean;
 
 end;

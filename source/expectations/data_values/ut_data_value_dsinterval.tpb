@@ -21,6 +21,7 @@ create or replace type body ut_data_value_dsinterval as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'interval day to second';
+    self.data_type_plsql := 'dsinterval_unconstrained';
     return;
   end;
 

@@ -39,9 +39,9 @@ create or replace type body ut_be_within as
   begin 
     l_result.expected := ut_data_value_date(a_expected);
     if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
+      l_result.expectation.not_to(l_result);
     else
-      l_result.expectation.to_(l_result );
+      l_result.expectation.to_(l_result);
     end if;
   end;
 
@@ -51,33 +51,33 @@ create or replace type body ut_be_within as
     l_result.expected := ut_data_value_date(a_expected);
     return l_result;
   end;
-  
-  member procedure of_(self in ut_be_within, a_expected timestamp) is
+
+  member procedure of_(self in ut_be_within, a_expected timestamp_unconstrained) is
     l_result ut_be_within := self;
   begin 
     l_result.expected := ut_data_value_timestamp(a_expected);
     if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
+      l_result.expectation.not_to(l_result);
     else
-      l_result.expectation.to_(l_result );
+      l_result.expectation.to_(l_result);
     end if;
   end;
 
-  member function of_(self in ut_be_within, a_expected timestamp)  return ut_be_within is
+  member function of_(self in ut_be_within, a_expected timestamp_unconstrained)  return ut_be_within is
     l_result ut_be_within := self;
   begin
     l_result.expected := ut_data_value_timestamp(a_expected);
     return l_result;
-  end;  
+  end;
 
   member procedure of_(self in ut_be_within, a_expected timestamp_tz_unconstrained) is
     l_result ut_be_within := self;
   begin 
     l_result.expected := ut_data_value_timestamp_tz(a_expected);
     if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
+      l_result.expectation.not_to(l_result);
     else
-      l_result.expectation.to_(l_result );
+      l_result.expectation.to_(l_result);
     end if;
   end;
 
@@ -86,16 +86,16 @@ create or replace type body ut_be_within as
   begin
     l_result.expected := ut_data_value_timestamp_tz(a_expected);
     return l_result;
-  end;    
-  
+  end;
+
   member procedure of_(self in ut_be_within, a_expected  timestamp_ltz_unconstrained) is
     l_result ut_be_within := self;
   begin 
     l_result.expected := ut_data_value_timestamp_ltz(a_expected);
     if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
+      l_result.expectation.not_to(l_result);
     else
-      l_result.expectation.to_(l_result );
+      l_result.expectation.to_(l_result);
     end if;
   end;
 
@@ -104,17 +104,19 @@ create or replace type body ut_be_within as
   begin
     l_result.expected := ut_data_value_timestamp_ltz(a_expected);
     return l_result;
-  end;    
-  
+  end;
+
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean is
     l_result     boolean;
    begin
-    if self.expected.data_type = a_actual.data_type then
-      if self.expected is of (ut_data_value_date, ut_data_value_number, ut_data_value_timestamp, ut_data_value_timestamp_tz, ut_data_value_timestamp_ltz) then
-        l_result := ut_be_within_helper.values_within_abs_distance(self.expected, a_actual, self.distance_from_expected) ;
-      else
-        l_result := (self as ut_matcher).run_matcher(a_actual);
-      end if;
+    if self.expected.data_type = a_actual.data_type
+        and (
+          self.expected is of (ut_data_value_date, ut_data_value_timestamp, ut_data_value_timestamp_tz, ut_data_value_timestamp_ltz)
+          and self.distance_from_expected is of (ut_data_value_yminterval, ut_data_value_dsinterval)
+          or self.expected is of (ut_data_value_number) and self.distance_from_expected is of (ut_data_value_number)
+          ) 
+    then
+        l_result := ut_be_within_helper.values_within_abs_distance( a_actual, self.expected, self.distance_from_expected) ;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

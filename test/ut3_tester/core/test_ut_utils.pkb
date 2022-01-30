@@ -159,28 +159,28 @@ end;]' using p_expected_list;
 
   procedure to_string_date is
     l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
-    l_expected varchar2(100) := '2016-12-31T23:59:59';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59';
   begin
     ut.expect(ut3_develop.ut_data_value_date(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp is
     l_value    timestamp(9) := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp_ltz is
     l_value    timestamp(9)  with local time zone := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp_ltz(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp_tz is
     l_value    timestamp(9) with time zone := to_timestamp_tz('2016-12-31 23:59:59.123456789 -8:00', 'yyyy-mm-dd hh24:mi:ss.ff tzh:tzm');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789 -08:00';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789 -08:00';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp_tz(l_value).to_string()).to_equal(l_expected);
   end;

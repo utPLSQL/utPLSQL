@@ -16,6 +16,7 @@ create or replace type ut_data_value force authid current_user as object (
   limitations under the License.
   */
   data_type         varchar2(250 char),
+  data_type_plsql   varchar2(250 char),
   self_type         varchar2(250 char),
   not instantiable member function is_null return boolean,
   not instantiable member function to_string return varchar2,

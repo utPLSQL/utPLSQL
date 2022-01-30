@@ -17,28 +17,37 @@ create or replace package body ut_be_within_helper as
   */
 
   function values_within_abs_distance(
-    a_value_1 ut_data_value, a_value_2 ut_data_value, a_distance ut_data_value
+    a_actual ut_data_value, a_expected ut_data_value, a_distance ut_data_value
   ) return boolean is
     l_result integer;
+    l_YM_conversion varchar2(50) := case when a_distance is of (ut_data_value_yminterval) then ' year to month ' end;
+    l_formula varchar2(4000);
+    l_code varchar2(4000);
   begin
-    execute immediate q'[
+    l_formula :=
+      case
+        when a_actual is of (ut_data_value_date)
+          then '( cast(greatest(l_actual, l_expected) as timestamp) - cast(least(l_actual, l_expected) as timestamp) ) '||l_YM_conversion||' <= l_distance'
+        else '( greatest(l_actual, l_expected) - least(l_actual, l_expected) ) '||l_YM_conversion||' <= l_distance'
+      end;
+    l_code :=
+    q'[
+            declare
+              l_actual   ]'||dbms_assert.simple_sql_name(a_actual.data_type_plsql)||  q'[ := treat(:a_actual   as ]'||dbms_assert.simple_sql_name(a_actual.self_type)||q'[).data_value;
+              l_expected ]'||dbms_assert.simple_sql_name(a_expected.data_type_plsql)||q'[ := treat(:a_expected as ]'||dbms_assert.simple_sql_name(a_expected.self_type)||q'[).data_value;
+              l_distance ]'||dbms_assert.simple_sql_name(a_distance.data_type_plsql)||q'[ := treat(:a_distance as ]'||dbms_assert.simple_sql_name(a_distance.self_type)||q'[).data_value;
             begin
               :result :=
                 case
-                  when
-                    treat(:a_value_1 as ]'||dbms_assert.simple_sql_name(a_value_1.self_type)||q'[).data_value
-                      between
-                        treat(:a_value_2 as ]'||dbms_assert.simple_sql_name(a_value_2.self_type)||q'[).data_value
-                        - treat(:a_distance as ]'||dbms_assert.simple_sql_name(a_distance.self_type)||q'[).data_value
-                      and
-                        treat(:a_value_2 as ]'||dbms_assert.simple_sql_name(a_value_2.self_type)||q'[).data_value
-                        + treat(:a_distance as ]'||dbms_assert.simple_sql_name(a_distance.self_type)||q'[).data_value
+                  when 
+                    ]'||l_formula||q'[
                   then 1
                   else 0
                 end;
             end;
-            ]'
-      using out l_result, a_value_1, a_value_2, a_distance;
+            ]';
+    execute immediate l_code
+      using a_actual, a_expected, a_distance, out l_result;
     return l_result > 0;
   end;
 

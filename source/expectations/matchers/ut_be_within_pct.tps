@@ -1,4 +1,4 @@
-create or replace type ut_be_within_pct under ut_comparison_matcher(
+create or replace type ut_be_within_pct force under ut_comparison_matcher(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -28,7 +28,8 @@ create or replace type ut_be_within_pct under ut_comparison_matcher(
   member function of_(self in ut_be_within_pct, a_expected number) return ut_be_within_pct,
   overriding member function run_matcher(self in out nocopy ut_be_within_pct, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
-  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
+  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2,
+  overriding member function error_message(a_actual ut_data_value) return varchar2
 )
 not final
 /

@@ -21,6 +21,7 @@ create or replace type body ut_data_value_yminterval as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'interval year to month';
+    self.data_type_plsql := 'yminterval_unconstrained';
     return;
   end;
 

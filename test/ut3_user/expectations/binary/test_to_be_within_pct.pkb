@@ -171,7 +171,7 @@ create or replace package body test_to_be_within_pct is
     test_to_be_within_fail(
       'to_be_within_pct','date', 'sysdate', 'number','1',
       '1','number',
-      'Actual (date) cannot be compared to Expected (number) using matcher ''be within pct'''
+      'Matcher ''be within pct'' cannot be used to compare Actual (date) with Expected (number) using distance (number).'
       );
   end;
 

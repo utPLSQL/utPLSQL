@@ -33,9 +33,9 @@ create or replace type body ut_be_within_pct as
   begin
     l_result.expected := ut_data_value_number(a_expected);
     if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
+      l_result.expectation.not_to(l_result);
     else
-      l_result.expectation.to_(l_result );
+      l_result.expectation.to_(l_result);
     end if;
   end;
 
@@ -70,6 +70,15 @@ create or replace type body ut_be_within_pct as
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
   begin
     return rtrim( (self as ut_matcher).failure_message_when_negated(a_actual), 'pct' ) || self.distance_from_expected.to_string ||' % of '|| expected.to_string_report();
+  end;
+
+  overriding member function error_message(a_actual ut_data_value) return varchar2 is
+    l_result varchar2(32767);
+  begin
+    if ut_utils.int_to_boolean(self.is_errored) then
+      l_result := 'Matcher '''||self.name()||''' cannot be used to compare Actual ('||a_actual.data_type||') with Expected ('||expected.data_type||') using distance ('||self.distance_from_expected.data_type||').';
+    end if;
+    return l_result;
   end;
 
 end;
