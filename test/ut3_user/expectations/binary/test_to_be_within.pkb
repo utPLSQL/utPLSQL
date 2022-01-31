@@ -118,6 +118,9 @@ create or replace package body test_to_be_within is
     test_to_be_within_fail('not_to( ut3_develop.be_within','timestamp', q'[TIMESTAMP '2018-08-09 07:00:00']', q'[TIMESTAMP '2017-08-09 07:00:00']','''1-0''','interval year to month', ')');
     test_to_be_within_fail('not_to( ut3_develop.be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second', ')');
     test_to_be_within_fail('not_to( ut3_develop.be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second', ')');
+    test_to_be_within_fail('not_to_be_within','timestamp', q'[TIMESTAMP '2018-08-09 07:00:00']', q'[TIMESTAMP '2017-08-09 07:00:00']','''1-0''','interval year to month');
+    test_to_be_within_fail('not_to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_fail('not_to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second');
   end;
   
   procedure failed_tests is
