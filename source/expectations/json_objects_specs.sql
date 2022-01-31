@@ -3,11 +3,16 @@ BEGIN
   $if dbms_db_version.version >= 21 $then
     dbms_output.put_line('Object exists , dont install');
   $elsif dbms_db_version.version = 12 and dbms_db_version.release >= 2 or ( dbms_db_version.version > 12 and dbms_db_version.version < 21 ) $then
-    dbms_output.put_line('Installing json structures specs.');
+    dbms_output.put_line('Installing json structures specs for native json.');
     execute immediate  q'[create or replace TYPE JSON FORCE AUTHID CURRENT_USER AS OBJECT(
    dummyobjt NUMBER
 ) NOT FINAL NOT INSTANTIABLE;]';   
-  $else
+  $else  
+    dbms_output.put_line('Installing json structures specs for native json.');
+    execute immediate  q'[create or replace TYPE JSON FORCE AUTHID CURRENT_USER AS OBJECT(
+   dummyobjt NUMBER
+) NOT FINAL NOT INSTANTIABLE;]';   
+  
     dbms_output.put_line('Installing json structures specs.');
     execute immediate  q'[create or replace TYPE JSON_Element_T FORCE AUTHID CURRENT_USER AS OBJECT(
    dummyobjt NUMBER,
