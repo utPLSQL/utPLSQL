@@ -39,13 +39,13 @@ create or replace package test_expectations_json is
   --%test( Json object to have count )
   procedure to_have_count;
   
-    --%test( Fail Json object to have count)
+  --%test( Fail Json object to have count)
   procedure fail_to_have_count;
   
     --%test( Json object not to have count)
   procedure not_to_have_count;
   
-    --%test( Fail Json object not to have count)
+  --%test( Fail Json object not to have count)
   procedure fail_not_to_have_count;
     
   --%test( Json object to have count on array)
@@ -74,6 +74,27 @@ create or replace package test_expectations_json is
   
   --%test( Compare two json arrays )
   procedure check_json_arrays;
+ 
+  --%test(Gives success for identical data using native json for 21c and above)
+  procedure success_on_same_data_njson;
+
+  --%test(Gives failure for different data using native json for 21c and above)
+  procedure fail_on_diff_data_njson; 
+
+  --%test( Json variable is null using native json for 21c and above)
+  procedure null_json_variable_njson;
+
+  --%test( Json object to have count using native json for 21c and above)
+  procedure to_have_count_njson;
+  
+  --%test( Fail Json object to have count using native json for 21c and above)
+  procedure fail_to_have_count_njson;
+  
+  --%test( Json object not to have count using native json for 21c and above)
+  procedure not_to_have_count_njson;
+  
+  --%test( Fail Json object not to have count using native json for 21c and above)
+  procedure fail_not_to_have_count_njson;
 
 end;
 /

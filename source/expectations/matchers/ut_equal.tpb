@@ -158,6 +158,12 @@ create or replace type body ut_equal as
     return;
   end;
 
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected json, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_json(a_expected), a_nulls_are_equal);
+    return;
+  end;
+
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin

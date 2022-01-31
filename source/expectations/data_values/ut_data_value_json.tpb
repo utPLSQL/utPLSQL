@@ -32,6 +32,13 @@ create or replace type body ut_data_value_json as
     return;
   end;
 
+  constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json) return self as result is
+    l_value json_element_t := case when a_value is null then cast (null as json_element_t ) else json_element_t.parse(json_query(a_value, '$' returning clob)) end;
+  begin 
+    init(l_value);
+    return;
+  end;
+
   overriding member function is_null return boolean is
   begin
     return (ut_utils.int_to_boolean(self.is_data_null));

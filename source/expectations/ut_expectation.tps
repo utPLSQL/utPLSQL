@@ -55,6 +55,7 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected json, a_nulls_are_equal boolean := null),
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),

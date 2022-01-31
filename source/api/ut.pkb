@@ -98,6 +98,11 @@ create or replace package body ut is
     return ut_expectation_json(ut_data_value_json(a_actual), a_message);
   end;
   
+  function expect(a_actual in json , a_message varchar2 := null) return ut_expectation_json is
+  begin
+    return ut_expectation_json(ut_data_value_json(a_actual), a_message);
+  end;  
+  
   procedure fail(a_message in varchar2) is
   begin
     ut_expectation_processor.report_failure(a_message);
