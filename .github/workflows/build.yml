@@ -92,7 +92,7 @@ jobs:
 
       - name: Download utPLSQL release for testing
 # For PR build - test using target branch as framework, for branch build use self as testing framework
-        run: git clone --depth=1 --branch=${CI_HEAD_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+        run: git clone --depth=1 --branch=${CI_BASE_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
 
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
