@@ -6,6 +6,7 @@ create or replace package body test_ut_run is
   gc_client_info         constant varchar2(32767) := 'test client info';
 
   g_context_test_results clob;
+  g_timestamp            timestamp;
 
   procedure clear_expectations is
   begin
@@ -1260,6 +1261,7 @@ Failures:%
   begin
     select * bulk collect into l_lines from table(ut3_develop.ut.run('check_context'));
     g_context_test_results := ut3_tester_helper.main_helper.table_to_clob(l_lines);
+    g_timestamp := current_timestamp;
   end;
 
 
@@ -1272,7 +1274,7 @@ Failures:%
         ||'%BEFORE_SUITE:SUITE_DESCRIPTION=Suite description'
         ||'%BEFORE_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_SUITE:SUITE_PATH=some.suite.path.check_context'
-        ||'%BEFORE_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_SUITE:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_suite%'
@@ -1287,14 +1289,14 @@ Failures:%
       '%BEFORE_CONTEXT:CONTEXT_DESCRIPTION=context description'
         ||'%BEFORE_CONTEXT:CONTEXT_NAME=some_context'
         ||'%BEFORE_CONTEXT:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%BEFORE_CONTEXT:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_CONTEXT:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%BEFORE_CONTEXT:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_context'
         ||'%BEFORE_CONTEXT:CURRENT_EXECUTABLE_TYPE=beforeall'
         ||'%BEFORE_CONTEXT:RUN_PATHS=check_context'
         ||'%BEFORE_CONTEXT:SUITE_DESCRIPTION=Suite description'
         ||'%BEFORE_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_CONTEXT:SUITE_PATH=some.suite.path.check_context'
-        ||'%BEFORE_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_CONTEXT:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_context%'
@@ -1308,17 +1310,17 @@ Failures:%
       '%BEFORE_EACH_TEST:CONTEXT_DESCRIPTION=context description'
         ||'%BEFORE_EACH_TEST:CONTEXT_NAME=some_context'
         ||'%BEFORE_EACH_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%BEFORE_EACH_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_EACH_TEST:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%BEFORE_EACH_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_each_test'
         ||'%BEFORE_EACH_TEST:CURRENT_EXECUTABLE_TYPE=beforeeach'
         ||'%BEFORE_EACH_TEST:RUN_PATHS=check_context'
         ||'%BEFORE_EACH_TEST:SUITE_DESCRIPTION=Suite description'
         ||'%BEFORE_EACH_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_EACH_TEST:SUITE_PATH=some.suite.path.check_context'
-        ||'%BEFORE_EACH_TEST:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_EACH_TEST:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%BEFORE_EACH_TEST:TEST_DESCRIPTION=Some test description'
         ||'%BEFORE_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
-        ||'%BEFORE_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_EACH_TEST:TEST_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_each_test%'
@@ -1331,17 +1333,17 @@ Failures:%
       '%BEFORE_TEST:CONTEXT_DESCRIPTION=context description'
         ||'%BEFORE_TEST:CONTEXT_NAME=some_context'
         ||'%BEFORE_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%BEFORE_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_TEST:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%BEFORE_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_test'
         ||'%BEFORE_TEST:CURRENT_EXECUTABLE_TYPE=beforetest'
         ||'%BEFORE_TEST:RUN_PATHS=check_context'
         ||'%BEFORE_TEST:SUITE_DESCRIPTION=Suite description'
         ||'%BEFORE_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_TEST:SUITE_PATH=some.suite.path.check_context'
-        ||'%BEFORE_TEST:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_TEST:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%BEFORE_TEST:TEST_DESCRIPTION=Some test description'
         ||'%BEFORE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
-        ||'%BEFORE_TEST:TEST_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_TEST:TEST_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_test%'
@@ -1354,17 +1356,17 @@ Failures:%
       '%THE_TEST:CONTEXT_DESCRIPTION=context description'
         ||'%THE_TEST:CONTEXT_NAME=some_context'
         ||'%THE_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%THE_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%THE_TEST:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%THE_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.the_test'
         ||'%THE_TEST:CURRENT_EXECUTABLE_TYPE=test'
         ||'%THE_TEST:RUN_PATHS=check_context'
         ||'%THE_TEST:SUITE_DESCRIPTION=Suite description'
         ||'%THE_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%THE_TEST:SUITE_PATH=some.suite.path.check_context'
-        ||'%THE_TEST:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%THE_TEST:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%THE_TEST:TEST_DESCRIPTION=Some test description'
         ||'%THE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
-        ||'%THE_TEST:TEST_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%THE_TEST:TEST_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=the_test%'
@@ -1377,17 +1379,17 @@ Failures:%
       '%AFTER_TEST:CONTEXT_DESCRIPTION=context description'
         ||'%AFTER_TEST:CONTEXT_NAME=some_context'
         ||'%AFTER_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%AFTER_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_TEST:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%AFTER_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_test'
         ||'%AFTER_TEST:CURRENT_EXECUTABLE_TYPE=aftertest'
         ||'%AFTER_TEST:RUN_PATHS=check_context'
         ||'%AFTER_TEST:SUITE_DESCRIPTION=Suite description'
         ||'%AFTER_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_TEST:SUITE_PATH=some.suite.path.check_context'
-        ||'%AFTER_TEST:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_TEST:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%AFTER_TEST:TEST_DESCRIPTION=Some test description'
         ||'%AFTER_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
-        ||'%AFTER_TEST:TEST_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_TEST:TEST_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_test%'
@@ -1400,17 +1402,17 @@ Failures:%
       '%AFTER_EACH_TEST:CONTEXT_DESCRIPTION=context description'
         ||'%AFTER_EACH_TEST:CONTEXT_NAME=some_context'
         ||'%AFTER_EACH_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%AFTER_EACH_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_EACH_TEST:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%AFTER_EACH_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_each_test'
         ||'%AFTER_EACH_TEST:CURRENT_EXECUTABLE_TYPE=aftereach'
         ||'%AFTER_EACH_TEST:RUN_PATHS=check_context'
         ||'%AFTER_EACH_TEST:SUITE_DESCRIPTION=Suite description'
         ||'%AFTER_EACH_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_EACH_TEST:SUITE_PATH=some.suite.path.check_context'
-        ||'%AFTER_EACH_TEST:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_EACH_TEST:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%AFTER_EACH_TEST:TEST_DESCRIPTION=Some test description'
         ||'%AFTER_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
-        ||'%AFTER_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_EACH_TEST:TEST_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_each_test%'
@@ -1423,14 +1425,14 @@ Failures:%
       '%AFTER_CONTEXT:CONTEXT_DESCRIPTION=context description'
         ||'%AFTER_CONTEXT:CONTEXT_NAME=some_context'
         ||'%AFTER_CONTEXT:CONTEXT_PATH=some.suite.path.check_context.some_context'
-        ||'%AFTER_CONTEXT:CONTEXT_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_CONTEXT:CONTEXT_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%AFTER_CONTEXT:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_context'
         ||'%AFTER_CONTEXT:CURRENT_EXECUTABLE_TYPE=afterall'
         ||'%AFTER_CONTEXT:RUN_PATHS=check_context'
         ||'%AFTER_CONTEXT:SUITE_DESCRIPTION=Suite description'
         ||'%AFTER_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_CONTEXT:SUITE_PATH=some.suite.path.check_context'
-        ||'%AFTER_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_CONTEXT:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_context%'
@@ -1447,7 +1449,7 @@ Failures:%
         ||'%AFTER_SUITE:SUITE_DESCRIPTION=Suite description'
         ||'%AFTER_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_SUITE:SUITE_PATH=some.suite.path.check_context'
-        ||'%AFTER_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'syyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_SUITE:SUITE_START_TIME='||to_char(g_timestamp,'syyyy-mm-dd"T"hh24:mi')
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_suite%'
