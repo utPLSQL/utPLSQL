@@ -333,8 +333,8 @@ The matrix below illustrates the data types supported by different matchers.
 |       **be_like**         |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
 |      **be_empty**         |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 |     **have_count**        |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-| **be_within().of_()**     |      |         |      |   x  |   x    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-| **be_within_pct().of_()** |      |         |      |      |   x    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
+| **be_within().of_()**     |      |         |      |   X  |   X    |    X      |               X               |                   X                    |          |                                 |                                 |        |                             |        |      |
+| **be_within_pct().of_()** |      |         |      |      |   X    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
 
 # Expecting exceptions
 
@@ -1096,17 +1096,34 @@ SUCCESS
 
 ## to_be_within of
 
-This matcher is created to determine wheter expected value is approximately equal or "close" to another value.
+This matcher determines wheter expected value is within range from another value.
 
-Matcher will allow to compare numbers as well as dates. 
+The logical formual used for calcuating the matcher is:
+`abs( expected - actual ) <= distance`
+The matcher will succeed if the `expected` and `actual` are not more than `distance` apart from each other. 
 
-When comparing a number the tolerance / distance can be expressed as another postive number or a percentage.
+The matcher works with data-type number, date, timestamp, timestamp with time zone, timestamp with local time zone.
+The data-types of compared values must match exactly and if type does not match, the expectation will fail. 
 
-When comparing a two dates tolerance can be expressed in interval time either Day-To-Second or Year-To-Month.
+|  expected/actual<br>data-type  |   distance data-type   |  
+|:------------------------------:|:----------------------:|
+|             number             |         number         |
+|              date              | interval day to second |
+|              date              | interval year to month |
+|           timestamp            | interval day to second |
+|           timestamp            | interval year to month |
+|    timestamp with time zone    | interval day to second |  
+|    timestamp with time zone    | interval year to month |  
+| timestamp with local time zone | interval day to second |  
+| timestamp with local time zone | interval year to month |  
 
-Matcher for numbers will calculate a absolute distance between expected and actual and check whether that value is within a tolerance.
 
-When comparing a date a distance is measured in interval, the check is done that actual value is within date range of expected taking into account interval plus and minus.
+The distance can be expressed as a postive number or positive interval.
+
+>Note:
+> Interval year-to-moth as a distance is giving sucess if the distance between the given dates/timestamps evaluates to value less or equal of the specified interval
+> Keep in mind that a distance of `interval '0-1' year to month` will actuall be successful if the distance isnot greater than a month and a half.
+> This is due to how oracle evaluates conversion between timestamp difference converted to `year to month interval`.
 
 **Example 1.**
 ```sql
