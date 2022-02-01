@@ -33,7 +33,7 @@ create or replace type body ut_data_value_json as
   end;
 
   constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json) return self as result is
-    l_value json_element_t := case when a_value is null then cast (null as json_element_t ) else json_element_t.parse(json_query(a_value, '$' returning clob)) end;
+    l_value json_element_t := ut_compound_data_helper.get_json_object(a_value);
   begin 
     init(l_value);
     return;

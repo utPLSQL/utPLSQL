@@ -1607,7 +1607,8 @@ create or replace package body test_expectations_json is
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
- 
+  $if dbms_db_version.version >= 21 $then
+  
   procedure success_on_same_data_njson
   as
     l_actual   json;
@@ -1781,6 +1782,7 @@ create or replace package body test_expectations_json is
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end; 
- 
+  
+  $end
 end;
 /

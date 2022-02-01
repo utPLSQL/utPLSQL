@@ -781,6 +781,17 @@ create or replace package body ut_compound_data_helper is
     return l_diffs;
   end;
   
+  function get_json_object(a_json_t json) return json_element_t is
+    l_json JSON;
+    l_obj json_element_t;
+  begin
+     $if dbms_db_version.version >= 21 $then
+       l_obj := case when a_json_t is null then cast (null as json_element_t ) else json_element_t.parse(json_query(a_value, '$' returning clob)) end;
+     $else
+       l_obj := null;
+     $end
+  end;
+  
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

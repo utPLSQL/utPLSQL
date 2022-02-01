@@ -75,6 +75,8 @@ create or replace package test_expectations_json is
   --%test( Compare two json arrays )
   procedure check_json_arrays;
  
+  $if dbms_db_version.version >= 21 $then
+  
   --%test(Gives success for identical data using native json for 21c and above)
   procedure success_on_same_data_njson;
 
@@ -95,6 +97,7 @@ create or replace package test_expectations_json is
   
   --%test( Fail Json object not to have count using native json for 21c and above)
   procedure fail_not_to_have_count_njson;
-
+  
+  $end
 end;
 /

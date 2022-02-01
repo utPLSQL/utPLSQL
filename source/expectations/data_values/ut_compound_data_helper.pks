@@ -134,5 +134,7 @@ create or replace package ut_compound_data_helper authid definer is
   
   function get_json_diffs_type(a_diff_id raw) return tt_json_diff_type_tab;
   
+  function get_json_object(a_json_t json) return json_element_t;
+  
 end;
 /
