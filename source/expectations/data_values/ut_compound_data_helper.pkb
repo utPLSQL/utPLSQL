@@ -790,6 +790,7 @@ create or replace package body ut_compound_data_helper is
      $else
        l_obj := null;
      $end
+	 return l_obj;
   end;
   
 begin
