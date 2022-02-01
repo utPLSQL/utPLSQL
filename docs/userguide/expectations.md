@@ -1643,7 +1643,7 @@ FAILURE
 
 # Comparing Json objects
 
-utPLSQL is capable of comparing json data-types **on Oracle 12.2 and above**.
+utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
 
 ### Notes on comparison of json data
 
@@ -1651,10 +1651,11 @@ utPLSQL is capable of comparing json data-types **on Oracle 12.2 and above**.
 - During comparison of json objects the order doesn't matter.
 - During comparison of json arrays the index of element is taken into account
 - To compare json you have to make sure its type of  `json_element_t` or its subtypes
+- From version 21 and above a native `json` type is supported.
 
 
 
-Compare JSON example:
+Compare JSON example using `json_element_t`:
 ```sql
 declare
   l_expected json_element_t;
@@ -1736,7 +1737,7 @@ FAILURE
   at "anonymous block", line 59
 ```
 
-Comparing parts of JSON example:
+Comparing parts of JSON example using `json_element_t` subtypes:
 ```sql
 declare
   l_actual         json_object_t;
