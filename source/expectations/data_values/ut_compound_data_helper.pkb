@@ -786,7 +786,7 @@ create or replace package body ut_compound_data_helper is
     l_obj json_element_t;
   begin
      $if dbms_db_version.version >= 21 $then
-       l_obj := case when a_json_t is null then cast (null as json_element_t ) else json_element_t.parse(json_query(a_value, '$' returning clob)) end;
+       l_obj := case when a_json_t is null then cast (null as json_element_t ) else json_element_t.parse(json_query(a_json_t, '$' returning clob)) end;
      $else
        l_obj := null;
      $end
