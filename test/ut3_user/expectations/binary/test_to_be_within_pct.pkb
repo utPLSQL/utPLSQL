@@ -125,6 +125,27 @@ create or replace package body test_to_be_within_pct is
 
     ut3_develop.ut.expect( 2.987654321 ).not_to( ut3_develop.be_within_pct( 0.1 ).of_(3) );
     expect_success;
+
+    ut3_develop.ut.expect( 3.012345679 ).to_be_within_pct( 1 ).of_(3);
+    expect_success;
+
+    ut3_develop.ut.expect( 3.012345679 ).to_( ut3_develop.be_within_pct( 1 ).of_(3) );
+    expect_success;
+
+    ut3_develop.ut.expect( 3.012345679 ).not_to_be_within_pct( 0.1 ).of_(3);
+    expect_success;
+
+    ut3_develop.ut.expect( 3.012345679 ).not_to( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    expect_success;
+
+    ut3_develop.ut.expect( 0 ).to_be_within_pct( 10 ).of_( 0 );
+    expect_success;
+
+    ut3_develop.ut.expect( 0 ).to_be_within_pct( 100 ).of_( 1 );
+    expect_success;
+
+    ut3_develop.ut.expect( -1 ).to_be_within_pct( 200 ).of_( 1 );
+    expect_success;
   end;
 
   procedure failed_tests is
@@ -139,6 +160,21 @@ create or replace package body test_to_be_within_pct is
     expect_failure;
 
     ut3_develop.ut.expect( 2.987654321 ).not_to( ut3_develop.be_within_pct( 1 ).of_(3) );
+    expect_failure;
+
+    ut3_develop.ut.expect( 3.012345679 ).to_be_within_pct( 0.1 ).of_(3);
+    expect_failure;
+
+    ut3_develop.ut.expect( 3.012345679 ).to_( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    expect_failure;
+
+    ut3_develop.ut.expect( 3.012345679 ).not_to_be_within_pct( 1 ).of_(3);
+    expect_failure;
+
+    ut3_develop.ut.expect( 3.012345679 ).not_to( ut3_develop.be_within_pct( 1 ).of_(3) );
+    expect_failure;
+
+    ut3_develop.ut.expect( 0.1 ).to_be_within_pct( 10 ).of_( 0 );
     expect_failure;
   end;
 

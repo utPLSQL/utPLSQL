@@ -52,9 +52,8 @@ create or replace type body ut_be_within_pct as
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_number) then
         l_result :=
-          treat(self.distance_from_expected as ut_data_value_number).data_value
-            >= ( ( treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 ) /
-               treat(self.expected as ut_data_value_number).data_value;
+            abs(treat(self.distance_from_expected as ut_data_value_number).data_value) * treat(self.expected as ut_data_value_number).data_value
+            >= abs( ( treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 );
       end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);

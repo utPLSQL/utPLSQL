@@ -1096,13 +1096,17 @@ SUCCESS
 
 ## to_be_within of
 
-This matcher determines wheter expected value is within range from another value.
+Determines wheter expected value is within range (tolerance) from another value.
 
-The logical formual used for calcuating the matcher is:
-`abs( expected - actual ) <= distance`
-The matcher will succeed if the `expected` and `actual` are not more than `distance` apart from each other. 
+The logical formual used for calcuating the matcher is: 
+```
+    result := ( abs( expected - actual ) <= distance )
+```
+The actual formula used for calculation is more complex to handle different data-types of expected/actual values as well as differnet types of distance value.
+The matcher will fail if the `expected` and `actual` are more than `distance` apart from each other.
+The matcher will fail if the dataypes of `expected` and `actual` are not the same.
 
-The matcher works with data-type number, date, timestamp, timestamp with time zone, timestamp with local time zone.
+The matcher works with data-types: `number`, `date`, `timestamp`, `timestamp with time zone`, `timestamp with local time zone`
 The data-types of compared values must match exactly and if type does not match, the expectation will fail. 
 
 |  expected/actual<br>data-type  |   distance data-type   |  
@@ -1118,12 +1122,13 @@ The data-types of compared values must match exactly and if type does not match,
 | timestamp with local time zone | interval year to month |  
 
 
-The distance can be expressed as a postive number or positive interval.
+The distance must be expressed as a non-negative number or non-negative interval.
 
 >Note:
 > Interval year-to-moth as a distance is giving sucess if the distance between the given dates/timestamps evaluates to value less or equal of the specified interval
-> Keep in mind that a distance of `interval '0-1' year to month` will actuall be successful if the distance isnot greater than a month and a half.
-> This is due to how oracle evaluates conversion between timestamp difference converted to `year to month interval`.
+> Keep in mind that a checking for distance of `interval '0-1' year to month` will actuall be successful if the distance is less than a month and 15 days.
+> This is due to how oracle evaluates conversion between timestamp difference converted to `year to month interval`. 
+> The behavior is similar to a call to `months_between()` function with results rounded to full monts ie. round(months_between(date, date))
 
 **Example 1.**
 ```sql
@@ -1172,17 +1177,14 @@ Failures:
 
 ## to_be_within_pct of
 
-This matcher is created to determine wheter expected value is approximately equal or "close" to another value within percentage value of expected.
+Determines wheter actual value is within percentage range of expected value. 
+The matcher only works with `number` data-type.
 
-Matcher will allow to compare numbers.
-
-When comparing a number the tolerance / distance can be expressed as another postive number or a percentage.
-
-When comparing a two dates tolerance can be expressed in interval time either Day-To-Second or Year-To-Month.
-
-Matcher for numbers will calculate a absolute distance between expected and actual and check whether that value is within a tolerance.
-
-When comparing a date a distance is measured in interval, the check is done that actual value is within date range of expected taking into account interval plus and minus.
+The percentage deviation (distance) must be expressed as a non-negative number.
+The formula used for calcuation of expectation is:
+```
+  result := ( ( distance ) * expected >= abs( expected - actual ) * 100 ) 
+```
 
 **Example 1.**
 ```sql
@@ -1190,6 +1192,11 @@ begin
   ut.expect(9).to_be_within_pct(10).of_(10);
 end;
 /
+```
+
+```
+SUCCESS
+  Actual: 9 (number) was expected to be within 10 % of 10 (number)
 ```
 
 
