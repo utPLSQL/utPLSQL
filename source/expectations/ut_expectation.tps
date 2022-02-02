@@ -1,4 +1,4 @@
-create or replace type ut_expectation under ut_expectation_base(
+create or replace type ut_expectation force under ut_expectation_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2021 utPLSQL Project
@@ -164,14 +164,14 @@ create or replace type ut_expectation under ut_expectation_base(
   member procedure to_contain(self in ut_expectation, a_expected anydata),
   member procedure not_to_contain(self in ut_expectation, a_expected anydata),
   
-  member function  to_be_within(a_dist natural) return ut_be_within,
+  member function  to_be_within(a_dist number) return ut_be_within,
   member function  to_be_within(a_dist dsinterval_unconstrained) return ut_be_within,
   member function  to_be_within(a_dist yminterval_unconstrained) return ut_be_within,
-  member function  to_be_within_pct(a_dist natural) return ut_be_within_pct,
-  member function  not_to_be_within(a_dist natural) return ut_be_within,
+  member function  to_be_within_pct(a_dist number) return ut_be_within_pct,
+  member function  not_to_be_within(a_dist number) return ut_be_within,
   member function  not_to_be_within(a_dist dsinterval_unconstrained) return ut_be_within,
   member function  not_to_be_within(a_dist yminterval_unconstrained) return ut_be_within,
-  member function  not_to_be_within_pct(a_dist natural) return ut_be_within_pct
+  member function  not_to_be_within_pct(a_dist number) return ut_be_within_pct
 )
 not final
 /

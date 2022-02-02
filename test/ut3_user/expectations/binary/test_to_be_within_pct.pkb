@@ -114,31 +114,31 @@ create or replace package body test_to_be_within_pct is
 
   procedure success_tests is
   begin
-    ut3_develop.ut.expect( 2.987654321 ).to_be_within_pct( 1 ).of_(3);
+    ut3_develop.ut.expect( 1 ).to_be_within_pct( 0.01 ).of_(1.0001);
     expect_success;
 
-    ut3_develop.ut.expect( 2.987654321 ).to_( ut3_develop.be_within_pct( 1 ).of_(3) );
+    ut3_develop.ut.expect( 1.0001 ).to_( ut3_develop.be_within_pct( 0.01 ).of_(1) );
     expect_success;
 
-    ut3_develop.ut.expect( 2.987654321 ).not_to_be_within_pct( 0.1 ).of_(3);
+    ut3_develop.ut.expect( 1.0002 ).not_to_be_within_pct( 0.01 ).of_(1);
     expect_success;
 
-    ut3_develop.ut.expect( 2.987654321 ).not_to( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    ut3_develop.ut.expect( 1 ).not_to( ut3_develop.be_within_pct( 0.01 ).of_(1.0002) );
     expect_success;
 
-    ut3_develop.ut.expect( 3.012345679 ).to_be_within_pct( 1 ).of_(3);
+    ut3_develop.ut.expect( 1.0001 ).to_be_within_pct( -0.01 ).of_(1);
     expect_success;
 
-    ut3_develop.ut.expect( 3.012345679 ).to_( ut3_develop.be_within_pct( 1 ).of_(3) );
+    ut3_develop.ut.expect( 1 ).to_( ut3_develop.be_within_pct( -0.01 ).of_(1.0001) );
     expect_success;
 
-    ut3_develop.ut.expect( 3.012345679 ).not_to_be_within_pct( 0.1 ).of_(3);
+    ut3_develop.ut.expect( 1.00000001 ).not_to_be_within_pct( 0 ).of_(1);
     expect_success;
 
-    ut3_develop.ut.expect( 3.012345679 ).not_to( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    ut3_develop.ut.expect( 0 ).not_to( ut3_develop.be_within_pct( 0.01 ).of_(0.000001) );
     expect_success;
 
-    ut3_develop.ut.expect( 0 ).to_be_within_pct( 10 ).of_( 0 );
+    ut3_develop.ut.expect( 0 ).to_be_within_pct( 0 ).of_( 0 );
     expect_success;
 
     ut3_develop.ut.expect( 0 ).to_be_within_pct( 100 ).of_( 1 );
@@ -150,31 +150,37 @@ create or replace package body test_to_be_within_pct is
 
   procedure failed_tests is
   begin
-    ut3_develop.ut.expect( 2.987654321 ).to_be_within_pct( 0.1 ).of_(3);
+    ut3_develop.ut.expect( 1 ).not_to_be_within_pct( 0.01 ).of_(1.0001);
     expect_failure;
 
-    ut3_develop.ut.expect( 2.987654321 ).to_( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    ut3_develop.ut.expect( 1.0001 ).not_to( ut3_develop.be_within_pct( 0.01 ).of_(1) );
     expect_failure;
 
-    ut3_develop.ut.expect( 2.987654321 ).not_to_be_within_pct( 1 ).of_(3);
+    ut3_develop.ut.expect( 1.0002 ).to_be_within_pct( 0.01 ).of_(1);
     expect_failure;
 
-    ut3_develop.ut.expect( 2.987654321 ).not_to( ut3_develop.be_within_pct( 1 ).of_(3) );
+    ut3_develop.ut.expect( 1 ).to_( ut3_develop.be_within_pct( 0.01 ).of_(1.0002) );
     expect_failure;
 
-    ut3_develop.ut.expect( 3.012345679 ).to_be_within_pct( 0.1 ).of_(3);
+    ut3_develop.ut.expect( 1.0001 ).not_to_be_within_pct( -0.01 ).of_(1);
     expect_failure;
 
-    ut3_develop.ut.expect( 3.012345679 ).to_( ut3_develop.be_within_pct( 0.1 ).of_(3) );
+    ut3_develop.ut.expect( 1 ).not_to( ut3_develop.be_within_pct( -0.01 ).of_(1.0001) );
     expect_failure;
 
-    ut3_develop.ut.expect( 3.012345679 ).not_to_be_within_pct( 1 ).of_(3);
+    ut3_develop.ut.expect( 1.00000001 ).to_be_within_pct( 0 ).of_(1);
     expect_failure;
 
-    ut3_develop.ut.expect( 3.012345679 ).not_to( ut3_develop.be_within_pct( 1 ).of_(3) );
+    ut3_develop.ut.expect( 0 ).to_( ut3_develop.be_within_pct( 0.01 ).of_(0.000001) );
     expect_failure;
 
-    ut3_develop.ut.expect( 0.1 ).to_be_within_pct( 10 ).of_( 0 );
+    ut3_develop.ut.expect( 0 ).not_to_be_within_pct( 0 ).of_( 0 );
+    expect_failure;
+
+    ut3_develop.ut.expect( 0 ).not_to_be_within_pct( 100 ).of_( 1 );
+    expect_failure;
+
+    ut3_develop.ut.expect( -1 ).not_to_be_within_pct( 200 ).of_( 1 );
     expect_failure;
   end;
 

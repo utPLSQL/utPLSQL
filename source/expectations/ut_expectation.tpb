@@ -694,7 +694,7 @@ create or replace type body ut_expectation as
     self.not_to( ut_contain(a_expected).negated() );
   end;
   
-  member function to_be_within(a_dist natural) return ut_be_within is
+  member function to_be_within(a_dist number) return ut_be_within is
     l_result ut_be_within;
   begin
     l_result := ut_be_within(a_dist);
@@ -718,7 +718,7 @@ create or replace type body ut_expectation as
     return l_result;
   end;  
   
-  member function to_be_within_pct(a_dist natural) return ut_be_within_pct is
+  member function to_be_within_pct(a_dist number) return ut_be_within_pct is
     l_result ut_be_within_pct;
   begin
     l_result := ut_be_within_pct(a_dist);
@@ -726,7 +726,7 @@ create or replace type body ut_expectation as
     return l_result;
   end;  
   
-  member function not_to_be_within(a_dist natural) return ut_be_within is
+  member function not_to_be_within(a_dist number) return ut_be_within is
     l_result ut_be_within;
   begin
     l_result := treat( ut_be_within(a_dist).negated() as ut_be_within);
@@ -750,7 +750,7 @@ create or replace type body ut_expectation as
     return l_result;
   end;
 
-  member function not_to_be_within_pct(a_dist natural) return ut_be_within_pct is
+  member function not_to_be_within_pct(a_dist number) return ut_be_within_pct is
     l_result ut_be_within_pct;
   begin
     l_result := treat( ut_be_within_pct(a_dist).negated() as ut_be_within_pct);
