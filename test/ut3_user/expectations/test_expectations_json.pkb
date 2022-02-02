@@ -62,8 +62,8 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_expected   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
-    l_actual := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
+    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+    l_expected := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
 
     --Act
     ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
@@ -387,7 +387,7 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-        l_expected := json_object_t.parse('    {
+        l_actual := json_object_t.parse('    {
       "Actors": [
         {
           "name": "Tom Cruise",
@@ -424,7 +424,7 @@ create or replace package body test_expectations_json is
       ]
     }'
         );
-        l_actual := json_object_t.parse('    {
+        l_expected := json_object_t.parse('    {
       "Actors": 
         {
           "name": "Krzystof Jarzyna",
@@ -444,8 +444,8 @@ create or replace package body test_expectations_json is
     
     
     --Act
-    ut3_develop.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors.children'))).to_equal(json_array_t(json_query(l_expected
-        .stringify,'$.Actors[1].children')));
+    ut3_develop.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors[1].children'))).to_equal(json_array_t(json_query(l_expected
+        .stringify,'$.Actors.children')));
     --Assert
     l_expected_message := q'[%Actual: json was expected to equal: json
 %Diff: 1 differences found
@@ -1055,7 +1055,7 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_expected   := json_element_t.parse('[
+    l_actual   := json_element_t.parse('[
   {
     "_id": "5ce6ec46cb9977b050f15d97",
     "index": 0,
@@ -1282,7 +1282,7 @@ create or replace package body test_expectations_json is
     "favoriteFruit": "strawberry"
   }
 ]');
-    l_actual := json_element_t.parse('[
+    l_expected := json_element_t.parse('[
   {
     "_id": "5ce6ec6660565269b16cf836",
     "index": 0,
@@ -1665,8 +1665,8 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_expected   := json('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
-    l_actual := json('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
+    l_actual   := json('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+    l_expected := json('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
 
     --Act
     ut3_develop.ut.expect( l_actual ).to_equal( l_expected );
@@ -1784,5 +1784,24 @@ create or replace package body test_expectations_json is
   end; 
   
   $end
+  
+  procedure p_1113_reg_exp_chg_with_act is
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    ut3_develop.ut.expect(json_element_t.parse('{"a":"value a"}')).to_equal(json_element_t.parse('{"a":"value b"}'));
+
+    --Assert
+    l_expected_message := q'[%Actual: json was expected to equal: json
+%Diff: 1 differences found
+%1 unequal values
+%Actual value: "value a" was expected to be: "value b" on path: $."a"%]';
+
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);   
+  end;  
+  
+  
 end;
 /

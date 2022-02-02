@@ -99,5 +99,9 @@ create or replace package test_expectations_json is
   procedure fail_not_to_have_count_njson;
   
   $end
+
+  --%test( Regression scenario tests for issue #1113 where the expected has been switched with actual)  
+  procedure p_1113_reg_exp_chg_with_act;
+  
 end;
 /

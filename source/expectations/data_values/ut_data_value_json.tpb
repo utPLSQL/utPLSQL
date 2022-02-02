@@ -147,7 +147,7 @@ create or replace type body ut_data_value_json as
       l_result :=
         case
           when ut_compound_data_helper.insert_json_diffs(
-            l_diff_id, self.json_tree.json_tree_info, l_other.json_tree.json_tree_info
+            l_diff_id, l_other.json_tree.json_tree_info, self.json_tree.json_tree_info
           ) > 0 then 1
           else 0
         end;
