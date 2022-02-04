@@ -135,6 +135,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
 
   publish:
     name: Deploy documentation
