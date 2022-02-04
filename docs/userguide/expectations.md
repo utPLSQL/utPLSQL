@@ -316,24 +316,25 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-|         Matcher         | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
-| :---------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
-|     **be_not_null**     |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **be_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|      **be_false**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|       **be_true**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|   **be_greater_than**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|  **be_less_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|    **be_less_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|     **be_between**      |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
-|        **equal**        |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **contain**       |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
-|        **match**        |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-|     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-
+|         Matcher           | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
+| :-----------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
+|     **be_not_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **be_null**         |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|      **be_false**         |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|       **be_true**         |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|   **be_greater_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+| **be_greater_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|  **be_less_or_equal**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|    **be_less_than**       |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|     **be_between**        |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
+|        **equal**          |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **contain**         |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
+|        **match**          |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|       **be_like**         |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|      **be_empty**         |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+|     **have_count**        |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+| **be_within().of_()**     |      |         |      |   X  |   X    |    X      |               X               |                   X                    |          |                                 |                                 |        |                             |        |      |
+| **be_within_pct().of_()** |      |         |      |      |   X    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
 
 # Expecting exceptions
 
@@ -1091,6 +1092,111 @@ SUCCESS
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
       <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
+```
+
+## to_be_within of
+
+Determines wheter expected value is within range (tolerance) from another value.
+
+The logical formual used for calcuating the matcher is: 
+```
+    result := ( abs( expected - actual ) <= distance )
+```
+The actual formula used for calculation is more complex to handle different data-types of expected/actual values as well as differnet types of distance value.
+The matcher will fail if the `expected` and `actual` are more than `distance` apart from each other.
+The matcher will fail if the dataypes of `expected` and `actual` are not the same.
+
+The matcher works with data-types: `number`, `date`, `timestamp`, `timestamp with time zone`, `timestamp with local time zone`
+The data-types of compared values must match exactly and if type does not match, the expectation will fail. 
+
+|  expected/actual<br>data-type  |   distance data-type   |  
+|:------------------------------:|:----------------------:|
+|             number             |         number         |
+|              date              | interval day to second |
+|              date              | interval year to month |
+|           timestamp            | interval day to second |
+|           timestamp            | interval year to month |
+|    timestamp with time zone    | interval day to second |  
+|    timestamp with time zone    | interval year to month |  
+| timestamp with local time zone | interval day to second |  
+| timestamp with local time zone | interval year to month |  
+
+
+The distance must be expressed as a non-negative number or non-negative interval.
+
+>Note:
+> Interval year-to-moth as a distance is giving sucess if the distance between the given dates/timestamps evaluates to value less or equal of the specified interval
+> Keep in mind that a checking for distance of `interval '0-1' year to month` will actuall be successful if the distance is less than a month and 15 days.
+> This is due to how oracle evaluates conversion between timestamp difference converted to `year to month interval`. 
+> The behavior is similar to a call to `months_between()` function with results rounded to full monts ie. round(months_between(date, date))
+
+**Example 1.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(4);
+end;
+/
+```
+
+**Example 2.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(5);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 3 (number) was expected to be within 1 of 5 (number)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 48 l_result.expectation.to_(l_result );        
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
+
+**Example 3.**
+```sql
+begin
+  ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 2020-06-07T13:32:58 (date) was expected to be within 1 day of 2020-06-09T13:32:58 (date)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 55 l_result.expectation.to_(l_result );    
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
+
+
+## to_be_within_pct of
+
+Determines wheter actual value is within percentage range of expected value. 
+The matcher only works with `number` data-type.
+
+The percentage deviation (distance) must be expressed as a non-negative number.
+The formula used for calcuation of expectation is:
+```
+  result := ( ( distance ) * expected >= abs( expected - actual ) * 100 ) 
+```
+
+**Example 1.**
+```sql
+begin
+  ut.expect(9).to_be_within_pct(10).of_(10);
+end;
+/
+```
+
+```
+SUCCESS
+  Actual: 9 (number) was expected to be within 10 % of 10 (number)
 ```
 
 

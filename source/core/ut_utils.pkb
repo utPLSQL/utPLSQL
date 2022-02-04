@@ -901,5 +901,63 @@ create or replace package body ut_utils is
         end;
   end;
 
+  function interval_to_text(a_interval dsinterval_unconstrained) return varchar2 is
+    l_day varchar2(100) := extract(day  from a_interval); 
+    l_hour varchar2(100) := extract(hour  from a_interval); 
+    l_minute varchar2(100) := extract(minute  from a_interval);
+    l_second varchar2(100) := extract(second from a_interval);     
+    l_result varchar2(32767);  
+  begin
+    l_result := case 
+                  when l_day = 1 then l_day ||' day' 
+                  when l_day > 1 then l_day ||' days' 
+                end || 
+                case 
+                  when l_hour = 1 then ' '|| l_hour ||' hour' 
+                  when l_hour > 1 then ' '|| l_hour ||' hours' 
+                end || 
+                case 
+                  when l_minute = 1 then ' '||l_minute ||' minute' 
+                  when l_minute > 1 then ' '||l_minute ||' minutes' 
+                end || 
+                case 
+                  when l_second > 1 then ' '||l_second ||' seconds'
+                  when l_second = 1 then ' '||l_second ||' second'
+                  when l_second > 0 then ' '||l_second ||' seconds'
+                end;
+    l_result :=
+      case
+        when a_interval is null then 'NULL'
+        when l_result is null then '0 seconds'
+        else ltrim(l_result,' ')
+      end;
+
+    return l_result;
+  end;
+
+  function interval_to_text(a_interval yminterval_unconstrained) return varchar2 is
+    l_year varchar2(4) :=  extract(year from a_interval); 
+    l_month varchar2(20) := extract(month from a_interval);   
+    l_result varchar2(32767);     
+  begin
+    l_result := case 
+                  when l_year = 1 then l_year ||' year' 
+                  when l_year > 1 then l_year ||' years'
+                end || 
+                case 
+                  when l_month > 1 then  ' '||l_month ||' months'
+                  when l_month = 1 then  ' '||l_month ||' month'
+                end;
+    l_result :=
+      case
+        when a_interval is null then 'NULL'
+        when l_result is null then '0 months'
+        else ltrim(l_result,' ')
+      end;
+
+    return l_result;
+  end;
+
+
 end ut_utils;
 /

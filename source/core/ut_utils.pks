@@ -127,9 +127,9 @@ create or replace package ut_utils authid definer is
   gc_more_data_string         constant varchar2(5) := '[...]';
   gc_more_data_string_len     constant integer := length( gc_more_data_string );
   gc_number_format            constant varchar2(100) := 'TM9';
-  gc_date_format              constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ss';
-  gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
-  gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
+  gc_date_format              constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ss';
+  gc_timestamp_format         constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ssxff';
+  gc_timestamp_tz_format      constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
   gc_empty_string             constant varchar2(5) := 'EMPTY';
 
@@ -457,6 +457,16 @@ create or replace package ut_utils authid definer is
   * If null value passed returns null
   */
   function qualified_sql_name(a_name varchar2) return varchar2;
-
+ 
+  /*
+  * Return value of interval in plain english
+  */  
+  function interval_to_text(a_interval dsinterval_unconstrained) return varchar2;
+  
+  /*
+  * Return value of interval in plain english
+  */    
+  function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
+  
 end ut_utils;
 /

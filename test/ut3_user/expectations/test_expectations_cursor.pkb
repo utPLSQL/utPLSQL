@@ -336,7 +336,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
+    ut3_develop.ut.expect( l_actual ).to_( ut3_develop.equal( l_expected ).unordered_columns() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -350,7 +350,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3_develop.ut.expect( l_actual ).to_equal( l_expected ).uc;
+    ut3_develop.ut.expect( l_actual ).to_( ut3_develop.equal( l_expected ).uc() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -592,7 +592,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
     --Act
-    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('/ROW/RN|//A_Column|//SOME_COL');
+    ut3_develop.ut.expect(l_actual).to_( ut3_develop.equal(l_expected).include('/ROW/RN|//A_Column|//SOME_COL') );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;

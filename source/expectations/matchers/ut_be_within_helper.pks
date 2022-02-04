@@ -1,7 +1,7 @@
-create or replace type ut_data_value_dsinterval under ut_data_value(
+create or replace package ut_be_within_helper authid definer as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2021 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@ create or replace type ut_data_value_dsinterval under ut_data_value(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  data_value interval day(9) to second(9),
-  constructor function ut_data_value_dsinterval(self in out nocopy ut_data_value_dsinterval, a_value dsinterval_unconstrained) return self as result,
-  overriding member function is_null return boolean,
-  overriding member function to_string return varchar2,
-  overriding member function compare_implementation(a_other ut_data_value) return integer
-)
+
+  function values_within_abs_distance(
+    a_actual ut_data_value, a_expected ut_data_value, a_distance ut_data_value
+  ) return boolean;
+
+end;
 /
