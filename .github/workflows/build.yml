@@ -147,7 +147,7 @@ jobs:
         with:
           args: >
             -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
-            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//{0}', env.CONNECTION_STR ) }}
+            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/XE', env.CONNECTION_STR ) }}
             -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
 
   publish:
