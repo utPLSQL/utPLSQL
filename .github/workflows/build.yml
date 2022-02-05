@@ -129,6 +129,15 @@ jobs:
         id: validate-reports-format
         run:  bash .github/scripts/validate_report_files.sh
 
+      - name: Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./cobertura.xml
+          flags: ${{matrix.db_version_name}}
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
+
       - name: SonarCloud Scan
         id: sonar
         uses: SonarSource/sonarcloud-github-action@master
@@ -138,7 +147,7 @@ jobs:
         with:
           args: >
             -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
-            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@{0}', env.CONNECTION_STR ) }}
+            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//{0}', env.CONNECTION_STR ) }}
             -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
 
   publish:
