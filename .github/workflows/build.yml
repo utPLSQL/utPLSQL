@@ -144,7 +144,6 @@ jobs:
           files: ./cobertura.xml
           flags: ${{matrix.db_version_name}}
           fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v1.24
