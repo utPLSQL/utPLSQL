@@ -1645,6 +1645,10 @@ FAILURE
 
 utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
 
+**Note:**
+> Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
+
+
 ### Notes on comparison of json data
 
 - Json data can contain objects, scalar or arrays.
