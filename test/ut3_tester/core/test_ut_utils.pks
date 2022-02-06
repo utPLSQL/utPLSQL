@@ -128,5 +128,34 @@ create or replace package test_ut_utils is
   --%test(replace_multiline_comments - replaces multi-line comments with empty lines)
   procedure replace_multiline_comments;
 
+  --%context(interval_converter_to_strin)
+  
+  --%test(returns text representation of interval day to second for 1 second interval)
+  procedure int_conv_ds_sec; 
+  
+   --%test(returns text representation of interval day to second for 1 minute interval) 
+  procedure int_conv_ds_minute; 
+  
+   --%test(returns text representation of interval day to second for 1 hour interval)
+  procedure int_conv_ds_hour;  
+  
+   --%test(returns text representation of interval day to second for 1 day interval)
+  procedure int_conv_ds_day; 
+    
+   --%test(returns text representation of interval day to second for combination interval) 
+  procedure int_conv_ds_date; 
+  
+   --%test(returns text representation of interval year to month for 1 year interval)
+  procedure int_conv_ym_year;  
+  
+   --%test(returns text representation of interval year to month for 1 month interval)
+  procedure int_conv_ym_month; 
+    
+   --%test(returns text representation of interval year to month for custom interval)  
+  procedure int_conv_ym_date;   
+  
+  
+  --%endcontext
+
 end test_ut_utils;
 /

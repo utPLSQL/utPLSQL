@@ -991,6 +991,225 @@ Rows: [ 60 differences, showing first 20 ]
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
 
   end;  
+
+  procedure failure_nesting_objects is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);	  
+  begin
+  --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'C', '0') ));
+    --Act
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_nested_object was expected to equal: ut3_tester_helper.test_dummy_nested_object
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <SEC_NESTED_OBJ><ID>1</ID><name>C</name><Value>0</Value></SEC_NESTED_OBJ>
+%Row No. 1 - Expected: <SEC_NESTED_OBJ><ID>1</ID><name>B</name><Value>0</Value></SEC_NESTED_OBJ>]';
+    ut3_develop.ut.expect(g_test_actual).to_equal(g_test_expected);
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);   
+  end;
   
+  procedure failure_double_nested_objects is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);	  
+  begin
+  --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ),'Test'));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'C', '0') ),'Test'));
+    --Act
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_double_nested_obj was expected to equal: ut3_tester_helper.test_dummy_double_nested_obj
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <FIRST_DOUBLE_NESTED_OBJ><FIRST_NESTED_OBJ><ID>1</ID><name>A</name><Value>0</Value></FIRST_NESTED_OBJ><SEC_NESTED_OBJ><ID>1</ID><name>C</name><Value>0</Value></SEC_NESTED_OBJ></FIRST_DOUBLE_NESTED_OBJ>
+%Row No. 1 - Expected: <FIRST_DOUBLE_NESTED_OBJ><FIRST_NESTED_OBJ><ID>1</ID><name>A</name><Value>0</Value></FIRST_NESTED_OBJ><SEC_NESTED_OBJ><ID>1</ID><name>B</name><Value>0</Value></SEC_NESTED_OBJ></FIRST_DOUBLE_NESTED_OBJ>]';
+    ut3_develop.ut.expect(g_test_actual).to_equal(g_test_expected);
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);   
+  end;  
+ 
+  procedure success_nesting_objects is 
+  begin
+  --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ));
+   --Act
+   ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+  
+  procedure success_double_nested_objects is
+  begin
+  --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ),'Test'));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_double_nested_obj(ut3_tester_helper.test_dummy_nested_object(ut3_tester_helper.test_dummy_object(1, 'A', '0'),ut3_tester_helper.test_dummy_object(1, 'B', '0') ),'Test'));
+   --Act
+   ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;  
+
+  procedure failure_nested_object_list is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);	  
+    l_actual           ut3_tester_helper.test_dummy_object_list;
+    l_expected         ut3_tester_helper.test_dummy_object_list;
+  begin
+    --Arrange
+    select ut3_tester_helper.test_dummy_object( rownum + 1, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2
+	  order by rownum desc;
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+  --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object_list(l_actual,'Test'));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object_list(l_expected,'Test'));
+    --Act
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_nested_object_list was expected to equal: ut3_tester_helper.test_dummy_nested_object_list
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <FIRST_NESTED_OBJ><TEST_DUMMY_OBJECT><ID>2</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT><TEST_DUMMY_OBJECT><ID>1</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT></FIRST_NESTED_OBJ>
+%Row No. 1 - Expected: <FIRST_NESTED_OBJ><TEST_DUMMY_OBJECT><ID>3</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT><TEST_DUMMY_OBJECT><ID>2</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT></FIRST_NESTED_OBJ>]';
+    ut3_develop.ut.expect(g_test_actual).to_equal(g_test_expected);
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);   
+  end;
+ 
+  procedure success_nested_object_list is
+    l_actual           ut3_tester_helper.test_dummy_object_list;
+    l_expected         ut3_tester_helper.test_dummy_object_list;
+  begin
+    --Arrange
+    select ut3_tester_helper.test_dummy_object( rownum , 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2
+      order by rownum desc;
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object_list(l_actual,'Test'));
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_nested_object_list(l_expected,'Test'));
+    --Act
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
+ procedure nested_varray_same_data is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_nested_tab_varray(ut3_tester_helper.t_varray(1)) );
+    g_test_actual := anydata.convertObject( ut3_tester_helper.test_nested_tab_varray(ut3_tester_helper.t_varray(1)) );
+    --Act
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
+  procedure nested_varray_diff_data is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    g_test_expected := anydata.convertObject( ut3_tester_helper.test_nested_tab_varray(ut3_tester_helper.t_varray(1)) );
+    g_test_actual   := anydata.convertObject( ut3_tester_helper.test_nested_tab_varray(ut3_tester_helper.t_varray(2)) );
+    --Act
+    ut3_develop.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_nested_tab_varray was expected to equal: ut3_tester_helper.test_nested_tab_varray
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <N_VARRAY><NUMBER>2</NUMBER></N_VARRAY>
+%Row No. 1 - Expected: <N_VARRAY><NUMBER>1</NUMBER></N_VARRAY>]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;  
+  
+  procedure user_def_type_null_issue_1098 is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);  
+    l_actual ut3_tester_helper.test_dummy_dble_nest_lst_obj;
+    l_expected ut3_tester_helper.test_dummy_dble_nest_lst_obj;
+  begin
+    l_actual:= ut3_tester_helper.test_dummy_dble_nest_lst_obj(
+      1, 'North America', 
+        ut3_tester_helper.test_dummy_double_nested_list ( 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(
+					  ut3_tester_helper.test_dummy_object(1, '100 Broadway', 02474),
+				 	  ut3_tester_helper.test_dummy_object(2, '200 Indian School Rd', 85016)
+                    ),'USA'
+                ), 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(),'USA'
+            )
+        )
+    );
+
+	l_expected := ut3_tester_helper.test_dummy_dble_nest_lst_obj(
+					1,
+					'North America',
+					ut3_tester_helper.test_dummy_double_nested_list(ut3_tester_helper.test_dummy_nested_object_list(ut3_tester_helper.test_dummy_object_list(
+						ut3_tester_helper.test_dummy_object(1, '100 Broadway', 02474),
+						ut3_tester_helper.test_dummy_object(2, '200 Indian School Rd', 85016)
+					 ), 'USA'))
+				);
+    ut3_develop.ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected)).unordered;
+	
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_dble_nest_lst_obj was expected to equal: ut3_tester_helper.test_dummy_dble_nest_lst_obj
+%Diff:
+%Rows: [ 2 differences ]
+%Extra:    <TEST_DUMMY_DBLE_NEST_LST_OBJ><SOME_NUMBER_ID>1</SOME_NUMBER_ID><SOME_NAME>North America</SOME_NAME><DUMMY_LIST><TEST_DUMMY_NESTED_OBJECT_LIST><FIRST_NESTED_OBJ><TEST_DUMMY_OBJECT><ID>1</ID><name>100 Broadway</name><Value>2474</Value></TEST_DUMMY_OBJECT><TEST_DUMMY_OBJECT><ID>2</ID><name>200 Indian School Rd</name><Value>85016</Value></TEST_DUMMY_OBJECT></FIRST_NESTED_OBJ><SOMENAME>USA</SOMENAME></TEST_DUMMY_NESTED_OBJECT_LIST><TEST_DUMMY_NESTED_OBJECT_LIST><FIRST_NESTED_OBJ/><SOMENAME>USA</SOMENAME></TEST_DUMMY_NESTED_OBJECT_LIST></DUMMY_LIST></TEST_DUMMY_DBLE_NEST_LST_OBJ>
+%Missing:  <TEST_DUMMY_DBLE_NEST_LST_OBJ><SOME_NUMBER_ID>1</SOME_NUMBER_ID><SOME_NAME>North America</SOME_NAME><DUMMY_LIST><TEST_DUMMY_NESTED_OBJECT_LIST><FIRST_NESTED_OBJ><TEST_DUMMY_OBJECT><ID>1</ID><name>100 Broadway</name><Value>2474</Value></TEST_DUMMY_OBJECT><TEST_DUMMY_OBJECT><ID>2</ID><name>200 Indian School Rd</name><Value>85016</Value></TEST_DUMMY_OBJECT></FIRST_NESTED_OBJ><SOMENAME>USA</SOMENAME></TEST_DUMMY_NESTED_OBJECT_LIST></DUMMY_LIST></TEST_DUMMY_DBLE_NEST_LST_OBJ>]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;
+  
+  procedure complex_nested_object_success is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);  
+    l_actual ut3_tester_helper.test_dummy_dble_nest_lst_obj;
+    l_expected ut3_tester_helper.test_dummy_dble_nest_lst_obj;
+  begin
+    l_actual:= ut3_tester_helper.test_dummy_dble_nest_lst_obj(
+      1, 'North America', 
+        ut3_tester_helper.test_dummy_double_nested_list ( 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(
+					  ut3_tester_helper.test_dummy_object(1, '100 Broadway', 02474),
+				 	  ut3_tester_helper.test_dummy_object(2, '200 Indian School Rd', 85016)
+                    ),'USA'
+                ), 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(),'USA'
+            )
+        )
+    );
+
+	l_expected := ut3_tester_helper.test_dummy_dble_nest_lst_obj(
+      1, 'North America', 
+        ut3_tester_helper.test_dummy_double_nested_list ( 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(
+					  ut3_tester_helper.test_dummy_object(1, '100 Broadway', 02474),
+				 	  ut3_tester_helper.test_dummy_object(2, '200 Indian School Rd', 85016)
+                    ),'USA'
+                ), 
+            ut3_tester_helper.test_dummy_nested_object_list(
+                    ut3_tester_helper.test_dummy_object_list(),'USA'
+            )
+        )
+    );
+    ut3_develop.ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected)).unordered;
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+
+  end;  
 end;
 /

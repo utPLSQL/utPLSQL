@@ -178,6 +178,18 @@ create or replace type body ut_equal as
     return l_result;
   end;
 
+  member procedure include(self in ut_equal, a_items varchar2) is
+  begin
+    include( ut_varchar2_list( a_items ) );
+  end;
+
+  member procedure include(self in ut_equal, a_items ut_varchar2_list) is
+    l_result ut_equal := self;
+  begin
+    l_result.options.include.add_items(a_items);
+    l_result.expectation.to_(l_result );
+  end;
+
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
@@ -192,11 +204,30 @@ create or replace type body ut_equal as
     return l_result;
   end;
 
+  member procedure exclude(self in ut_equal, a_items varchar2) is
+  begin
+    exclude( ut_varchar2_list( a_items ) );
+  end;
+
+  member procedure exclude(self in ut_equal, a_items ut_varchar2_list) is
+    l_result ut_equal := self;
+  begin
+    l_result.options.exclude.add_items(a_items);
+    l_result.expectation.to_(l_result );
+  end;
+
   member function unordered return ut_equal is
     l_result ut_equal := self;
   begin
     l_result.options.unordered();
     return l_result;
+  end;
+
+  member procedure unordered(self in ut_equal) is
+    l_result ut_equal := self;
+  begin
+    l_result.options.unordered();
+    l_result.expectation.to_(l_result );
   end;
 
   member function join_by(a_columns varchar2) return ut_equal is
@@ -215,18 +246,43 @@ create or replace type body ut_equal as
     return l_result;
   end;
 
-  member function uc return ut_equal is
+  member procedure join_by(self in ut_equal, a_columns varchar2) is
   begin
-    return unordered_columns;
+    join_by( ut_varchar2_list( a_columns ) );
   end;
   
+  member procedure join_by(self in ut_equal, a_columns ut_varchar2_list) is
+    l_result ut_equal := self;
+  begin
+    l_result.options.unordered();
+    l_result.options.join_by.add_items(a_columns);  
+    l_result.expectation.to_(l_result );
+  end;
+    
   member function unordered_columns return ut_equal is
     l_result ut_equal := self;
   begin
     l_result.options.unordered_columns();
     return l_result;
   end;
+
+  member procedure unordered_columns(self in ut_equal) is
+    l_result ut_equal := self;
+  begin
+    l_result.options.unordered_columns();
+    l_result.expectation.to_(l_result );
+  end;
+  
+  member function uc return ut_equal is
+  begin
+    return unordered_columns;
+  end;
     
+  member procedure uc(self in ut_equal) is
+  begin
+    unordered_columns;
+  end;
+  
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin

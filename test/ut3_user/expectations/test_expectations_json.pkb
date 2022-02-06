@@ -49,7 +49,7 @@ create or replace package body test_expectations_json is
     }');
 
     --Act
-    ut3_develop.ut.expect( l_actual ).to_equal( l_actual );
+    ut3_develop.ut.expect( l_actual ).to_( ut3_develop.equal( l_actual ) );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;

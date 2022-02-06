@@ -21,6 +21,7 @@ create or replace type body ut_data_value_number as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'number';
+    self.data_type_plsql := 'number';
     return;
   end;
 
