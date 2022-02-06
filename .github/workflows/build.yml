@@ -20,49 +20,39 @@ jobs:
     env:
       ORACLE_VERSION: ${{matrix.oracle-version}}
       ORACLE_SID: ${{matrix.oracle-sid}}
-      CONNECTION_STR: ${{matrix.connection-str}}
+      CONNECTION_STR: ${{ format( '127.0.0.1:1521/{0}', matrix.oracle-sid ) }}
       ORACLE_PASSWORD: oracle
       DOCKER_VOLUME: ${{matrix.docker-volume}}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - oracle-version: "gvenzl/oracle-xe:11-full"
+          - id: 1
+            db_version_name: '11XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 1
-            db_version_name: '11xe'
+            oracle-version: "gvenzl/oracle-xe:11-full"
 # TODO - need to add healthcheck.sh into our containers
-#          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
+#          - id: 2
+#            db_version_name: '12.1EE'
 #            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 2
-#            db_version_name: '12.1se'
+#            oracle-version: "utplsqlv3/oracledb:12c-r1-ee-small"
 #          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
 #            oracle-sid: 'ORCLCDB'
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #            id: 3
 #            db_version_name: '12.2se'
-          - oracle-version: "gvenzl/oracle-xe:18-slim"
+          - id: 4
+            db_version_name: '18XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 4
-            db_version_name: '18xe'
-#          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 5
-#            db_version_name: '18se'
-#          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 6
+            oracle-version: "gvenzl/oracle-xe:18-slim"
+#          - id: 5
 #            db_version_name: '19se'
-          - oracle-version: "gvenzl/oracle-xe:21-slim"
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+          - id: 6
+            db_version_name: '21XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 7
-            db_version_name: '21xe'
+            oracle-version: "gvenzl/oracle-xe:21-slim"
 
     services:
       oracle:
