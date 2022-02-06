@@ -28,7 +28,8 @@ SUCCESS
   Actual: 0 (number) was expected to equal: 0 (number)
 ]';
 
-    ut.expect(l_actual).to_be_like(l_expected);
+    --deliberate change to make a test fail
+    ut.expect(l_actual).not_to_be_like(l_expected);
     rollback;
   end;
 
