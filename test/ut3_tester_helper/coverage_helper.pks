@@ -14,6 +14,9 @@ create or replace package coverage_helper is
   procedure create_dummy_coverage_1;
   procedure drop_dummy_coverage_1;
 
+  procedure create_cov_with_dbms_stats;
+  procedure drop_cov_with_dbms_stats;
+
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
   procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
 

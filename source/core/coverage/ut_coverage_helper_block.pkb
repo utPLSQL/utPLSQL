@@ -39,6 +39,14 @@ create or replace package body ut_coverage_helper_block is
     $else
       null;
     $end
+  exception
+    when others then
+      if sqlcode = -08402 then
+        dbms_output.put_line('Unable to finish gathering coverage with DBMS_PLSQL_CODE_COVERAGE. ');
+        dbms_output.put_line('Encountered exception `ORA-08402` when calling procedure `DBMS_PLSQL_CODE_COVERAGE.STOP_COVERAGE()`.');
+        dbms_output.put_line('Coverage report will only include line-level code-coverage (without branches).');
+        dbms_output.put_line('Please reference following issue for details on possible causes: https://github.com/utPLSQL/utPLSQL/issues/1097 ');
+      end if;
   end;
 
   function block_results(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return t_block_rows is
