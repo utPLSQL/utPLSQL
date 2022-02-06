@@ -32,6 +32,13 @@ create or replace type body ut_data_value_json as
     return;
   end;
 
+  constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json) return self as result is
+    l_value json_element_t := ut_compound_data_helper.get_json_object(a_value);
+  begin 
+    init(l_value);
+    return;
+  end;
+
   overriding member function is_null return boolean is
   begin
     return (ut_utils.int_to_boolean(self.is_data_null));
@@ -140,7 +147,7 @@ create or replace type body ut_data_value_json as
       l_result :=
         case
           when ut_compound_data_helper.insert_json_diffs(
-            l_diff_id, self.json_tree.json_tree_info, l_other.json_tree.json_tree_info
+            l_diff_id, l_other.json_tree.json_tree_info, self.json_tree.json_tree_info
           ) > 0 then 1
           else 0
         end;

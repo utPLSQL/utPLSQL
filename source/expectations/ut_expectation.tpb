@@ -176,6 +176,11 @@ create or replace type body ut_expectation as
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
+  member procedure to_equal(self in ut_expectation, a_expected json, a_nulls_are_equal boolean := null) is
+  begin
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
+
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null) is
   begin
     self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
