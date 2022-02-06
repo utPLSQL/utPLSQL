@@ -1,4 +1,4 @@
-create or replace type ut_expectation authid current_user as object(
+create or replace type ut_expectation force under ut_expectation_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2021 utPLSQL Project
@@ -15,13 +15,7 @@ create or replace type ut_expectation authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  actual_data         ut_data_value,
-  description         varchar2(4000 char),
-
-  --base matcher executors
-  member procedure to_(self in ut_expectation, a_matcher ut_matcher),
-  member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
-  
+    
   --shortcuts
   member procedure to_be_null(self in ut_expectation),
   member procedure to_be_not_null(self in ut_expectation),
@@ -55,6 +49,7 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected json, a_nulls_are_equal boolean := null),
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
@@ -168,8 +163,16 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_contain(self in ut_expectation, a_expected sys_refcursor),
   member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor),
   member procedure to_contain(self in ut_expectation, a_expected anydata),
-  member procedure not_to_contain(self in ut_expectation, a_expected anydata)
+  member procedure not_to_contain(self in ut_expectation, a_expected anydata),
   
+  member function  to_be_within(a_dist number) return ut_be_within,
+  member function  to_be_within(a_dist dsinterval_unconstrained) return ut_be_within,
+  member function  to_be_within(a_dist yminterval_unconstrained) return ut_be_within,
+  member function  to_be_within_pct(a_dist number) return ut_be_within_pct,
+  member function  not_to_be_within(a_dist number) return ut_be_within,
+  member function  not_to_be_within(a_dist dsinterval_unconstrained) return ut_be_within,
+  member function  not_to_be_within(a_dist yminterval_unconstrained) return ut_be_within,
+  member function  not_to_be_within_pct(a_dist number) return ut_be_within_pct
 )
 not final
 /

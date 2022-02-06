@@ -21,6 +21,7 @@ create or replace type body ut_data_value_dsinterval as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'interval day to second';
+    self.data_type_plsql := 'dsinterval_unconstrained';
     return;
   end;
 
@@ -31,7 +32,7 @@ create or replace type body ut_data_value_dsinterval as
 
   overriding member function to_string return varchar2 is
   begin
-    return ut_utils.to_string(self.data_value);
+    return ut_utils.interval_to_text(self.data_value);
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is

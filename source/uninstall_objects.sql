@@ -54,6 +54,10 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop synonym be_within;
+
+drop synonym be_within_pct;
+
 drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
@@ -141,6 +145,12 @@ drop type ut_be_less_or_equal force;
 drop type ut_be_less_than force;
 
 drop type ut_be_false force;
+
+drop type ut_be_within_pct force;
+
+drop type ut_be_within force;
+
+drop package ut_be_within_helper;
 
 drop type ut_comparison_matcher force;
 

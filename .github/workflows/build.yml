@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ORACLE_VERSION: ${{matrix.oracle-version}}
+      ORACLE_SID: ${{matrix.oracle-sid}}
       CONNECTION_STR: ${{matrix.connection-str}}
       ORACLE_PASSWORD: oracle
       DOCKER_VOLUME: ${{matrix.docker-volume}}
@@ -27,31 +28,38 @@ jobs:
       matrix:
         include:
           - oracle-version: "gvenzl/oracle-xe:11-full"
+            oracle-sid: 'XE'
             connection-str: '127.0.0.1:1521/XE'
             id: 1
             db_version_name: '11xe'
 # TODO - need to add healthcheck.sh into our containers
 #          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
+#            oracle-sid: 'ORCLCDB'
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #            id: 2
 #            db_version_name: '12.1se'
 #          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            oracle-sid: 'ORCLCDB'
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #            id: 3
 #            db_version_name: '12.2se'
           - oracle-version: "gvenzl/oracle-xe:18-slim"
+            oracle-sid: 'XE'
             connection-str: '127.0.0.1:1521/XE'
             id: 4
             db_version_name: '18xe'
 #          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
+#            oracle-sid: 'ORCLCDB'
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #            id: 5
 #            db_version_name: '18se'
 #          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            oracle-sid: 'ORCLCDB'
 #            connection-str: '127.0.0.1:1521/ORCLCDB'
 #            id: 6
 #            db_version_name: '19se'
           - oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-sid: 'XE'
             connection-str: '127.0.0.1:1521/XE'
             id: 7
             db_version_name: '21xe'
@@ -92,7 +100,7 @@ jobs:
 
       - name: Download utPLSQL release for testing
 # For PR build - test using target branch as framework, for branch build use self as testing framework
-        run: git clone --depth=1 --branch=${CI_HEAD_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+        run: git clone --depth=1 --branch=${CI_BASE_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
 
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
@@ -129,12 +137,32 @@ jobs:
         id: validate-reports-format
         run:  bash .github/scripts/validate_report_files.sh
 
+      - name: Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./cobertura.xml
+          flags: ${{matrix.db_version_name}}
+          fail_ci_if_error: true # optional (default = false)
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v1.24
+        if: always()
+        with:
+          files: junit_test_results.xml
+
       - name: SonarCloud Scan
         id: sonar
+        if: ${{ matrix.db_version_name == '21xe' }}
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
+            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/{0}', env.ORACLE_SID ) }}
+            -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
 
   publish:
     name: Deploy documentation

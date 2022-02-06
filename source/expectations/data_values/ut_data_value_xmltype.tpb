@@ -21,6 +21,7 @@ create or replace type body ut_data_value_xmltype as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'xmltype';
+    self.data_type_plsql := 'xmltype';
     return;
   end;
 

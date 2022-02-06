@@ -21,6 +21,7 @@ create or replace type body ut_data_value_date as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'date';
+    self.data_type_plsql := 'date';
     return;
   end;
 

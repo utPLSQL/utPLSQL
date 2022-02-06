@@ -788,7 +788,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.12.3731-develop
+  * secion v3.1.12.3796-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
@@ -882,12 +882,14 @@ create or replace package body ut_utils is
 
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
   begin
-    return dbms_crypto.hash(a_data, a_hash_type);
+    --We cannot run hash on null
+    return case when a_data is null then null else dbms_crypto.hash(a_data, a_hash_type) end;
   end;
 
   function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
   begin
-    return dbms_crypto.hash(a_data, a_hash_type);
+    --We cannot run hash on null
+    return case when a_data is null then null else dbms_crypto.hash(a_data, a_hash_type) end;
   end;
 
   function qualified_sql_name(a_name varchar2) return varchar2 is
@@ -898,6 +900,64 @@ create or replace package body ut_utils is
           then sys.dbms_assert.qualified_sql_name(a_name)
         end;
   end;
+
+  function interval_to_text(a_interval dsinterval_unconstrained) return varchar2 is
+    l_day varchar2(100) := extract(day  from a_interval); 
+    l_hour varchar2(100) := extract(hour  from a_interval); 
+    l_minute varchar2(100) := extract(minute  from a_interval);
+    l_second varchar2(100) := extract(second from a_interval);     
+    l_result varchar2(32767);  
+  begin
+    l_result := case 
+                  when l_day = 1 then l_day ||' day' 
+                  when l_day > 1 then l_day ||' days' 
+                end || 
+                case 
+                  when l_hour = 1 then ' '|| l_hour ||' hour' 
+                  when l_hour > 1 then ' '|| l_hour ||' hours' 
+                end || 
+                case 
+                  when l_minute = 1 then ' '||l_minute ||' minute' 
+                  when l_minute > 1 then ' '||l_minute ||' minutes' 
+                end || 
+                case 
+                  when l_second > 1 then ' '||l_second ||' seconds'
+                  when l_second = 1 then ' '||l_second ||' second'
+                  when l_second > 0 then ' '||l_second ||' seconds'
+                end;
+    l_result :=
+      case
+        when a_interval is null then 'NULL'
+        when l_result is null then '0 seconds'
+        else ltrim(l_result,' ')
+      end;
+
+    return l_result;
+  end;
+
+  function interval_to_text(a_interval yminterval_unconstrained) return varchar2 is
+    l_year varchar2(4) :=  extract(year from a_interval); 
+    l_month varchar2(20) := extract(month from a_interval);   
+    l_result varchar2(32767);     
+  begin
+    l_result := case 
+                  when l_year = 1 then l_year ||' year' 
+                  when l_year > 1 then l_year ||' years'
+                end || 
+                case 
+                  when l_month > 1 then  ' '||l_month ||' months'
+                  when l_month = 1 then  ' '||l_month ||' month'
+                end;
+    l_result :=
+      case
+        when a_interval is null then 'NULL'
+        when l_result is null then '0 months'
+        else ltrim(l_result,' ')
+      end;
+
+    return l_result;
+  end;
+
 
 end ut_utils;
 /

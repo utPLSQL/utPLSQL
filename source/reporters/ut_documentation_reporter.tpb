@@ -202,7 +202,7 @@ create or replace type body ut_documentation_reporter is
   begin
     print_failures_details(a_run);
     print_warnings(a_run);
-    self.print_text('Finished in ' || a_run.execution_time || ' seconds');
+    self.print_text('Finished in ' || ut_utils.interval_to_text(numtodsinterval(a_run.execution_time,'second')) );
 
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '
