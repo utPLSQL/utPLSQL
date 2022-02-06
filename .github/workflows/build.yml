@@ -146,6 +146,12 @@ jobs:
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
 
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v1.24
+        if: always()
+        with:
+          files: junit_test_results.xml
+
       - name: SonarCloud Scan
         id: sonar
         uses: SonarSource/sonarcloud-github-action@master
