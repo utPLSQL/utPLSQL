@@ -21,6 +21,7 @@ create or replace type body ut_data_value_varchar2 as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'varchar2';
+    self.data_type_plsql := 'varchar2(32767)';
     return;
   end;
 

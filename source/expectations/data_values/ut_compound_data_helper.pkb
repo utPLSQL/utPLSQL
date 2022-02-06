@@ -278,7 +278,7 @@ create or replace package body ut_compound_data_helper is
   begin
     if a_data_info is not empty then
       for i in 1..a_data_info.count loop
-        if a_data_info(i).has_nested_col = 0 then
+        if a_data_info(i).has_nested_col = 0 and a_data_info(i).column_type <> 'OBJECT' then
           --Get XMLTABLE column list
           add_element_to_list(l_xmltab_list,generate_xmltab_stmt(a_data_info(i)));
           --Get Select statment list of columns
@@ -398,8 +398,12 @@ create or replace package body ut_compound_data_helper is
     l_column_list ut_varchar2_list := ut_varchar2_list();
   begin
     for i in 1..a_cursor_info.count loop
-      l_column_list.extend;
-      l_column_list(l_column_list.last) := a_cursor_info(i).access_path;
+      --This avoids extracting single columns from nested objects.
+      --as we can go down to any level but we will lose visibility of parent.
+      if a_cursor_info(i).hierarchy_level = 1 then
+        l_column_list.extend;
+        l_column_list(l_column_list.last) := a_cursor_info(i).access_path;
+      end if;
     end loop;
     return l_column_list;
   end;

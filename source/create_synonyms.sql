@@ -104,6 +104,8 @@ create &action_type. synonym &ut3_user.be_like for &&ut3_owner..be_like;
 create &action_type. synonym &ut3_user.be_not_null for &&ut3_owner..be_not_null;
 create &action_type. synonym &ut3_user.be_null for &&ut3_owner..be_null;
 create &action_type. synonym &ut3_user.be_true for &&ut3_owner..be_true;
+create &action_type. synonym &ut3_user.be_within for &&ut3_owner..be_within;
+create &action_type. synonym &ut3_user.be_within_pct for &&ut3_owner..be_within_pct;
 create &action_type. synonym &ut3_user.contain for &&ut3_owner..contain;
 create &action_type. synonym &ut3_user.equal for &&ut3_owner..equal;
 create &action_type. synonym &ut3_user.have_count for &&ut3_owner..have_count;

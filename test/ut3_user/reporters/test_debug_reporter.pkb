@@ -21,7 +21,7 @@ create or replace package body test_debug_reporter as
   begin
     l_expected := '<DEBUG_LOG>\s+' ||
         '(<DEBUG>\s+' ||
-          '<TIMESTAMP>[0-9\-]+T[0-9:\.]+<\/TIMESTAMP>\s+' ||
+          '<TIMESTAMP> [0-9\-]+T[0-9:\.]+<\/TIMESTAMP>\s+' ||
           '<TIME_FROM_START>[0-9 \+:\.]+<\/TIME_FROM_START>\s+' ||
           '<TIME_FROM_PREVIOUS>[0-9 \+:\.]+<\/TIME_FROM_PREVIOUS>\s+' ||
           '<EVENT_NAME>\w+<\/EVENT_NAME>\s+' ||

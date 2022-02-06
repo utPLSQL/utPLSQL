@@ -81,6 +81,7 @@ create or replace type body ut_data_value_refcursor as
     self.self_type := $$plsql_unit;
     self.data_id   := sys_guid();
     self.data_type := 'refcursor';
+    self.data_type_plsql := 'sys_refcursor';
     self.compound_type := 'refcursor';
     self.extract_path := '/*';
     ut_compound_data_helper.cleanup_diff;
