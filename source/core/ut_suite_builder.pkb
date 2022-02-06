@@ -355,6 +355,7 @@ create or replace package body ut_suite_builder is
     l_annotation_texts tt_annotation_texts;
     l_proc_annotations tt_annotations_by_name :=  a_annotations.by_proc(a_procedure_name);
   begin
+
     if not l_proc_annotations.exists(gc_test) then
       return;
     end if;
@@ -411,6 +412,12 @@ create or replace package body ut_suite_builder is
       add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, l_proc_annotations( gc_throws));
     end if;
     l_test.disabled_flag := ut_utils.boolean_to_int( l_proc_annotations.exists( gc_disabled));
+
+    if l_proc_annotations.exists(gc_disabled) then
+      l_annotation_texts := l_proc_annotations( gc_disabled);
+      --take the last definition if more than one was provided    
+      l_test.disabled_reason := l_annotation_texts(l_annotation_texts.first);
+    end if;
 
     a_suite_items.extend;
     a_suite_items( a_suite_items.last ) := l_test;
@@ -560,8 +567,13 @@ create or replace package body ut_suite_builder is
     if a_annotations.by_name.exists(gc_tags) then
       add_tags_to_suite_item(a_suite, a_annotations.by_name(gc_tags),a_suite.tags);
     end if;
+    
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
-
+    if a_annotations.by_name.exists(gc_disabled) then
+      l_annotation_text := trim(a_annotations.by_name(gc_disabled)(a_annotations.by_name(gc_disabled).first));
+      a_suite.disabled_reason := l_annotation_text;
+    end if;
+    
     --process procedure annotations for suite
     get_annotated_procedures(a_annotations, a_suite, a_suite_items, l_before_each_list, l_after_each_list, l_before_all_list, l_after_all_list);
 

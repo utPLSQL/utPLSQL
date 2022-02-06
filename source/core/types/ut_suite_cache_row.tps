@@ -1,4 +1,4 @@
-create type ut_suite_cache_row as object (
+create or replace type ut_suite_cache_row as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2021 utPLSQL Project
@@ -26,6 +26,7 @@ create type ut_suite_cache_row as object (
   description          varchar2(4000 byte),
   rollback_type        number,
   disabled_flag        number,
+  disabled_reason      varchar2(4000 byte),
   warnings             ut_varchar2_rows,
   before_all_list      ut_executables,
   after_all_list       ut_executables,
