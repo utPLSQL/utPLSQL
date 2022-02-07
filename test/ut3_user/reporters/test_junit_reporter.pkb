@@ -219,12 +219,12 @@ create or replace package body test_junit_reporter as
     l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
     l_expected  varchar2(32767):=q'[<?xml version="1.0"?>
-<testsuites tests="4" disabled="1" errors="1" failures="1" name="" time="%" >
-<testsuite tests="4" id="1" package="org"  disabled="1" errors="1" failures="1" name="org" time="%" >
-<testsuite tests="4" id="2" package="org.utplsql"  disabled="1" errors="1" failures="1" name="utplsql" time="%" >
-<testsuite tests="4" id="3" package="org.utplsql.tests"  disabled="1" errors="1" failures="1" name="tests" time="%" >
-<testsuite tests="4" id="4" package="org.utplsql.tests.helpers"  disabled="1" errors="1" failures="1" name="helpers" time="%" >
-<testsuite tests="4" id="5" package="org.utplsql.tests.helpers.test_reporters"  disabled="1" errors="1" failures="1" name="A suite for testing different outcomes from reporters" time="%" >
+<testsuites tests="5" disabled="2" errors="1" failures="1" name="" time="%" >
+<testsuite tests="5" id="1" package="org"  disabled="2" errors="1" failures="1" name="org" time="%" >
+<testsuite tests="5" id="2" package="org.utplsql"  disabled="2" errors="1" failures="1" name="utplsql" time="%" >
+<testsuite tests="5" id="3" package="org.utplsql.tests"  disabled="2" errors="1" failures="1" name="tests" time="%" >
+<testsuite tests="5" id="4" package="org.utplsql.tests.helpers"  disabled="2" errors="1" failures="1" name="helpers" time="%" >
+<testsuite tests="5" id="5" package="org.utplsql.tests.helpers.test_reporters"  disabled="2" errors="1" failures="1" name="A suite for testing different outcomes from reporters" time="%" >
 <testsuite tests="1" id="6" package="org.utplsql.tests.helpers.test_reporters.some_context"  disabled="0" errors="0" failures="0" name="A description of some context" time="%" >
 <testcase classname="org.utplsql.tests.helpers.test_reporters.some_context" assertions="1" name="passing_test" time="%" >
 <system-out>%
@@ -252,6 +252,11 @@ create or replace package body test_junit_reporter as
 <skipped>
 <![CDATA[Disabled for testing purpose]]>
 </skipped>
+<system-out/>
+<system-err/>
+</testcase>
+<testcase classname="org.utplsql.tests.helpers.test_reporters" assertions="0" name="a disabled test with no reason" time="0"  status="Disabled">
+<skipped/>
 <system-out/>
 <system-err/>
 </testcase>

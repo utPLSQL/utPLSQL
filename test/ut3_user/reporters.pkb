@@ -38,6 +38,10 @@ as
   --%disabled(Disabled for testing purpose)
   procedure disabled_test;
 
+  --%test(a disabled test with no reason)
+  --%disabled
+  procedure disabled_test_no_reason;
+
   --%aftereach
   procedure aftereach;
 
@@ -94,6 +98,13 @@ as
   end;
 
   procedure disabled_test
+  is
+  begin
+    dbms_output.put_line('<!this should not execute!>');
+    ut3_develop.ut.expect(1,'this should not execute').to_equal(1);
+  end;
+
+  procedure disabled_test_no_reason
   is
   begin
     dbms_output.put_line('<!this should not execute!>');
