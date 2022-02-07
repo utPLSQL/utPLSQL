@@ -570,8 +570,7 @@ create or replace package body ut_suite_builder is
     
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
     if a_annotations.by_name.exists(gc_disabled) then
-      l_annotation_text := trim(a_annotations.by_name(gc_disabled)(a_annotations.by_name(gc_disabled).first));
-      a_suite.disabled_reason := l_annotation_text;
+      a_suite.disabled_reason := a_annotations.by_name(gc_disabled)(a_annotations.by_name(gc_disabled).first);
     end if;
     
     --process procedure annotations for suite
