@@ -249,7 +249,9 @@ create or replace package body test_junit_reporter as
 <system-err/>
 </testcase>
 <testcase classname="org.utplsql.tests.helpers.test_reporters" assertions="0" name="a disabled test" time="0"  status="Disabled">
-<skipped/>
+<skipped>
+<![CDATA[Disabled for testing purpose]]>
+</skipped>
 <system-out/>
 <system-err/>
 </testcase>

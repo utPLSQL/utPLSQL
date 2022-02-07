@@ -35,7 +35,7 @@ as
   procedure erroring_test;
 
   --%test(a disabled test)
-  --%disabled
+  --%disabled(Disabled for testing purpose)
   procedure disabled_test;
 
   --%aftereach

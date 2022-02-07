@@ -24,7 +24,7 @@ create or replace package body test_documentation_reporter as
           <!beforeeach!>
           <!erroring test!>
           <!aftereach!>
-          a disabled test [0 sec] (DISABLED)
+          a disabled test [0 sec] (DISABLED - Disabled for testing purpose)
           <!afterall!>
 %
 Failures:

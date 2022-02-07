@@ -84,7 +84,7 @@ create or replace type body ut_teamcity_reporter is
                         lower(a_test.item.procedure_name);
 
     if a_test.result = ut_utils.gc_disabled then
-      ut_utils.append_to_list( l_results, ut_teamcity_reporter_helper.test_disabled(l_test_full_name));
+      ut_utils.append_to_list( l_results, ut_teamcity_reporter_helper.test_disabled(l_test_full_name,a_test.disabled_reason));
     else
 
       ut_utils.append_to_list( l_results, a_test.get_serveroutputs());
