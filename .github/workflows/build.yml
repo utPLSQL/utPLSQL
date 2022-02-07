@@ -107,6 +107,25 @@ jobs:
         id: install-utplsql
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
 
+      - name: Check code style
+        if: ${{ matrix.id == 1 }}
+        id: check-coding-style
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} "$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
+
+      - name: Validate utPLSQL uninstall
+        if: ${{ matrix.id == 1 }}
+        id: validate-uninstall
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/uninstall_validate_utplsql.sh
+
+      - name: Reinstall utPLSQL
+        if: ${{ matrix.id == 1 }}
+        id: reinstall-utplsql
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+
+      - name: Create test users
+        id: create-test-users
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/create_test_users.sh
+
       - name: Install utPLSQL release
         id: install-utplsql-release
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
@@ -143,7 +162,7 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ matrix.db_version_name == '21xe' }}
+        if: ${{ matrix.db_version_name == '21XE' }}
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
