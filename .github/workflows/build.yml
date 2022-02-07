@@ -148,7 +148,7 @@ jobs:
       - name: Get ORACLE_BASE/diag data
         id: get-oracle-diag-data
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
-        run: docker exec oracle bash -c "cp -r ${ORACLE_BASE}/diag /utPLSQL/database-diag"
+        run: docker exec oracle bash -c "cp -r /opt/oracle/diag /utPLSQL/database-diag"
 #Needed to diagnose occasional failures of DB on test runs
       - name: Upload ORACLE_BASE/diag data Artifact
         id:  upload
