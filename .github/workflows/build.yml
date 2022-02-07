@@ -59,10 +59,11 @@ jobs:
         image: ${{matrix.oracle-version}}
         env:
           ORACLE_PASSWORD: oracle
-          MATRIX_JOB_ID: ${{matrix.id}}
         credentials:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+        volumes:
+          - ${{github.workspace}}:/utPLSQL
         ports:
           - 1521:1521
         options: >-
@@ -70,6 +71,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+          --name oracle
 
     steps:
       - uses: actions/checkout@v2
@@ -141,6 +143,20 @@ jobs:
       - name: Run Tests
         id: run-tests
         run: bash test/run_tests.sh
+
+#Needed to diagnose occasional failures of DB on test runs
+      - name: Get ORACLE_BASE/diag data
+        id: get-oracle-diag-data
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: docker exec oracle bash -c "cp -r ${ORACLE_BASE}/diag /utPLSQL/database-diag"
+#Needed to diagnose occasional failures of DB on test runs
+      - name: Upload ORACLE_BASE/diag data Artifact
+        id:  upload
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact$-${{matrix.db_version_name}}
+          path: ${{github.workspace}}/database-diag
 
       - name: Validate utPLSQL reports format
         id: validate-reports-format
