@@ -32,25 +32,27 @@ jobs:
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:11-full"
             oracle-base: '/u01/app/oracle'
-# TODO - need to add healthcheck.sh into our containers
-#          - id: 2
-#            db_version_name: '12.1EE'
-#            oracle-sid: 'ORCLCDB'
-#            oracle-version: "utplsqlv3/oracledb:12c-r1-ee-small"
-#          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 3
+          - id: 2
+            db_version_name: '12.1EE'
+            oracle-sid: 'ORCLCDB'
+            oracle-version: "utplsqlv3/oracledb:12c-r1-ee-small"
+            oracle-base: '/opt/oracle'
+#          - id: 3
 #            db_version_name: '12.2se'
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            oracle-base: '/opt/oracle'
           - id: 4
             db_version_name: '18XE'
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:18-slim"
             oracle-base: '/opt/oracle'
+# TODO - need to add healthcheck.sh into our containers
 #          - id: 5
 #            db_version_name: '19se'
 #            oracle-sid: 'ORCLCDB'
 #            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            oracle-base: '/opt/oracle'
           - id: 6
             db_version_name: '21XE'
             oracle-sid: 'XE'
