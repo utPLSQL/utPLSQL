@@ -47,7 +47,7 @@ create or replace type body ut_sonar_test_reporter is
     begin
       ut_utils.append_to_list( l_results, '<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
       if a_test.result = ut_utils.gc_disabled then
-        ut_utils.append_to_list( l_results, '<skipped message="skipped"/>');
+        ut_utils.append_to_list( l_results, '<skipped message="'||coalesce(dbms_xmlgen.convert(a_test.disabled_reason),'skipped')||'"/>');
       elsif a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error message="encountered errors">');
         ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( a_test.get_error_stack_traces() ) ) );
