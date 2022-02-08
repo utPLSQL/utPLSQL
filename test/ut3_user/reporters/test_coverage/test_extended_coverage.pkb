@@ -83,5 +83,28 @@ create or replace package body test_extended_coverage is
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
+  procedure coverage_with_dbms_stats is
+    l_expected  clob;
+    l_actual    clob;
+  begin
+    --Arrange
+    l_expected := '%<file path="package body ut3_develop.stats">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_path => 'ut3_develop.test_stats',
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_coverage_schemes => ut3_develop.ut_varchar2_list( 'ut3_develop' ),
+              a_include_objects => ut3_develop.ut_varchar2_list('stats')
+            )
+          ]'
+        );
+    --Assert
+    ut.expect(l_actual).to_be_like(l_expected);
+  end;
+
 end;
 /
