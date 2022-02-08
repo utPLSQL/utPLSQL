@@ -21,11 +21,13 @@ time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
       select sum(cnt)
         into v_leftover_objects_count
         from (
-          select count(1) cnt from dba_objects where owner = '$UT3_DEVELOP_SCHEMA'
-           where object_name not like 'PLSQL_PROFILER%' and object_name not like 'DBMSPCC_%'
+          select count(1) cnt from dba_objects
+           where owner = '$UT3_DEVELOP_SCHEMA'
+             and object_name not like 'PLSQL_PROFILER%' and object_name not like 'DBMSPCC_%'
           union all
-          select count(1) cnt from dba_synonyms where table_owner = '$UT3_DEVELOP_SCHEMA'
-           where table_name not like 'PLSQL_PROFILER%' and table_name not like 'DBMSPCC_%'
+          select count(1) cnt from dba_synonyms
+           where table_owner = '$UT3_DEVELOP_SCHEMA'
+             and table_name not like 'PLSQL_PROFILER%' and table_name not like 'DBMSPCC_%'
         );
       if v_leftover_objects_count > 0 then
         raise_application_error(-20000, 'Not all objects were successfully uninstalled - leftover objects count='||v_leftover_objects_count);
