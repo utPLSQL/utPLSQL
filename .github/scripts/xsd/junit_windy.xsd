@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	 elementFormDefault="qualified"
 	 attributeFormDefault="unqualified">
 	<xs:annotation>
@@ -71,10 +71,11 @@ Permission to waive conditions of this license may be requested from Windy Road 
 			<xs:element name="testcase" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
 					<xs:choice minOccurs="0">
-						<xs:element name="error">
-			<xs:annotation>
-				<xs:documentation xml:lang="en">Indicates that the test errored.  An errored test is one that had an unanticipated problem. e.g., an unchecked throwable; or a problem with the implementation of the test. Contains as a text node relevant data for the error, e.g., a stack trace</xs:documentation>
-			</xs:annotation>
+						<xs:element name="skipped" />
+						<xs:element name="error" minOccurs="0" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation xml:lang="en">Indicates that the test errored.  An errored test is one that had an unanticipated problem. e.g., an unchecked throwable; or a problem with the implementation of the test. Contains as a text node relevant data for the error, e.g., a stack trace</xs:documentation>
+							</xs:annotation>
 							<xs:complexType>
 								<xs:simpleContent>
 									<xs:extension base="pre-string">
@@ -93,9 +94,9 @@ Permission to waive conditions of this license may be requested from Windy Road 
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="failure">
-			<xs:annotation>
-				<xs:documentation xml:lang="en">Indicates that the test failed. A failure is a test which the code has explicitly failed by using the mechanisms for that purpose. e.g., via an assertEquals. Contains as a text node relevant data for the failure, e.g., a stack trace</xs:documentation>
-			</xs:annotation>
+							<xs:annotation>
+								<xs:documentation xml:lang="en">Indicates that the test failed. A failure is a test which the code has explicitly failed by using the mechanisms for that purpose. e.g., via an assertEquals. Contains as a text node relevant data for the failure, e.g., a stack trace</xs:documentation>
+							</xs:annotation>
 							<xs:complexType>
 								<xs:simpleContent>
 									<xs:extension base="pre-string">
@@ -190,6 +191,11 @@ Permission to waive conditions of this license may be requested from Windy Road 
 		<xs:attribute name="errors" type="xs:int" use="required">
 			<xs:annotation>
 				<xs:documentation xml:lang="en">The total number of tests in the suite that errored. An errored test is one that had an unanticipated problem. e.g., an unchecked throwable; or a problem with the implementation of the test.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="skipped" type="xs:int" use="optional">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The total number of ignored or skipped tests in the suite.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="time" type="xs:decimal" use="required">

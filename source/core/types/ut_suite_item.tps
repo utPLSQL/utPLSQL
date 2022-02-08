@@ -46,6 +46,10 @@ create or replace type ut_suite_item force under ut_event_item (
   */
   disabled_flag integer(1),
   /**
+  * Indicates reason whysa test is to be disabled by execution
+  */
+  disabled_reason varchar2(4000),
+  /**
   * Line no where annotation identifying this item is placed in package
   */
   line_no       integer,
@@ -66,7 +70,7 @@ create or replace type ut_suite_item force under ut_event_item (
   tags ut_varchar2_rows,
   member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_line_no integer),
   member function get_disabled_flag return boolean,
-  not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item),
+  not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item, a_skip_reason in varchar2),
   member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer, a_force boolean := false),
   member function get_rollback_type return integer,
   member function create_savepoint_if_needed return varchar2,

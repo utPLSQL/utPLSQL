@@ -26,6 +26,7 @@ create or replace type body ut_suite_item as
     self.line_no       := a_line_no;
     self.transaction_invalidators := ut_varchar2_list();
     self.disabled_flag := ut_utils.boolean_to_int(false);
+    self.disabled_reason := null;
   end;
 
   member function get_disabled_flag return boolean is

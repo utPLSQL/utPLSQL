@@ -9,7 +9,8 @@ create or replace package body test_sonar_test_reporter as
 <testCase name="passing_test" duration="%" >%</testCase>
 <testCase name="failing_test" duration="%" >%<failure message="some expectations have failed">%</failure>%</testCase>
 <testCase name="erroring_test" duration="%" >%<error message="encountered errors">%</error>%</testCase>
-<testCase name="disabled_test" duration="0" >%<skipped message="skipped"/>%</testCase>
+<testCase name="disabled_test" duration="0" >%<skipped message="Disabled for testing purpose"/>%</testCase>
+<testCase name="disabled_test_no_reason" duration="0" >%<skipped message="skipped"/>%</testCase>
 </file>
 </testExecutions>]';
 
