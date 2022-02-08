@@ -31,6 +31,7 @@ jobs:
             db_version_name: '11XE'
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:11-full"
+            oracle-base: '/u01/app/oracle'
 # TODO - need to add healthcheck.sh into our containers
 #          - id: 2
 #            db_version_name: '12.1EE'
@@ -45,6 +46,7 @@ jobs:
             db_version_name: '18XE'
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:18-slim"
+            oracle-base: '/opt/oracle'
 #          - id: 5
 #            db_version_name: '19se'
 #            oracle-sid: 'ORCLCDB'
@@ -53,6 +55,7 @@ jobs:
             db_version_name: '21XE'
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-base: '/opt/oracle'
 
     services:
       oracle:
@@ -154,7 +157,7 @@ jobs:
       - name: Get ORACLE_BASE/diag data
         id: get-oracle-diag-data
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
-        run: docker exec oracle bash -c "chmod -R +777 /opt/oracle/diag && cp -r /opt/oracle/diag /utPLSQL/database-diag"
+        run: docker exec oracle bash -c "chmod -R +777 ${{matrix.oracle-base}}/diag && cp -r ${{matrix.oracle-base}}/diag /utPLSQL/database-diag"
       - name: Upload ORACLE_BASE/diag data Artifact
         id:  upload
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
