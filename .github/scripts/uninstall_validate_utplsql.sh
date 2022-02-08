@@ -10,6 +10,10 @@ time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
     whenever sqlerror exit failure rollback
 
     @uninstall_all.sql $UT3_DEVELOP_SCHEMA
+SQL
+time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+    set feedback off
+    set verify off
     whenever sqlerror exit failure rollback
     declare
       v_leftover_objects_count integer;

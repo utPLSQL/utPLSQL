@@ -144,12 +144,17 @@ jobs:
         id: run-tests
         run: bash test/run_tests.sh
 
-#Needed to diagnose occasional failures of DB on test runs
+#Start Needed to diagnose occasional failures of DB on test runs
+      - name: Prepare diagnostic directory
+        id: preapre-oracle-diag-dir
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: |
+          mkdir database-diag
+          chmod +777 database-diag
       - name: Get ORACLE_BASE/diag data
         id: get-oracle-diag-data
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
         run: docker exec oracle bash -c "cp -r /opt/oracle/diag /utPLSQL/database-diag"
-#Needed to diagnose occasional failures of DB on test runs
       - name: Upload ORACLE_BASE/diag data Artifact
         id:  upload
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
@@ -157,6 +162,7 @@ jobs:
         with:
           name: my-artifact$-${{matrix.db_version_name}}
           path: ${{github.workspace}}/database-diag
+#End Needed to diagnose occasional failures of DB on test runs
 
       - name: Validate utPLSQL reports format
         id: validate-reports-format
