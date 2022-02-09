@@ -128,15 +128,18 @@ exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes 
 
 #### Filtering objects in coverage reports
 
-There are two options that can be used to narrow down the scope of coverage report:
-- `a_include_objects` - list of `[object_owner.].object_name` to be included in the coverage report
+There are six options that can be used to narrow down the scope of coverage report:
+- `a_include_objects` - list of `[object_owner.].object_name` to be included in the coverage report.
 - `a_exclude_objects` - list of `[object_owner.].object_name` to be excluded from the coverage report
+- `a_include_schema_expr` - string of regex expression of schemas to be included in the coverage report. It will override  `a_include_objects`
+- `a_include_object_expr` - string of regex expression of objects ( no schema names included ) to be included in the coverage report. It will override `a_include_objects`
+- `a_exclude_schema_expr` - string of regex expression of schemas to be excluded from the coverage report. It will override `a_exclude_objects`
+- `a_exclude_object_expr` - string of regex expression of objects to be excluded from the coverage report. It will override `a_exclude_objects`
 
-You may specify both _include_ and _exclude_ object lists to gain more control over what needs to be included / excluded from the coverage report.
+You may specify both _include_ and _exclude_ options to gain more control over what needs to be included / excluded from the coverage report.
 
 The object owner is optional in the object list.
 If you do not provide an object owner, the _include_/_exclude_ list will be considered for every schema used for coverage gathering (as described above).
-
 
 Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
 ```sql

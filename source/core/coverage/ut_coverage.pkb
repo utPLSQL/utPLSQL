@@ -30,11 +30,12 @@ create or replace package body ut_coverage is
   end;
 
   function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skip_objects ut_object_names) return varchar2 is
-    l_result                varchar2(32767);
+    l_result                varchar2(32767); --QUESTION: Given fact that we can pass large regex filters same as objects filter should we consider a clob ?
     l_full_name             varchar2(32767);
     l_join_mappings         varchar2(32767);
     l_filters               varchar2(32767);
     l_mappings_cardinality  integer := 0;
+    l_regex_exc_filters     varchar2(32767);
   begin
     l_result := q'[
     with
@@ -82,8 +83,9 @@ create or replace package body ut_coverage is
            -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
      where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )
        and line > 0
+       {regex_filters}
     ]';
-
+         
     if a_coverage_options.file_mappings is not empty then
       l_mappings_cardinality := ut_utils.scale_cardinality(cardinality(a_coverage_options.file_mappings));
       l_full_name := 'f.file_name';
@@ -92,6 +94,15 @@ create or replace package body ut_coverage is
               on s.name  = f.object_name
              and s.type  = f.object_type
              and s.owner = f.object_owner';
+    elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
+      l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
+      if a_coverage_options.include_schema_expr is not null then
+        l_filters := q'[and regexp_like(s.owner,']'||a_coverage_options.include_schema_expr||q'[','i')]';
+      end if;
+      
+      if a_coverage_options.include_object_expr is not null then
+        l_filters := l_filters|| q'[ and regexp_like(s.name,']'||a_coverage_options.include_object_expr||q'[','i')]';    
+      end if;
     else
       l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       l_filters := case
@@ -109,13 +120,27 @@ create or replace package body ut_coverage is
         end;
     end if;
 
+    
+    if a_coverage_options.exclude_schema_expr is not null then
+       l_regex_exc_filters := l_regex_exc_filters||q'[and not regexp_like(s.owner,']'||a_coverage_options.exclude_schema_expr||q'[,'i')
+         ]';    
+    end if;    
+    
+    if a_coverage_options.exclude_object_expr is not null then
+       l_regex_exc_filters := l_regex_exc_filters||q'[and not regexp_like(s.name,']'||a_coverage_options.exclude_object_expr||q'[,'i')
+         ]';    
+    end if; 
+
+
+
     l_result := replace(l_result, '{sources_view}',         ut_metadata.get_source_view_name());
     l_result := replace(l_result, '{l_full_name}',          l_full_name);
     l_result := replace(l_result, '{join_file_mappings}',   l_join_mappings);
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
     l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
-
+    l_result := replace(l_result, '{regex_filters}', l_regex_exc_filters);
+    
     return l_result;
 
   end;
@@ -138,6 +163,8 @@ create or replace package body ut_coverage is
       open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
       open l_cursor for l_sql using a_coverage_options.include_objects, a_coverage_options.include_objects, l_skip_objects;
+    elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
+      open l_cursor for l_sql using l_skip_objects;
     else
       open l_cursor for l_sql using a_coverage_options.schema_names, a_coverage_options.schema_names, l_skip_objects;
     end if;
