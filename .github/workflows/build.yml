@@ -76,7 +76,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
           --name oracle
-#          --health-cmd healthcheck.sh
+          --health-cmd healthcheck.sh
 
     steps:
       - uses: actions/checkout@v2
@@ -159,7 +159,7 @@ jobs:
       - name: Get ORACLE_BASE/diag data
         id: get-oracle-diag-data
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
-        run: docker exec oracle bash -c "chmod -R +777 ${{matrix.oracle-base}}/diag && cp -r ${{matrix.oracle-base}}/diag /utPLSQL/database-diag"
+        run: docker exec oracle bash -c "chmod -R +777 ./diag && cp -r ./diag /utPLSQL/database-diag"
       - name: Upload ORACLE_BASE/diag data Artifact
         id:  upload
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
