@@ -35,11 +35,12 @@ create or replace type body ut_test as
     return;
   end;
 
-  overriding member procedure mark_as_skipped(self in out nocopy ut_test) is
+  overriding member procedure mark_as_skipped(self in out nocopy ut_test, a_skip_reason in varchar2) is
   begin
     ut_event_manager.trigger_event(ut_event_manager.gc_before_test, self);
     self.start_time := current_timestamp;
     self.result := ut_utils.gc_disabled;
+    self.disabled_reason := coalesce(a_skip_reason,self.disabled_reason);
     ut_utils.debug_log('ut_test.execute - disabled');
     self.results_count.set_counter_values(self.result);
     self.end_time := self.start_time;
@@ -54,7 +55,7 @@ create or replace type body ut_test as
     ut_utils.debug_log('ut_test.execute');
 
     if self.get_disabled_flag() then
-      mark_as_skipped();
+      mark_as_skipped(self.disabled_reason);
     else
       self.start_time := current_timestamp;
       ut_event_manager.trigger_event(ut_event_manager.gc_before_test, self);

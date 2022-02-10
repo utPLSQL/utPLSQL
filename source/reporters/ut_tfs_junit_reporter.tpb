@@ -69,6 +69,12 @@ create or replace type body ut_tfs_junit_reporter is
         ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( a_test.get_error_stack_traces() ) ) );
         ut_utils.append_to_list( l_results, '</error>');
      -- Do not count error as failure
+      elsif a_test.result = ut_utils.gc_disabled then
+        if a_test.disabled_reason is not null then
+          ut_utils.append_to_list( l_results, '<skipped type="skipped" message="'||a_test.disabled_reason||'"/>');
+        else
+          ut_utils.append_to_list( l_results, '<skipped/>' );
+        end if;      
       elsif a_test.result = ut_utils.gc_failure then
         ut_utils.append_to_list( l_results, '<failure type="failure" message="Test '||a_test.name||' failed">');
         ut_utils.append_to_list( l_results, ut_utils.to_cdata( a_test.get_failed_expectation_lines() ) );

@@ -39,7 +39,7 @@ create or replace type body ut_run as
     return;
   end;
 
-  overriding member procedure mark_as_skipped(self in out nocopy ut_run) is
+  overriding member procedure mark_as_skipped(self in out nocopy ut_run,a_skip_reason in varchar2) is
   begin
     null;
   end;

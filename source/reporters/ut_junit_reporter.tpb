@@ -44,7 +44,13 @@ create or replace type body ut_junit_reporter is
                 ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>'
       );
       if a_test.result = ut_utils.gc_disabled then
-        ut_utils.append_to_list( l_results, '<skipped/>' );
+        if a_test.disabled_reason is not null then
+          ut_utils.append_to_list( l_results, '<skipped>' );
+          ut_utils.append_to_list( l_results, ut_utils.to_cdata( a_test.disabled_reason ) );
+          ut_utils.append_to_list( l_results, '</skipped>' );
+        else
+          ut_utils.append_to_list( l_results, '<skipped/>' );
+        end if;
       end if;
       if a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error>');

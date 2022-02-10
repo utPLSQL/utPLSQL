@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.12.3796--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3846--develop-blue.svg)
 
 # Annotations
 
@@ -140,7 +140,7 @@ end;
 | `--%beforetest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure. |
 | `--%aftertest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
+| `--%disabled(<reason>)` | Package/procedure | Used to disable a suite, whole context or a test. Disabled suites/contexts/tests do not get executed, they are however marked and reported as disabled in a test run. The reason that will be displayed next to disabled tests is decided based on hierarchy suites -> context -> test |
 | `--%context(<description>)` | Package | Denotes start of a named context (sub-suite) in a suite package an optional description for context can be provided. |
 | `--%name(<name>)` | Package | Denotes name for a context. Must be placed after the context annotation and before start of nested context. |
 | `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
@@ -343,12 +343,13 @@ Finished in .008815 seconds
 
 ### Disabled
 Marks annotated suite package or test procedure as disabled.
+You can provide the reason why the test is disabled that will be displayed in output.
 
 Disabling suite.
 ```sql
 create or replace package test_package as
   --%suite(Tests for a package)
-  --%disabled
+  --%disabled(Reason for disabling suite)
   
   --%test(Description of tested behavior)
   procedure some_test;
@@ -371,11 +372,56 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tested behavior [0 sec] (DISABLED)
-  Description of another behavior [0 sec] (DISABLED)
+  Description of tested behavior [0 sec] (DISABLED - Reason for disabling suite)
+  Description of another behavior [0 sec] (DISABLED - Reason for disabling suite)
  
 Finished in .001441 seconds
 2 tests, 0 failed, 0 errored, 2 disabled, 0 warning(s)
+```
+
+Disabling the context(s).
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  
+  --%context(Context1)
+
+  --%test(Description of tested behavior)
+  procedure some_test;
+
+  --%endcontext
+
+  --%context(Context2)
+
+  --%disabled(Reason for disabling context2)
+
+  --%test(Description of another behavior)
+  procedure other_test;
+
+  --%endcontext
+end;
+/
+create or replace package body test_package as
+  
+  procedure some_test is begin null; end;
+  
+  procedure other_test is begin null; end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Context1
+    Description of tested behavior [.002 sec]
+  Context2
+    Description of another behavior [0 sec] (DISABLED - Reason for disabling context2)
+ 
+Finished in .005079 seconds
+2 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
 ```
 
 Disabling individual test(s).
@@ -387,7 +433,7 @@ create or replace package test_package as
   procedure some_test;
 
   --%test(Description of another behavior)
-  --%disabled
+  --%disabled(Reason for disabling test)
   procedure other_test;
 end;
 /
@@ -406,7 +452,7 @@ exec ut.run('test_package');
 ```
 Tests for a package
   Description of tested behavior [.004 sec]
-  Description of another behavior [0 sec] (DISABLED)
+  Description of another behavior [0 sec] (DISABLED - Reason for disabling test)
  
 Finished in .005868 seconds
 2 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
