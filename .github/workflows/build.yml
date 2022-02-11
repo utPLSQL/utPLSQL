@@ -20,66 +20,63 @@ jobs:
     env:
       ORACLE_VERSION: ${{matrix.oracle-version}}
       ORACLE_SID: ${{matrix.oracle-sid}}
-      CONNECTION_STR: ${{matrix.connection-str}}
+      CONNECTION_STR: ${{ format( '127.0.0.1:1521/{0}', matrix.oracle-sid ) }}
       ORACLE_PASSWORD: oracle
       DOCKER_VOLUME: ${{matrix.docker-volume}}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - oracle-version: "gvenzl/oracle-xe:11-full"
+          - id: 1
+            db_version_name: '11XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 1
-            db_version_name: '11xe'
-# TODO - need to add healthcheck.sh into our containers
-#          - oracle-version: "utplsqlv3/oracledb:12c-r1-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 2
-#            db_version_name: '12.1se'
-#          - oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 3
+            oracle-version: "gvenzl/oracle-xe:11-full"
+            oracle-base: '/u01/app/oracle'
+          - id: 2
+            db_version_name: '12.1EE'
+            oracle-sid: 'ORCLCDB'
+            oracle-version: "utplsqlv3/oracledb:12c-r1-ee-small"
+            oracle-base: '/opt/oracle'
+#          - id: 3
 #            db_version_name: '12.2se'
-          - oracle-version: "gvenzl/oracle-xe:18-slim"
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            oracle-base: '/opt/oracle'
+          - id: 4
+            db_version_name: '18XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 4
-            db_version_name: '18xe'
-#          - oracle-version: "utplsqlv3/oracledb:18c-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 5
-#            db_version_name: '18se'
-#          - oracle-version: "utplsqlv3/oracledb:19c-se2-small"
-#            oracle-sid: 'ORCLCDB'
-#            connection-str: '127.0.0.1:1521/ORCLCDB'
-#            id: 6
+            oracle-version: "gvenzl/oracle-xe:18-slim"
+            oracle-base: '/opt/oracle'
+# TODO - need to add healthcheck.sh into our containers
+#          - id: 5
 #            db_version_name: '19se'
-          - oracle-version: "gvenzl/oracle-xe:21-slim"
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            oracle-base: '/opt/oracle'
+          - id: 6
+            db_version_name: '21XE'
             oracle-sid: 'XE'
-            connection-str: '127.0.0.1:1521/XE'
-            id: 7
-            db_version_name: '21xe'
+            oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-base: '/opt/oracle'
 
     services:
       oracle:
         image: ${{matrix.oracle-version}}
         env:
           ORACLE_PASSWORD: oracle
-          MATRIX_JOB_ID: ${{matrix.id}}
         credentials:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+        volumes:
+          - ${{github.workspace}}:/utPLSQL
         ports:
           - 1521:1521
         options: >-
-          --health-cmd healthcheck.sh
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+          --name oracle
+          --health-cmd healthcheck.sh
 
     steps:
       - uses: actions/checkout@v2
@@ -117,6 +114,25 @@ jobs:
         id: install-utplsql
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
 
+      - name: Check code style
+        if: ${{ matrix.id == 1 }}
+        id: check-coding-style
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint "$SQLCLI" ${DOCKER_ENV} ${ORACLE_VERSION} $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
+
+      - name: Validate utPLSQL uninstall
+        if: ${{ matrix.id == 1 }}
+        id: validate-uninstall
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/uninstall_validate_utplsql.sh
+
+      - name: Reinstall utPLSQL
+        if: ${{ matrix.id == 1 }}
+        id: reinstall-utplsql
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+
+      - name: Create test users
+        id: create-test-users
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/create_test_users.sh
+
       - name: Install utPLSQL release
         id: install-utplsql-release
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
@@ -132,6 +148,26 @@ jobs:
       - name: Run Tests
         id: run-tests
         run: bash test/run_tests.sh
+
+#Start Needed to diagnose occasional failures of DB on test runs
+      - name: Prepare diagnostic directory
+        id: preapre-oracle-diag-dir
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: |
+          mkdir database-diag
+          chmod +777 database-diag
+      - name: Get ORACLE_BASE/diag data
+        id: get-oracle-diag-data
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: docker exec oracle bash -c "chmod -R +777 ./diag && cp -r ./diag /utPLSQL/database-diag"
+      - name: Upload ORACLE_BASE/diag data Artifact
+        id:  upload
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact$-${{matrix.db_version_name}}
+          path: ${{github.workspace}}/database-diag
+#End Needed to diagnose occasional failures of DB on test runs
 
       - name: Validate utPLSQL reports format
         id: validate-reports-format
@@ -153,7 +189,7 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ matrix.db_version_name == '21xe' }}
+        if: ${{ matrix.db_version_name == '21XE' }}
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
