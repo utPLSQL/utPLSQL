@@ -122,13 +122,11 @@ create or replace package body ut_coverage is
 
     
     if a_coverage_options.exclude_schema_expr is not null then
-       l_regex_exc_filters := l_regex_exc_filters||q'[and not regexp_like(s.owner,']'||a_coverage_options.exclude_schema_expr||q'[,'i')
-         ]';    
+       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.owner,']'||a_coverage_options.exclude_schema_expr||q'[,'i')]';    
     end if;    
     
     if a_coverage_options.exclude_object_expr is not null then
-       l_regex_exc_filters := l_regex_exc_filters||q'[and not regexp_like(s.name,']'||a_coverage_options.exclude_object_expr||q'[,'i')
-         ]';    
+       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.name,']'||a_coverage_options.exclude_object_expr||q'[,'i')]';    
     end if; 
 
 
