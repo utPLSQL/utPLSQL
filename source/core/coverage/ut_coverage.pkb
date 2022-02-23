@@ -39,22 +39,20 @@ create or replace package body ut_coverage is
   begin
     l_result := q'[
     with
-      trigger_source_offsets as (
-        select min(s.line) - 1 offset, s.owner, s.name, s.type
-          from {sources_view} s
-         where s.type = 'TRIGGER'
-           {filters}
-           and (lower(s.text) like '%begin%' or lower(s.text) like '%declare%' or lower(s.text) like '%compound%')
-         group by s.owner, s.name, s.type
-      ),
       sources as (
         select /*+ cardinality(f {mappings_cardinality}) */
                {l_full_name} as full_name, s.owner, s.name, s.type,
-               s.line - case when s.type = 'TRIGGER' then o.offset else 0 end as line,
+               s.line
+               - case
+                   when s.type = 'TRIGGER'
+                     then
+                       /* calculate offset of line number for trigger source in coverage reporting */
+                       min(case when lower(s.text) like '%begin%' or lower(s.text) like '%declare%' or lower(s.text) like '%compound%' then s.line-1 end)
+                         over (partition by s.owner, s.type, s.name)
+                     else 0
+               end as line,
                s.text
           from {sources_view} s {join_file_mappings}
-          left join trigger_source_offsets o
-            on (s.owner = o.owner and s.name = o.name and s.type = o.type)
          where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
            {filters}
       ),
@@ -81,7 +79,11 @@ create or replace package body ut_coverage is
     select /*+ no_parallel */ full_name, owner, name, type, line, to_be_skipped, text
       from coverage_sources s
            -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
-     where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )
+     where not exists (
+              select /*+ cardinality(el {skipped_objects_cardinality})*/ 1
+                from table(:l_skipped_objects) el
+               where s.owner = el.owner and  s.name = el.name
+           )
        and line > 0
        {regex_filters}
     ]';
@@ -160,11 +162,11 @@ create or replace package body ut_coverage is
     if a_coverage_options.file_mappings is not empty then
       open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
-      open l_cursor for l_sql using a_coverage_options.include_objects, a_coverage_options.include_objects, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.include_objects, l_skip_objects;
     elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
       open l_cursor for l_sql using l_skip_objects;
     else
-      open l_cursor for l_sql using a_coverage_options.schema_names, a_coverage_options.schema_names, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names, l_skip_objects;
     end if;
     return l_cursor;
   end;

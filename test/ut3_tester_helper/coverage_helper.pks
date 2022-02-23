@@ -14,6 +14,12 @@ create or replace package coverage_helper is
   procedure create_dummy_coverage_1;
   procedure drop_dummy_coverage_1;
 
+  procedure create_regex_dummy_cov;
+  procedure drop_regex_dummy_cov;
+
+  procedure create_regex_dummy_cov_schema;
+  procedure drop_regex_dummy_cov_schema;
+
   procedure create_cov_with_dbms_stats;
   procedure drop_cov_with_dbms_stats;
 

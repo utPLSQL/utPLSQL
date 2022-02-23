@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.12.3843--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3872--develop-blue.svg)
 
 # Supported database versions
 
@@ -184,10 +184,9 @@ If the installing user and utPLSQL owner is one and the same, the user must have
   - ALTER SESSION
   - CREATE TRIGGER
   
-In addition the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
+In addition, the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
 utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
-The uninstall process will **not** drop profiler tables, as they can potentially be shared and reused for profiling PLSQL code.
 
 It is up to DBA to maintain the storage of the profiler tables.
 
@@ -297,7 +296,7 @@ cd source
 sqlplus admin/admins_password@database @uninstall.sql ut3
 ```
 
-The uninstall script will remove all the objects installed by the install script.
+The uninstall script will remove all the objects installed by the installation script.
 Additionally, all the public and private synonyms pointing to the objects in the utPLSQL schema will be removed.
 
 If you have extended any utPLSQL types such as a custom reporter, these will need to be dropped before the uninstall, otherwise the uninstall script might fail.
@@ -305,7 +304,7 @@ If you have extended any utPLSQL types such as a custom reporter, these will nee
 The uninstall script does not drop the schema.
 
 **In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.**
-i.e. the uninstall script provided with version 3.0.1 will probably not work if you want to remove version 3.0.0 from your database.
+i.e. the uninstall script provided with version 3.1.11 will not work correctly  if you want to remove version 3.0.0 from your database.
 
 Alternatively you can drop the user that owns utPLSQL and re-create it using headless install.
 

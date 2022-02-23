@@ -158,6 +158,97 @@ create or replace package body coverage_helper is
 
   end;
 
+  procedure create_regex_dummy_cov is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut3_develop.regex_dummy_cov is
+      procedure do_stuff(i_input in number);
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.regex_dummy_cov is
+      procedure do_stuff(i_input in number) is
+      begin
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
+        else
+          dbms_output.put_line('should not get here');
+        end if;
+      end;
+    end;]';
+
+    execute immediate q'[create or replace package ut3_develop.test_regex_dummy_cov is
+      --%suite(dummy coverage test)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.test_regex_dummy_cov is
+      procedure test_do_stuff is
+      begin
+        regex_dummy_cov.do_stuff(1);
+        ut.expect(1).to_equal(1);
+      end;
+    end;]';
+  end;
+  
+  procedure drop_regex_dummy_cov is
+    pragma autonomous_transaction;
+  begin
+    begin execute immediate q'[drop package ut3_develop.regex_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_regex_dummy_cov]'; exception when others then null; end;
+  end; 
+
+  procedure create_regex_dummy_cov_schema is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut3_develop.]'||covered_package_name||q'[ is
+      procedure do_stuff(i_input in number);
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.]'||covered_package_name||q'[ is
+      procedure do_stuff(i_input in number) is
+      begin
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
+        else
+          dbms_output.put_line('should not get here');
+        end if;
+      end;
+    end;]';
+
+    execute immediate q'[create or replace package ut3_develop.test_dummy_coverage is
+      --%suite(dummy coverage test)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+
+      --%test
+      procedure zero_coverage;
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.test_dummy_coverage is
+      procedure test_do_stuff is
+      begin
+        ]'||covered_package_name||q'[.do_stuff(1);
+        ut.expect(1).to_equal(1);
+      end;
+      procedure zero_coverage is
+      begin
+        null;
+      end;
+    end;]';
+  end;
+  
+  procedure drop_regex_dummy_cov_schema is
+    pragma autonomous_transaction;
+  begin
+    begin execute immediate q'[drop package ut3_helper.regex_dummy_cov_schema]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_regex_dummy_cov_schema]'; exception when others then null; end;
+  end;
+
+
   procedure drop_cov_with_dbms_stats is
     pragma autonomous_transaction;
   begin
