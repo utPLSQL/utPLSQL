@@ -21,6 +21,7 @@ create or replace type body ut_data_value_timestamp_tz as
     self.data_value := a_value;
     self.self_type  := $$plsql_unit;
     self.data_type := 'timestamp with time zone';
+    self.data_type_plsql := 'timestamp_tz_unconstrained';
     return;
   end;
 

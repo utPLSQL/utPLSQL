@@ -17,7 +17,7 @@ create or replace type body ut_suite_item_info is
   */
   constructor function ut_suite_item_info(a_object_owner varchar2, a_object_name varchar2, a_item_name varchar2, 
     a_item_description varchar2, a_item_type varchar2, a_item_line_no integer, a_path varchar2, a_disabled_flag integer,
-    a_tags ut_varchar2_rows) return self as result is  
+    a_disabled_reason varchar2, a_tags ut_varchar2_rows) return self as result is  
   begin
     self.object_owner     := a_object_owner;
     self.object_name      := a_object_name;
@@ -27,6 +27,10 @@ create or replace type body ut_suite_item_info is
     self.item_line_no     := a_item_line_no;
     self.path             := a_path;
     self.disabled_flag    := a_disabled_flag;
+    self.disabled_reason  := case when 
+                               a_disabled_flag = 1 then a_disabled_reason
+                               else null
+                             end;
     self.tags             := case 
                                when a_tags is null then null 
                                when a_tags.count = 0 then null

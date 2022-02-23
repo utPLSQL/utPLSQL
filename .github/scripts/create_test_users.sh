@@ -2,69 +2,7 @@
 
 set -ev
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-cd ${SCRIPT_DIR}/../source
-
-INSTALL_FILE="install_headless_with_trigger.sql"
-if [[ ! -f "${INSTALL_FILE}" ]]; then
- INSTALL_FILE="install_headless.sql"
-fi
-
-#install core of utplsql
-time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-whenever sqlerror exit failure rollback
-set feedback off
-set verify off
-
---alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
-alter session set plsql_optimize_level=0;
-@${INSTALL_FILE} $UT3_DEVELOP_SCHEMA $UT3_DEVELOP_SCHEMA_PASSWORD
-SQL
-
-#Run this step only on second child job (12.1 - at it's fastest)
-if [[ "${JOB_NUMBER}" =~ \.2$ ]]; then
-
-    #check code-style for errors
-    time "$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @../development/utplsql_style_check.sql
-
-    #test install/uninstall process
-    time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-    set feedback off
-    set verify off
-    whenever sqlerror exit failure rollback
-
-    @uninstall_all.sql $UT3_DEVELOP_SCHEMA
-    whenever sqlerror exit failure rollback
-    declare
-      v_leftover_objects_count integer;
-    begin
-      select sum(cnt)
-        into v_leftover_objects_count
-        from (
-          select count(1) cnt from dba_objects where owner = '$UT3_DEVELOP_SCHEMA'
-           where object_name not like 'PLSQL_PROFILER%' and object_name not like 'DBMSPCC_%'
-          union all
-          select count(1) cnt from dba_synonyms where table_owner = '$UT3_DEVELOP_SCHEMA'
-           where table_name not like 'PLSQL_PROFILER%' and table_name not like 'DBMSPCC_%'
-        );
-      if v_leftover_objects_count > 0 then
-        raise_application_error(-20000, 'Not all objects were successfully uninstalled - leftover objects count='||v_leftover_objects_count);
-      end if;
-    end;
-    /
-SQL
-
-    time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-    set feedback off
-    set verify off
-
-    alter session set plsql_optimize_level=0;
-    @install.sql $UT3_DEVELOP_SCHEMA
-    @install_ddl_trigger.sql $UT3_DEVELOP_SCHEMA
-    @create_synonyms_and_grants_for_public.sql $UT3_DEVELOP_SCHEMA
-SQL
-
-fi
-
+cd ${SCRIPT_DIR}/../../source
 
 time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback off

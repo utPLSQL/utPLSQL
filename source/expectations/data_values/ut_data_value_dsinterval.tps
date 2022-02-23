@@ -15,7 +15,7 @@ create or replace type ut_data_value_dsinterval under ut_data_value(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  data_value dsinterval_unconstrained,
+  data_value interval day(9) to second(9),
   constructor function ut_data_value_dsinterval(self in out nocopy ut_data_value_dsinterval, a_value dsinterval_unconstrained) return self as result,
   overriding member function is_null return boolean,
   overriding member function to_string return varchar2,

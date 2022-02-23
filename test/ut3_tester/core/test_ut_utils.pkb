@@ -159,28 +159,28 @@ end;]' using p_expected_list;
 
   procedure to_string_date is
     l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
-    l_expected varchar2(100) := '2016-12-31T23:59:59';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59';
   begin
     ut.expect(ut3_develop.ut_data_value_date(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp is
     l_value    timestamp(9) := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp_ltz is
     l_value    timestamp(9)  with local time zone := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp_ltz(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure to_string_timestamp_tz is
     l_value    timestamp(9) with time zone := to_timestamp_tz('2016-12-31 23:59:59.123456789 -8:00', 'yyyy-mm-dd hh24:mi:ss.ff tzh:tzm');
-    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789 -08:00';
+    l_expected varchar2(100) := ' 2016-12-31T23:59:59'||gc_delimiter||'123456789 -08:00';
   begin
     ut.expect(ut3_develop.ut_data_value_timestamp_tz(l_value).to_string()).to_equal(l_expected);
   end;
@@ -432,5 +432,62 @@ end;
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
+  
+  procedure int_conv_ds_sec is
+    l_expected varchar2(100) := '1 second';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' second);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ds_minute is
+    l_expected varchar2(100) := '1 minute';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' minute);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+    
+  procedure int_conv_ds_hour is
+    l_expected varchar2(100) := '1 hour';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' hour);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ds_day is
+    l_expected varchar2(100) := '1 day';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' day);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+
+  procedure int_conv_ds_date is
+    l_expected varchar2(100) := '2 days 3 hours 4 minutes 11.333 seconds';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(INTERVAL '2 3:04:11.333' DAY TO SECOND);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end; 
+  
+  procedure int_conv_ym_year is
+    l_expected varchar2(100) := '1 year';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' year);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ym_month is
+    l_expected varchar2(100) := '1 month';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' month);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+
+  procedure int_conv_ym_date is
+    l_expected varchar2(100) := '1 year 2 months';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(INTERVAL '1-2' YEAR TO MONTH);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;   
+  
 end test_ut_utils;
 /

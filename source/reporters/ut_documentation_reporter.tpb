@@ -68,7 +68,11 @@ create or replace type body ut_documentation_reporter is
     l_message := coalesce(a_test.description, a_test.name)||' ['||round(a_test.execution_time,3)||' sec]';
     --if test failed, then add it to the failures list, print failure with number
     if a_test.result = ut_utils.gc_disabled then
-      self.print_yellow_text(l_message || ' (DISABLED)');
+      self.print_yellow_text(l_message || ' (DISABLED'|| 
+                                             case when a_test.disabled_reason is not null 
+                                               then ' - '||a_test.disabled_reason 
+                                               else null 
+                                             end || ')');
     elsif a_test.result = ut_utils.gc_success then
       self.print_green_text(l_message);
     elsif a_test.result > ut_utils.gc_success then
@@ -198,7 +202,7 @@ create or replace type body ut_documentation_reporter is
   begin
     print_failures_details(a_run);
     print_warnings(a_run);
-    self.print_text('Finished in ' || a_run.execution_time || ' seconds');
+    self.print_text('Finished in ' || ut_utils.interval_to_text(numtodsinterval(a_run.execution_time,'second')) );
 
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '

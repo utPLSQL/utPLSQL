@@ -24,7 +24,8 @@ create or replace package body test_documentation_reporter as
           <!beforeeach!>
           <!erroring test!>
           <!aftereach!>
-          a disabled test [0 sec] (DISABLED)
+          a disabled test [0 sec] (DISABLED - Disabled for testing purpose)
+          a disabled test with no reason [0 sec] (DISABLED)
           <!afterall!>
 %
 Failures:
@@ -40,7 +41,7 @@ Failures:
       ORA-06512: at "UT3$USER#.TEST_REPORTERS", line 44%
       ORA-06512: at line 6
 Finished in % seconds
-4 tests, 1 failed, 1 errored, 1 disabled, 0 warning(s)%]';
+5 tests, 1 failed, 1 errored, 2 disabled, 0 warning(s)%]';
 
   begin
     select *

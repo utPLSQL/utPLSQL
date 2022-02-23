@@ -1,0 +1,282 @@
+name: Build, test, deploy documentation
+on:
+  push:
+    branches-ignore: [ main ]
+  pull_request:
+    branches: [ develop ]
+
+  workflow_dispatch:
+
+concurrency: ${{github.ref}}
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    name: Build and test on ${{matrix.db_version_name}} DB
+    runs-on: ubuntu-latest
+    env:
+      ORACLE_VERSION: ${{matrix.oracle-version}}
+      ORACLE_SID: ${{matrix.oracle-sid}}
+      CONNECTION_STR: ${{ format( '127.0.0.1:1521/{0}', matrix.oracle-sid ) }}
+      ORACLE_PASSWORD: oracle
+      DOCKER_VOLUME: ${{matrix.docker-volume}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: 1
+            db_version_name: '11XE'
+            oracle-sid: 'XE'
+            oracle-version: "gvenzl/oracle-xe:11-full"
+            oracle-base: '/u01/app/oracle'
+          - id: 2
+            db_version_name: '12.1EE'
+            oracle-sid: 'ORCLCDB'
+            oracle-version: "utplsqlv3/oracledb:12c-r1-ee-small"
+            oracle-base: '/opt/oracle'
+#          - id: 3
+#            db_version_name: '12.2se'
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:12c-r2-se2-small"
+#            oracle-base: '/opt/oracle'
+          - id: 4
+            db_version_name: '18XE'
+            oracle-sid: 'XE'
+            oracle-version: "gvenzl/oracle-xe:18-slim"
+            oracle-base: '/opt/oracle'
+# TODO - need to add healthcheck.sh into our containers
+#          - id: 5
+#            db_version_name: '19se'
+#            oracle-sid: 'ORCLCDB'
+#            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+#            oracle-base: '/opt/oracle'
+          - id: 6
+            db_version_name: '21XE'
+            oracle-sid: 'XE'
+            oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-base: '/opt/oracle'
+
+    services:
+      oracle:
+        image: ${{matrix.oracle-version}}
+        env:
+          ORACLE_PASSWORD: oracle
+        credentials:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        volumes:
+          - ${{github.workspace}}:/utPLSQL
+        ports:
+          - 1521:1521
+        options: >-
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --name oracle
+          --health-cmd healthcheck.sh
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
+
+      - name: Set build version number env variables
+        id: set-build-version-number-vars
+        run: .github/scripts/set_version_numbers_env.sh
+
+      - name: Update project version & build number to verify that code is deployable after the update
+        id: update-project-version
+        run:  .github/scripts/update_project_version.sh
+
+      - name: Download utPLSQL release for testing
+# For PR build - test using target branch as framework, for branch build use self as testing framework
+        run: git clone --depth=1 --branch=${CI_BASE_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+
+      - name: Update privileges on sources
+        run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
+
+      - name: Add OJDBC home
+        id: get-ojdbc
+        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
+
+      - name: Install utPLSQL-cli
+        id: install-utplsql-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+
+      - name: Install utPLSQL
+        id: install-utplsql
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+
+      - name: Check code style
+        if: ${{ matrix.id == 1 }}
+        id: check-coding-style
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint "$SQLCLI" ${DOCKER_ENV} ${ORACLE_VERSION} $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
+
+      - name: Validate utPLSQL uninstall
+        if: ${{ matrix.id == 1 }}
+        id: validate-uninstall
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/uninstall_validate_utplsql.sh
+
+      - name: Reinstall utPLSQL
+        if: ${{ matrix.id == 1 }}
+        id: reinstall-utplsql
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+
+      - name: Create test users
+        id: create-test-users
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/create_test_users.sh
+
+      - name: Install utPLSQL release
+        id: install-utplsql-release
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
+
+      - name: Run Examples
+        id: run-examples
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/run_examples.sh
+
+      - name: Install tests
+        id: install-tests
+        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} test/install_tests.sh
+
+      - name: Run Tests
+        id: run-tests
+        run: bash test/run_tests.sh
+
+#Start Needed to diagnose occasional failures of DB on test runs
+      - name: Prepare diagnostic directory
+        id: preapre-oracle-diag-dir
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: |
+          mkdir database-diag
+          chmod +777 database-diag
+      - name: Get ORACLE_BASE/diag data
+        id: get-oracle-diag-data
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        run: docker exec oracle bash -c "chmod -R +777 ./diag && cp -r ./diag /utPLSQL/database-diag"
+      - name: Upload ORACLE_BASE/diag data Artifact
+        id:  upload
+        if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact$-${{matrix.db_version_name}}
+          path: ${{github.workspace}}/database-diag
+#End Needed to diagnose occasional failures of DB on test runs
+
+      - name: Validate utPLSQL reports format
+        id: validate-reports-format
+        run:  bash .github/scripts/validate_report_files.sh
+
+      - name: Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./cobertura.xml
+          flags: ${{matrix.db_version_name}}
+          fail_ci_if_error: true # optional (default = false)
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v1.24
+        if: always()
+        with:
+          files: junit_test_results.xml
+
+      - name: SonarCloud Scan
+        id: sonar
+        if: ${{ matrix.db_version_name == '21XE' }}
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
+            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/{0}', env.ORACLE_SID ) }}
+            -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
+
+  publish:
+    name: Deploy documentation
+    needs: [ build ]
+    concurrency: publish
+    runs-on: ubuntu-latest
+    env:
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+    if: |
+      github.repository == 'utPLSQL/utPLSQL' &&
+      github.base_ref == null &&
+      ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
+    steps:
+      - name: 🔍 API_TOKEN_GITHUB
+        if: env.API_TOKEN_GITHUB == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "API_TOKEN_GITHUB=${GITHUB_TOKEN}" >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ env.API_TOKEN_GITHUB }}
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
+
+      - name: Set buid version number env variables
+        id: set-build-version-number-vars
+        run: .github/scripts/set_version_numbers_env.sh
+
+      - name: Update project version & build number in source code and documentation
+        id: update-project-version
+        run:  .github/scripts/update_project_version.sh
+
+      - name: Push version update to repository
+        id: push-version-number-update
+        run: |
+          git add sonar-project.properties VERSION source/* docs/*
+          git commit -m 'Updated project version after build [skip ci]'
+          git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
+
+      - name: Copy and push documentation to utPLSQL-github-io repo
+        id: push-documentation
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: .github/scripts/push_docs_to_github_io.sh
+
+  dispatch:
+    name: Dispatch downstream builds
+    concurrency: trigger
+    needs: [ build, publish ]
+    runs-on: ubuntu-latest
+    if: |
+      github.repository == 'utPLSQL/utPLSQL' && github.base_ref == null && 
+      ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
+    strategy:
+      matrix:
+        repo: [ 'utPLSQL/utPLSQL-demo-project', 'utPLSQL/utPLSQL-java-api' ]
+#        repo: [ 'utPLSQL/utPLSQL-v2-v3-migration' ]
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          repository:  ${{ matrix.repo }}
+          event-type: utPLSQL-build
+
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status To Slack
+    needs: [ build, publish, dispatch ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@master
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          name: 'Github Actions[bot]'
+          icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'

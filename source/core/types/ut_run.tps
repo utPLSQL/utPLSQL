@@ -36,7 +36,7 @@ create or replace type ut_run under ut_suite_item (
     a_random_test_order_seed positive := null,
     a_run_tags               ut_varchar2_rows := null
   ) return self as result,
-  overriding member procedure mark_as_skipped(self in out nocopy ut_run),
+  overriding member procedure mark_as_skipped(self in out nocopy ut_run,a_skip_reason in varchar2),
   overriding member function  do_execute(self in out nocopy ut_run) return boolean,
   overriding member procedure set_rollback_type(self in out nocopy ut_run, a_rollback_type integer, a_force boolean := false),
   overriding member procedure calc_execution_result(self in out nocopy ut_run),

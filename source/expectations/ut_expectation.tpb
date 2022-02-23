@@ -15,31 +15,6 @@ create or replace type body ut_expectation as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
-    l_expectation_result boolean;
-    l_matcher       ut_matcher := a_matcher;
-    l_message       varchar2(32767);
-  begin
-    if a_matcher.is_negated() then
-      self.not_to( a_matcher );
-    else
-      l_expectation_result := l_matcher.run_matcher( self.actual_data );
-      l_expectation_result := coalesce(l_expectation_result,false);
-      l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message( self.actual_data ) );
-      ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
-    end if;
-  end;
-
-  member procedure not_to(self in ut_expectation, a_matcher ut_matcher) is
-    l_expectation_result boolean;
-    l_matcher       ut_matcher := a_matcher;
-    l_message       varchar2(32767);
-  begin
-    l_expectation_result := coalesce( l_matcher.run_matcher_negated( self.actual_data ), false );
-
-    l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message_when_negated( self.actual_data ) );
-    ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
-  end;
 
   member procedure to_be_null(self in ut_expectation) is
   begin
@@ -197,6 +172,11 @@ create or replace type body ut_expectation as
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null) is
+  begin
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
+
+  member procedure to_equal(self in ut_expectation, a_expected json, a_nulls_are_equal boolean := null) is
   begin
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
@@ -719,5 +699,70 @@ create or replace type body ut_expectation as
     self.not_to( ut_contain(a_expected).negated() );
   end;
   
+  member function to_be_within(a_dist number) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := ut_be_within(a_dist);
+    l_result.expectation := self;
+    return l_result;
+  end;  
+ 
+  member function to_be_within(a_dist dsinterval_unconstrained) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := ut_be_within(a_dist);
+    l_result.expectation := self;
+    return l_result;
+  end;  
+  
+  member function to_be_within(a_dist yminterval_unconstrained) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := ut_be_within(a_dist);
+    l_result.expectation := self;
+    return l_result;
+  end;  
+  
+  member function to_be_within_pct(a_dist number) return ut_be_within_pct is
+    l_result ut_be_within_pct;
+  begin
+    l_result := ut_be_within_pct(a_dist);
+    l_result.expectation := self;
+    return l_result;
+  end;  
+  
+  member function not_to_be_within(a_dist number) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := treat( ut_be_within(a_dist).negated() as ut_be_within);
+    l_result.expectation := self;
+    return l_result;
+  end;
+
+  member function not_to_be_within(a_dist dsinterval_unconstrained) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := treat( ut_be_within(a_dist).negated() as ut_be_within);
+    l_result.expectation := self;
+    return l_result;
+  end;
+
+  member function not_to_be_within(a_dist yminterval_unconstrained) return ut_be_within is
+    l_result ut_be_within;
+  begin
+    l_result := treat( ut_be_within(a_dist).negated() as ut_be_within);
+    l_result.expectation := self;
+    return l_result;
+  end;
+
+  member function not_to_be_within_pct(a_dist number) return ut_be_within_pct is
+    l_result ut_be_within_pct;
+  begin
+    l_result := treat( ut_be_within_pct(a_dist).negated() as ut_be_within_pct);
+    l_result.expectation := self;
+    return l_result;
+  end;
+
 end;
 /
+

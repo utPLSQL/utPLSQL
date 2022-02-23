@@ -123,6 +123,50 @@ create or replace package body coverage_helper is
     begin execute immediate q'[drop package ut3_develop.test_dummy_coverage_1]'; exception when others then null; end;
   end;
 
+  procedure create_cov_with_dbms_stats is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create table ut3_develop.table_to_test_stats as select * from user_objects]';
+
+    execute immediate q'[create or replace package ut3_develop.stats is
+      procedure gather;
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.stats is
+      procedure gather is
+      begin
+        dbms_Stats.gather_table_stats('UT3_DEVELOP','TABLE_TO_TEST_STATS');
+      end;
+    end;]';
+
+    execute immediate q'[create or replace package ut3_develop.test_stats is
+      --%suite(stats gathering coverage test)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_stats_gather;
+
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.test_stats is
+      procedure test_stats_gather is
+      begin
+        stats.gather;
+        ut.expect(1).to_equal(1);
+      end;
+    end;]';
+
+  end;
+
+  procedure drop_cov_with_dbms_stats is
+    pragma autonomous_transaction;
+  begin
+    begin execute immediate q'[drop package ut3_develop.test_stats]';    exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.stats]'; exception when others then null; end;
+    begin execute immediate q'[drop table ut3_develop.table_to_test_stats]'; exception when others then null; end;
+  end;
+
+
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer) is
   begin
     ut3_develop.ut_runner.coverage_start(a_coverage_run_id);
@@ -173,7 +217,7 @@ create or replace package body coverage_helper is
       auto_drop     =>  TRUE,
       comments      =>  'one-time-job'
       );
-    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 30 loop
+    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 150 loop
       l_status := get_job_status( l_job_name, l_timestamp );
       sleep(0.1);
       i := i + 1;

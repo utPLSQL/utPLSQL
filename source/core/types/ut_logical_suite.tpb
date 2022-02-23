@@ -16,12 +16,12 @@ create or replace type body ut_logical_suite as
   limitations under the License.
   */
 
-  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite) is
+  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_skip_reason in varchar2) is
   begin
     ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
-      self.items(i).mark_as_skipped();
+      self.items(i).mark_as_skipped(coalesce(a_skip_reason,self.disabled_reason));
     end loop;
     self.end_time := self.start_time;
     ut_event_manager.trigger_event(ut_event_manager.gc_after_suite, self);

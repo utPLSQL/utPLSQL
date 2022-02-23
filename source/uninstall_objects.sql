@@ -54,6 +54,10 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop synonym be_within;
+
+drop synonym be_within_pct;
+
 drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
@@ -142,9 +146,19 @@ drop type ut_be_less_than force;
 
 drop type ut_be_false force;
 
+drop type ut_be_within_pct force;
+
+drop type ut_be_within force;
+
+drop package ut_be_within_helper;
+
 drop type ut_comparison_matcher force;
 
 drop type ut_matcher force;
+
+drop type ut_expectation_base force;
+
+drop type ut_matcher_base force;
 
 drop type ut_data_value_yminterval force;
 
@@ -235,10 +249,15 @@ drop package ut_metadata;
 drop package ut_ansiconsole_helper;
 
 begin
+  null;
+  $if dbms_db_version.version < 21 $then
+    begin execute immediate 'drop type json force'; exception when others then null; end;
+  $end
   $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
-    execute immediate 'drop type json_element_t force';
-  $else
-    dbms_output.put_line('Nothing to drop');
+    begin execute immediate 'drop type json_element_t force'; exception when others then null; end;
+    begin execute immediate 'drop type json_object_t force'; exception when others then null; end;
+    begin execute immediate 'drop type json_array_t force'; exception when others then null; end;
+    begin execute immediate 'drop type json_key_list force'; exception when others then null; end;
   $end
 end;
 /

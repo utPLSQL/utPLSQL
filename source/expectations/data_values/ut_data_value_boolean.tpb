@@ -21,6 +21,7 @@ create or replace type body ut_data_value_boolean as
     self.data_value := ut_utils.boolean_to_int(a_value);
     self.self_type  := $$plsql_unit;
     self.data_type := 'boolean';
+    self.data_type_plsql := 'boolean';
     return;
   end;
 

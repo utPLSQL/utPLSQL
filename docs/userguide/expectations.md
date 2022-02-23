@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3557-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.12.3876-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
@@ -24,7 +24,7 @@ Expectation is a combination of:
 - the expected value
 - optional custom message for the expectation 
 - the matcher used to perform comparison
-- them matcher parameters (actual value), depending on the matcher type
+- the matcher parameters (actual value), depending on the matcher type
   
 
 Matcher defines the comparison operation to be performed on expected (and actual) value.
@@ -88,7 +88,7 @@ There are two ways to use expectations:
 - without invoking the utPLSQL framework - running expectations standalone
 
 ## Running expectations within utPLSQL framework
-When expectations are ran a part of test suite, the framework tracks:
+When expectations are ran as a part of a test suite, the framework tracks:
 - status of each expectation 
 - outcomes (messages) produced by each expectation
 - call stack to each expectation
@@ -161,7 +161,7 @@ When expectations are invoked outside of utPLSQL framework the outputs from expe
 > Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
 
 **Important**
-> Please do not use expectations as part of your production code. They are not designed to be used as part ot your code. Expectations are meant to be used only as part of your day-to-day testing activities.
+> Please do not use expectations as part of your production code. They are not designed to be used as part of your code. Expectations are meant to be used only as part of your day-to-day testing activities.
 
 **Note:**
 > The examples in the document will be only using standalone expectations, to keep the document brief.  
@@ -186,7 +186,7 @@ utPLSQL provides the following matchers to perform checks on the expected and ac
 - `match( a_patter {varchar2} [, a_modifiers {varchar2}] )`
 
 ## Providing a custom message
-You can provide a custom failure message as second argument for the expectation by passing message as the second parameter to the expectation.
+You can provide a custom failure message by passing it as the second parameter to the expectation.
 `ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher}`
 
 Example:
@@ -316,24 +316,25 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-|         Matcher         | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
-| :---------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
-|     **be_not_null**     |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **be_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|      **be_false**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|       **be_true**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|   **be_greater_than**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|  **be_less_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|    **be_less_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|     **be_between**      |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
-|        **equal**        |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **contain**       |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
-|        **match**        |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-|     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-
+|         Matcher           | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
+| :-----------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
+|     **be_not_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **be_null**         |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|      **be_false**         |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|       **be_true**         |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|   **be_greater_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+| **be_greater_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|  **be_less_or_equal**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|    **be_less_than**       |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|     **be_between**        |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
+|        **equal**          |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **contain**         |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
+|        **match**          |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|       **be_like**         |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|      **be_empty**         |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+|     **have_count**        |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+| **be_within().of_()**     |      |         |      |   X  |   X    |    X      |               X               |                   X                    |          |                                 |                                 |        |                             |        |      |
+| **be_within_pct().of_()** |      |         |      |      |   X    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
 
 # Expecting exceptions
 
@@ -386,7 +387,7 @@ For more details see documentation of the [`--%throws` annotation.](annotations.
 
 # Matchers 
 
-You can choose different matchers to validate the your PL/SQL code is working as expected.
+You can choose different matchers to validate that your PL/SQL code is working as expected.
 
 
 ## be_between
@@ -759,7 +760,7 @@ FAILURE
 ## have_count
 Unary matcher that validates if the provided dataset count is equal to expected value.
 
-Can be used with `refcursor` , `json`or `table type`
+Can be used with `refcursor`, `json` or `table type`
 
 Usage:
 ```sql
@@ -827,8 +828,8 @@ FAILURE
 ```
 
 ## equal
-The equal matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
-If you are comparing `varchar2` to a `number` will fail even if the text contains the same numeric value as the number.
+The `equal` matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
+If you are comparing a `varchar2` to a `number`, it will fail even if the text contains the same numeric value as the number.
 The matcher will also fail when comparing a `timestamp` to a `timestamp with timezone` data-type etc.
 
 The matcher enables detection of data-type changes. 
@@ -916,13 +917,13 @@ To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal =
 
 This matcher supports only compound data-types comparison. It check if the actual set contains all values of expected subset.
 
-When comparing data using `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
+When comparing data using the `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
 
 The matcher supports all advanced comparison options as `equal` like: `include` , `exclude`, `join_by` etc..
 
 The matcher is successful when actual data set contains all of the values from expected results.
 
-The matcher will cause a test to fail if actual data set does not contain any of expected values.
+The matcher will cause a test to fail if actual data set does not contain some of expected values.
 
 ![included_set](../images/venn21.gif)
 
@@ -1093,6 +1094,111 @@ SUCCESS
       <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
 ```
 
+## to_be_within of
+
+Determines wheter expected value is within range (tolerance) from another value.
+
+The logical formual used for calcuating the matcher is: 
+```
+    result := ( abs( expected - actual ) <= distance )
+```
+The actual formula used for calculation is more complex to handle different data-types of expected/actual values as well as differnet types of distance value.
+The matcher will fail if the `expected` and `actual` are more than `distance` apart from each other.
+The matcher will fail if the dataypes of `expected` and `actual` are not the same.
+
+The matcher works with data-types: `number`, `date`, `timestamp`, `timestamp with time zone`, `timestamp with local time zone`
+The data-types of compared values must match exactly and if type does not match, the expectation will fail. 
+
+|  expected/actual<br>data-type  |   distance data-type   |  
+|:------------------------------:|:----------------------:|
+|             number             |         number         |
+|              date              | interval day to second |
+|              date              | interval year to month |
+|           timestamp            | interval day to second |
+|           timestamp            | interval year to month |
+|    timestamp with time zone    | interval day to second |  
+|    timestamp with time zone    | interval year to month |  
+| timestamp with local time zone | interval day to second |  
+| timestamp with local time zone | interval year to month |  
+
+
+The distance must be expressed as a non-negative number or non-negative interval.
+
+>Note:
+> Interval year-to-moth as a distance is giving sucess if the distance between the given dates/timestamps evaluates to value less or equal of the specified interval
+> Keep in mind that a checking for distance of `interval '0-1' year to month` will actuall be successful if the distance is less than a month and 15 days.
+> This is due to how oracle evaluates conversion between timestamp difference converted to `year to month interval`. 
+> The behavior is similar to a call to `months_between()` function with results rounded to full monts ie. round(months_between(date, date))
+
+**Example 1.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(4);
+end;
+/
+```
+
+**Example 2.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(5);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 3 (number) was expected to be within 1 of 5 (number)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 48 l_result.expectation.to_(l_result );        
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
+
+**Example 3.**
+```sql
+begin
+  ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 2020-06-07T13:32:58 (date) was expected to be within 1 day of 2020-06-09T13:32:58 (date)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 55 l_result.expectation.to_(l_result );    
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
+
+
+## to_be_within_pct of
+
+Determines wheter actual value is within percentage range of expected value. 
+The matcher only works with `number` data-type.
+
+The percentage deviation (distance) must be expressed as a non-negative number.
+The formula used for calcuation of expectation is:
+```
+  result := ( ( distance ) * expected >= abs( expected - actual ) * 100 ) 
+```
+
+**Example 1.**
+```sql
+begin
+  ut.expect(9).to_be_within_pct(10).of_(10);
+end;
+/
+```
+
+```
+SUCCESS
+  Actual: 9 (number) was expected to be within 10 % of 10 (number)
+```
+
 
 ## Comparing cursors, object types, nested tables and varrays 
 
@@ -1108,7 +1214,7 @@ utPLSQL is capable of comparing compound data-types including:
 - Columns in compound data are compared as **ordered list of elements** by default. Use `unordered_columns` option when order of columns in cursor is not relevant
 - Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
-- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
+- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be cast to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
@@ -1541,7 +1647,7 @@ drop table events;
 
 In the above example:
 - The first expectation is successful, as the `l_expected` cursor contains different date-time then the cursor returned by `get_events` function call
-- The second expectation fails, as the column `event_date` will get compared as DATE without TIME (suing default current session NLS date format)
+- The second expectation fails, as the column `event_date` will get compared as DATE without TIME (using default current session NLS date format)
 
 Output via DBMS_OUTPUT from the above example:
 ```
@@ -1643,7 +1749,11 @@ FAILURE
 
 # Comparing Json objects
 
-utPLSQL is capable of comparing json data-types **on Oracle 12.2 and above**.
+utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
+
+**Note:**
+> Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
+
 
 ### Notes on comparison of json data
 
@@ -1651,10 +1761,11 @@ utPLSQL is capable of comparing json data-types **on Oracle 12.2 and above**.
 - During comparison of json objects the order doesn't matter.
 - During comparison of json arrays the index of element is taken into account
 - To compare json you have to make sure its type of  `json_element_t` or its subtypes
+- From version 21 and above a native `json` type is supported.
 
 
 
-Compare JSON example:
+Compare JSON example using `json_element_t`:
 ```sql
 declare
   l_expected json_element_t;
@@ -1736,7 +1847,7 @@ FAILURE
   at "anonymous block", line 59
 ```
 
-Comparing parts of JSON example:
+Comparing parts of JSON example using `json_element_t` subtypes:
 ```sql
 declare
   l_actual         json_object_t;

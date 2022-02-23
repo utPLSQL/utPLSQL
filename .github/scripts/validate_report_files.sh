@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 GL_VALID=1
-XSD_DIR="$BUILD_DIR/.travis/xsd"
-XML_JAR_DIR="$BUILD_DIR/.travis/lib"
+XSD_DIR="${SCRIPT_DIR}/xsd"
+XML_JAR_DIR="${SCRIPT_DIR}/lib"
 #XML Validator
 XML_VALIDATOR="$XML_JAR_DIR/xml_validator.jar"
 HTML_VALIDATOR_URL="https://validator.w3.org/nu/"

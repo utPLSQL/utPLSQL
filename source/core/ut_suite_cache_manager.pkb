@@ -67,7 +67,7 @@ create or replace package body ut_suite_cache_manager is
         select ut_suite_cache_row(
                  null,
                  s.self_type, s.path, s.object_owner, s.object_name,
-                 s.object_name, null, null, null, null, 0,
+                 s.object_name, null, null, null, null, 0,null,
                  ut_varchar2_rows(),
                  s.x, s.x, s.x, s.x, s.x, s.x,
                  s.y, null, s.z
@@ -325,7 +325,7 @@ create or replace package body ut_suite_cache_manager is
             (
                 id, self_type, path, object_owner, object_name, name,
                 line_no, parse_time, description,
-                rollback_type, disabled_flag, warnings,
+                rollback_type, disabled_flag,disabled_reason, warnings,
                 before_all_list, after_all_list,
                 before_each_list, after_each_list,
                 before_test_list, after_test_list,
@@ -339,7 +339,7 @@ create or replace package body ut_suite_cache_manager is
           select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
                  upper(s.i.object_owner) as object_owner, upper(s.i.object_name) as object_name, upper(s.i.name) as name,
                  s.i.line_no as line_no, s.i.parse_time as parse_time, s.i.description as description,
-                 s.i.rollback_type as rollback_type, s.i.disabled_flag as disabled_flag, s.i.warnings as warnings,
+                 s.i.rollback_type as rollback_type, s.i.disabled_flag as disabled_flag,s.i.disabled_reason as disabled_reason, s.i.warnings as warnings,
                  s.i.before_all_list as before_all_list, s.i.after_all_list as after_all_list,
                  null before_each_list, null after_each_list,
                  null before_test_list, null after_test_list,
@@ -351,7 +351,7 @@ create or replace package body ut_suite_cache_manager is
           (
             id, self_type, path, object_owner, object_name, name,
             line_no, parse_time, description,
-            rollback_type, disabled_flag, warnings,
+            rollback_type, disabled_flag,disabled_reason, warnings,
             before_all_list, after_all_list,
             before_each_list, after_each_list,
             before_test_list, after_test_list,
@@ -365,7 +365,7 @@ create or replace package body ut_suite_cache_manager is
         select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
                upper(s.t.object_owner) as object_owner, upper(s.t.object_name) as object_name, upper(s.t.name) as name,
                s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
-               s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.warnings as warnings,
+               s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.disabled_reason as disabled_reason, s.t.warnings as warnings,
                null before_all_list, null after_all_list,
                s.t.before_each_list as before_each_list, s.t.after_each_list as after_each_list,
                s.t.before_test_list as before_test_list, s.t.after_test_list as after_test_list,
@@ -408,7 +408,7 @@ create or replace package body ut_suite_cache_manager is
     select /*+ no_parallel */ ut_suite_item_info(
              c.object_owner, c.object_name, c.name,
              c.description, c.self_type, c.line_no,
-             c.path, c.disabled_flag, c.tags
+             c.path, c.disabled_flag, c.disabled_reason, c.tags
              )
       bulk collect into l_results
       from table(l_cache_rows) c;

@@ -19,6 +19,7 @@ create or replace type ut_data_value_json under ut_compound_data_value(
   json_tree      ut_json_tree_details,
   member procedure init (self in out nocopy ut_data_value_json, a_value json_element_t),
   constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json_element_t) return self as result,
+  constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json) return self as result,
   overriding member function is_null return boolean,
   overriding member function is_empty return boolean,
   overriding member function to_string return varchar2,

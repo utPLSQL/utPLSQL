@@ -44,7 +44,7 @@ create or replace type body ut_suite  as
     ut_utils.debug_log('ut_suite.execute');
 
     if self.get_disabled_flag() then
-      self.mark_as_skipped();
+      self.mark_as_skipped(a_skip_reason => self.disabled_reason);
     else
       self.start_time := current_timestamp;
       ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);

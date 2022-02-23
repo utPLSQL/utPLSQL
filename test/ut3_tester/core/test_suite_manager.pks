@@ -170,5 +170,21 @@ create or replace package test_suite_manager is
   procedure create_dummy_long_test_package;
   procedure drop_dummy_long_test_package;
 
+
+  procedure setup_remove_annot_test;
+  procedure clean_remove_annot_test;
+  
+  --%test(Remove cache on package create or replace when all annotations removed)
+  --%beforetest(setup_remove_annot_test)
+  --%aftertest(clean_remove_annot_test)
+  procedure test_rem_cache_on_create;
+
+
+  --%test(Remove cache on package create or replace when single annotation removed)
+  --%beforetest(setup_remove_annot_test)
+  --%aftertest(clean_remove_annot_test)
+  procedure test_rem_cache_on_crt_anno;
+
+
 end test_suite_manager;
 /

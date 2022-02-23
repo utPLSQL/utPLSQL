@@ -23,9 +23,10 @@ create or replace type ut_suite_item_info as object (
   item_line_no     integer,         -- line_number where annotation identifying the item exists
   path             varchar2( 4000 ),-- suitepath of the item
   disabled_flag    integer,          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
+  disabled_reason  varchar2(4000), -- if disable flag is set then you can pass reason
   tags             varchar2(4000),
   constructor function ut_suite_item_info(a_object_owner varchar2, a_object_name varchar2, a_item_name varchar2, 
     a_item_description varchar2, a_item_type varchar2, a_item_line_no integer, a_path varchar2, a_disabled_flag integer,
-    a_tags ut_varchar2_rows) return self as result
+    a_disabled_reason varchar2, a_tags ut_varchar2_rows) return self as result
 )
 /
