@@ -30,7 +30,7 @@ create or replace package body ut_coverage is
   end;
 
   function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skip_objects ut_object_names) return varchar2 is
-    l_result                varchar2(32767); --QUESTION: Given fact that we can pass large regex filters same as objects filter should we consider a clob ?
+    l_result                varchar2(32767);
     l_full_name             varchar2(32767);
     l_join_mappings         varchar2(32767);
     l_filters               varchar2(32767);
@@ -55,7 +55,12 @@ create or replace package body ut_coverage is
           from {sources_view} s {join_file_mappings}
          where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
            {filters}
-           {regex_exc_filters}   
+           {regex_exc_filters}
+           and not exists (
+              select /*+ cardinality(el {excuded_objects_cardinality})*/ 1
+                from table(:l_excluded_objects) el
+               where s.owner = el.owner and  s.name = el.name
+           )
       ),
       coverage_sources as (
         select full_name, owner, name, type, line, text,
@@ -146,6 +151,7 @@ create or replace package body ut_coverage is
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
     l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
+    l_result := replace(l_result, '{excuded_objects_cardinality}', ut_utils.scale_cardinality(cardinality(coalesce(a_coverage_options.exclude_objects, ut_object_names()))));
     l_result := replace(l_result, '{regex_exc_filters}', l_regex_exc_filters);
 
     return l_result;
@@ -153,33 +159,41 @@ create or replace package body ut_coverage is
   end;
 
   function get_cov_sources_cursor(a_coverage_options in ut_coverage_options) return sys_refcursor is
-    l_cursor        sys_refcursor;
-    l_skip_objects  ut_object_names;
-    l_sql           varchar2(32767);
+    l_cursor            sys_refcursor;
+    l_skip_objects      ut_object_names;
+    l_excluded_objects  ut_object_names;
+    l_sql               varchar2(32767);
   begin
     if not is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
       l_skip_objects := coalesce(ut_utils.get_utplsql_objects_list(),ut_object_names());
-      --Regex exclusion override the standard exclusion objects.
-      if a_coverage_options.exclude_schema_expr is null and a_coverage_options.exclude_object_expr is null then
-        l_skip_objects := l_skip_objects multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
-      end if;  
     end if;
+
+    --Regex exclusion override the standard exclusion objects.
+    if a_coverage_options.exclude_schema_expr is null and a_coverage_options.exclude_object_expr is null then
+      l_excluded_objects := coalesce(a_coverage_options.exclude_objects, ut_object_names());
+    end if;  
 
     l_sql := get_cov_sources_sql(a_coverage_options, l_skip_objects);
 
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
 
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings,a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
+                                    l_skip_objects;
     elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
       open l_cursor for l_sql using a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr,
                                     a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,
-                                    l_skip_objects;
+                                    l_excluded_objects,l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
-      open l_cursor for l_sql using a_coverage_options.include_objects,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;                                    
+      open l_cursor for l_sql using a_coverage_options.include_objects,a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
+                                    l_skip_objects;                                    
     else
-      open l_cursor for l_sql using a_coverage_options.schema_names,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names,a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
+                                    l_skip_objects;
     end if;
     return l_cursor;
   end;

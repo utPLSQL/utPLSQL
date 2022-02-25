@@ -131,10 +131,34 @@ exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes 
 There are six options that can be used to narrow down the scope of coverage report:
 - `a_include_objects` - list of `[object_owner.].object_name` to be included in the coverage report.
 - `a_exclude_objects` - list of `[object_owner.].object_name` to be excluded from the coverage report
-- `a_include_schema_expr` - string of regex expression of schemas to be included in the coverage report. It will override  `a_include_objects`
-- `a_include_object_expr` - string of regex expression of objects ( no schema names included ) to be included in the coverage report. It will override `a_include_objects`
-- `a_exclude_schema_expr` - string of regex expression of schemas to be excluded from the coverage report. It will override `a_exclude_objects`
-- `a_exclude_object_expr` - string of regex expression of objects to be excluded from the coverage report. It will override `a_exclude_objects`
+- `a_include_schema_expr` - string of regex expression of schemas to be included in the coverage report. It will override  `a_include_objects` for example :
+    ```sql
+    a_include_schema_expr => '^ut3_develop',
+    a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
+    ```
+  Will result in showing coverage for all schemas that match regular expression `^ut3_develop` and ignore objectes defined by parameter `a_include_objects`
+
+- `a_include_object_expr` - string of regex expression of objects ( no schema names included ) to be included in the coverage report. It will override `a_include_objects` for example:
+    ```sql
+    a_include_object_expr => 'regex123',
+    a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
+    ```
+  Will result in showing coverage for all objects that name match regular expression `regex123` and ignore objectes defined by parameter `a_include_objects`
+
+- `a_exclude_schema_expr` - string of regex expression of schemas to be excluded from the coverage report. It will override `a_exclude_objects` for example:
+    ```sql
+    a_exclude_schema_expr => '^ut3_tester',
+    a_exclude_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.regex_dummy_cov' )
+    ```
+  Will result in showing coverage for all objects that schema is not matching regular expression `^ut3_tester` and ignore exclusion defined by parameter `a_exclude_objects`
+
+- `a_exclude_object_expr` - string of regex expression of objects to be excluded from the coverage report. It will override `a_exclude_objects` for example
+    ```sql
+    a_exclude_object_expr => 'regex123',
+    a_exclude_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.regex_dummy_cov' )
+    ```
+  Will result in showing coverage for all objects that name is not matching regular expression `regex123` and ignore exclusion defined by parameter `a_exclude_objects`
+
 
 You may specify both _include_ and _exclude_ options to gain more control over what needs to be included / excluded from the coverage report.
 
