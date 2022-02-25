@@ -780,6 +780,10 @@ ut_coverage_options(
   exclude_objects          ut_varchar2_rows := null,
   include_objects          ut_varchar2_rows := null,
   file_mappings            ut_file_mappings := null
+  include_schema_expr      varchar2(4000) := null,
+  include_object_expr      varchar2(4000) := null,
+  exclude_schema_expr      varchar2(4000) := null,
+  exclude_object_expr      varchar2(4000) := null
 );
 ```
 
@@ -795,6 +799,10 @@ The `a_coverage_options` parameter is used to control the scope and formatting o
 - `exclude_objects` - optional - list of object names to exclude from report - data-type `UT_VARCHAR2_ROWS`   
 - `include_objects` - optional - list of object names to gather coverage on - data-type `UT_VARCHAR2_ROWS`
 - `file_mappings` - optional - list of schema names to gather coverage on - data-type `UT_FILE_MAPPINGS`
+- `include_schema_expr` - optional - regular expression to match against schema name to include in coverage - data-type `VARCHAR2(4000)`
+- `include_object_expr` - optional - regular expression to match against object name to include in coverage - data-type `VARCHAR2(4000)`
+- `exclude_schema_expr` - optional - regular expression to match against schema name to exclude in coverage - data-type `VARCHAR2(4000)`
+- `exclude_object_expr` - optional - regular expression to match against object name to exclude in coverage - data-type `VARCHAR2(4000)`
 
 `coverage_run_id` parameter identifies a common coverage run. The valid value type for that parameter is RAW(32).
 It is recommended to use `sys_guid()` to generate a common, unique identifier for a specific coverage run.
@@ -802,4 +810,10 @@ If the identifier is not unique, previous runs of coverage that used the same `c
 
 For details on the meaning of `schema_names`, `exclude_objects`, `include_objects`, `file_mappings` see sections above.
 Note that data-types of include/exclude/schema lists are different when calling `ut.run` vs. calling `get_report/get_report_cursor`.    
-   
+
+The order of priority is for evaluation of include/exclude is as follows.
+- if `file_mappings` is specified then all include/exclude parameters are ignored
+- else if `..._expr` is specified then include_objects/exclude_objects parameters are ignored
+- else if `schema_names` is specified then the coverage is gathered on all object of specified schemas
+- else coverage is gathered on all schemas specified in paths passed to run procedure
+- if no paths were specified, the coverage is gathered on current schema of the session running the tests
