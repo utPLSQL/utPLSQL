@@ -43,6 +43,7 @@ create or replace type body ut_realtime_reporter is
       self.print_node('objectName', a_test.item.object_name);
       self.print_node('procedureName', a_test.item.procedure_name);
       self.print_node('disabled', case when a_test.get_disabled_flag() then 'true' else 'false' end);
+      self.print_node('disabledReason', a_test.disabled_reason);
       self.print_node('name', a_test.name);
       self.print_node('description',  a_test.description);
       self.print_node('testNumber', to_char(total_number_of_tests));
