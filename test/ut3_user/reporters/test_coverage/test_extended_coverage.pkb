@@ -106,5 +106,76 @@ create or replace package body test_extended_coverage is
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
+  procedure coverage_regex_include_schema is
+    l_expected_ut3   clob;
+    l_expected_help  clob;  
+    l_actual_ut3     clob;
+    l_actual_help    clob;   
+    l_actual_both    clob;      
+
+  begin
+    --Arrange
+    l_expected_ut3 := '%<file path="package body ut3_develop.test_regex_dummy_cov_schema">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';
+    l_expected_help := '%<file path="package body ut3_tester_helper.test_regex_dummy_cov_schema">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';            
+    --Act
+    l_actual_ut3 :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_include_schema_expr => '^ut3_develop'
+            )
+          ]'
+        );
+    /*
+    l_actual_help :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_include_schema_expr => '^ut3_tester_helper'
+            )
+          ]'
+        );  
+
+    l_actual_both :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_include_schema_expr => '^ut3_tester_helper||^ut3_tester_helper'
+            )
+          ]'
+        ); 
+    */              
+    --Assert
+    ut.expect(l_actual_ut3).to_be_like(l_expected_ut3);
+    ut.expect(l_actual_ut3).not_to_be_like(l_expected_help);
+    --ut.expect(l_actual_help).to_be_like(l_expected_help);
+    --ut.expect(l_actual_help).not_to_be_like(l_expected_ut3);
+    --ut.expect(l_actual_both).to_be_like(l_expected_ut3);
+    --ut.expect(l_actual_both).to_be_like(l_expected_help);    
+  end;
+ 
+  procedure coverage_regex_include_object is
+  begin
+    null;
+  end;
+
+  procedure coverage_regex_exclude_schema is
+  begin
+    null;
+  end;
+
+  procedure coverage_regex_exclude_object is
+  begin
+    null;
+  end;
+
 end;
 /

@@ -55,6 +55,7 @@ create or replace package body ut_coverage is
           from {sources_view} s {join_file_mappings}
          where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
            {filters}
+           {regex_exc_filters}   
       ),
       coverage_sources as (
         select full_name, owner, name, type, line, text,
@@ -85,7 +86,6 @@ create or replace package body ut_coverage is
                where s.owner = el.owner and  s.name = el.name
            )
        and line > 0
-       {regex_filters}
     ]';
          
     if a_coverage_options.file_mappings is not empty then
@@ -99,11 +99,14 @@ create or replace package body ut_coverage is
     elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
       l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       if a_coverage_options.include_schema_expr is not null then
-        l_filters := q'[and regexp_like(s.owner,']'||a_coverage_options.include_schema_expr||q'[','i')]';
-      end if;
-      
+        l_filters := q'[and regexp_like(s.owner,:a_include_schema_expr,'i')]';
+      else
+        l_filters := 'and :a_include_schema_expr is null';
+      end if;     
       if a_coverage_options.include_object_expr is not null then
-        l_filters := l_filters|| q'[ and regexp_like(s.name,']'||a_coverage_options.include_object_expr||q'[','i')]';    
+        l_filters := l_filters|| q'[ and regexp_like(s.name,:a_include_object_expr,'i')]';  
+      else
+        l_filters := l_filters|| 'and :a_include_object_expr is null';        
       end if;
     else
       l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
@@ -124,11 +127,15 @@ create or replace package body ut_coverage is
 
     
     if a_coverage_options.exclude_schema_expr is not null then
-       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.owner,']'||a_coverage_options.exclude_schema_expr||q'[,'i')]';    
+       l_regex_exc_filters := q'[ and not regexp_like(s.owner,:a_exclude_schema_expr,'i')]';
+    else
+       l_regex_exc_filters := ' and :a_exclude_schema_expr is null ';
     end if;    
     
     if a_coverage_options.exclude_object_expr is not null then
-       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.name,']'||a_coverage_options.exclude_object_expr||q'[,'i')]';    
+       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.name,:a_exclude_obj_expr:,'i')]';   
+    else
+       l_regex_exc_filters := l_regex_exc_filters||'and :a_exclude_obj_expr is null '; 
     end if; 
 
 
@@ -139,7 +146,7 @@ create or replace package body ut_coverage is
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
     l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
-    l_result := replace(l_result, '{regex_filters}', l_regex_exc_filters);
+    l_result := replace(l_result, '{regex_exc_filters}', l_regex_exc_filters);
     
     return l_result;
 
@@ -160,13 +167,15 @@ create or replace package body ut_coverage is
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
 
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
-      open l_cursor for l_sql using a_coverage_options.include_objects, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.include_objects,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;
     elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
-      open l_cursor for l_sql using l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr,
+                                    a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,
+                                    l_skip_objects;
     else
-      open l_cursor for l_sql using a_coverage_options.schema_names, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names,a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,l_skip_objects;
     end if;
     return l_cursor;
   end;
