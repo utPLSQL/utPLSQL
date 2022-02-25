@@ -45,6 +45,10 @@ create or replace package body test_realtime_reporter as
       --%test
       --%disabled
       procedure test_5;
+
+      --%test
+      --%disabled(Cannot run this item at this time runtime > 10 mins.)
+      procedure test_6_disabled_reason;
     end;]';
     execute immediate q'[create or replace package body check_realtime_reporting2 is
       procedure test_3_ok is
@@ -59,6 +63,11 @@ create or replace package body test_realtime_reporter as
       end;
       
       procedure test_5 is
+      begin
+        null;
+      end;
+
+      procedure test_6_disabled_reason is
       begin
         null;
       end;
@@ -179,6 +188,8 @@ create or replace package body test_realtime_reporter as
       select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting2.test_4_nok'                as item_id from dual union all
       select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting2.test_5'                    as item_id from dual union all
       select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting2.test_5'                    as item_id from dual union all
+      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting2.test_6_disabled_reason'    as item_id from dual union all
+      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting2.test_6_disabled_reason'    as item_id from dual union all
       select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting2'                           as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting1'                           as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting1.test_context'              as item_id from dual union all
@@ -226,6 +237,7 @@ create or replace package body test_realtime_reporter as
         select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
         select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
         select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
         select 'event/items/suite/items/suite'                        as node_path from dual union all
         select 'event/items/suite/items/suite/items'                  as node_path from dual union all
         select 'event/items/suite/items/suite/items/suite'            as node_path from dual union all
@@ -237,7 +249,7 @@ create or replace package body test_realtime_reporter as
   
   procedure total_number_of_tests is
     l_actual   integer;
-    l_expected integer := 8; 
+    l_expected integer := 9;
   begin
     select t.event_doc.extract('/event/totalNumberOfTests/text()').getnumberval()
       into l_actual
@@ -283,9 +295,9 @@ create or replace package body test_realtime_reporter as
           and t.event_doc.extract('//test/@id').getstringval() is not null;
     open l_expected for
        select level as test_number, 
-              8     as total_number_of_tests 
+              9     as total_number_of_tests
          from dual
-      connect by level <= 8;
+      connect by level <= 9;
     ut.expect(l_actual).to_equal(l_expected).unordered;
   end pre_test_nodes;
   
@@ -311,9 +323,9 @@ create or replace package body test_realtime_reporter as
           and t.event_doc.extract('//test/counter/warning/text()').getnumberval() is not null;
     open l_expected for
        select level as test_number, 
-              8     as total_number_of_tests 
+              9     as total_number_of_tests
          from dual
-      connect by level <= 8;
+      connect by level <= 9;
     ut.expect(l_actual).to_equal(l_expected).unordered;
   end post_test_nodes;
 
@@ -492,6 +504,22 @@ create or replace package body test_realtime_reporter as
     -- this fails, if l_text is not a valid XML
     l_xml := xmltype(l_text);
     ut.expect(l_xml is not null).to_be_true();
+  end;
+
+  procedure disabled_reason is
+    l_actual   varchar2(32767);
+    l_expected varchar2(80) := dbms_xmlgen.convert('Cannot run this item at this time runtime > 10 mins.');
+  begin
+    select t.event_doc.extract(
+             '//test/disabledReason/text()'
+           ).getstringval()
+      into l_actual
+      from table(g_events) t
+     where xmlexists(
+       '/event[@type="pre-run"]/*//test[@id="realtime_reporting.check_realtime_reporting2.test_6_disabled_reason"]'
+       passing t.event_doc
+    );
+    ut.expect(l_actual).to_equal(l_expected);
   end;
 
   procedure remove_test_suites is
