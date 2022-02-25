@@ -107,74 +107,111 @@ create or replace package body test_extended_coverage is
   end;
 
   procedure coverage_regex_include_schema is
-    l_expected_ut3   clob;
-    l_expected_help  clob;  
-    l_actual_ut3     clob;
-    l_actual_help    clob;   
-    l_actual_both    clob;      
-
+    l_expected   clob;
+    l_not_expected  clob;  
+    l_actual     clob;
   begin
     --Arrange
-    l_expected_ut3 := '%<file path="package body ut3_develop.test_regex_dummy_cov_schema">' ||
+    l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
       '%<lineToCover lineNumber="4" covered="true"/>%';
-    l_expected_help := '%<file path="package body ut3_tester_helper.test_regex_dummy_cov_schema">' ||
+    l_not_expected := '%<file path="package body ut3_tester_helper.regex_dummy_cov">' ||
       '%<lineToCover lineNumber="4" covered="true"/>%';            
     --Act
-    l_actual_ut3 :=
+    l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
         q'[
             ut3_develop.ut.run(
-              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov', 'ut3_tester_helper.test_regex_dummy_cov'),
               a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
-              a_include_schema_expr => '^ut3_develop'
+              a_include_schema_expr => '^ut3_develop',
+              a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
             )
           ]'
-        );
-    /*
-    l_actual_help :=
-      ut3_tester_helper.coverage_helper.run_tests_as_job(
-        q'[
-            ut3_develop.ut.run(
-              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
-              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
-              a_include_schema_expr => '^ut3_tester_helper'
-            )
-          ]'
-        );  
-
-    l_actual_both :=
-      ut3_tester_helper.coverage_helper.run_tests_as_job(
-        q'[
-            ut3_develop.ut.run(
-              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov_schema', 'ut3_tester_helper.test_regex_dummy_cov_schema'),
-              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
-              a_include_schema_expr => '^ut3_tester_helper||^ut3_tester_helper'
-            )
-          ]'
-        ); 
-    */              
+        );          
     --Assert
-    ut.expect(l_actual_ut3).to_be_like(l_expected_ut3);
-    ut.expect(l_actual_ut3).not_to_be_like(l_expected_help);
-    --ut.expect(l_actual_help).to_be_like(l_expected_help);
-    --ut.expect(l_actual_help).not_to_be_like(l_expected_ut3);
-    --ut.expect(l_actual_both).to_be_like(l_expected_ut3);
-    --ut.expect(l_actual_both).to_be_like(l_expected_help);    
+    ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_like(l_not_expected);
   end;
  
   procedure coverage_regex_include_object is
+    l_expected   clob;
+    l_not_expected  clob;  
+    l_actual     clob;
   begin
-    null;
+    --Arrange
+    l_expected := '%<file path="package body ut3_develop.regex123_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';
+    l_not_expected := '%<file path="package body ut3_tester_helper.regex_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';            
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov', 'ut3_develop.test_regex123_dummy_cov'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_include_object_expr => 'regex123',
+              a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.regex_dummy_cov' )       
+            )
+          ]'
+        );          
+    --Assert
+    ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_like(l_not_expected);  
   end;
 
   procedure coverage_regex_exclude_schema is
+    l_expected   clob;
+    l_not_expected  clob;  
+    l_actual     clob;
   begin
-    null;
+    --Arrange
+    l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';
+    l_not_expected := '%<file path="package body ut3_tester_helper.regex_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';            
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov', 'ut3_tester_helper.test_regex_dummy_cov'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_exclude_schema_expr => '^ut3_tester',
+              a_exclude_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.regex_dummy_cov' )
+            )
+          ]'
+        );          
+    --Assert
+    ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_like(l_not_expected);
   end;
 
   procedure coverage_regex_exclude_object is
+    l_expected   clob;
+    l_not_expected  clob;  
+    l_actual     clob;
   begin
-    null;
+    --Arrange
+    l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';
+    l_not_expected := '%<file path="package body ut3_tester_helper.regex123_dummy_cov">' ||
+      '%<lineToCover lineNumber="4" covered="true"/>%';            
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        q'[
+            ut3_develop.ut.run(
+              a_paths => ut3_develop.ut_varchar2_list('ut3_develop.test_regex_dummy_cov', 'ut3_develop.test_regex123_dummy_cov'),
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_exclude_object_expr => 'regex123',
+              a_exclude_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.regex_dummy_cov' )       
+            )
+          ]'
+        );          
+    --Assert
+    ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_like(l_not_expected);  
   end;
 
 end;
