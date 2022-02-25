@@ -730,7 +730,7 @@ exec ut_runner.coverage_stop();
 
 ```sql
 --SESSION 1 or SESSION2 2 or SESSION 3 
--- run after calls in SESSION 1 & 2 are finshed
+-- run after calls in SESSION 1 & 2 are finished
 -- retrieve coverage report in HTML format coverage_run_id value
 select *
   from table(
@@ -744,7 +744,7 @@ select *
 
 ```sql
 --SESSION 1 or SESSION2 2 or SESSION 3 
--- run after calls in SESSION 1 & 2 are finshed
+-- run after calls in SESSION 1 & 2 are finished
 declare
   l_results_cursor sys_refcursor;
 begin
