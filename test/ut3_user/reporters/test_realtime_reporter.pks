@@ -57,6 +57,9 @@ create or replace package test_realtime_reporter as
   --%test(Escape nested CDATA sections in test output)
   procedure nested_cdata_output;
 
+  --%test(Provide reason disabled test)
+  procedure disabled_reason;
+
   --%afterall
   procedure remove_test_suites;
 

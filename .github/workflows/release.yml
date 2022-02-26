@@ -49,6 +49,14 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
+      
+      - name: Set buid version number env variables
+        run: .github/scripts/set_version_numbers_env.sh
+
       - name: Update project version & build number in source code and documentation
         run: .github/scripts/update_project_version.sh
 
