@@ -7,7 +7,7 @@ XSD_DIR="${SCRIPT_DIR}/xsd"
 XML_JAR_DIR="${SCRIPT_DIR}/lib"
 #XML Validator
 XML_VALIDATOR="$XML_JAR_DIR/xml_validator.jar"
-HTML_VALIDATOR_URL="https://validator.w3.org/nu/"
+HTML_VALIDATOR_URL="http://localhost:8888/"
 
 HTML_FILENAME="coverage.html"
 declare -A XML_FILES
