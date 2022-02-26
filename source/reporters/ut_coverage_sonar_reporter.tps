@@ -18,7 +18,7 @@ create or replace type ut_coverage_sonar_reporter under ut_coverage_reporter_bas
 
   /**
   * Builds a coverage XML report that follows rules described in
-  * https://docs.sonarqube.org/display/SONAR/Generic+Test+Data
+  * https://docs.sonarqube.org/latest/analysis/generic-test/
   */
   constructor function ut_coverage_sonar_reporter(
     self in out nocopy ut_coverage_sonar_reporter

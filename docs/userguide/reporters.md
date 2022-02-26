@@ -84,7 +84,7 @@ Example of failure report details
 
 
 # Sonar test reporter
-If you are using [SonarQube](https://about.sonarqube.com/) to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
+If you are using [SonarQube](https://www.sonarqube.org/) or [SonarCloud](https://about.sonarcloud.io/) to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
 utPLSQL provides two reporters to for SonarQube:
 - `ut_sonar_test_reporter` - provides an XML output of each test executed per each project test file (package) 
 - `ut_coverage_sonar_reporter` - provides XML output of code coverage per each project source file 

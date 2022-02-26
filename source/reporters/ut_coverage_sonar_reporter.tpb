@@ -96,9 +96,9 @@ create or replace type body ut_coverage_sonar_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Generates a JSON coverage report providing information on code coverage with line numbers.' || chr(10) ||
-           'Designed for [SonarQube](https://about.sonarqube.com/) to report coverage.' || chr(10) ||
-           'JSON format returned conforms with the Sonar specification: https://docs.sonarqube.org/display/SONAR/Generic+Test+Data';
+    return 'Generates a XML coverage report providing information on code coverage with line numbers.' || chr(10) ||
+           'Designed for [SonarQube](https://www.sonarqube.org/) to report coverage.' || chr(10) ||
+           'XML format returned conforms with the Sonar specification: https://docs.sonarqube.org/latest/analysis/generic-test/';
   end;
 
 end;
