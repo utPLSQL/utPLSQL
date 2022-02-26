@@ -28,12 +28,14 @@ create or replace type body ut_session_info as
   member procedure before_calling_run(self in out nocopy ut_session_info, a_run in ut_run) is
   begin
     ut_session_context.set_context( 'run_paths', ut_utils.to_string( ut_utils.table_to_clob( a_run.run_paths,',' ), null ) );
+    ut_session_context.set_context( 'coverage_run_id', rawtohex( a_run.coverage_options.coverage_run_id ) );
     dbms_application_info.set_module( 'utPLSQL', null );
   end;
 
   member procedure after_calling_run(self in out nocopy ut_session_info, a_run in ut_run) is
   begin
     ut_session_context.clear_context( 'run_paths' );
+    ut_session_context.clear_context( 'coverage_run_id' );
     dbms_application_info.set_module( module, action );
     dbms_application_info.set_client_info( client_info );
   end;

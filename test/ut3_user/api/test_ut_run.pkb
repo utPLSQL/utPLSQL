@@ -1268,7 +1268,8 @@ Failures:%
   procedure sys_ctx_on_suite_beforeall is
   begin
     ut.expect(g_context_test_results).to_be_like(
-      '%BEFORE_SUITE:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_suite'
+      '%BEFORE_SUITE:COVERAGE_RUN_ID=________________________________%'
+        ||'%BEFORE_SUITE:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_suite'
         ||'%BEFORE_SUITE:CURRENT_EXECUTABLE_TYPE=beforeall'
         ||'%BEFORE_SUITE:RUN_PATHS=check_context'
         ||'%BEFORE_SUITE:SUITE_DESCRIPTION=Suite description'

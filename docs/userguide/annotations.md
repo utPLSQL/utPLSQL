@@ -2121,7 +2121,8 @@ It can be accessed from any procecure invoked as part of utPLSQL test execution.
 > For example if utPLSQL is installed into `HR` schema, the context name will be `HR_INFO`
 
 Following attributes are populated:
-- Always:
+- For entire duration of the test-run:
+    - `sys_context( 'UT3_INFO', 'COVERAGE_RUN_ID' );` - Value of COVERAGE_RUN_ID used by utPLSQL internally for coverage gathering 
     - `sys_context( 'UT3_INFO', 'RUN_PATHS' );` - list of suitepaths / suitenames used as input parameters for call to `ut.run(...)` or `ut_runner.run(...)`
     - `sys_context( 'UT3_INFO', 'SUITE_DESCRIPTION' );` - the description of test suite that is currently being executed
     - `sys_context( 'UT3_INFO', 'SUITE_PACKAGE' );` -  the owner and name of test suite package that is currently being executed
