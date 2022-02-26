@@ -9,7 +9,7 @@
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
-[![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
+[![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=utPLSQL)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL)
 
 ----------

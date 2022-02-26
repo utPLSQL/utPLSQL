@@ -106,9 +106,9 @@ create or replace type body ut_sonar_test_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Generates a JSON report providing detailed information on test execution.' || chr(10) ||
-           'Designed for [SonarQube](https://about.sonarqube.com/) to report test execution.' || chr(10) ||
-           'JSON format returned conforms with the Sonar specification: https://docs.sonarqube.org/display/SONAR/Generic+Test+Data';
+    return 'Generates a XML report providing detailed information on test execution.' || chr(10) ||
+           'Designed for [SonarQube](https://www.sonarqube.org/) to report test execution.' || chr(10) ||
+           'XML format returned conforms with the Sonar specification: https://docs.sonarqube.org/latest/analysis/generic-test/';
   end;
 
 end;
