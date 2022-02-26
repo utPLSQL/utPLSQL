@@ -1096,7 +1096,7 @@ SUCCESS
 
 ## to_be_within of
 
-Determines wheter expected value is within range (tolerance) from another value.
+Determines whether expected value is within range (tolerance) from another value.
 
 The logical formual used for calcuating the matcher is: 
 ```
@@ -1177,7 +1177,7 @@ Failures:
 
 ## to_be_within_pct of
 
-Determines wheter actual value is within percentage range of expected value. 
+Determines whether actual value is within percentage range of expected value. 
 The matcher only works with `number` data-type.
 
 The percentage deviation (distance) must be expressed as a non-negative number.
