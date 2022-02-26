@@ -381,14 +381,75 @@ create or replace package body coverage_helper is
     return l_result_clob;
   end;
 
+  procedure copy_coverage_data_to_ut3(a_coverage_run_id raw) is
+    pragma autonomous_transaction;
+    l_current_coverage_run_id raw(32) := hextoraw(sys_context('UT3_INFO','COVERAGE_RUN_ID'));
+  begin
+    insert into ut3.ut_coverage_runs(coverage_run_id, line_coverage_id, block_coverage_id)
+    select l_current_coverage_run_id, -line_coverage_id, -block_coverage_id
+      from ut3_develop.ut_coverage_runs
+     where coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_runs(runid, related_run, run_owner, run_date, run_comment, run_total_time, run_system_info, run_comment1, spare1)
+    select -runid, related_run, run_owner, run_date, run_comment, run_total_time, run_system_info, run_comment1, spare1
+      from ut3_develop.plsql_profiler_runs c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_units(runid, unit_number, unit_type, unit_owner, unit_name, unit_timestamp, total_time, spare1, spare2)
+    select -runid, unit_number, unit_type, unit_owner, unit_name, unit_timestamp, total_time, spare1, spare2
+      from ut3_develop.plsql_profiler_units c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_data(runid, unit_number, line#, total_occur, total_time, min_time, max_time, spare1, spare2, spare3, spare4)
+    select -runid, unit_number, line#, total_occur, total_time, min_time, max_time, spare1, spare2, spare3, spare4
+      from ut3_develop.plsql_profiler_data c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_runs(run_id, run_comment, run_owner, run_timestamp)
+    select -run_id, run_comment, run_owner, run_timestamp
+      from ut3_develop.dbmspcc_runs c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_units(run_id, object_id, owner, name, type, last_ddl_time)
+    select -run_id, object_id, owner, name, type, last_ddl_time
+      from ut3_develop.dbmspcc_units c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_blocks(run_id, object_id, block, line, col, covered, not_feasible)
+    select -run_id, object_id, block, line, col, covered, not_feasible
+      from ut3_develop.dbmspcc_blocks c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    commit;
+  end;
+
   function run_tests_as_job( a_run_command varchar2 ) return clob is
     l_plsql_block varchar2(32767);
     l_result_clob clob;
-    pragma autonomous_transaction;
+    l_coverage_id raw(32) := sys_guid();
   begin
-    l_plsql_block := 'begin insert into test_results select * from table( {a_run_command} ); commit; end;';
+    l_plsql_block := q'[
+    begin
+      ut3_develop.ut_runner.coverage_start(']'||rawtohex(l_coverage_id)||q'[');
+      insert into test_results select * from table( {a_run_command} );
+      commit;
+    end;]';
     l_plsql_block := replace(l_plsql_block,'{a_run_command}',a_run_command);
-    return run_code_as_job( l_plsql_block );
+    l_result_clob := run_code_as_job( l_plsql_block );
+    copy_coverage_data_to_ut3(l_coverage_id);
+    return l_result_clob;
   end;
 
   procedure create_dup_object_name is

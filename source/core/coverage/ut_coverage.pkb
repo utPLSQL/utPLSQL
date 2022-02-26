@@ -18,6 +18,7 @@ create or replace package body ut_coverage is
 
   g_develop_mode    boolean not null := false;
   g_is_started      boolean not null := false;
+  g_coverage_run_id raw(32);
 
   procedure set_develop_mode(a_develop_mode in boolean) is
   begin
@@ -231,6 +232,7 @@ create or replace package body ut_coverage is
     l_block_coverage_id integer;
   begin
     if not is_develop_mode() and not g_is_started then
+      g_coverage_run_id := a_coverage_run_id;
       l_line_coverage_id  := ut_coverage_helper_profiler.coverage_start( l_run_comment );
       l_block_coverage_id := ut_coverage_helper_block.coverage_start( l_run_comment );
       g_is_started := true;
@@ -256,7 +258,6 @@ create or replace package body ut_coverage is
       g_is_started := false;
       ut_coverage_helper_block.coverage_stop();
       ut_coverage_helper_profiler.coverage_stop();
-      g_is_started := false;
     end if;
   end;
 
@@ -314,7 +315,15 @@ create or replace package body ut_coverage is
     $end
         
     return l_result_profiler_enrich;
-  end get_coverage_data;  
+  end get_coverage_data;
+
+  function get_coverage_run_id return raw is
+  begin
+    if g_coverage_run_id is null then
+      g_coverage_run_id := sys_guid();
+    end if;
+    return g_coverage_run_id;
+  end;
   
 end;
 /
