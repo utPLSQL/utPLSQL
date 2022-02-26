@@ -60,6 +60,10 @@ jobs:
             oracle-base: '/opt/oracle'
 
     services:
+      html_checker:
+        image: ghcr.io/validator/validator:latest
+        options: >-
+          -p 8888:8888
       oracle:
         image: ${{matrix.oracle-version}}
         env:

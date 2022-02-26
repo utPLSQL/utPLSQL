@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.13.3889--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.13.3908--develop-blue.svg)
 
 # Introduction to utPLSQL
 
@@ -31,7 +31,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
 
 Have a look at our [demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).
 
-It uses [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project) to build on every commit, runs all tests, publishes test results and code coverage to [SonarQube](https://sonarqube.com/dashboard?id=utPLSQL%3AutPLSQL-demo-project%3Adevelop).
+It uses [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project) to build on every commit, runs all tests, publishes test results and code coverage to [SonarCloud](https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project).
 
 # Three steps
 

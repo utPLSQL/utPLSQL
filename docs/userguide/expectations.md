@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.13.3889--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.13.3908--develop-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
@@ -1096,7 +1096,7 @@ SUCCESS
 
 ## to_be_within of
 
-Determines wheter expected value is within range (tolerance) from another value.
+Determines whether expected value is within range (tolerance) from another value.
 
 The logical formual used for calcuating the matcher is: 
 ```
@@ -1177,7 +1177,7 @@ Failures:
 
 ## to_be_within_pct of
 
-Determines wheter actual value is within percentage range of expected value. 
+Determines whether actual value is within percentage range of expected value. 
 The matcher only works with `number` data-type.
 
 The percentage deviation (distance) must be expressed as a non-negative number.
