@@ -23,6 +23,7 @@ create or replace package coverage_helper is
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
   procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
 
+  function gather_coverage_on_coverage( a_cov_options varchar2) return clob;
   function run_tests_as_job( a_run_command varchar2 ) return clob;
   function run_code_as_job( a_plsql_block varchar2 ) return clob;
   procedure create_test_results_table;

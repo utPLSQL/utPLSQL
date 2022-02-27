@@ -435,6 +435,46 @@ create or replace package body coverage_helper is
     commit;
   end;
 
+  function gather_coverage_on_coverage( a_cov_options varchar2) return clob is
+    pragma autonomous_transaction;
+    l_plsql_block varchar2(32767);
+    l_result_clob clob;
+    l_coverage_id raw(32) := sys_guid();
+  begin
+    l_plsql_block := q'[
+    declare
+      l_coverage_options ut3_develop.ut_coverage_options;
+      l_coverage_run_id raw(32) := ']'||rawtohex(l_coverage_id)||q'[';
+      l_result ut3_develop.ut_coverage.t_coverage;
+    begin
+      ut3_develop.ut_runner.coverage_start(l_coverage_run_id); 
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => true);
+      l_coverage_options := {a_cov_options};  
+      l_result := ut3_develop.ut_coverage.get_coverage_data(l_coverage_options);
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
+      ut3_develop.ut_runner.coverage_stop();
+      insert into test_results select owner||'.'||name from ut3_develop.ut_coverage_sources_tmp;
+      commit;
+    end;]';
+    l_plsql_block := replace(l_plsql_block,'{a_cov_options}',a_cov_options);
+    run_job_and_wait_for_finish( l_plsql_block );
+    execute immediate q'[
+      declare
+        l_results ut3_develop.ut_varchar2_list;
+      begin
+        select *
+          bulk collect into l_results
+          from test_results;
+        delete from test_results;
+        commit;
+        :clob_results := ut3_tester_helper.main_helper.table_to_clob(l_results);
+      end;
+      ]'
+    using out l_result_clob;
+    copy_coverage_data_to_ut3(l_coverage_id);
+    return l_result_clob;
+  end;
+
   function run_tests_as_job( a_run_command varchar2 ) return clob is
     l_plsql_block varchar2(32767);
     l_result_clob clob;

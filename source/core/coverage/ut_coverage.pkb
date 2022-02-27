@@ -102,7 +102,7 @@ create or replace package body ut_coverage is
               on s.name  = f.object_name
              and s.type  = f.object_type
              and s.owner = f.object_owner';
-    elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
+    elsif coalesce(a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr) is not null then
       l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       if a_coverage_options.include_schema_expr is not null then
         l_filters := q'[and regexp_like(s.owner,:a_include_schema_expr,'i')]';
@@ -183,7 +183,7 @@ create or replace package body ut_coverage is
       open l_cursor for l_sql using a_coverage_options.file_mappings,a_coverage_options.exclude_schema_expr,
                                     a_coverage_options.exclude_object_expr,l_excluded_objects,
                                     l_skip_objects;
-    elsif a_coverage_options.include_schema_expr is not null or a_coverage_options.include_object_expr is not null then
+    elsif coalesce(a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr) is not null then
       open l_cursor for l_sql using a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr,
                                     a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,
                                     l_excluded_objects,l_skip_objects;
