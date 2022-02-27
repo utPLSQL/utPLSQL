@@ -341,7 +341,7 @@ create or replace package body coverage_helper is
     e_exists exception;
     pragma exception_init ( e_exists, -955 );
   begin
-    execute immediate 'create table test_results (text varchar2(4000))';
+    execute immediate 'create table test_results (id integer, text varchar2(4000))';
   exception
     when e_exists then
       null;
@@ -368,9 +368,10 @@ create or replace package body coverage_helper is
       declare
         l_results ut3_develop.ut_varchar2_list;
       begin
-        select *
+        select text
           bulk collect into l_results
-          from test_results;
+          from test_results
+         order by id;
         delete from test_results;
         commit;
         :clob_results := ut3_tester_helper.main_helper.table_to_clob(l_results);
@@ -453,7 +454,7 @@ create or replace package body coverage_helper is
       l_result := ut3_develop.ut_coverage.get_coverage_data(l_coverage_options);
       ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
       ut3_develop.ut_runner.coverage_stop();
-      insert into test_results select owner||'.'||name from ut3_develop.ut_coverage_sources_tmp;
+      insert into test_results select rownum, owner||'.'||name from ut3_develop.ut_coverage_sources_tmp;
       commit;
     end;]';
     l_plsql_block := replace(l_plsql_block,'{a_cov_options}',a_cov_options);
@@ -462,9 +463,10 @@ create or replace package body coverage_helper is
       declare
         l_results ut3_develop.ut_varchar2_list;
       begin
-        select *
+        select text
           bulk collect into l_results
-          from test_results;
+          from test_results
+         order by id;
         delete from test_results;
         commit;
         :clob_results := ut3_tester_helper.main_helper.table_to_clob(l_results);
@@ -483,7 +485,13 @@ create or replace package body coverage_helper is
     l_plsql_block := q'[
     begin
       ut3_develop.ut_runner.coverage_start(']'||rawtohex(l_coverage_id)||q'[');
-      insert into test_results select * from table( {a_run_command} );
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => true);
+      --gather coverage on the command executed
+      begin {a_run_command}; end;
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
+      ut3_develop.ut_runner.coverage_stop();
+      --get the actual results of the command gathering the coverage
+      insert into test_results select rownum as id, x.* from table( {a_run_command} ) x;
       commit;
     end;]';
     l_plsql_block := replace(l_plsql_block,'{a_run_command}',a_run_command);

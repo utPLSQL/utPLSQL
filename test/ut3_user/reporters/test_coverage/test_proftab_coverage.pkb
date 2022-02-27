@@ -137,14 +137,14 @@ create or replace package body test_proftab_coverage is
 
     --Act
         insert into test_results
-        select *
+        select rownum, x.*
         from table(
           ut3_develop.ut.run(
             a_path => 'ut3_develop:coverage_testing',
             a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
             a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.{p}' )
           )
-        );
+        ) x;
         commit;
       end;
       ]';
