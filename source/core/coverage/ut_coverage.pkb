@@ -256,6 +256,7 @@ create or replace package body ut_coverage is
   begin
     if not is_develop_mode() then
       g_is_started := false;
+      g_coverage_run_id := null;
       ut_coverage_helper_block.coverage_stop();
       ut_coverage_helper_profiler.coverage_stop();
     end if;
