@@ -58,5 +58,9 @@ create or replace package test_extended_coverage is
   --%test(Collect coverage for objects with object regex exclude without ut_run) 
   procedure cove_rgx_exc_object_norun;
 
+  --%beforetest(ut3_tester_helper.coverage_helper.create_regex_dummy_cov) 
+  --%aftertest(ut3_tester_helper.coverage_helper.drop_regex_dummy_cov)
+  --%test(Collect coverage for file mapping without ut_run) 
+  procedure cov_file_mapping_no_utrun;
 end;
 /

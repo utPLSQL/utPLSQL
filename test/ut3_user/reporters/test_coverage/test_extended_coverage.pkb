@@ -294,5 +294,22 @@ create or replace package body test_extended_coverage is
     ut.expect(l_actual).not_to_be_like(l_not_expected);      
   end;
 
+  procedure cov_file_mapping_no_utrun is
+    l_expected   clob;
+    l_not_expected  clob;  
+    l_actual     clob; 
+  begin
+    --Arrange
+    l_expected := '%UT3_DEVELOP.REGEX_DUMMY_COV%';
+    --Act  
+    l_actual := ut3_tester_helper.coverage_helper.gather_coverage_on_coverage(
+    q'[ut3_develop.ut_coverage_options(
+              coverage_run_id => l_coverage_run_id,
+              file_mappings => ut3_develop.ut_file_mappings( ut3_develop.ut_file_mapping('C:\tests\helpers\core.pkb','UT3_DEVELOP','REGEX_DUMMY_COV','PACKAGE BODY'))
+    )]');
+    --Assert
+    ut.expect(l_actual).to_be_like(l_expected); 
+  end;
+
 end;
 /
