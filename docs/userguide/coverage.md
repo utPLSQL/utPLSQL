@@ -152,6 +152,7 @@ The order of priority is for evaluation of include/exclude filter parameters is 
 - else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure
 - else if no paths were specified, the coverage is gathered on current schema of the session running the tests
 
+The exclude parameters are not mutually-exclusive and can be mixed together. All of exclude parameters are always applied.  
 
 Example: Limiting coverage by schema regex.
 ```sql
