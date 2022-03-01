@@ -180,21 +180,18 @@ create or replace package body ut_coverage is
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
 
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings,a_coverage_options.exclude_schema_expr,
-                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
-                                    l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
     elsif coalesce(a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr) is not null then
-      open l_cursor for l_sql using a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr,
-                                    a_coverage_options.exclude_schema_expr,a_coverage_options.exclude_object_expr,
-                                    l_excluded_objects,l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.include_schema_expr, a_coverage_options.include_object_expr,
+                                    a_coverage_options.exclude_schema_expr, a_coverage_options.exclude_object_expr,
+                                    l_excluded_objects, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
-      open l_cursor for l_sql using a_coverage_options.include_objects,a_coverage_options.exclude_schema_expr,
-                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
-                                    l_skip_objects;                                    
+      open l_cursor for l_sql using a_coverage_options.include_objects, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
     else
-      open l_cursor for l_sql using a_coverage_options.schema_names,a_coverage_options.exclude_schema_expr,
-                                    a_coverage_options.exclude_object_expr,l_excluded_objects,
-                                    l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
     end if;
     return l_cursor;
   end;
