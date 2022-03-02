@@ -130,7 +130,7 @@ exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes 
 
 #### Filtering objects in coverage reports
 
-There are multiple parameters that can be used to define the scope of coverage report:
+Multiple parameters can be used to define the scope of coverage report.
 - `a_source_file_mappings ( ut_file_mappings )` - map of filenames to database objects. It is used for file-based coverage - see below.
 - `a_include_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be included in the coverage report. Case-insensitive. 
 - `a_include_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be included in the coverage report. Case-insensitive.
