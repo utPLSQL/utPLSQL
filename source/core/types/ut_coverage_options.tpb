@@ -22,7 +22,11 @@ create or replace type body ut_coverage_options as
     schema_names             ut_varchar2_rows := null,
     exclude_objects          ut_varchar2_rows := null,
     include_objects          ut_varchar2_rows := null,
-    file_mappings            ut_file_mappings := null
+    file_mappings            ut_file_mappings := null,
+    include_schema_expr varchar2 := null,
+    include_object_expr varchar2 := null,
+    exclude_schema_expr varchar2 := null,
+    exclude_object_expr varchar2 := null    
     ) return self as result is
     function to_ut_object_list(a_names ut_varchar2_rows, a_schema_names ut_varchar2_rows) return ut_object_names is
       l_result      ut_object_names;
@@ -54,9 +58,14 @@ create or replace type body ut_coverage_options as
     if exclude_objects is not empty then
       self.exclude_objects := to_ut_object_list(exclude_objects, self.schema_names);
     end if;
---     self.exclude_objects := self.exclude_objects multiset union all ut_suite_manager.get_schema_ut_packages(schema_names);
 
     self.include_objects := to_ut_object_list(include_objects, self.schema_names);
+
+    self.include_schema_expr := include_schema_expr;
+    self.include_object_expr := include_object_expr;
+    self.exclude_schema_expr := exclude_schema_expr;
+    self.exclude_object_expr := exclude_object_expr;
+
 
     return;
   end;

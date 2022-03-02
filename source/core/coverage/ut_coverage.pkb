@@ -18,6 +18,7 @@ create or replace package body ut_coverage is
 
   g_develop_mode    boolean not null := false;
   g_is_started      boolean not null := false;
+  g_coverage_run_id raw(32);
 
   procedure set_develop_mode(a_develop_mode in boolean) is
   begin
@@ -35,6 +36,7 @@ create or replace package body ut_coverage is
     l_join_mappings         varchar2(32767);
     l_filters               varchar2(32767);
     l_mappings_cardinality  integer := 0;
+    l_regex_exc_filters     varchar2(32767);
   begin
     l_result := q'[
     with
@@ -54,6 +56,12 @@ create or replace package body ut_coverage is
           from {sources_view} s {join_file_mappings}
          where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
            {filters}
+           {regex_exc_filters}
+           and not exists (
+              select /*+ cardinality(el {excuded_objects_cardinality})*/ 1
+                from table(:l_excluded_objects) el
+               where s.owner = el.owner and  s.name = el.name
+           )
       ),
       coverage_sources as (
         select full_name, owner, name, type, line, text,
@@ -85,7 +93,7 @@ create or replace package body ut_coverage is
            )
        and line > 0
     ]';
-
+         
     if a_coverage_options.file_mappings is not empty then
       l_mappings_cardinality := ut_utils.scale_cardinality(cardinality(a_coverage_options.file_mappings));
       l_full_name := 'f.file_name';
@@ -94,6 +102,18 @@ create or replace package body ut_coverage is
               on s.name  = f.object_name
              and s.type  = f.object_type
              and s.owner = f.object_owner';
+    elsif coalesce(a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr) is not null then
+      l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
+      if a_coverage_options.include_schema_expr is not null then
+        l_filters := q'[and regexp_like(s.owner,:a_include_schema_expr,'i')]';
+      else
+        l_filters := 'and :a_include_schema_expr is null';
+      end if;     
+      if a_coverage_options.include_object_expr is not null then
+        l_filters := l_filters|| q'[ and regexp_like(s.name,:a_include_object_expr,'i')]';  
+      else
+        l_filters := l_filters|| 'and :a_include_object_expr is null';        
+      end if;
     else
       l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       l_filters := case
@@ -111,37 +131,67 @@ create or replace package body ut_coverage is
         end;
     end if;
 
+    
+    if a_coverage_options.exclude_schema_expr is not null then
+       l_regex_exc_filters := q'[ and not regexp_like(s.owner,:a_exclude_schema_expr,'i')]';
+    else
+       l_regex_exc_filters := ' and :a_exclude_schema_expr is null ';
+    end if;    
+    
+    if a_coverage_options.exclude_object_expr is not null then
+       l_regex_exc_filters := l_regex_exc_filters||q'[ and not regexp_like(s.name,:a_exclude_obj_expr,'i')]';   
+    else
+       l_regex_exc_filters := l_regex_exc_filters||'and :a_exclude_obj_expr is null '; 
+    end if; 
+
+
+
     l_result := replace(l_result, '{sources_view}',         ut_metadata.get_source_view_name());
     l_result := replace(l_result, '{l_full_name}',          l_full_name);
     l_result := replace(l_result, '{join_file_mappings}',   l_join_mappings);
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
     l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
+    l_result := replace(l_result, '{excuded_objects_cardinality}', ut_utils.scale_cardinality(cardinality(coalesce(a_coverage_options.exclude_objects, ut_object_names()))));
+    l_result := replace(l_result, '{regex_exc_filters}', l_regex_exc_filters);
 
     return l_result;
 
   end;
 
   function get_cov_sources_cursor(a_coverage_options in ut_coverage_options) return sys_refcursor is
-    l_cursor        sys_refcursor;
-    l_skip_objects  ut_object_names;
-    l_sql           varchar2(32767);
+    l_cursor            sys_refcursor;
+    l_skip_objects      ut_object_names;
+    l_excluded_objects  ut_object_names;
+    l_sql               varchar2(32767);
   begin
     if not is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
-      l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
+      l_skip_objects := coalesce(ut_utils.get_utplsql_objects_list(),ut_object_names());
     end if;
+
+    --Regex exclusion override the standard exclusion objects.
+    if a_coverage_options.exclude_schema_expr is null and a_coverage_options.exclude_object_expr is null then
+      l_excluded_objects := coalesce(a_coverage_options.exclude_objects, ut_object_names());
+    end if;  
 
     l_sql := get_cov_sources_sql(a_coverage_options, l_skip_objects);
 
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
 
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
+    elsif coalesce(a_coverage_options.include_schema_expr,a_coverage_options.include_object_expr) is not null then
+      open l_cursor for l_sql using a_coverage_options.include_schema_expr, a_coverage_options.include_object_expr,
+                                    a_coverage_options.exclude_schema_expr, a_coverage_options.exclude_object_expr,
+                                    l_excluded_objects, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
-      open l_cursor for l_sql using a_coverage_options.include_objects, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.include_objects, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
     else
-      open l_cursor for l_sql using a_coverage_options.schema_names, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names, a_coverage_options.exclude_schema_expr,
+                                    a_coverage_options.exclude_object_expr, l_excluded_objects, l_skip_objects;
     end if;
     return l_cursor;
   end;
@@ -179,6 +229,7 @@ create or replace package body ut_coverage is
     l_block_coverage_id integer;
   begin
     if not is_develop_mode() and not g_is_started then
+      g_coverage_run_id := a_coverage_run_id;
       l_line_coverage_id  := ut_coverage_helper_profiler.coverage_start( l_run_comment );
       l_block_coverage_id := ut_coverage_helper_block.coverage_start( l_run_comment );
       g_is_started := true;
@@ -202,9 +253,9 @@ create or replace package body ut_coverage is
   begin
     if not is_develop_mode() then
       g_is_started := false;
+      g_coverage_run_id := null;
       ut_coverage_helper_block.coverage_stop();
       ut_coverage_helper_profiler.coverage_stop();
-      g_is_started := false;
     end if;
   end;
 
@@ -262,7 +313,15 @@ create or replace package body ut_coverage is
     $end
         
     return l_result_profiler_enrich;
-  end get_coverage_data;  
+  end get_coverage_data;
+
+  function get_coverage_run_id return raw is
+  begin
+    if g_coverage_run_id is null then
+      g_coverage_run_id := sys_guid();
+    end if;
+    return g_coverage_run_id;
+  end;
   
 end;
 /

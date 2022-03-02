@@ -74,5 +74,7 @@ create or replace package ut_coverage authid current_user is
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage;
 
+  function get_coverage_run_id return raw;
+
 end;
 /

@@ -158,6 +158,107 @@ create or replace package body coverage_helper is
 
   end;
 
+  procedure create_regex_dummy_for_schema(p_schema in varchar2) is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ]'||p_schema||q'[.regex_dummy_cov is
+      procedure do_stuff(i_input in number);
+    end;]';
+
+    execute immediate q'[create or replace package body ]'||p_schema||q'[.regex_dummy_cov is
+      procedure do_stuff(i_input in number) is
+      begin
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
+        else
+          dbms_output.put_line('should not get here');
+        end if;
+      end;
+    end;]';
+
+    execute immediate q'[create or replace package ]'||p_schema||q'[.test_regex_dummy_cov is
+      --%suite(dummy coverage test)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+
+      --%test
+      procedure zero_coverage;
+    end;]';
+
+    execute immediate q'[create or replace package body ]'||p_schema||q'[.test_regex_dummy_cov is
+      procedure test_do_stuff is
+      begin
+        regex_dummy_cov.do_stuff(1);
+        ut.expect(1).to_equal(1);
+      end;
+      procedure zero_coverage is
+      begin
+        null;
+      end;
+    end;]';
+  end;
+
+  procedure create_regex_dummy_obj is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut3_develop.regex123_dummy_cov is
+      procedure do_stuff(i_input in number);
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.regex123_dummy_cov is
+      procedure do_stuff(i_input in number) is
+      begin
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
+        else
+          dbms_output.put_line('should not get here');
+        end if;
+      end;
+    end;]';
+
+    execute immediate q'[create or replace package ut3_develop.test_regex123_dummy_cov is
+      --%suite(dummy coverage test)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+
+      --%test
+      procedure zero_coverage;
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.test_regex123_dummy_cov is
+      procedure test_do_stuff is
+      begin
+        regex123_dummy_cov.do_stuff(1);
+        ut.expect(1).to_equal(1);
+      end;
+      procedure zero_coverage is
+      begin
+        null;
+      end;
+    end;]';
+  end;
+
+  procedure create_regex_dummy_cov is
+  begin
+    create_regex_dummy_for_schema('ut3_develop');
+    create_regex_dummy_for_schema('ut3_tester_helper');
+    create_regex_dummy_obj;
+  end;
+
+  procedure drop_regex_dummy_cov is
+    pragma autonomous_transaction;
+  begin
+    begin execute immediate q'[drop package ut3_develop.regex_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_regex_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_tester_helper.regex_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_tester_helper.test_regex_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.regex123_dummy_cov]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_regex123_dummy_cov]'; exception when others then null; end;        
+  end;
+
+
   procedure drop_cov_with_dbms_stats is
     pragma autonomous_transaction;
   begin
@@ -240,7 +341,7 @@ create or replace package body coverage_helper is
     e_exists exception;
     pragma exception_init ( e_exists, -955 );
   begin
-    execute immediate 'create table test_results (text varchar2(4000))';
+    execute immediate 'create table test_results (id integer, text varchar2(4000))';
   exception
     when e_exists then
       null;
@@ -267,9 +368,10 @@ create or replace package body coverage_helper is
       declare
         l_results ut3_develop.ut_varchar2_list;
       begin
-        select *
+        select text
           bulk collect into l_results
-          from test_results;
+          from test_results
+         order by id;
         delete from test_results;
         commit;
         :clob_results := ut3_tester_helper.main_helper.table_to_clob(l_results);
@@ -280,14 +382,122 @@ create or replace package body coverage_helper is
     return l_result_clob;
   end;
 
+  procedure copy_coverage_data_to_ut3(a_coverage_run_id raw) is
+    pragma autonomous_transaction;
+    l_current_coverage_run_id raw(32) := hextoraw(sys_context('UT3_INFO','COVERAGE_RUN_ID'));
+  begin
+    insert into ut3.ut_coverage_runs(coverage_run_id, line_coverage_id, block_coverage_id)
+    select l_current_coverage_run_id, -line_coverage_id, -block_coverage_id
+      from ut3_develop.ut_coverage_runs
+     where coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_runs(runid, related_run, run_owner, run_date, run_comment, run_total_time, run_system_info, run_comment1, spare1)
+    select -runid, related_run, run_owner, run_date, run_comment, run_total_time, run_system_info, run_comment1, spare1
+      from ut3_develop.plsql_profiler_runs c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_units(runid, unit_number, unit_type, unit_owner, unit_name, unit_timestamp, total_time, spare1, spare2)
+    select -runid, unit_number, unit_type, unit_owner, unit_name, unit_timestamp, total_time, spare1, spare2
+      from ut3_develop.plsql_profiler_units c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.plsql_profiler_data(runid, unit_number, line#, total_occur, total_time, min_time, max_time, spare1, spare2, spare3, spare4)
+    select -runid, unit_number, line#, total_occur, total_time, min_time, max_time, spare1, spare2, spare3, spare4
+      from ut3_develop.plsql_profiler_data c
+      join ut3_develop.ut_coverage_runs r
+        on r.line_coverage_id = c.runid
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_runs(run_id, run_comment, run_owner, run_timestamp)
+    select -run_id, run_comment, run_owner, run_timestamp
+      from ut3_develop.dbmspcc_runs c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_units(run_id, object_id, owner, name, type, last_ddl_time)
+    select -run_id, object_id, owner, name, type, last_ddl_time
+      from ut3_develop.dbmspcc_units c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    insert into ut3.dbmspcc_blocks(run_id, object_id, block, line, col, covered, not_feasible)
+    select -run_id, object_id, block, line, col, covered, not_feasible
+      from ut3_develop.dbmspcc_blocks c
+      join ut3_develop.ut_coverage_runs r
+        on r.block_coverage_id = c.run_id
+     where r.coverage_run_id = a_coverage_run_id;
+
+    commit;
+  end;
+
+  function gather_coverage_on_coverage( a_cov_options varchar2) return clob is
+    pragma autonomous_transaction;
+    l_plsql_block varchar2(32767);
+    l_result_clob clob;
+    l_coverage_id raw(32) := sys_guid();
+  begin
+    l_plsql_block := q'[
+    declare
+      l_coverage_options ut3_develop.ut_coverage_options;
+      l_coverage_run_id raw(32) := ']'||rawtohex(l_coverage_id)||q'[';
+      l_result ut3_develop.ut_coverage.t_coverage;
+    begin
+      ut3_develop.ut_runner.coverage_start(l_coverage_run_id); 
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => true);
+      l_coverage_options := {a_cov_options};  
+      l_result := ut3_develop.ut_coverage.get_coverage_data(l_coverage_options);
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
+      ut3_develop.ut_runner.coverage_stop();
+      insert into test_results select rownum, owner||'.'||name from ut3_develop.ut_coverage_sources_tmp;
+      commit;
+    end;]';
+    l_plsql_block := replace(l_plsql_block,'{a_cov_options}',a_cov_options);
+    run_job_and_wait_for_finish( l_plsql_block );
+    execute immediate q'[
+      declare
+        l_results ut3_develop.ut_varchar2_list;
+      begin
+        select text
+          bulk collect into l_results
+          from test_results
+         order by id;
+        delete from test_results;
+        commit;
+        :clob_results := ut3_tester_helper.main_helper.table_to_clob(l_results);
+      end;
+      ]'
+    using out l_result_clob;
+    copy_coverage_data_to_ut3(l_coverage_id);
+    return l_result_clob;
+  end;
+
   function run_tests_as_job( a_run_command varchar2 ) return clob is
     l_plsql_block varchar2(32767);
     l_result_clob clob;
-    pragma autonomous_transaction;
+    l_coverage_id raw(32) := sys_guid();
   begin
-    l_plsql_block := 'begin insert into test_results select * from table( {a_run_command} ); commit; end;';
+    l_plsql_block := q'[
+    begin
+      ut3_develop.ut_runner.coverage_start(']'||rawtohex(l_coverage_id)||q'[');
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => true);
+      --gather coverage on the command executed
+      begin {a_run_command}; end;
+      ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
+      ut3_develop.ut_runner.coverage_stop();
+      --get the actual results of the command gathering the coverage
+      insert into test_results select rownum as id, x.* from table( {a_run_command} ) x;
+      commit;
+    end;]';
     l_plsql_block := replace(l_plsql_block,'{a_run_command}',a_run_command);
-    return run_code_as_job( l_plsql_block );
+    l_result_clob := run_code_as_job( l_plsql_block );
+    copy_coverage_data_to_ut3(l_coverage_id);
+    return l_result_clob;
   end;
 
   procedure create_dup_object_name is

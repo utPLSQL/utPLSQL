@@ -199,7 +199,7 @@ create or replace package body test_to_be_within is
   begin
     --Arrange
     --Act
-    ut3_develop.ut.expect(sysdate).to_be_within(INTERVAL '1'  MONTH).of_(sysdate+ 45);
+    ut3_develop.ut.expect(sysdate).to_be_within(INTERVAL '1'  MONTH).of_(sysdate+ 46);
     --Assert
     l_expected_message := q'[Actual: % (date) was expected to be within 1 month of % (date)]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
