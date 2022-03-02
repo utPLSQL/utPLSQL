@@ -32,18 +32,19 @@ If you have `execute` privilege on the code that is being tested, but do not hav
 If you have `execute` privilege only on the unit tests, but do not have `execute` privilege on the code that is being tested, the code will not be reported by coverage - as if it did not exist in the database.
 If the code that is being tested is compiled as NATIVE, the code coverage will not be reported as well.
 
-## Running unit tests with coverage
-Using the code coverage functionality is as easy as using any other [reporter](reporters.md) for the utPLSQL test-run. You just run your tests from your preferred SQL tool and save the reporter results to a file.
-All you need to do is pass the constructor of the reporter to the `ut.run` procedure call.
+## Manually running unit tests with coverage
+Using the code coverage functionality is as easy as using any other [reporter](reporters.md) for the utPLSQL test-run. Run your tests from your preferred SQL tool and save the reporter results to a file.
+All you need to do, is pass the constructor of the reporter to the `ut.run` procedure call.
 
 Example:
 ```sql
+set serveroutput on
 begin
   ut.run(ut_coverage_html_reporter());
 end;
 /
 ```
-The above command executes all unit tests in the **current schema**, gathers information about code coverage and outputs the HTML report as text into DBMS_OUTPUT.
+The above command executes all unit tests in the **current schema**, gathers information about code coverage for all sources in that schema and outputs the HTML report as text into DBMS_OUTPUT.
 The `ut_coverage_html_reporter` will produce an interactive HTML report. You can see a sample of code coverage for the utPLSQL project [here](https://utplsql.github.io/utPLSQL-coverage-html/)
 
 The report provides summary information with a list of source code that should be covered.
@@ -79,14 +80,14 @@ There are two distinct ways to gather code coverage:
 - Coverage on project files
 
 Those two options are mutually exclusive and cannot be mixed.
-By default, when using one of coverage reporters, coverage is gathered on schema(s).
-
-The parameters used to execute tests determine if utPLSQL will be using one approach or the other.
-
+By default, when using one of coverage reporters, coverage is gathered on schema(s). 
 The database schema(s) containing the tests that were executed during the run will be reported on by coverage reporter.
 
-**Note**
+The parameters used to execute tests determine if utPLSQL will be using one approach or the other.
+If parameter `a_source_file_mappings` or `a_source_files` is provided, then coverage is gathered on project files provided, otherwise coverage is gathered on schemas.  
 
+
+**Note**
 > Regardless of the options provided, all unit test packages are excluded from the coverage report. Coverage reports provide information only about the **tested** code.
 
 The default behavior of coverage reporting can be altered using invocation parameters.
@@ -131,10 +132,10 @@ exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes 
 
 There are multiple parameters that can be used to define the scope of coverage report:
 - `a_source_file_mappings ( ut_file_mappings )` - map of filenames to database objects. It is used for file-based coverage - see below.
-- `a_include_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be included in the coverage report. 
-- `a_include_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be included in the coverage report.
-- `a_exclude_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be excluded from the coverage report.
-- `a_exclude_object_expr  (    varchar(4000) )` - string of regex expression of objects to be excluded from the coverage report. 
+- `a_include_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be included in the coverage report. Case-insensitive. 
+- `a_include_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be included in the coverage report. Case-insensitive.
+- `a_exclude_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be excluded from the coverage report. Case-insensitive.
+- `a_exclude_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be excluded from the coverage report. Case-insensitive. 
 - `a_coverage_schemes     ( ut_varchar2_list )` - List of database schema names to gather coverage on.
 - `a_include_objects      ( ut_varchar2_list )` - list of `[object_owner.]object_name` to be included in the coverage report.
 - `a_exclude_objects      ( ut_varchar2_list )` - list of `[object_owner.]object_name` to be excluded from the coverage report.
@@ -164,6 +165,7 @@ end;
 ```
 Will result in showing coverage for all schemas that match regular expression `^ut3_develop`
 
+Example: Limiting coverage by schema regex with parameter `a_include_objects` ignored. 
 ```sql
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(),
@@ -172,37 +174,68 @@ begin
 end;
 ```
 Will result in showing coverage for all schemas that match regular expression `^ut3_develop`.
-Will ignore the `a_include_objects` parameter
 
+Example: Limiting coverage by object regex. 
 ```sql
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_include_object_expr => 'regex123', a_include_objects => ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
+    a_include_object_expr => 'regex123'
   );
 end;
 ```
 Will result in showing coverage for all objects that name match regular expression `regex123`.
-Will ignore the `a_include_objects` parameter.
 
+Example: Limiting coverage by object regex with parameter `a_include_objects` ignored. 
 ```sql
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_schema_expr => '^ut3_tester', a_exclude_objects => ut_varchar2_list( 'regex_dummy_cov' )
+    a_include_object_expr => 'utl', a_include_objects => ut_varchar2_list( 'user_2.utils_package' )
   );
 end;
 ```
-Will result in showing coverage for objects in all schema except schemas that are matching regular expression `^ut3_tester`
-Will ignore exclusion defined by parameter `a_exclude_objects`
+Will result in showing coverage for all objects that name match regular expression `utl`.
 
+Example: Limiting coverage by excluding schema with regex. 
 ```sql
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_object_expr => 'regex123', a_exclude_objects => ut_varchar2_list( 'regex_dummy_cov' )
+    a_exclude_schema_expr => 'er_1$'
   );
 end;
 ```
-Will result in showing coverage for all objects that name is not matching regular expression `regex123`.
-Will ignore exclusion defined by parameter `a_exclude_objects`.
+Will result in showing coverage for objects in all schema except schemas that are matching regular expression `er_1$`
+
+Example: Limiting coverage by excluding schema with regex and excluding specific object. 
+```sql
+begin
+  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
+    a_exclude_schema_expr => 'er_1$', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
+  );
+end;
+```
+Will result in showing coverage for objects in all schemas except schemas that are matching regular expression `er_1$`
+Will also exclude object `user_2.utils_package` from coverage report
+
+Example: Limiting coverage by excluding objects with regex. 
+```sql
+begin
+  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
+    a_exclude_object_expr => 'utl'
+  );
+end;
+```
+Will result in showing coverage for all objects that name is not matching regular expression `utl`.
+
+Example: Limiting coverage by excluding objects with regex with parameter `a_exclude_objects` ignored. 
+```sql
+begin
+  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
+    a_exclude_object_expr => 'utl', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
+  );
+end;
+```
+Will result in showing coverage for all objects that name is not matching regular expression `utl`.
+Will also exclude object `user_2.utils_package` from coverage report
 
 
 Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
