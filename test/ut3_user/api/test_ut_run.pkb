@@ -13,14 +13,14 @@ create or replace package body test_ut_run is
     ut3_tester_helper.main_helper.clear_expectations();
   end;
 
-  procedure create_ut3$user#_tests is
+  procedure create_ut3_user_tests is
   begin
-    ut3_tester_helper.run_helper.create_ut3$user#_tests();
+    ut3_tester_helper.run_helper.create_ut3_user_tests();
   end;
   
-  procedure drop_ut3$user#_tests is
+  procedure drop_ut3_user_tests is
   begin
-    ut3_tester_helper.run_helper.drop_ut3$user#_tests();
+    ut3_tester_helper.run_helper.drop_ut3_user_tests();
   end;
 
   procedure ut_version is
@@ -257,7 +257,7 @@ create or replace package body test_ut_run is
     ut.expect(l_results).to_be_like(
       '%1) does_stuff%' ||
         'ORA-01403: no data found%' ||
-        'ORA-06512: at "UT3$USER#.PARENT_SUITE%'
+        'ORA-06512: at "UT3_USER.PARENT_SUITE%'
     );
   end;
 

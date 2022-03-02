@@ -6,8 +6,12 @@ git rev-parse && cd "$(git rev-parse --show-cdup)"
 
 time utPLSQL-cli/bin/utplsql run ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWORD}@${CONNECTION_STR} \
 -source_path=source -owner=ut3_develop \
--p='ut3_tester,ut3$user#' \
+-p='ut3_tester,ut3_user' \
 -test_path=test -c \
+  -regex_expression="test/(\w+)(/(\w+))*/(\w+)\.(.{3})$" \
+  -owner_subexpression=1 \
+  -type_subexpression=5 \
+  -name_subexpression=4 \
 -f=ut_coverage_sonar_reporter     -o=coverage.xml \
 -f=ut_coverage_cobertura_reporter -o=cobertura.xml \
 -f=ut_coverage_html_reporter      -o=coverage.html \

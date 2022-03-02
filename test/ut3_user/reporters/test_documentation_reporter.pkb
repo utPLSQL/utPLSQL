@@ -33,12 +33,12 @@ Failures:
   1) failing_test
       "Fails as values are different"
       Actual: 'number [1] ' (varchar2) was expected to equal: 'number [2] ' (varchar2)%
-      at "UT3$USER#.TEST_REPORTERS%", line 36 ut3_develop.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
+      at "UT3_USER.TEST_REPORTERS%", line 36 ut3_develop.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
 %
 %
   2) erroring_test
       ORA-06502: PL/SQL: numeric or value error: character to number conversion error
-      ORA-06512: at "UT3$USER#.TEST_REPORTERS", line 44%
+      ORA-06512: at "UT3_USER.TEST_REPORTERS", line 44%
       ORA-06512: at line 6
 Finished in % seconds
 5 tests, 1 failed, 1 errored, 2 disabled, 0 warning(s)%]';

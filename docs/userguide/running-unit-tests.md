@@ -195,7 +195,7 @@ declare
 begin
   l_reporter.set_reporter_id( 'd8a79e85915640a6a4e1698fdf90ba74' );
   l_reporter.output_buffer.init();
-  ut_runner.run (ut_varchar2_list ('ut3_tester','ut3$user#'), ut_reporters( l_reporter ) );
+  ut_runner.run (ut_varchar2_list ('ut3_tester','ut3_user'), ut_reporters( l_reporter ) );
 end;
 /
 ```
