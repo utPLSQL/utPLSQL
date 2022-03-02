@@ -625,7 +625,7 @@ Failures:%
   begin
     execute immediate q'[select count(1) from all_objects o where o.owner = :object_owner and o.object_type = 'PACKAGE'
             and o.status = 'INVALID' and o.object_name= :object_name]' into l_is_invalid
-            using 'UT3$USER#','INVALID_PCKAG_THAT_REVALIDATES';
+            using 'UT3_USER','INVALID_PCKAG_THAT_REVALIDATES';
 
     select * bulk collect into l_results from table(ut3_develop.ut.run('invalid_pckag_that_revalidates'));
     
