@@ -115,7 +115,7 @@ end test_package_2;]';
 
 end test_package_2;]';
 
-    execute immediate q'[create or replace package test_package_3 is
+    execute immediate q'[create or replace package testing_package_3 is
 
   --%suite
   --%displayname(Disable tests on test level)
@@ -144,9 +144,9 @@ end test_package_2;]';
 
   --%endcontext
   
-end test_package_3;]';
+end testing_package_3;]';
 
-    execute immediate q'[create or replace package body test_package_3 is
+    execute immediate q'[create or replace package body testing_package_3 is
 
   procedure test1 is
   begin
@@ -168,7 +168,7 @@ end test_package_3;]';
     ut.expect(2).to_equal(2);
   end;
 
-end test_package_3;]';
+end testing_package_3;]';
 
     execute immediate q'[create or replace package test_package_4 is
 
@@ -334,10 +334,10 @@ end test_package_6;]';
   begin
     execute immediate 'drop package test_package_1';
     execute immediate 'drop package test_package_2';
-    execute immediate 'drop package test_package_3';
-	execute immediate 'drop package test_package_4';
-	execute immediate 'drop package test_package_5';
-	execute immediate 'drop package test_package_6';	
+    execute immediate 'drop package testing_package_3';
+    execute immediate 'drop package test_package_4';
+    execute immediate 'drop package test_package_5';
+    execute immediate 'drop package test_package_6';
   end;
 
   procedure test_disable_on_suite_level is
@@ -394,7 +394,7 @@ end test_package_6;]';
   begin
   --Act
   
-    select * bulk collect into l_test_results from table(ut3_develop.ut.run((sys_context('USERENV', 'CURRENT_USER')||'.test_package_3')));
+    select * bulk collect into l_test_results from table(ut3_develop.ut.run((sys_context('USERENV', 'CURRENT_USER')||'.testing_package_3')));
 
     l_actual_message := ut3_develop.ut_utils.table_to_clob(l_test_results);  
  
