@@ -14,12 +14,16 @@ create or replace package coverage_helper is
   procedure create_dummy_coverage_1;
   procedure drop_dummy_coverage_1;
 
+  procedure create_regex_dummy_cov;
+  procedure drop_regex_dummy_cov;
+
   procedure create_cov_with_dbms_stats;
   procedure drop_cov_with_dbms_stats;
 
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
   procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
 
+  function gather_coverage_on_coverage( a_cov_options varchar2) return clob;
   function run_tests_as_job( a_run_command varchar2 ) return clob;
   function run_code_as_job( a_plsql_block varchar2 ) return clob;
   procedure create_test_results_table;

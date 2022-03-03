@@ -131,7 +131,11 @@ create or replace package body ut is
     a_client_character_set varchar2,
     a_random_test_order     integer,
     a_random_test_order_seed     positive,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
     pragma autonomous_transaction;
   begin
@@ -150,7 +154,11 @@ create or replace package body ut is
       false,
       ut_utils.int_to_boolean(a_random_test_order),
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
     rollback;
   end;
@@ -167,10 +175,15 @@ create or replace package body ut is
     a_client_character_set varchar2,
     a_random_test_order    integer,
     a_random_test_order_seed    positive,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
     pragma autonomous_transaction;
   begin
+    
     a_reporter := coalesce(a_reporter,ut_documentation_reporter());
     ut_runner.run(
       a_paths,
@@ -186,7 +199,11 @@ create or replace package body ut is
       false,
       ut_utils.int_to_boolean(a_random_test_order),
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
     rollback;
   end;
@@ -227,7 +244,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -244,7 +265,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -266,7 +291,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -283,7 +312,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -306,7 +339,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -323,7 +360,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -346,7 +387,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -363,7 +408,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -386,7 +435,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter     ut_reporter_base := a_reporter;
     l_results      sys_refcursor;
@@ -403,7 +456,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -426,7 +483,11 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -443,7 +504,11 @@ create or replace package body ut is
       a_client_character_set,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr    
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -467,7 +532,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
@@ -487,7 +556,11 @@ create or replace package body ut is
         a_force_manual_rollback,
         a_random_test_order,
         a_random_test_order_seed,
-        a_tags
+        a_tags,
+        a_include_schema_expr,
+        a_include_object_expr,
+        a_exclude_schema_expr,
+        a_exclude_object_expr
       );
     else
       run_autonomous(
@@ -502,7 +575,11 @@ create or replace package body ut is
         a_client_character_set,
         ut_utils.boolean_to_int(a_random_test_order),
         a_random_test_order_seed,
-        a_tags
+        a_tags,
+        a_include_schema_expr,
+        a_include_object_expr,
+        a_exclude_schema_expr,
+        a_exclude_object_expr          
       );
     end if;
     if l_reporter is of (ut_output_reporter_base) then
@@ -524,7 +601,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
@@ -541,7 +622,11 @@ create or replace package body ut is
       a_force_manual_rollback,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
   end;
 
@@ -557,7 +642,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
   begin
     ut.run(
@@ -573,7 +662,11 @@ create or replace package body ut is
       a_force_manual_rollback,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
   end;
 
@@ -589,7 +682,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
   begin
     ut.run(
@@ -605,7 +702,11 @@ create or replace package body ut is
       a_force_manual_rollback,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
   end;
 
@@ -622,7 +723,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
   begin
     ut.run(
@@ -638,7 +743,11 @@ create or replace package body ut is
       a_force_manual_rollback,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr  
     );
   end;
 
@@ -655,7 +764,11 @@ create or replace package body ut is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
   begin
     ut.run(
@@ -671,7 +784,11 @@ create or replace package body ut is
       a_force_manual_rollback,
       a_random_test_order,
       a_random_test_order_seed,
-      a_tags
+      a_tags,
+      a_include_schema_expr,
+      a_include_object_expr,
+      a_exclude_schema_expr,
+      a_exclude_object_expr        
     );
   end;
 

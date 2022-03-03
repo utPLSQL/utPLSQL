@@ -69,7 +69,11 @@ create or replace package body ut_runner is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags varchar2 := null
+    a_tags varchar2 := null,
+    a_include_schema_expr varchar2 := null,
+    a_include_object_expr varchar2 := null,
+    a_exclude_schema_expr varchar2 := null,
+    a_exclude_object_expr varchar2 := null
   ) is
     l_run                     ut_run;
     l_coverage_schema_names   ut_varchar2_rows;
@@ -120,15 +124,18 @@ create or replace package body ut_runner is
           ut_utils.trim_list_elements(ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),ut_utils.gc_word_no_space))
         );
       end if;
-
       l_run := ut_run(
         a_run_paths => l_paths,
         a_coverage_options => ut_coverage_options(
-          coverage_run_id => sys_guid(),
+          coverage_run_id => ut_coverage.get_coverage_run_id(),
           schema_names => l_coverage_schema_names,
           exclude_objects => ut_utils.convert_collection(a_exclude_objects),
           include_objects => ut_utils.convert_collection(a_include_objects),
-          file_mappings => set(a_source_file_mappings)
+          file_mappings => set(a_source_file_mappings),
+          include_schema_expr => a_include_schema_expr,
+          include_object_expr => a_include_object_expr,
+          exclude_schema_expr => a_exclude_schema_expr,
+          exclude_object_expr => a_exclude_object_expr
         ),
         a_test_file_mappings => set(a_test_file_mappings),
         a_client_character_set => a_client_character_set,
@@ -142,7 +149,6 @@ create or replace package body ut_runner is
       end if;
 
       l_run.do_execute();
-
       finish_run(l_run, a_force_manual_rollback);
     exception
       when others then

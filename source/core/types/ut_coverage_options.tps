@@ -21,13 +21,21 @@ create or replace type ut_coverage_options force as object (
   exclude_objects  ut_object_names,
   include_objects  ut_object_names,
   file_mappings    ut_file_mappings,
+  include_schema_expr varchar2(4000),
+  include_object_expr varchar2(4000),
+  exclude_schema_expr varchar2(4000),
+  exclude_object_expr varchar2(4000),
   constructor function ut_coverage_options(
     self       in out nocopy ut_coverage_options,
     coverage_run_id          raw,
     schema_names             ut_varchar2_rows := null,
     exclude_objects          ut_varchar2_rows := null,
     include_objects          ut_varchar2_rows := null,
-    file_mappings            ut_file_mappings := null
+    file_mappings            ut_file_mappings := null,
+    include_schema_expr varchar2 := null,
+    include_object_expr varchar2 := null,
+    exclude_schema_expr varchar2 := null,
+    exclude_object_expr varchar2 := null
     ) return self as result
 )
 /
