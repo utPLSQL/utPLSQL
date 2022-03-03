@@ -29,11 +29,11 @@ create or replace package main_helper is
   
   procedure cleanup_annotation_cache;
   
-  procedure create_parse_proc_as_ut3$user#;
+  procedure create_parse_proc_as_ut3_user;
   
-  procedure drop_parse_proc_as_ut3$user#;
+  procedure drop_parse_proc_as_ut3_user;
   
-  procedure parse_dummy_test_as_ut3$user#;
+  procedure parse_dummy_test_as_ut3_user;
   
   procedure append_to_list(a_list in out nocopy ut3_develop.ut_varchar2_list, a_item varchar2);
 

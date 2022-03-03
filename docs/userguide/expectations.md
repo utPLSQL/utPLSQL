@@ -249,13 +249,13 @@ Failures:
   1) the_test
       "Checking table ALL_USERS"
       Actual: 28 (number) was expected to equal: 0 (number)
-      at "UT3$USER#.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
-      at "UT3$USER#.SHARED_EXPECTATION_TEST.THE_TEST", line 11
+      at "UT3_USER.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
+      at "UT3_USER.SHARED_EXPECTATION_TEST.THE_TEST", line 11
        
       "Checking table ALL_TABLES"
       Actual: 55 (number) was expected to equal: 0 (number)
-      at "UT3$USER#.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
-      at "UT3$USER#.SHARED_EXPECTATION_TEST.THE_TEST", line 12
+      at "UT3_USER.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
+      at "UT3_USER.SHARED_EXPECTATION_TEST.THE_TEST", line 12
        
 Finished in .066344 seconds
 1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)

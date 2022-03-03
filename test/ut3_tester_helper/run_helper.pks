@@ -17,8 +17,8 @@ create or replace package run_helper is
   procedure create_suite_with_link;
   procedure drop_suite_with_link;
   
-  procedure create_ut3$user#_tests;
-  procedure drop_ut3$user#_tests;
+  procedure create_ut3_user_tests;
+  procedure drop_ut3_user_tests;
   
   procedure create_test_suite;
   procedure drop_test_suite;

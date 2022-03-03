@@ -104,26 +104,26 @@ create or replace package body main_helper is
     commit;
   end;  
   
-  procedure create_parse_proc_as_ut3$user# is
+  procedure create_parse_proc_as_ut3_user is
     pragma autonomous_transaction;
   begin
     execute immediate q'[
-    create or replace procedure ut3$user#.parse_annotations is
+    create or replace procedure ut3_user.parse_annotations is
       begin
         ut3_develop.ut_runner.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
       end;]';
   end;
 
-  procedure drop_parse_proc_as_ut3$user# is
+  procedure drop_parse_proc_as_ut3_user is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop procedure ut3$user#.parse_annotations';
+    execute immediate 'drop procedure ut3_user.parse_annotations';
   end;
   
-  procedure parse_dummy_test_as_ut3$user# is
+  procedure parse_dummy_test_as_ut3_user is
     pragma autonomous_transaction;
   begin
-    execute immediate 'begin ut3$user#.parse_annotations; end;';
+    execute immediate 'begin ut3_user.parse_annotations; end;';
   end;
   
   procedure append_to_list(a_list in out nocopy ut3_develop.ut_varchar2_list, a_item varchar2) is

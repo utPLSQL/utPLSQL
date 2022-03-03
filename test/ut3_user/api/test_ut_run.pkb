@@ -13,14 +13,14 @@ create or replace package body test_ut_run is
     ut3_tester_helper.main_helper.clear_expectations();
   end;
 
-  procedure create_ut3$user#_tests is
+  procedure create_ut3_user_tests is
   begin
-    ut3_tester_helper.run_helper.create_ut3$user#_tests();
+    ut3_tester_helper.run_helper.create_ut3_user_tests();
   end;
   
-  procedure drop_ut3$user#_tests is
+  procedure drop_ut3_user_tests is
   begin
-    ut3_tester_helper.run_helper.drop_ut3$user#_tests();
+    ut3_tester_helper.run_helper.drop_ut3_user_tests();
   end;
 
   procedure ut_version is
@@ -257,7 +257,7 @@ create or replace package body test_ut_run is
     ut.expect(l_results).to_be_like(
       '%1) does_stuff%' ||
         'ORA-01403: no data found%' ||
-        'ORA-06512: at "UT3$USER#.PARENT_SUITE%'
+        'ORA-06512: at "UT3_USER.PARENT_SUITE%'
     );
   end;
 
@@ -625,7 +625,7 @@ Failures:%
   begin
     execute immediate q'[select count(1) from all_objects o where o.owner = :object_owner and o.object_type = 'PACKAGE'
             and o.status = 'INVALID' and o.object_name= :object_name]' into l_is_invalid
-            using 'UT3$USER#','INVALID_PCKAG_THAT_REVALIDATES';
+            using 'UT3_USER','INVALID_PCKAG_THAT_REVALIDATES';
 
     select * bulk collect into l_results from table(ut3_develop.ut.run('invalid_pckag_that_revalidates'));
     

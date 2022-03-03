@@ -14,9 +14,9 @@ create or replace package test_annotation_manager is
 
   procedure create_dummy_test_package;
 
-  procedure create_parse_proc_as_ut3$user#;
+  procedure create_parse_proc_as_ut3_user;
 
-  procedure drop_parse_proc_as_ut3$user#;
+  procedure drop_parse_proc_as_ut3_user;
 
   procedure drop_dummy_test_package;
 
@@ -85,8 +85,8 @@ create or replace package test_annotation_manager is
     procedure update_modified_test_package;
 
     --%test(Keeps annotations in cache when object was removed but user can't see whole schema)
-    --%beforetest(create_dummy_test_package,create_parse_proc_as_ut3$user#)
-    --%aftertest(drop_parse_proc_as_ut3$user#)
+    --%beforetest(create_dummy_test_package,create_parse_proc_as_ut3_user)
+    --%aftertest(drop_parse_proc_as_ut3_user)
     procedure keep_dropped_data_in_cache;
 
     --%test(Does not return data for dropped object)

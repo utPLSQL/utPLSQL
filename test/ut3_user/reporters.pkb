@@ -188,7 +188,7 @@ end;]';
     --Assert
     ut.expect(l_actual).to_be_like('%<![CDATA['
       ||q'[%Actual: 'test' (varchar2) was expected to equal: '<![CDATA[some stuff]]]]><![CDATA[>' (varchar2)%]'
-      ||q'[at "UT3$USER#.CHECK_FAIL_ESCAPE%", line % ut3_develop.ut.expect('test').to_equal('<![CDATA[some stuff]]]]><![CDATA[>');]'
+      ||q'[at "UT3_USER.CHECK_FAIL_ESCAPE%", line % ut3_develop.ut.expect('test').to_equal('<![CDATA[some stuff]]]]><![CDATA[>');]'
       ||'%]]>%'
       );
   end;

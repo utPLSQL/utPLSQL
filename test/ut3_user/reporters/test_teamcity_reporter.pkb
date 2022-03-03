@@ -45,29 +45,29 @@ create or replace package body test_teamcity_reporter as
 %##teamcity[testSuiteStarted timestamp='%' name='org.utplsql.tests.helpers']
 %##teamcity[testSuiteStarted timestamp='%' name='A suite for testing different outcomes from reporters']
 %##teamcity[testSuiteStarted timestamp='%' name='A description of some context']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.test_reporters.passing_test']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.test_reporters.passing_test']
 <!beforeeach!>
 <!beforetest!>
 <!passing test!>
 <!aftertest!>
 <!aftereach!>
-%##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.test_reporters.passing_test']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.test_reporters.passing_test']
 %##teamcity[testSuiteFinished timestamp='%' name='A description of some context']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.test_reporters.failing_test']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.test_reporters.failing_test']
 <!beforeeach!>
 <!failing test!>
 <!aftereach!>
-%##teamcity[testFailed timestamp='%' details='Actual: |'number |[1|] |' (varchar2) was expected to equal: |'number |[2|] |' (varchar2)' message='Fails as values are different' name='ut3$user#.test_reporters.failing_test']
-%##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.test_reporters.failing_test']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.test_reporters.erroring_test']
+%##teamcity[testFailed timestamp='%' details='Actual: |'number |[1|] |' (varchar2) was expected to equal: |'number |[2|] |' (varchar2)' message='Fails as values are different' name='ut3_user.test_reporters.failing_test']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.test_reporters.failing_test']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.test_reporters.erroring_test']
 <!beforeeach!>
 <!erroring test!>
 <!aftereach!>
-%##teamcity[testStdErr timestamp='%' name='ut3$user#.test_reporters.erroring_test' out='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3$USER#.TEST_REPORTERS", line %|nORA-06512: at %|n']
-%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3$USER#.TEST_REPORTERS", line %|nORA-06512: at %|n' message='Error occured' name='ut3$user#.test_reporters.erroring_test']
-%##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.test_reporters.erroring_test']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.test_reporters.disabled_test']
-%##teamcity[testIgnored timestamp='%' name='ut3$user#.test_reporters.disabled_test']
+%##teamcity[testStdErr timestamp='%' name='ut3_user.test_reporters.erroring_test' out='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n']
+%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n' message='Error occured' name='ut3_user.test_reporters.erroring_test']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.test_reporters.erroring_test']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.test_reporters.disabled_test']
+%##teamcity[testIgnored timestamp='%' name='ut3_user.test_reporters.disabled_test']
 %##teamcity[testSuiteFinished timestamp='%' name='A suite for testing different outcomes from reporters']
 %##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.tests.helpers']
 %##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.tests']
@@ -88,9 +88,9 @@ create or replace package body test_teamcity_reporter as
     l_expected          varchar2(32767);
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='A suite with |'quote|'']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.check_escape_special_chars.test_do_stuff']
-%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |' |[ |r|n     |] |'|n was expected to be null' name='ut3$user#.check_escape_special_chars.test_do_stuff']
-%##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.check_escape_special_chars.test_do_stuff']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.check_escape_special_chars.test_do_stuff']
+%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |' |[ |r|n     |] |'|n was expected to be null' name='ut3_user.check_escape_special_chars.test_do_stuff']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.check_escape_special_chars.test_do_stuff']
 %##teamcity[testSuiteFinished timestamp='%' name='A suite with |'quote|'']}';
     --act
     select *
@@ -107,9 +107,9 @@ create or replace package body test_teamcity_reporter as
     l_expected          varchar2(32767);
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='check_trims_long_output']
-%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.check_trims_long_output.long_output']
-%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |'aVarcharaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|[...|]' name='ut3$user#.check_trims_long_output.long_output']
-%##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.check_trims_long_output.long_output']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.check_trims_long_output.long_output']
+%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |'aVarcharaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|[...|]' name='ut3_user.check_trims_long_output.long_output']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.check_trims_long_output.long_output']
 %##teamcity[testSuiteFinished timestamp='%' name='check_trims_long_output']}';
     --act
     select *

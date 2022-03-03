@@ -46,7 +46,7 @@ We use four different database accounts (users) for development process.
 * `ut3` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.
 * `ut3_develop` - holds the version of utPLSQL of your current branch. This is the schema you will be working on.
 * `ut3_tester` - holds unit test packages for development of utPLSQL.
-* `ut3$user#` - used for testing accessibility to schema names with special characters.
+* `ut3_user` - used for testing accessibility to schema names with special characters.
 * `ut3_tester_helper` - elevated privileges user, used for creating and dropping objects in other schemas during test run.
 
 

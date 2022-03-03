@@ -3,7 +3,7 @@ create or replace package body run_helper is
   procedure setup_cache_objects is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
+    execute immediate q'[create or replace package ut3_user.dummy_test_package as
         --%suite(dummy_test_suite)
         --%suitepath(some.path)
         --%rollback(manual)
@@ -12,7 +12,7 @@ create or replace package body run_helper is
         --%beforetest(some_procedure)
         procedure some_dummy_test_procedure;
       end;]';
-    execute immediate q'[create or replace procedure ut3$user#.dummy_test_procedure as
+    execute immediate q'[create or replace procedure ut3_user.dummy_test_procedure as
         --%some_annotation(some_text)
         --%rollback(manual)
       begin
@@ -27,7 +27,7 @@ create or replace package body run_helper is
       
     execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
 
-    execute immediate q'[create or replace package ut3$user#.bad_test_package as
+    execute immediate q'[create or replace package ut3_user.bad_test_package as
         --%rollback(manual)
         --%test(dummy_test)
         procedure some_dummy_test_procedure;
@@ -37,7 +37,7 @@ create or replace package body run_helper is
   procedure setup_cache_objectstag is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
+    execute immediate q'[create or replace package ut3_user.dummy_test_package as
         --%suite(dummy_test_suite)
         --%suitepath(some.path)
         --%tags(dummy)
@@ -48,7 +48,7 @@ create or replace package body run_helper is
         --%beforetest(some_procedure)
         procedure some_dummy_test_procedure;
       end;]';
-    execute immediate q'[create or replace procedure ut3$user#.dummy_test_procedure as
+    execute immediate q'[create or replace procedure ut3_user.dummy_test_procedure as
         --%some_annotation(some_text)
         --%rollback(manual)
       begin
@@ -67,7 +67,7 @@ create or replace package body run_helper is
   procedure setup_cache_twotags is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
+    execute immediate q'[create or replace package ut3_user.dummy_test_package as
         --%suite(dummy_test_suite)
         --%tags(suitetag1,suitetag2)
         --%rollback(manual)
@@ -77,7 +77,7 @@ create or replace package body run_helper is
         --%beforetest(some_procedure)
         procedure some_dummy_test_procedure;
       end;]';
-    execute immediate q'[create or replace procedure ut3$user#.dummy_test_procedure as
+    execute immediate q'[create or replace procedure ut3_user.dummy_test_procedure as
         --%some_annotation(some_text)
         --%rollback(manual)
       begin
@@ -141,8 +141,8 @@ create or replace package body run_helper is
     pragma autonomous_transaction;
   begin
     setup_cache_objects();
-    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PACKAGE');
-    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PROCEDURE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3_USER','PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3_USER','PROCEDURE');
     ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER_HELPER','PROCEDURE');
   end;
 
@@ -150,10 +150,10 @@ create or replace package body run_helper is
     pragma autonomous_transaction;
   begin
     delete from ut3_develop.ut_annotation_cache_info
-     where object_type = 'PROCEDURE' and object_owner in ('UT3$USER#','UT3_TESTER_HELPER')
+     where object_type = 'PROCEDURE' and object_owner in ('UT3_USER','UT3_TESTER_HELPER')
         or object_type = 'PACKAGE' and object_owner = user and object_name = 'DUMMY_TEST_PACKAGE';
-    execute immediate q'[drop package ut3$user#.dummy_test_package]';
-    execute immediate q'[drop procedure ut3$user#.dummy_test_procedure]';
+    execute immediate q'[drop package ut3_user.dummy_test_package]';
+    execute immediate q'[drop procedure ut3_user.dummy_test_procedure]';
     execute immediate q'[drop procedure ut3_tester_helper.dummy_test_procedure]';
   end;
 
@@ -185,7 +185,7 @@ create or replace package body run_helper is
     begin
       create_db_link;
       execute immediate q'[
-    create or replace package ut3$user#.test_db_link is
+    create or replace package ut3_user.test_db_link is
       --%suite
 
       --%test
@@ -193,7 +193,7 @@ create or replace package body run_helper is
     end;]';
 
       execute immediate q'[
-    create or replace package body ut3$user#.test_db_link is
+    create or replace package body ut3_user.test_db_link is
       procedure runs_with_db_link is
         a_value integer;
         begin
@@ -208,7 +208,7 @@ create or replace package body run_helper is
   procedure db_link_cleanup is
     begin
       drop_db_link;
-      begin execute immediate 'drop package ut3$user#.test_db_link'; exception when others then null; end;
+      begin execute immediate 'drop package ut3_user.test_db_link'; exception when others then null; end;
   end;
 
  procedure create_suite_with_link is
@@ -258,7 +258,7 @@ create or replace package body run_helper is
     execute immediate 'drop package test_distributed_savepoint';
   end;
   
-  procedure create_ut3$user#_tests is
+  procedure create_ut3_user_tests is
     pragma autonomous_transaction;
   begin
     execute immediate q'[create or replace package test_package_1 is
@@ -348,7 +348,7 @@ create or replace package body run_helper is
     execute immediate q'[grant execute on test_package_3 to public]';
   end;
 
-  procedure drop_ut3$user#_tests is
+  procedure drop_ut3_user_tests is
     pragma autonomous_transaction;
   begin
     execute immediate q'[drop package test_package_1]';

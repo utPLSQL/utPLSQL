@@ -71,19 +71,19 @@ create or replace package body test_annotation_manager is
     exec_autonomous(q'[alter package dummy_test_package compile]');
   end;
 
-  procedure create_parse_proc_as_ut3$user# is
+  procedure create_parse_proc_as_ut3_user is
   begin
-    ut3_tester_helper.main_helper.create_parse_proc_as_ut3$user#();
+    ut3_tester_helper.main_helper.create_parse_proc_as_ut3_user();
   end;
 
-  procedure parse_dummy_test_as_ut3$user# is
+  procedure parse_dummy_test_as_ut3_user is
   begin
-    ut3_tester_helper.main_helper.parse_dummy_test_as_ut3$user#();
+    ut3_tester_helper.main_helper.parse_dummy_test_as_ut3_user();
   end;
 
-  procedure drop_parse_proc_as_ut3$user# is
+  procedure drop_parse_proc_as_ut3_user is
   begin
-    ut3_tester_helper.main_helper.drop_parse_proc_as_ut3$user#();
+    ut3_tester_helper.main_helper.drop_parse_proc_as_ut3_user();
   exception
     when others then
       null;
@@ -400,10 +400,10 @@ create or replace package body test_annotation_manager is
     l_start_date  date;
   begin
     l_start_date := sysdate;
-    parse_dummy_test_as_ut3$user#();
+    parse_dummy_test_as_ut3_user();
     drop_dummy_test_package();
     --Act
-    parse_dummy_test_as_ut3$user#();
+    parse_dummy_test_as_ut3_user();
     --Assert
     select count(1)
            into l_cache_count

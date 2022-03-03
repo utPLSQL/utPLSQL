@@ -265,27 +265,27 @@ end;';
     --Arrange
     open l_expected for
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
              'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
              'some.path.dummy_test_package' path, 0 disabled_flag, null disabled_reason,null tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
              'dummy_test' item_description, 'UT_TEST' item_type, 6 item_line_no,
              'some.path.dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag, null disabled_reason,null tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'PATH' object_name, 'PATH' item_name,
+             'UT3_USER'  object_owner, 'PATH' object_name, 'PATH' item_name,
              null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
              'some.path' path, 0 disabled_flag, null disabled_reason, null tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'SOME' object_name, 'SOME' item_name,
+             'UT3_USER'  object_owner, 'SOME' object_name, 'SOME' item_name,
              null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
              'some' path, 0 disabled_flag, null disabled_reason, null tags
         from dual;
     --Act
-    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
+    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3_USER','DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
@@ -297,27 +297,27 @@ end;';
     --Arrange
     open l_expected for
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
              'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
              'some.path.dummy_test_package' path, 0 disabled_flag, null disabled_reason,'dummy' tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
              'dummy_test' item_description, 'UT_TEST' item_type, 7 item_line_no,
              'some.path.dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag, null disabled_reason,'testtag' tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'PATH' object_name, 'PATH' item_name,
+             'UT3_USER'  object_owner, 'PATH' object_name, 'PATH' item_name,
              null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
              'some.path' path, 0 disabled_flag, null disabled_reason, null tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'SOME' object_name, 'SOME' item_name,
+             'UT3_USER'  object_owner, 'SOME' object_name, 'SOME' item_name,
              null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
              'some' path, 0 disabled_flag, null disabled_reason, null tags
         from dual;
     --Act
-    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
+    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3_USER','DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
@@ -329,17 +329,17 @@ end;';
     --Arrange
     open l_expected for
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
              'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
              'dummy_test_package' path, 0 disabled_flag, null disabled_reason,'suitetag1,suitetag2' tags
         from dual union all
       select
-             'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
              'dummy_test' item_description, 'UT_TEST' item_type, 6 item_line_no,
              'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag, null disabled_reason,'testtag1,testtag2' tags
         from dual;
     --Act
-    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
+    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('UT3_USER','DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
@@ -571,20 +571,20 @@ end;';
   begin
     ut.expect(
       ut3_develop.ut_runner.is_test(
-        a_owner => 'UT3$USER#',
+        a_owner => 'UT3_USER',
         a_package_name => 'DUMMY_TEST_PACKAGE',
         a_procedure_name => 'SOME_DUMMY_TEST_PROCEDURE'
       )
     ).to_be_true();
-    ut.expect( ut3_develop.ut_runner.is_test( 'ut3$user#','dummy_test_package','some_dummy_test_procedure' ) ).to_be_true();
+    ut.expect( ut3_develop.ut_runner.is_test( 'ut3_user','dummy_test_package','some_dummy_test_procedure' ) ).to_be_true();
   end;
 
   procedure is_test_false is
   begin
-    ut.expect( ut3_develop.ut_runner.is_test( 'UT3$USER#','DUMMY_TEST_PACKAGE', 'BAD' ) ).to_be_false();
-    ut.expect( ut3_develop.ut_runner.is_test( 'UT3$USER#','BAD_TEST_PACKAGE', 'some_dummy_test_procedure' ) ).to_be_false();
-    ut.expect( ut3_develop.ut_runner.is_test( 'UT3$USER#','DUMMY_TEST_PACKAGE', null ) ).to_be_false();
-    ut.expect( ut3_develop.ut_runner.is_test( 'UT3$USER#',null,'some_dummy_test_procedure' ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_test( 'UT3_USER','DUMMY_TEST_PACKAGE', 'BAD' ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_test( 'UT3_USER','BAD_TEST_PACKAGE', 'some_dummy_test_procedure' ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_test( 'UT3_USER','DUMMY_TEST_PACKAGE', null ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_test( 'UT3_USER',null,'some_dummy_test_procedure' ) ).to_be_false();
     ut.expect( ut3_develop.ut_runner.is_test(  null,'DUMMY_TEST_PACKAGE','some_dummy_test_procedure' ) ).to_be_false();
   end;
 
@@ -592,26 +592,26 @@ end;';
   begin
     ut.expect(
       ut3_develop.ut_runner.is_suite(
-        a_owner => 'UT3$USER#',
+        a_owner => 'UT3_USER',
         a_package_name => 'DUMMY_TEST_PACKAGE'
       )
     ).to_be_true();
     
-    ut.expect( ut3_develop.ut_runner.is_suite( 'ut3$user#','dummy_test_package' ) ).to_be_true();
+    ut.expect( ut3_develop.ut_runner.is_suite( 'ut3_user','dummy_test_package' ) ).to_be_true();
   end;
 
   procedure is_suite_false is
   begin
-    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3$USER#','BAD' ) ).to_be_false();
-    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3$USER#', null ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3_USER','BAD' ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3_USER', null ) ).to_be_false();
     ut.expect( ut3_develop.ut_runner.is_suite( null,'DUMMY_TEST_PACKAGE' ) ).to_be_false();
-    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3$USER#','bad_test_package' ) ).to_be_false();
+    ut.expect( ut3_develop.ut_runner.is_suite( 'UT3_USER','bad_test_package' ) ).to_be_false();
   end;
   
   procedure has_suites_true is
   begin
-    ut.expect( ut3_develop.ut_runner.has_suites( a_owner => 'UT3$USER#' ) ).to_be_true();
-    ut.expect( ut3_develop.ut_runner.has_suites( 'ut3$user#' ) ).to_be_true();
+    ut.expect( ut3_develop.ut_runner.has_suites( a_owner => 'UT3_USER' ) ).to_be_true();
+    ut.expect( ut3_develop.ut_runner.has_suites( 'ut3_user' ) ).to_be_true();
   end;
 
   procedure has_suites_false is

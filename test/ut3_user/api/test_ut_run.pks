@@ -4,8 +4,8 @@ create or replace package test_ut_run is
 
   procedure clear_expectations;
   
-  procedure create_ut3$user#_tests;
-  procedure drop_ut3$user#_tests;  
+  procedure create_ut3_user_tests;
+  procedure drop_ut3_user_tests;
   
   --%test(ut.version() returns version of the framework)
   procedure ut_version;
@@ -17,8 +17,8 @@ create or replace package test_ut_run is
 
   --%context(ut_run_procedure)
   --%displayname(ut.run() procedure options)
-  --%beforeall(create_ut3$user#_tests)
-  --%afterall(drop_ut3$user#_tests)
+  --%beforeall(create_ut3_user_tests)
+  --%afterall(drop_ut3_user_tests)
 
   --%test(Runs all tests in current schema with default reporter when no parameters given)
   procedure run_proc_no_params;
@@ -88,8 +88,8 @@ create or replace package test_ut_run is
   --%context(ut_run_function)
     
   --%displayname(ut.run() function options)
-  --%beforeall(create_ut3$user#_tests)
-  --%afterall(drop_ut3$user#_tests)
+  --%beforeall(create_ut3_user_tests)
+  --%afterall(drop_ut3_user_tests)
 
   --%test(Runs all tests in current schema with default reporter when no parameters given)
   procedure run_func_no_params;
@@ -167,8 +167,8 @@ create or replace package test_ut_run is
   --%context(random_order)
     
   --%displayname(Random test execution order)
-  --%beforeall(create_ut3$user#_tests)
-  --%afterall(drop_ut3$user#_tests)
+  --%beforeall(create_ut3_user_tests)
+  --%afterall(drop_ut3_user_tests)
 
   --%test(Runs tests in random order)
   procedure run_with_random_order;
@@ -184,8 +184,8 @@ create or replace package test_ut_run is
   --%context(run with tags)
   --%displayname(Call ut.run with #tags)
 
-    --%beforeall(create_ut3$user#_tests)
-    --%afterall(drop_ut3$user#_tests)
+    --%beforeall(create_ut3_user_tests)
+    --%afterall(drop_ut3_user_tests)
 
     --%test(Execute test by tag ut_run)
     procedure test_run_by_one_tag;

@@ -16,14 +16,14 @@ create or replace package body expectations as
 
     l_expected := q'[FAILURE
   Actual: 1 (number) was expected to equal: 0 (number)
-  at "UT3$USER#.SOME_PKG%", line 4 ut3_develop.ut.expect(1).to_equal(0);
+  at "UT3_USER.SOME_PKG%", line 4 ut3_develop.ut.expect(1).to_equal(0);
   at "anonymous block", line 1
-  at "UT3$USER#.EXPECTATIONS%", line 10
+  at "UT3_USER.EXPECTATIONS%", line 10
 SUCCESS
   Actual: 0 (number) was expected to equal: 0 (number)
 FAILURE
   Actual: 1 (number) was expected to equal: 0 (number)
-  at "UT3$USER#.EXPECTATIONS%", line 11 ut3_develop.ut.expect(1).to_equal(0);
+  at "UT3_USER.EXPECTATIONS%", line 11 ut3_develop.ut.expect(1).to_equal(0);
 SUCCESS
   Actual: 0 (number) was expected to equal: 0 (number)
 ]';
