@@ -4,7 +4,7 @@ set -ev
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-time utPLSQL-cli/bin/utplsql run ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWORD}@${CONNECTION_STR} \
+time utPLSQL-cli/bin/utplsql run UT3_TESTER_HELPER/ut3@${CONNECTION_STR} \
 -source_path=source -owner=ut3_develop \
 -p='ut3_tester,ut3_user' \
 -test_path=test -c \
