@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.13.3935--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.13.3940--develop-blue.svg)
 
 # Exception handling and reporting
 
