@@ -13,14 +13,14 @@ PROMPT Adding back create-trigger privilege to $UT3_DEVELOP_SCHEMA for testing
 grant administer database trigger to $UT3_DEVELOP_SCHEMA;
 
 --------------------------------------------------------------------------------
-PROMPT Creating $UT3_TESTER - Power-user for testing internal framework code
+PROMPT Creating UT3_TESTER - Power-user for testing internal framework code
 
-create user $UT3_TESTER identified by "$UT3_TESTER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
-grant create session, create procedure, create type, create table to $UT3_TESTER;
+create user UT3_TESTER identified by "ut3" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to UT3_TESTER;
 
-grant execute on dbms_lock to $UT3_TESTER;
+grant execute on dbms_lock to UT3_TESTER;
 
-PROMPT Granting $UT3_DEVELOP_SCHEMA code to $UT3_TESTER
+PROMPT Granting $UT3_DEVELOP_SCHEMA code to UT3_TESTER
 
 begin
   for i in (
@@ -30,31 +30,31 @@ begin
       and generated = 'N'
       and object_name not like 'SYS%')
   loop
-    execute immediate 'grant execute on $UT3_DEVELOP_SCHEMA."'||i.object_name||'" to $UT3_TESTER';
+    execute immediate 'grant execute on $UT3_DEVELOP_SCHEMA."'||i.object_name||'" to UT3_TESTER';
   end loop;
 end;
 /
 
-PROMPT Granting $UT3_DEVELOP_SCHEMA tables to $UT3_TESTER
+PROMPT Granting $UT3_DEVELOP_SCHEMA tables to UT3_TESTER
 
 begin
   for i in ( select table_name from all_tables t where  owner = '$UT3_DEVELOP_SCHEMA' and nested = 'NO' and iot_name is null)
   loop
-    execute immediate 'grant select on $UT3_DEVELOP_SCHEMA.'||i.table_name||' to $UT3_TESTER';
+    execute immediate 'grant select on $UT3_DEVELOP_SCHEMA.'||i.table_name||' to UT3_TESTER';
   end loop;
 end;
 /
 
 
 --------------------------------------------------------------------------------
-PROMPT Creating $UT3_USER - minimal privileges user for API testing
+PROMPT Creating UT3_USER - minimal privileges user for API testing
 
-create user $UT3_USER identified by "$UT3_USER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
-grant create session, create procedure, create type, create table to $UT3_USER;
+create user UT3_USER identified by "ut3" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to UT3_USER;
 
-PROMPT Grants for starting a debugging session from $UT3_USER
-grant debug connect session to $UT3_USER;
-grant debug any procedure to $UT3_USER;
+PROMPT Grants for starting a debugging session from UT3_USER
+grant debug connect session to UT3_USER;
+grant debug any procedure to UT3_USER;
 begin
   \$if dbms_db_version.version <= 11 \$then
     null; -- no addition action necessary
@@ -64,7 +64,7 @@ begin
       host =>'*',
       ace  => sys.xs\$ace_type(
                   privilege_list => sys.xs\$name_list('JDWP') ,
-                  principal_name => '$UT3_USER',
+                  principal_name => 'UT3_USER',
                   principal_type => sys.xs_acl.ptype_db
               )
     );
@@ -73,29 +73,29 @@ end;
 /
 
 --------------------------------------------------------------------------------
-PROMPT Creating $UT3_TESTER_HELPER - provides functions to allow min grant test user setup tests.
+PROMPT Creating UT3_TESTER_HELPER - provides functions to allow min grant test user setup tests.
 
-create user $UT3_TESTER_HELPER identified by "$UT3_TESTER_HELPER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
-grant create session, create procedure, create type, create table to $UT3_TESTER_HELPER;
+create user UT3_TESTER_HELPER identified by "ut3" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to UT3_TESTER_HELPER;
 
 PROMPT Grants for testing distributed transactions
-grant create public database link to $UT3_TESTER_HELPER;
-grant drop public database link to  $UT3_TESTER_HELPER;
+grant create public database link to UT3_TESTER_HELPER;
+grant drop public database link to  UT3_TESTER_HELPER;
 
 PROMPT Grants for testing coverage outside of main $UT3_DEVELOP_SCHEMA schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type,
   select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table,
   select any dictionary, create any synonym, drop any synonym,
   grant any object privilege, grant any privilege, create public synonym, drop public synonym, create any trigger
-  to $UT3_TESTER_HELPER;
+  to UT3_TESTER_HELPER;
 
-grant create job to $UT3_TESTER_HELPER;
+grant create job to UT3_TESTER_HELPER;
 
 PROMPT Additional grants for disabling DDL trigger and testing parser without trigger enabled/present
 
-grant alter any trigger to $UT3_TESTER_HELPER;
-grant administer database trigger to $UT3_TESTER_HELPER;
-grant execute on dbms_lock to $UT3_TESTER_HELPER;
+grant alter any trigger to UT3_TESTER_HELPER;
+grant administer database trigger to UT3_TESTER_HELPER;
+grant execute on dbms_lock to UT3_TESTER_HELPER;
 
 create user ut3_cache_test_owner identified by ut3;
 grant create session, create procedure to ut3_cache_test_owner;

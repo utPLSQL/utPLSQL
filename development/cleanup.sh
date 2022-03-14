@@ -20,9 +20,9 @@ end;
 
 drop user ${UT3_DEVELOP_SCHEMA} cascade;
 drop user ${UT3_RELEASE_VERSION_SCHEMA} cascade;
-drop user ${UT3_TESTER} cascade;
-drop user ${UT3_TESTER_HELPER} cascade;
-drop user ${UT3_USER} cascade;
+drop user ut3_tester cascade;
+drop user ut3_tester_helper cascade;
+drop user ut3_user cascade;
 drop user ut3_cache_test_owner cascade;
 drop user ut3_no_extra_priv_user cascade;
 drop user ut3_select_catalog_user cascade;
