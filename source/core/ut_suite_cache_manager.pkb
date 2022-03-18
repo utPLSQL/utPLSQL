@@ -20,7 +20,7 @@ create or replace package body ut_suite_cache_manager is
   * Private code
   */
 
-  gc_get_cache_suite_sql    constant varchar2(32767) :=
+ gc_get_cache_suite_sql    constant varchar2(32767) :=
     q'[with
       suite_items as (
         select  /*+ cardinality(c 500) */ value(c) as obj
@@ -32,6 +32,87 @@ create or replace package body ut_suite_cache_manager is
                      and {:procedure_name:}
                      )
                    )
+      ),
+      {:tags:}
+      suitepaths as (
+        select distinct substr(c.obj.path,1,instr(c.obj.path,'.',-1)-1) as suitepath,
+                        c.obj.path as path,
+                        c.obj.object_owner as object_owner
+          from {:suite_item_name:} c
+         where c.obj.self_type = 'UT_SUITE'
+      ),
+        gen as (
+        select rownum as pos
+          from xmltable('1 to 20')
+      ),
+      suitepath_part AS (
+        select distinct
+                        substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
+                        object_owner
+          from suitepaths b
+               join gen g
+                 on g.pos <= regexp_count(b.suitepath, '\w+')
+      ),
+      logical_suite_data as (
+        select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
+               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
+               cast(null as ut_executables) as x,
+               cast(null as ut_varchar2_rows) as y,
+               cast(null as ut_executable_test) as z
+          from suitepath_part p
+         where p.path
+           not in (select s.path from suitepaths s)
+      ),
+      logical_suites as (
+        select ut_suite_cache_row(
+                 null,
+                 s.self_type, s.path, s.object_owner, s.object_name,
+                 s.object_name, null, null, null, null, 0,null,
+                 ut_varchar2_rows(),
+                 s.x, s.x, s.x, s.x, s.x, s.x,
+                 s.y, null, s.z
+               ) as obj
+          from logical_suite_data s
+      ),
+      items as (
+        select obj from {:suite_item_name:}
+        union all
+        select obj from logical_suites
+      )
+    select /*+ no_parallel */ c.obj
+      from items c
+     order by c.obj.object_owner,{:random_seed:}]';
+
+
+  gc_get_bulk_cache_suite_sql    constant varchar2(32767) :=
+    q'[with
+      suite_paths_tabs as  (
+        select schema_name,object_name,procedure_name,suite_path
+          from table(:l_schema_paths)
+      ),    
+      suite_items as (
+        select  /*+ cardinality(c 500) */ value(c) as obj
+          from ut_suite_cache c,
+    	  suite_paths_tabs sp     
+          where c.object_owner = upper(sp.schema_name)
+            and sp.suite_path is not null
+            and (
+              sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
+              or
+                (
+                c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
+                and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
+                and c.name like nvl(upper(sp.procedure_name),c.name) 
+              )
+            )
+        union all
+        select  /*+ cardinality(c 500) */ value(c) as obj
+          from ut_suite_cache c,
+    	  suite_paths_tabs sp     
+          where c.object_owner = upper(sp.schema_name)
+          and sp.suite_path is null
+          and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
+    	  and c.name like nvl(upper(replace(sp.procedure_name,'*','%')),c.name)
       ),
       {:tags:}
       suitepaths as (
@@ -190,6 +271,29 @@ create or replace package body ut_suite_cache_manager is
              ) desc nulls last'
            end;
   end;
+  
+  --Possible move logic to type 
+  function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
+    c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_\*]+))?(\.([A-Za-z0-9$#_\*]+))?$';
+    l_results            ut_path_items := ut_path_items();
+    l_path_item          ut_path_item;
+  begin
+    for i in 1 .. a_paths.count loop
+      l_results.extend;     
+      if a_paths(i) like '%:%' then
+        l_path_item := ut_path_item(upper(regexp_substr(a_paths(i),'^[^.:]+')),
+                                    ltrim(regexp_substr(a_paths(i),'[.:].*$'),':'));
+        l_results(l_results.last) := l_path_item;
+      else
+        l_path_item := ut_path_item(regexp_substr(a_paths(i), c_package_path_regex, subexpression => 1),  
+                                    regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3),
+                                    regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5));
+        l_results(l_results.last) := l_path_item;
+      end if;  
+    end loop;
+    
+    return l_results;
+  end;
 
 
 
@@ -254,6 +358,82 @@ create or replace package body ut_suite_cache_manager is
       using upper(l_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
     return l_results;
   end;
+  
+  function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
+    l_schema_paths ut_path_items:= ut_path_items();
+  begin
+    with paths_to_expand as (
+      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(sp.object_name,c.object_name) as object_name,sp.procedure_name as procedure_name
+        from ut_suite_cache c,
+        table(a_schema_paths) sp
+       where c.object_owner = upper(sp.schema_name)
+         and c.object_name like  nvl(replace(upper(sp.object_name),'*','%'),c.object_name)
+         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name)
+         and sp.suite_path is null
+         group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name
+      union all
+      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
+      from
+        ut_suite_cache c,
+        table(a_schema_paths) sp
+       where c.object_owner = upper(sp.schema_name)
+       and sp.suite_path is not null
+       and instr(sp.suite_path,'*') > 0
+       and c.path like replace(sp.suite_path,'*','%')
+      union all
+      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
+      from table(a_schema_paths) sp
+       where sp.suite_path is not null
+       and instr(sp.suite_path,'*') = 0
+    )
+    select ut_path_item(schema_name,object_name,procedure_name,suite_path)
+      bulk collect into l_schema_paths
+      from paths_to_expand;
+    return l_schema_paths;
+  end;
+  
+  function get_cached_suite_rows(
+    a_paths            ut_varchar2_list,
+    a_random_seed      positive := null,
+    a_tags             ut_varchar2_rows := null
+  ) return ut_suite_cache_rows is
+    l_results         ut_suite_cache_rows := ut_suite_cache_rows();
+    l_schema_paths    ut_path_items;
+    l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
+    l_include_tags    ut_varchar2_rows;
+    l_exclude_tags    ut_varchar2_rows;
+    l_suite_item_name varchar2(20);
+    l_paths           ut_varchar2_rows;
+    l_schema          varchar2(4000);
+    l_sql             varchar2(32767);
+  begin     
+    select /*+ no_parallel */ column_value
+      bulk collect into l_include_tags
+      from table(l_tags)
+     where column_value not like '-%';
+
+    select /*+ no_parallel */ ltrim(column_value,'-')
+      bulk collect into l_exclude_tags
+      from table(l_tags)
+     where column_value like '-%';
+
+    l_schema_paths := expand_paths(group_paths_by_schema(a_paths));
+    --We still need to turn this into qualified SQL name....maybe as part of results ?      
+    l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
+
+    l_sql := gc_get_bulk_cache_suite_sql;
+    l_sql := replace(l_sql,'{:suite_item_name:}',l_suite_item_name);
+    l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));
+    l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed));
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
+    
+    execute immediate l_sql
+      bulk collect into l_results
+      using l_schema_paths, l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
+    return l_results;
+  end;
+    
+  
 
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;

@@ -89,7 +89,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/types/ut_run.tps'
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
-
+@@install_component.sql 'core/types/ut_path_item.tps'
+@@install_component.sql 'core/types/ut_path_items.tps'
 
 @@install_component.sql 'expectations/json_objects_specs.sql'
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
@@ -207,6 +208,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_executable_test.tpb'
 @@install_component.sql 'core/types/ut_console_reporter_base.tps'
 @@install_component.sql 'core/types/ut_console_reporter_base.tpb'
+@@install_component.sql 'core/types/ut_path_item.tpb'
 
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'

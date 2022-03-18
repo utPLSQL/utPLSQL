@@ -18,14 +18,6 @@ create or replace package body ut_suite_manager is
 
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
 
-  type t_path_item is record (
-    object_name    varchar2(250),
-    procedure_name varchar2(250),
-    suite_path     varchar2(4000)
-  );
-  type t_path_items is table of t_path_item;
-  type t_schema_paths is table of t_path_items index by varchar2(250 char);
-
   cursor c_cached_suites_cursor is select * from table(ut_suite_cache_rows());
   type tt_cached_suites         is table of c_cached_suites_cursor%rowtype;
   type t_cached_suites_cursor   is ref cursor return c_cached_suites_cursor%rowtype;
@@ -41,7 +33,8 @@ create or replace package body ut_suite_manager is
     else
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
-        if l_path is null or not (regexp_like(l_path, '^[A-Za-z0-9$#_]+(\.[A-Za-z0-9$#_]+){0,2}$') or regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:[A-Za-z0-9$#_]+(\.[A-Za-z0-9$#_]+)*$')) then
+        if l_path is null or not (
+          regexp_like(l_path, '^[A-Za-z0-9$#_\*]+(\.[A-Za-z0-9$#_\*]+){0,2}$') or regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:[A-Za-z0-9$#_\*]+(\.[A-Za-z0-9$#_\*]+)*$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -84,12 +77,17 @@ create or replace package body ut_suite_manager is
         -- get schema name / object.[procedure] name
         -- When path is one of: schema or schema.package[.object] or package[.object]
         -- transform it back to schema[.package[.object]]
+        -- Object name or procedure is allowed to have filter char
+        -- However this is not allowed on schema
         begin
-          l_object := regexp_substr(a_paths(i), '^[A-Za-z0-9$#_]+');
+          l_object := regexp_substr(a_paths(i), '^[A-Za-z0-9$#_\*]+');
           l_schema := sys.dbms_assert.schema_name(upper(l_object));
         exception
           when sys.dbms_assert.invalid_schema_name then
-            if ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
+            if l_object like '%*%' then
+              a_paths(i) := c_current_schema || '.' || a_paths(i);
+              l_schema := c_current_schema;              
+            elsif ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
               a_paths(i) := c_current_schema || '.' || a_paths(i);
               l_schema := c_current_schema;
             else
@@ -109,34 +107,6 @@ create or replace package body ut_suite_manager is
   begin
     l_schema_names := resolve_schema_names(a_paths);
   end;
-
-  function group_paths_by_schema(a_paths ut_varchar2_list) return t_schema_paths is
-    c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?(\.([A-Za-z0-9$#_]+))?$';
-    l_schema             varchar2(4000);
-    l_empty_result       t_path_item;
-    l_result             t_path_item;
-    l_results            t_schema_paths;
-  begin
-    for i in 1 .. a_paths.count loop
-      l_result := l_empty_result;
-      if a_paths(i) like '%:%' then
-        l_schema := upper(regexp_substr(a_paths(i),'^[^.:]+'));
-        l_result.suite_path := ltrim(regexp_substr(a_paths(i),'[.:].*$'),':');
-      else
-        l_schema := regexp_substr(a_paths(i), c_package_path_regex, subexpression => 1);
-        l_result.object_name   := regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3);
-        l_result.procedure_name := regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5);
-      end if;
-      if l_results.exists(l_schema) then
-        l_results(l_schema).extend;
-        l_results(l_schema)(l_results(l_schema).last) := l_result;
-      else
-        l_results(l_schema) := t_path_items(l_result);
-      end if;
-    end loop;
-    return l_results;
-  end;
-
 
   function sort_by_seq_no(
     a_list ut_executables
@@ -370,6 +340,45 @@ create or replace package body ut_suite_manager is
     return l_result;
   end;
 
+  function get_cached_suite_data(
+    a_paths            ut_varchar2_list,
+    a_random_seed      positive,
+    a_tags             ut_varchar2_rows := null
+  ) return t_cached_suites_cursor is
+    l_unfiltered_rows  ut_suite_cache_rows;
+    l_result           t_cached_suites_cursor;
+  begin
+    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
+      a_paths,
+      a_random_seed,
+      a_tags
+    );
+    
+    if ut_metadata.user_has_execute_any_proc() then
+      open l_result for
+          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c;
+    else
+      open l_result for
+          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
+            where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
+          union all
+          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
+            where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
+            and ( exists
+              ( select 1
+                  from all_objects a
+                  where a.object_name = c.object_name
+                    and a.owner       = c.object_owner
+                    and a.object_type = 'PACKAGE'
+              )
+            or c.self_type = 'UT_LOGICAL_SUITE');
+          
+    end if;
+    return l_result;
+ 
+    return l_result;
+  end;
+
   function can_skip_all_objects_scan(
     a_owner_name         varchar2
   ) return boolean is
@@ -442,31 +451,21 @@ create or replace package body ut_suite_manager is
     ut_event_manager.trigger_event('refresh_cache - end');
   end;
 
-  procedure add_suites_for_path(
-    a_owner_name     varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null,
+  procedure add_suites_for_paths(
+    a_paths          ut_varchar2_list,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
     a_tags           ut_varchar2_rows := null
   ) is
   begin
-    refresh_cache(a_owner_name);
-
     reconstruct_from_cache(
       a_suites,
       get_cached_suite_data(
-        a_owner_name,
-        a_path,
-        a_object_name,
-        a_procedure_name,
-        can_skip_all_objects_scan(a_owner_name),
+        a_paths,
         a_random_seed,
         a_tags
       )
     );
-
   end;
 
   -----------------------------------------------
@@ -530,20 +529,32 @@ create or replace package body ut_suite_manager is
     a_tags        ut_varchar2_rows := ut_varchar2_rows()
   ) is
     l_paths              ut_varchar2_list := a_paths;
-    l_path_items         t_path_items;
-    l_path_item          t_path_item;
+    l_schema_names       ut_varchar2_rows;
     l_schema             varchar2(4000);
     l_suites_count       pls_integer := 0;
     l_index              varchar2(4000 char);
-    l_schema_paths       t_schema_paths;
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
-    a_suites := ut_suite_items();
+    a_suites := ut_suite_items();    
     --resolve schema names from paths and group paths by schema name
-    resolve_schema_names(l_paths);
+    l_schema_names := resolve_schema_names(l_paths);
 
-    l_schema_paths := group_paths_by_schema(l_paths);
-
+    --refresh cache
+    l_schema := l_schema_names.first;
+    while l_schema is not null loop
+      refresh_cache(upper(l_schema_names(l_schema)));
+      l_schema := l_schema_names.next(l_schema);
+    end loop;
+    
+    --We will get a single list of paths rather than loop by loop.
+    add_suites_for_paths(
+      l_paths,
+      a_suites,
+      a_random_seed,
+      a_tags
+    );
+        
+    /*
     l_schema := l_schema_paths.first;
     while l_schema is not null loop
       l_path_items  := l_schema_paths(l_schema);
@@ -571,8 +582,9 @@ create or replace package body ut_suite_manager is
         l_suites_count := a_suites.count;
       end loop;
       l_schema := l_schema_paths.next(l_schema);
-    end loop;
-
+    end loop;*/
+    
+    
     --propagate rollback type to suite items after organizing suites into hierarchy
     for i in 1 .. a_suites.count loop
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );

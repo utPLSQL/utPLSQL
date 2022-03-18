@@ -53,6 +53,12 @@ create or replace package ut_suite_cache_manager authid definer is
     a_random_seed      positive := null,
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows;
+  
+  function get_cached_suite_rows(
+    a_paths            ut_varchar2_list,
+    a_random_seed      positive := null,
+    a_tags             ut_varchar2_rows := null
+  ) return ut_suite_cache_rows;
 
   /*
   * Retrieves suite item info rows from cache.
