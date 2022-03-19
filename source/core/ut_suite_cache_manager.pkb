@@ -85,15 +85,11 @@ create or replace package body ut_suite_cache_manager is
 
 
   gc_get_bulk_cache_suite_sql    constant varchar2(32767) :=
-    q'[with
-      suite_paths_tabs as  (
-        select schema_name,object_name,procedure_name,suite_path
-          from table(:l_schema_paths)
-      ),    
+    q'[with  
       suite_items as (
         select  /*+ cardinality(c 500) */ value(c) as obj
           from ut_suite_cache c,
-    	  suite_paths_tabs sp     
+    	  table(:l_schema_paths) sp     
           where c.object_owner = upper(sp.schema_name)
             and sp.suite_path is not null
             and (
@@ -108,7 +104,7 @@ create or replace package body ut_suite_cache_manager is
         union all
         select  /*+ cardinality(c 500) */ value(c) as obj
           from ut_suite_cache c,
-    	  suite_paths_tabs sp     
+    	  table(:l_schema_paths) sp     
           where c.object_owner = upper(sp.schema_name)
           and sp.suite_path is null
           and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
@@ -388,7 +384,11 @@ create or replace package body ut_suite_cache_manager is
     )
     select ut_path_item(schema_name,object_name,procedure_name,suite_path)
       bulk collect into l_schema_paths
-      from paths_to_expand;
+      from 
+      (select schema_name,object_name,procedure_name,suite_path,
+      row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) r_num
+      from paths_to_expand)
+      where r_num = 1 ;
     return l_schema_paths;
   end;
   
@@ -429,7 +429,7 @@ create or replace package body ut_suite_cache_manager is
     
     execute immediate l_sql
       bulk collect into l_results
-      using l_schema_paths, l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
+      using l_schema_paths, l_schema_paths, l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
     return l_results;
   end;
     
