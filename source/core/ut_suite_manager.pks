@@ -20,6 +20,10 @@ create or replace package ut_suite_manager authid current_user is
    * Resposible for building hierarhy of sutes from individual suites created by suite_builder
    */
 
+  cursor c_cached_suites_cursor is select * from table(ut_suite_cache_rows());
+  type tt_cached_suites         is table of c_cached_suites_cursor%rowtype;
+
+
   /**
    * @private
    *

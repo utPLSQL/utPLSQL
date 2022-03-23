@@ -277,13 +277,15 @@ create or replace package body ut_suite_cache_manager is
     for i in 1 .. a_paths.count loop
       l_results.extend;     
       if a_paths(i) like '%:%' then
-        l_path_item := ut_path_item(upper(regexp_substr(a_paths(i),'^[^.:]+')),
-                                    ltrim(regexp_substr(a_paths(i),'[.:].*$'),':'));
+        l_path_item := ut_path_item(schema_name => upper(regexp_substr(a_paths(i),'^[^.:]+')),
+                                    suite_path => ltrim(regexp_substr(a_paths(i),'[.:].*$'),':'),
+                                    originated_path => a_paths(i));
         l_results(l_results.last) := l_path_item;
       else
-        l_path_item := ut_path_item(regexp_substr(a_paths(i), c_package_path_regex, subexpression => 1),  
-                                    regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3),
-                                    regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5));
+        l_path_item := ut_path_item(schema_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 1),  
+                                    object_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3),
+                                    procedure_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5),
+                                    originated_path => a_paths(i));
         l_results(l_results.last) := l_path_item;
       end if;  
     end loop;
@@ -359,41 +361,50 @@ create or replace package body ut_suite_cache_manager is
     l_schema_paths ut_path_items:= ut_path_items();
   begin
     with paths_to_expand as (
-      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(sp.object_name,c.object_name) as object_name,sp.procedure_name as procedure_name
-        from ut_suite_cache c,
-        table(a_schema_paths) sp
-       where c.object_owner = upper(sp.schema_name)
-         and c.object_name like  nvl(replace(upper(sp.object_name),'*','%'),c.object_name)
-         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name)
-         and sp.suite_path is null
-         group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name
+      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(sp.object_name,c.object_name) as object_name,
+        sp.procedure_name as procedure_name,sp.originated_path
+        from table(a_schema_paths) sp left outer join ut_suite_cache c
+        on ( c.object_owner = upper(sp.schema_name)
+        and c.object_name like  replace(upper(sp.object_name),'*','%')
+        and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
+        where sp.suite_path is null
+        and sp.object_name is not null
+        group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name,sp.originated_path
       union all
-      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-      from
-        ut_suite_cache c,
-        table(a_schema_paths) sp
-       where c.object_owner = upper(sp.schema_name)
-       and sp.suite_path is not null
-       and instr(sp.suite_path,'*') > 0
-       and c.path like replace(sp.suite_path,'*','%')
+      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+        from
+        table(a_schema_paths) sp left outer join ut_suite_cache c on
+        ( c.object_owner = upper(sp.schema_name)
+        and sp.suite_path is not null
+        and instr(sp.suite_path,'*') > 0)
+        where c.path like replace(sp.suite_path,'*','%')
       union all
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-      from table(a_schema_paths) sp
+      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+       from table(a_schema_paths) sp
        where sp.suite_path is not null
-       and instr(sp.suite_path,'*') = 0
+       and instr(sp.suite_path,'*') = 0   
+      union all
+      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+       from table(a_schema_paths) sp
+       where sp.suite_path is null and sp.object_name is null
     )
-    select ut_path_item(schema_name,object_name,procedure_name,suite_path)
+    select ut_path_item(schema_name,object_name,procedure_name,suite_path,originated_path)
       bulk collect into l_schema_paths
       from 
-      (select schema_name,object_name,procedure_name,suite_path,
+      (select schema_name,object_name,procedure_name,suite_path,originated_path,
       row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) r_num
       from paths_to_expand)
       where r_num = 1 ;
     return l_schema_paths;
   end;
   
+  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
+  begin
+    return expand_paths(group_paths_by_schema(a_paths));
+  end;
+  
   function get_cached_suite_rows(
-    a_paths            ut_varchar2_list,
+    a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows is
@@ -417,7 +428,7 @@ create or replace package body ut_suite_cache_manager is
       from table(l_tags)
      where column_value like '-%';
 
-    l_schema_paths := expand_paths(group_paths_by_schema(a_paths));
+    l_schema_paths := a_schema_paths;
     --We still need to turn this into qualified SQL name....maybe as part of results ?      
     l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
 

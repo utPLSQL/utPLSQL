@@ -18,10 +18,7 @@ create or replace package body ut_suite_manager is
 
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
 
-  cursor c_cached_suites_cursor is select * from table(ut_suite_cache_rows());
-  type tt_cached_suites         is table of c_cached_suites_cursor%rowtype;
   type t_cached_suites_cursor   is ref cursor return c_cached_suites_cursor%rowtype;
-
   type t_item_levels is table of ut_suite_items index by binary_integer;
   ------------------
 
@@ -339,30 +336,20 @@ create or replace package body ut_suite_manager is
     
     return l_result;
   end;
-
-  function get_cached_suite_data(
-    a_paths            ut_varchar2_list,
-    a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null
-  ) return t_cached_suites_cursor is
-    l_unfiltered_rows  ut_suite_cache_rows;
+  
+  function get_filtered_cursor(a_unfiltered_rows in ut_suite_cache_rows) 
+  return t_cached_suites_cursor is
     l_result           t_cached_suites_cursor;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
-      a_paths,
-      a_random_seed,
-      a_tags
-    );
-    
     if ut_metadata.user_has_execute_any_proc() then
       open l_result for
-          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c;
+          select /*+ no_parallel */ c.* from table(a_unfiltered_rows) c;
     else
       open l_result for
-          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
+          select /*+ no_parallel */ c.* from table(a_unfiltered_rows) c
             where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
           union all
-          select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
+          select /*+ no_parallel */ c.* from table(a_unfiltered_rows) c
             where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
             and ( exists
               ( select 1
@@ -371,12 +358,60 @@ create or replace package body ut_suite_manager is
                     and a.owner       = c.object_owner
                     and a.object_type = 'PACKAGE'
               )
-            or c.self_type = 'UT_LOGICAL_SUITE');
-          
-    end if;
+            or c.self_type = 'UT_LOGICAL_SUITE');         
+    end if; 
     return l_result;
- 
-    return l_result;
+  end;
+  
+  procedure reconcile_paths_and_suites(
+    a_schema_paths     ut_path_items,
+    a_filtered_rows    t_cached_suites_cursor
+  ) is
+    l_rows_tmp   tt_cached_suites:= tt_cached_suites();
+    l_rows       tt_cached_suites := tt_cached_suites();
+    l_limit      number := 5000;
+  begin
+    loop
+      fetch a_filtered_rows bulk collect into l_rows_tmp limit l_limit;    
+      l_rows := l_rows multiset union l_rows_tmp;   
+      exit when a_filtered_rows%NOTFOUND;
+    end loop;    
+    close a_filtered_rows;
+    
+    for i in ( select  /*+ no_parallel */sp.schema_name,sp.object_name,sp.procedure_name,
+        sp.suite_path,sp.originated_path,sc.path
+      from table(a_schema_paths) sp left outer join
+      table(l_rows) sc on 
+        (( upper(sp.schema_name) = upper(sc.object_owner) and upper(sp.object_name) = upper(sc.object_name) 
+           and nvl(upper(sp.procedure_name),sc.name) = sc.name )
+        or (sc.path = sp.suite_path))          
+        where sc.path is null)
+    loop
+      if i.suite_path is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||i.schema_name||':'||i.suite_path|| '.');
+      elsif i.procedure_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||i.schema_name||'.'||i.object_name|| '.'||i.procedure_name||' does not exist');
+      elsif i.object_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||i.schema_name||'.'||i.object_name|| ' does not exist');
+      end if;
+    end loop;    
+  end;
+  
+  function get_cached_suite_data(
+    a_schema_paths     ut_path_items,
+    a_random_seed      positive,
+    a_tags             ut_varchar2_rows := null
+  ) return t_cached_suites_cursor is
+    l_unfiltered_rows  ut_suite_cache_rows;
+    l_result           t_cached_suites_cursor;
+  begin
+    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
+      a_schema_paths,
+      a_random_seed,
+      a_tags
+    );  
+    reconcile_paths_and_suites(a_schema_paths,get_filtered_cursor(l_unfiltered_rows));
+    return get_filtered_cursor(l_unfiltered_rows);
   end;
 
   function can_skip_all_objects_scan(
@@ -452,7 +487,7 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure add_suites_for_paths(
-    a_paths          ut_varchar2_list,
+    a_schema_paths   ut_path_items,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
     a_tags           ut_varchar2_rows := null
@@ -461,7 +496,7 @@ create or replace package body ut_suite_manager is
     reconstruct_from_cache(
       a_suites,
       get_cached_suite_data(
-        a_paths,
+        a_schema_paths,
         a_random_seed,
         a_tags
       )
@@ -530,6 +565,8 @@ create or replace package body ut_suite_manager is
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_schema_names       ut_varchar2_rows;
+    l_schema_paths       ut_path_items;
+    l_reconcile_paths    ut_path_items;
     l_schema             varchar2(4000);
     l_suites_count       pls_integer := 0;
     l_index              varchar2(4000 char);
@@ -546,9 +583,11 @@ create or replace package body ut_suite_manager is
       l_schema := l_schema_names.next(l_schema);
     end loop;
     
+    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
+    
     --We will get a single list of paths rather than loop by loop.
     add_suites_for_paths(
-      l_paths,
+      l_schema_paths,
       a_suites,
       a_random_seed,
       a_tags
