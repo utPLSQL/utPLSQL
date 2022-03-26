@@ -366,7 +366,7 @@ create or replace package body ut_suite_manager is
            )
         or c.self_type = 'UT_LOGICAL_SUITE';
     end if;
-    
+
     return l_result;
   end;
 
@@ -399,6 +399,7 @@ create or replace package body ut_suite_manager is
           when ex_string_too_small then
             ut_utils.append_to_list(l_bad_suitepath_obj,a_owner_name||'.'||l_annotated_objects( i ).object_name);
         end;
+        --SAVE JSON object cache too
         ut_suite_cache_manager.save_object_cache(
           a_owner_name,
           l_annotated_objects( i ).object_name,
@@ -578,7 +579,7 @@ create or replace package body ut_suite_manager is
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
     end loop;
 
-    ut_event_manager.trigger_event('configure_execution_by_path - start');
+    ut_event_manager.trigger_event('configure_execution_by_path - end');
   end configure_execution_by_path;
 
   function get_suites_info(
