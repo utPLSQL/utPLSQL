@@ -278,14 +278,12 @@ create or replace package body ut_suite_cache_manager is
       l_results.extend;     
       if a_paths(i) like '%:%' then
         l_path_item := ut_path_item(schema_name => upper(regexp_substr(a_paths(i),'^[^.:]+')),
-                                    suite_path => ltrim(regexp_substr(a_paths(i),'[.:].*$'),':'),
-                                    originated_path => a_paths(i));
+                                    suite_path => ltrim(regexp_substr(a_paths(i),'[.:].*$'),':'));
         l_results(l_results.last) := l_path_item;
       else
         l_path_item := ut_path_item(schema_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 1),  
                                     object_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3),
-                                    procedure_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5),
-                                    originated_path => a_paths(i));
+                                    procedure_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5));
         l_results(l_results.last) := l_path_item;
       end if;  
     end loop;
@@ -359,19 +357,19 @@ create or replace package body ut_suite_cache_manager is
   
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
-  begin
+  begin    
     with paths_to_expand as (
       select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(sp.object_name,c.object_name) as object_name,
-        sp.procedure_name as procedure_name,sp.originated_path
+        sp.procedure_name as procedure_name
         from table(a_schema_paths) sp left outer join ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%')
         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
         where sp.suite_path is null
         and sp.object_name is not null
-        group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name,sp.originated_path
+        group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name
       union all
-      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
         from
         table(a_schema_paths) sp left outer join ut_suite_cache c on
         ( c.object_owner = upper(sp.schema_name)
@@ -379,22 +377,25 @@ create or replace package body ut_suite_cache_manager is
         and instr(sp.suite_path,'*') > 0)
         where c.path like replace(sp.suite_path,'*','%')
       union all
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
        from table(a_schema_paths) sp
        where sp.suite_path is not null
        and instr(sp.suite_path,'*') = 0   
       union all
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name,sp.originated_path
+      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
        from table(a_schema_paths) sp
        where sp.suite_path is null and sp.object_name is null
     )
-    select ut_path_item(schema_name,object_name,procedure_name,suite_path,originated_path)
+    select ut_path_item(schema_name,object_name,procedure_name,suite_path)
       bulk collect into l_schema_paths
       from 
-      (select schema_name,object_name,procedure_name,suite_path,originated_path,
+      (select schema_name,object_name,procedure_name,suite_path,
       row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) r_num
       from paths_to_expand)
       where r_num = 1 ;
+      
+      
+      
     return l_schema_paths;
   end;
   

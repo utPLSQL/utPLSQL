@@ -15,30 +15,27 @@ create or replace type body ut_path_item as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2, object_name varchar2,procedure_name varchar2, originated_path varchar2) return self as result is
+  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2, object_name varchar2,procedure_name varchar2) return self as result is
   begin
     self.schema_name := schema_name;
     self.object_name := object_name;
     self.procedure_name :=  procedure_name;
-    self.originated_path := originated_path;
     return;
   end;
 
-  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2,suite_path varchar2, originated_path varchar2) return self as result is
+  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2,suite_path varchar2) return self as result is
   begin
     self.schema_name := schema_name;
     self.suite_path := suite_path;
-    self.originated_path := originated_path;
     return;
   end;
 
-  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2, object_name varchar2,procedure_name varchar2,suite_path varchar2, originated_path varchar2) return self as result is
+  constructor function ut_path_item(self in out nocopy ut_path_item, schema_name varchar2, object_name varchar2,procedure_name varchar2,suite_path varchar2) return self as result is
   begin
     self.schema_name := schema_name;
     self.object_name := object_name;
     self.procedure_name :=  procedure_name;
     self.suite_path :=  suite_path;
-    self.originated_path := originated_path;
     return;
   end;  
 end;
