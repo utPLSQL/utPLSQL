@@ -299,51 +299,14 @@ create or replace package body ut_suite_manager is
     close a_suite_data_cursor;
   end reconstruct_from_cache;
 
-  
-  function get_cached_suite_data(
-    a_object_owner     varchar2,
-    a_path             varchar2 := null,
-    a_object_name      varchar2 := null,
-    a_procedure_name   varchar2 := null,
-    a_skip_all_objects boolean  := false,
-    a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null
-  ) return t_cached_suites_cursor is
-    l_unfiltered_rows  ut_suite_cache_rows;
-    l_result           t_cached_suites_cursor;
-  begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
-      a_object_owner,
-      a_path,
-      a_object_name,
-      a_procedure_name,
-      a_random_seed,
-      a_tags
-    );
-    if a_skip_all_objects then
-      open l_result for
-        select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c;
-    else
-      open l_result for
-        select /*+ no_parallel */ c.* from table(l_unfiltered_rows) c
-         where exists
-           ( select 1
-               from all_objects a
-               where a.object_name = c.object_name
-                 and a.owner       = c.object_owner
-                 and a.object_type = 'PACKAGE'
-           )
-        or c.self_type = 'UT_LOGICAL_SUITE';
-    end if;
-    
-    return l_result;
-  end;
-  
-  function get_filtered_cursor(a_unfiltered_rows in ut_suite_cache_rows) 
+  function get_filtered_cursor(
+    a_unfiltered_rows in ut_suite_cache_rows,
+    a_skip_all_objects boolean  := false
+  ) 
   return ut_suite_cache_rows is
     l_result           ut_suite_cache_rows := ut_suite_cache_rows();
   begin
-    if ut_metadata.user_has_execute_any_proc() then
+    if ut_metadata.user_has_execute_any_proc() or a_skip_all_objects then
       l_result := a_unfiltered_rows;
     else
       for i in (
@@ -397,7 +360,8 @@ create or replace package body ut_suite_manager is
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null
+    a_tags             ut_varchar2_rows := null,
+    a_skip_all_objects boolean  := false
   ) return t_cached_suites_cursor is
     l_unfiltered_rows  ut_suite_cache_rows;
     l_filtered_rows    ut_suite_cache_rows;
@@ -409,7 +373,7 @@ create or replace package body ut_suite_manager is
       a_tags
     );  
     
-    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows);
+    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows,a_skip_all_objects);
     reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
     
     open l_result for 
@@ -519,19 +483,17 @@ create or replace package body ut_suite_manager is
     a_skip_all_objects  boolean := false
   ) return ut_suite_items is
     l_suites             ut_suite_items := ut_suite_items();
+    l_schema_paths       ut_path_items;
   begin
     build_and_cache_suites(a_owner_name, a_annotated_objects);
-
+    l_schema_paths := ut_path_items(ut_path_item(a_owner_name,a_object_name,a_procedure_name,a_path));
     reconstruct_from_cache(
       l_suites,
       get_cached_suite_data(
-        a_owner_name,
-        a_path,
-        a_object_name,
-        a_procedure_name,
-        a_skip_all_objects,
+        l_schema_paths,
         null,
-        null
+        null,        
+        a_skip_all_objects
       )
     );
     return l_suites;
@@ -596,37 +558,6 @@ create or replace package body ut_suite_manager is
       a_tags
     );
         
-    /*
-    l_schema := l_schema_paths.first;
-    while l_schema is not null loop
-      l_path_items  := l_schema_paths(l_schema);
-      for i in 1 .. l_path_items.count loop
-        l_path_item := l_path_items(i);
-          add_suites_for_path(
-            upper(l_schema),
-            l_path_item.suite_path,
-            l_path_item.object_name,
-            l_path_item.procedure_name,
-            a_suites,
-            a_random_seed,
-            a_tags
-          );
-        if a_suites.count = l_suites_count then
-          if l_path_item.suite_path is not null then
-            raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||l_schema||':'||l_path_item.suite_path|| '.');
-          elsif l_path_item.procedure_name is not null then
-            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||l_schema||'.'||l_path_item.object_name|| '.'||l_path_item.procedure_name||' does not exist');
-          elsif l_path_item.object_name is not null then
-            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_path_item.object_name|| ' does not exist');
-          end if;
-        end if;
-        l_index := a_suites.first;
-        l_suites_count := a_suites.count;
-      end loop;
-      l_schema := l_schema_paths.next(l_schema);
-    end loop;*/
-    
-    
     --propagate rollback type to suite items after organizing suites into hierarchy
     for i in 1 .. a_suites.count loop
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
