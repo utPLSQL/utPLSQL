@@ -88,34 +88,12 @@ create or replace package body ut_suite_cache_manager is
     q'[with  
       suite_items as (
         select  /*+ cardinality(c 500) */ value(c) as obj
-          from ut_suite_cache c,
-    	  table(:l_schema_paths) sp     
-          where c.object_owner = upper(sp.schema_name)
-            and sp.suite_path is not null
-            and (
-              sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
-              or
-                (
-                c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
-                and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
-                and c.name like nvl(upper(sp.procedure_name),c.name) 
-              )
-            )
-        union all
-        select  /*+ cardinality(c 500) */ value(c) as obj
-          from ut_suite_cache c,
-    	  table(:l_schema_paths) sp     
-          where c.object_owner = upper(sp.schema_name)
-          and sp.suite_path is null
-          and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
-    	  and c.name like nvl(upper(replace(sp.procedure_name,'*','%')),c.name)
-      ),
-      {:tags:}
+          from table(:suite_items) c),
       suitepaths as (
         select distinct substr(c.obj.path,1,instr(c.obj.path,'.',-1)-1) as suitepath,
                         c.obj.path as path,
                         c.obj.object_owner as object_owner
-          from {:suite_item_name:} c
+          from suite_items c
          where c.obj.self_type = 'UT_SUITE'
       ),
         gen as (
@@ -152,7 +130,7 @@ create or replace package body ut_suite_cache_manager is
           from logical_suite_data s
       ),
       items as (
-        select obj from {:suite_item_name:}
+        select obj from suite_items
         union all
         select obj from logical_suites
       )
@@ -404,44 +382,103 @@ create or replace package body ut_suite_cache_manager is
     return expand_paths(group_paths_by_schema(a_paths));
   end;
   
+  function get_suite_items (
+    a_schema_paths ut_path_items
+  ) return ut_suite_cache_rows is
+    l_suite_items ut_suite_cache_rows := ut_suite_cache_rows();
+  begin
+    select  /*+ cardinality(c 500) */ value(c) as obj
+      bulk collect into  l_suite_items
+      from ut_suite_cache c,
+      table(a_schema_paths)  sp
+      where c.object_owner = upper(sp.schema_name)
+      and ( 
+        (sp.suite_path is not null and
+        sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
+      or
+        ( c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
+        and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
+        and c.name like nvl(upper(sp.procedure_name),c.name) ) )          
+        or
+        ( sp.suite_path is null
+        and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
+        and c.name like nvl(upper(replace(sp.procedure_name,'*','%')),c.name)
+         ));           
+    return l_suite_items;
+  end;
+  
+  function get_tags_suites (
+    a_suite_items ut_suite_cache_rows,
+    a_tags ut_varchar2_rows
+  ) return ut_suite_cache_rows is
+    l_suite_tags ut_suite_cache_rows := ut_suite_cache_rows();
+    l_include_tags    ut_varchar2_rows;
+    l_exclude_tags    ut_varchar2_rows;    
+  begin
+
+    select /*+ no_parallel */ column_value
+      bulk collect into l_include_tags
+      from table(a_tags)
+     where column_value not like '-%';
+
+    select /*+ no_parallel */ ltrim(column_value,'-')
+      bulk collect into l_exclude_tags
+      from table(a_tags)
+     where column_value like '-%';  
+  
+    with included_tags as (
+        select c.path as path
+          from table(a_suite_items) c
+         where c.tags multiset intersect l_include_tags is not empty or l_include_tags is empty
+       ),
+       excluded_tags as (
+        select c.path as path
+          from table(a_suite_items) c
+         where c.tags multiset intersect l_exclude_tags is not empty
+       )
+       select value(c) as obj
+       bulk collect into  l_suite_tags
+         from table(a_suite_items) c
+        where exists (
+          select 1 from included_tags t
+           where t.path||'.' like c.path || '.%' /*all parents and self*/
+              or c.path||'.' like t.path || '.%' /*all children and self*/
+          )
+        and not exists (
+          select 1 from excluded_tags t
+           where c.path||'.' like t.path || '.%' /*all children and self*/
+          );
+    return l_suite_tags;      
+  end;
+  
   function get_cached_suite_rows(
     a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
+    l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
     l_schema_paths    ut_path_items;
     l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
-    l_include_tags    ut_varchar2_rows;
-    l_exclude_tags    ut_varchar2_rows;
+
     l_suite_item_name varchar2(20);
     l_paths           ut_varchar2_rows;
     l_schema          varchar2(4000);
     l_sql             varchar2(32767);
   begin     
-    select /*+ no_parallel */ column_value
-      bulk collect into l_include_tags
-      from table(l_tags)
-     where column_value not like '-%';
-
-    select /*+ no_parallel */ ltrim(column_value,'-')
-      bulk collect into l_exclude_tags
-      from table(l_tags)
-     where column_value like '-%';
 
     l_schema_paths := a_schema_paths;
-    --We still need to turn this into qualified SQL name....maybe as part of results ?      
-    l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
-
     l_sql := gc_get_bulk_cache_suite_sql;
-    l_sql := replace(l_sql,'{:suite_item_name:}',l_suite_item_name);
-    l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));
     l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed));
+    l_suite_items := get_suite_items(a_schema_paths);
+    if l_tags.count > 0 then
+      l_suite_items := get_tags_suites(l_suite_items,l_tags);
+    end if;
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
-    
+       
     execute immediate l_sql
       bulk collect into l_results
-      using l_schema_paths, l_schema_paths, l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
+      using l_suite_items, a_random_seed;
     return l_results;
   end;
     
