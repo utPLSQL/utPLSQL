@@ -108,7 +108,7 @@ jobs:
 
       - name: Add OJDBC home
         id: get-ojdbc
-        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar && ls -ltr ${OJDBC_HOME} && cd ${OJDBC_HOME} && pwd
+        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
 
       - name: Install utPLSQL-cli
         id: install-utplsql-cli
@@ -202,7 +202,7 @@ jobs:
           args: >
             -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
             -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/{0}', env.ORACLE_SID ) }}
-            -Dsonar.plsql.jdbc.driver.path='/home/runner/work/utPLSQL/utPLSQL/ojdbc/ojdbc8.jar'
+            -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
 
   publish:
     name: Deploy documentation
