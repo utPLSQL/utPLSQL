@@ -148,16 +148,20 @@ create or replace package body ut_suite_cache_manager is
     
     return l_results;
   end;
-
+  /*
+    The object name is populate but suitepath not 
+    We will use that object and try to match.
+    We can pass also a wildcard this will result in one to many.
+    
+    Get all data that do not have an wildcard and not require expanding.
+    We will take them as they are.
+      a)suite path is populated 
+      b)suite path and object is empty so schema name is by default ( or passed)
+  */   
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
   begin   
-    with paths_to_expand as (
-      /*
-        The object name is populate but suitepath not 
-        We will use that object and try to match.
-        We can pass also a wildcard this will result in one to many.
-      */    
+    with paths_to_expand as ( 
       select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
         nvl2(sp.procedure_name,c.name,null) as procedure_name
         from table(a_schema_paths) sp left outer join ut_suite_cache c
@@ -174,12 +178,6 @@ create or replace package body ut_suite_cache_manager is
         and c.path like replace(sp.suite_path,'*','%'))       
         where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
       union all
-      /*
-        Get all data that do not have an wildcard and not require expanding.
-        We will take them as they are.
-        a)suite path is populated 
-        b)suite path and object is empty so schema name is by default ( or passed)
-      */
       select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
        from table(a_schema_paths) sp
        where 
@@ -205,7 +203,6 @@ create or replace package body ut_suite_cache_manager is
     Were the path is populated we need to make sure we dont return duplicates
     as the wildcard can produce multiple results from same path and 
     parents and child for each can be same resulting in duplicates    
-    TODO: Verify that this not duplicate with a expand paths.
   */  
   function get_suite_items (
     a_schema_paths ut_path_items
@@ -484,22 +481,25 @@ create or replace package body ut_suite_cache_manager is
   end;
 
   function get_cached_suite_info(
-    a_object_owner     varchar2,
-    a_object_name      varchar2
+    a_schema_paths     ut_path_items
+  ) return ut_suite_cache_rows is
+  begin
+    return get_cached_suite_rows( a_schema_paths );
+  end;
+
+  function get_suite_items_info(
+    a_suite_cache_items ut_suite_cache_rows
   ) return ut_suite_items_info is
-    l_cache_rows   ut_suite_cache_rows;
     l_results      ut_suite_items_info;
   begin
-    l_cache_rows := get_cached_suite_rows( a_object_owner => a_object_owner, a_object_name =>a_object_name );
     select /*+ no_parallel */ ut_suite_item_info(
              c.object_owner, c.object_name, c.name,
              c.description, c.self_type, c.line_no,
              c.path, c.disabled_flag, c.disabled_reason, c.tags
              )
       bulk collect into l_results
-      from table(l_cache_rows) c;
-
-    return l_results;
+      from table(a_suite_cache_items) c;
+      return l_results;
   end;
 
   function get_cached_packages(

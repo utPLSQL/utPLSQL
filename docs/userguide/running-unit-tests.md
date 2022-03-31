@@ -45,6 +45,10 @@ The **functions** can only be used in SELECT statements. They execute the specif
 ## ut.run procedures
 
 The examples below illustrate different ways and options to invoke `ut.run` procedures.
+As part of the syntax you can use a wildcard character `*` to call test by part of his name or to call few tests that match a call.
+Schema name is still mandatory and cannot contain a wildcard character whether is a suitepath or object.
+
+
 
 ```sql
 alter session set current_schema=hr;
@@ -75,6 +79,14 @@ end;
 Executes all tests from all packages that are on the _com.my_org.my_project_ suitepath.
 Check the [annotations documentation](annotations.md) to find out about suitepaths and how they can be used to organize test packages for your project.
 
+```sql
+set serveroutput on
+begin
+  ut.run('hr:com*');
+end;
+```
+
+Executes all tests from all packages that are on suitepath starting with _com_.
 
 ```sql
 set serveroutput on
@@ -123,6 +135,22 @@ Executes all tests from package _hr.test_apply_bonus_ and all tests from schema 
 Using a list of items to execute allows you to execute a fine-grained set of tests.
 
 List can be passed as a comma separated list or a list of *ut_varchar2_list objects* or as a list within ut_varchar2_list.
+
+```sql
+set serveroutput on
+begin
+  ut.run('hr.test*');
+end;
+```
+Executes all tests from schema _hr_ starting with name _test_.
+
+```sql
+set serveroutput on
+begin
+  ut.run('hr.test_apply_bonus.bonus_*');
+end;
+```
+Executes all test procedures from package _hr.test_apply_bonus_ that starting with _bonus_.
 
 
 **Note:**

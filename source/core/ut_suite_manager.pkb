@@ -533,8 +533,6 @@ create or replace package body ut_suite_manager is
     l_schema_paths       ut_path_items;
     l_reconcile_paths    ut_path_items;
     l_schema             varchar2(4000);
-    l_suites_count       pls_integer := 0;
-    l_index              varchar2(4000 char);
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
     a_suites := ut_suite_items();    
@@ -567,37 +565,34 @@ create or replace package body ut_suite_manager is
   end configure_execution_by_path;
 
   function get_suites_info(
-    a_owner_name     varchar2, 
-    a_package_name   varchar2 := null
+    a_paths     ut_varchar2_list
   ) return sys_refcursor is
-    l_result         sys_refcursor;
-    l_all_suite_info ut_suite_items_info;
-    l_owner_name     varchar2(250) := ut_utils.qualified_sql_name(a_owner_name);
-    l_package_name   varchar2(250) := ut_utils.qualified_sql_name(a_package_name);
+    l_result             sys_refcursor;
+    l_all_suite_info     ut_suite_items_info;
+    l_schema_names       ut_varchar2_rows;
+    l_schema_paths       ut_path_items;
+    l_paths              ut_varchar2_list := a_paths; 
+    l_schema             varchar2(4000);
+    l_unfiltered_rows    ut_suite_cache_rows;
+    l_filtered_rows      ut_suite_cache_rows;
+   
   begin
+    l_schema_names := resolve_schema_names(l_paths);
+    --refresh cache
+    l_schema := l_schema_names.first;
+    while l_schema is not null loop
+      refresh_cache(upper(l_schema_names(l_schema)));
+      l_schema := l_schema_names.next(l_schema);
+    end loop;
+    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
+    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_info(l_schema_paths);
+    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows);
+    l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_filtered_rows);
+    open l_result for
+      select /*+ no_parallel */ value(c)
+        from table(l_all_suite_info) c
+        order by c.object_owner, c.object_name, c.item_line_no;
 
-    refresh_cache(l_owner_name);
-
-    l_all_suite_info := ut_suite_cache_manager.get_cached_suite_info( l_owner_name, l_package_name );
-    if can_skip_all_objects_scan( l_owner_name ) then
-      open l_result for
-        select /*+ no_parallel */ value(c)
-          from table(l_all_suite_info) c
-         order by c.object_owner, c.object_name, c.item_line_no;
-    else
-      open l_result for
-        select /*+ no_parallel */ value(c)
-          from table(l_all_suite_info) c
-         where exists
-                 ( select 1
-                     from all_objects a
-                    where a.object_name = c.object_name
-                      and a.owner       = c.object_owner
-                      and a.object_type = 'PACKAGE'
-                 )
-            or c.item_type = 'UT_LOGICAL_SUITE'
-         order by c.object_owner, c.object_name, c.item_line_no;
-    end if;
     return l_result;
   end;
 
