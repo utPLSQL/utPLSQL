@@ -82,12 +82,9 @@ create or replace package body ut_suite_manager is
           l_schema := sys.dbms_assert.schema_name(upper(l_object));
         exception
           when sys.dbms_assert.invalid_schema_name then
-            if l_object like '%*%' then
+            if l_object like '%*%' or ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
               a_paths(i) := c_current_schema || '.' || a_paths(i);
               l_schema := c_current_schema;              
-            elsif ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
-              a_paths(i) := c_current_schema || '.' || a_paths(i);
-              l_schema := c_current_schema;
             else
               raise;
             end if;
@@ -531,7 +528,6 @@ create or replace package body ut_suite_manager is
     l_paths              ut_varchar2_list := a_paths;
     l_schema_names       ut_varchar2_rows;
     l_schema_paths       ut_path_items;
-    l_reconcile_paths    ut_path_items;
     l_schema             varchar2(4000);
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');

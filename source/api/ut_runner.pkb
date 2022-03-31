@@ -195,12 +195,15 @@ create or replace package body ut_runner is
     l_cursor       sys_refcursor;
     l_results      ut_suite_items_info;
     c_bulk_limit   constant integer := 100;
+    i pls_integer;
   begin
     l_cursor := ut_suite_manager.get_suites_info(ut_varchar2_list(nvl(a_path,sys_context('userenv', 'current_schema'))));
     loop
       fetch l_cursor bulk collect into l_results limit c_bulk_limit;
-      for i in 1 .. l_results.count loop
+      i := l_results.first;
+      while (i is not null) loop
         pipe row (l_results(i));
+        i := l_results.next(i);
       end loop;
       exit when l_cursor%notfound;
     end loop;

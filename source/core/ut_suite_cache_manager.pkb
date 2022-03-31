@@ -131,8 +131,10 @@ create or replace package body ut_suite_cache_manager is
     c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_\*]+))?(\.([A-Za-z0-9$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
     l_path_item          ut_path_item;
+    i                    pls_integer;
   begin
-    for i in 1 .. a_paths.count loop
+    i := a_paths.first;
+    while (i is not null) loop
       l_results.extend;     
       if a_paths(i) like '%:%' then
         l_path_item := ut_path_item(schema_name => upper(regexp_substr(a_paths(i),'^[^.:]+')),
@@ -143,7 +145,8 @@ create or replace package body ut_suite_cache_manager is
                                     object_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 3),
                                     procedure_name => regexp_substr(a_paths(i), c_package_path_regex, subexpression => 5));
         l_results(l_results.last) := l_path_item;
-      end if;  
+      end if;
+      i := a_paths.next(i);
     end loop;
     
     return l_results;
@@ -189,7 +192,7 @@ create or replace package body ut_suite_cache_manager is
       bulk collect into l_schema_paths
       from 
       (select schema_name,object_name,procedure_name,suite_path,
-      row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) r_num
+      row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) as r_num
       from paths_to_expand)
       where r_num = 1 ;
     return l_schema_paths;
@@ -211,7 +214,7 @@ create or replace package body ut_suite_cache_manager is
   begin
     select obj bulk collect into  l_suite_items
     from (
-    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path order by path asc) r_num  
+    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path order by path asc) as r_num  
       from ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
@@ -301,7 +304,7 @@ create or replace package body ut_suite_cache_manager is
     l_procedure_name  varchar2(250) := ut_utils.qualified_sql_name(a_procedure_name);
     l_schema_paths    ut_path_items;
   begin
-    l_schema_paths := ut_path_items(ut_path_item(a_object_owner,a_object_name,a_procedure_name,a_path));
+    l_schema_paths := ut_path_items(ut_path_item(l_object_owner,l_object_name,l_procedure_name,a_path));
     return get_cached_suite_rows(l_schema_paths,a_random_seed,l_tags);
   end;
   
@@ -314,10 +317,6 @@ create or replace package body ut_suite_cache_manager is
     l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
     l_schema_paths    ut_path_items;
     l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
-
-    l_suite_item_name varchar2(20);
-    l_paths           ut_varchar2_rows;
-    l_schema          varchar2(4000);
     l_sql             varchar2(32767);
   begin     
 
