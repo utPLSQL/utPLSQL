@@ -191,6 +191,10 @@ jobs:
         with:
           files: junit_test_results.xml
 
+      - name: Whats default folder
+        id: debug1
+        run:  bash echo ${OJDBC_HOME} && pwd
+
       - name: SonarCloud Scan
         id: sonar
         if: ${{ always() && matrix.db_version_name == '21XE' }}
