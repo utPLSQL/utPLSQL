@@ -945,6 +945,26 @@ end;]';
       ut.expect(sqlerrm).to_be_like('%failing_non_existing%');
   end;
   
+  procedure test_search_nonex_pck_wild is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_develop.failing_non_*'));
+    ut.fail('Non existing package did not raise exception');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%failing_non_*%');
+  end;
+
+  procedure test_search_nonex_path_wild is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_develop:failing_non_*'));
+    ut.fail('Non existing path did not raise exception');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%:failing_non_*%');
+  end;
+
   procedure test_search_nonexist_sch_pck is
     l_objects_to_run ut3_develop.ut_suite_items;
   begin
@@ -1557,6 +1577,148 @@ end;]';
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%' );
+
+  end;
+
+  procedure test_wild_card_obj_name is
+    c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_*';
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_test_suite  ut3_develop.ut_logical_suite;
+    l_test1_suite  ut3_develop.ut_logical_suite;    
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_ctx_suite   ut3_develop.ut_logical_suite;
+    l_test_proc   ut3_develop.ut_test;
+  begin
+  --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
+
+  --Assert
+    ut.expect(l_objects_to_run.count).to_equal(3);
+
+
+    for i in 1 .. 3 loop
+      l_test_suite := treat(l_objects_to_run(i) as ut3_develop.ut_logical_suite);
+      ut.expect(l_test_suite.name in ('test_package_with_ctx','tests', 'tests2')).to_be_true;
+
+      case l_test_suite.name
+        when 'test_package_with_ctx' then 
+          ut.expect(l_test_suite.items.count).to_equal(1);
+          l_ctx_suite:= treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+          ut.expect(l_ctx_suite.name).to_equal('some_context');
+          ut.expect(l_ctx_suite.description).to_equal('Some context description');
+          ut.expect(l_ctx_suite.items.count).to_equal(1);
+          l_test_proc := treat(l_ctx_suite.items(1) as ut3_develop.ut_test);
+          ut.expect(l_test_proc.name).to_equal('test1');
+        when 'tests' then
+          l_test1_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+          ut.expect(l_test1_suite.name).to_equal('test_package_1');
+          ut.expect(l_test1_suite.items.count).to_equal(3);
+          ut.expect(l_test1_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
+          l_test2_suite := treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
+
+          ut.expect(l_test2_suite.name).to_equal('test_package_2');
+          ut.expect(l_test2_suite.items.count).to_equal(3);
+          ut.expect(l_test2_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
+        when 'tests2' then
+          l_test1_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+          ut.expect(l_test1_suite.name).to_equal('test_package_3');
+          ut.expect(l_test1_suite.items.count).to_equal(3);
+      end case;
+
+    end loop;
+    
+  end;
+ 
+ procedure test_wild_card_prc_name is
+    c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_1.test*';
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_test_suite  ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test1_proc   ut3_develop.ut_test;
+    l_test2_proc   ut3_develop.ut_test;
+  begin
+  --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
+   
+  --Assert
+    ut.expect(l_objects_to_run.count).to_equal(1);
+    l_test_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
+    ut.expect(l_test_suite.name).to_equal('tests');
+    
+    l_test1_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+    ut.expect(l_test1_suite.name).to_equal('test_package_1');
+    ut.expect(l_test1_suite.items.count).to_equal(2);
+    
+    l_test1_proc := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
+    ut.expect(l_test1_proc.name).to_equal('test1');    
+    
+    l_test2_proc := treat(l_test1_suite.items(2) as ut3_develop.ut_test);
+    ut.expect(l_test2_proc.name).to_equal('test2');       
+  end;
+
+  procedure test_wild_card_path_name is
+    c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests*';
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_test_suite  ut3_develop.ut_logical_suite;
+    l_test1_suite  ut3_develop.ut_logical_suite;    
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_test3_suite ut3_develop.ut_logical_suite;    
+    l_ctx_suite   ut3_develop.ut_logical_suite;
+    l_test_proc   ut3_develop.ut_test;
+  begin
+  --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
+
+  --Assert
+    ut.expect(l_objects_to_run.count).to_equal(2);
+
+    
+    for i in 1 .. 2 loop
+      l_test_suite := treat(l_objects_to_run(i) as ut3_develop.ut_logical_suite);
+      ut.expect(l_test_suite.name in ('tests', 'tests2')).to_be_true;
+
+      case l_test_suite.name
+        when 'tests' then
+          l_test1_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+          ut.expect(l_test1_suite.name).to_equal('test_package_1');
+          ut.expect(l_test1_suite.items.count).to_equal(3);
+          
+          for i in 1 ..3 loop          
+            --l_test2_suite := treat(l_test1_suite.items(i) as ut3_develop.ut_logical_suite);
+            --ut.expect(l_test2_suite.name).to_equal('test_package_2');
+            --ut.expect(l_test2_suite.items.count).to_equal(3);
+            case l_test1_suite.items(i).self_type 
+              when 'UT_SUITE' then
+                l_test2_suite := treat(l_test1_suite.items(i) as ut3_develop.ut_logical_suite);
+                ut.expect(l_test2_suite.name).to_equal('test_package_2');
+                ut.expect(l_test2_suite.items.count).to_equal(3);
+
+                l_test_proc := treat(l_test2_suite.items(1) as ut3_develop.ut_test);
+                ut.expect(l_test_proc.name in ('test1', 'test2','context_test')).to_be_true;
+                
+                l_test_proc := treat(l_test2_suite.items(2) as ut3_develop.ut_test);
+                ut.expect(l_test_proc.name in ('test1', 'test2','context_test')).to_be_true;
+                
+                l_test_proc := treat(l_test2_suite.items(3) as ut3_develop.ut_test);
+                ut.expect(l_test_proc.name in ('test1', 'test2','context_test')).to_be_true;  
+                
+              when 'UT_TEST' then
+                l_test_proc := treat(l_test1_suite.items(i) as ut3_develop.ut_test);
+                ut.expect(l_test_proc.name in ('test1', 'test2')).to_be_true;
+            end case;
+          end loop;         
+        when 'tests2' then
+          ut.expect(l_test_suite.items.count).to_equal(1);
+          l_test1_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
+          ut.expect(l_test1_suite.name).to_equal('test_package_3');
+          ut.expect(l_test1_suite.items.count).to_equal(3);
+          for i in 1 .. 3 loop
+            l_test_proc := treat(l_test1_suite.items(i) as ut3_develop.ut_test);
+            ut.expect(l_test_proc.name in ('test1', 'test2','disabled_test')).to_be_true;
+          end loop;  
+      end case;
+
+    end loop;
 
   end;
 

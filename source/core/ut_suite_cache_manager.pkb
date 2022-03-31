@@ -127,7 +127,6 @@ create or replace package body ut_suite_cache_manager is
            end;
   end;
   
-  --Possible move logic to type 
   function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_\*]+))?(\.([A-Za-z0-9$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
@@ -152,34 +151,41 @@ create or replace package body ut_suite_cache_manager is
 
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
-  begin    
+  begin   
     with paths_to_expand as (
-      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(sp.object_name,c.object_name) as object_name,
-        sp.procedure_name as procedure_name
+      /*
+        The object name is populate but suitepath not 
+        We will use that object and try to match.
+        We can pass also a wildcard this will result in one to many.
+      */    
+      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
+        nvl2(sp.procedure_name,c.name,null) as procedure_name
         from table(a_schema_paths) sp left outer join ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%')
         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
-        where sp.suite_path is null
-        and sp.object_name is not null
-        group by sp.schema_name,nvl(sp.object_name,c.object_name),sp.procedure_name
+        where sp.suite_path is null and sp.object_name is not null
+        group by sp.schema_name,nvl(c.object_name,sp.object_name),nvl2(sp.procedure_name,c.name,null)
       union all
-      select /*+ no_parallel */ c.path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
+      select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
         from
         table(a_schema_paths) sp left outer join ut_suite_cache c on
-        ( c.object_owner = upper(sp.schema_name)
-        and sp.suite_path is not null
-        and instr(sp.suite_path,'*') > 0)
-        where c.path like replace(sp.suite_path,'*','%')
+        ( c.object_owner = upper(sp.schema_name) 
+        and c.path like replace(sp.suite_path,'*','%'))       
+        where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
       union all
+      /*
+        Get all data that do not have an wildcard and not require expanding.
+        We will take them as they are.
+        a)suite path is populated 
+        b)suite path and object is empty so schema name is by default ( or passed)
+      */
       select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
        from table(a_schema_paths) sp
-       where sp.suite_path is not null
-       and instr(sp.suite_path,'*') = 0   
-      union all
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-       from table(a_schema_paths) sp
-       where sp.suite_path is null and sp.object_name is null
+       where 
+       (sp.suite_path is not null and instr(sp.suite_path,'*') = 0)
+       or 
+       (sp.suite_path is null and sp.object_name is null)
     )
     select ut_path_item(schema_name,object_name,procedure_name,suite_path)
       bulk collect into l_schema_paths
@@ -190,14 +196,25 @@ create or replace package body ut_suite_cache_manager is
       where r_num = 1 ;
     return l_schema_paths;
   end;
-
+  
+  /*
+    Get a suite items rows that matching our criteria like
+    path,object_name etc.
+    We need to consider also an wildcard character on our procedures and object
+    names.
+    Were the path is populated we need to make sure we dont return duplicates
+    as the wildcard can produce multiple results from same path and 
+    parents and child for each can be same resulting in duplicates    
+    TODO: Verify that this not duplicate with a expand paths.
+  */  
   function get_suite_items (
     a_schema_paths ut_path_items
   ) return ut_suite_cache_rows is
     l_suite_items ut_suite_cache_rows := ut_suite_cache_rows();
   begin
-    select  /*+ cardinality(c 500) */ value(c) as obj
-      bulk collect into  l_suite_items
+    select obj bulk collect into  l_suite_items
+    from (
+    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path order by path asc) r_num  
       from ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
@@ -212,10 +229,14 @@ create or replace package body ut_suite_cache_manager is
         ( sp.suite_path is null
         and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
         and c.name like nvl(upper(replace(sp.procedure_name,'*','%')),c.name)
-         ));           
+         ))) where r_num = 1;           
     return l_suite_items;
   end;
   
+  /*
+    Having a base set of suites we will do a further filter down if there are
+    any tags defined.
+  */    
   function get_tags_suites (
     a_suite_items ut_suite_cache_rows,
     a_tags ut_varchar2_rows

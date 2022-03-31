@@ -20,7 +20,6 @@ create or replace package ut_suite_manager authid current_user is
    * Resposible for building hierarhy of sutes from individual suites created by suite_builder
    */
 
-
   /**
    * @private
    *
