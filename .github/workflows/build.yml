@@ -108,7 +108,7 @@ jobs:
 
       - name: Add OJDBC home
         id: get-ojdbc
-        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar
+        run:  mkdir -p ${OJDBC_HOME} && curl -Lk -o ${OJDBC_HOME}/ojdbc8.jar ${OJDBC_URL}/ojdbc8.jar && curl -Lk -o ${OJDBC_HOME}/orai18n.jar ${OJDBC_URL}/orai18n.jar && ls -ltr ${OJDBC_HOME} && cd ${OJDBC_HOME} && pwd
 
       - name: Install utPLSQL-cli
         id: install-utplsql-cli
