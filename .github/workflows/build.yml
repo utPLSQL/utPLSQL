@@ -191,10 +191,6 @@ jobs:
         with:
           files: junit_test_results.xml
 
-      - name: Whats default folder
-        id: debug1
-        run:  bash echo ${OJDBC_HOME} && pwd
-
       - name: SonarCloud Scan
         id: sonar
         if: ${{ always() && matrix.db_version_name == '21XE' }}
@@ -206,7 +202,7 @@ jobs:
           args: >
             -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
             -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/{0}', env.ORACLE_SID ) }}
-            -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
+            -Dsonar.plsql.jdbc.driver.path='/home/runner/work/utPLSQL/utPLSQL/ojdbc/ojdbc8.jar'
 
   publish:
     name: Deploy documentation
