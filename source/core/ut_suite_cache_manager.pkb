@@ -291,24 +291,6 @@ create or replace package body ut_suite_cache_manager is
   end;
   
   function get_cached_suite_rows(
-    a_object_owner     varchar2,
-    a_path             varchar2 := null,
-    a_object_name      varchar2 := null,
-    a_procedure_name   varchar2 := null,
-    a_random_seed      positive := null,
-    a_tags             ut_varchar2_rows := null
-  ) return ut_suite_cache_rows is
-    l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
-    l_object_owner    varchar2(250) := ut_utils.qualified_sql_name(a_object_owner);
-    l_object_name     varchar2(250) := ut_utils.qualified_sql_name(a_object_name);
-    l_procedure_name  varchar2(250) := ut_utils.qualified_sql_name(a_procedure_name);
-    l_schema_paths    ut_path_items;
-  begin
-    l_schema_paths := ut_path_items(ut_path_item(l_object_owner,l_object_name,l_procedure_name,a_path));
-    return get_cached_suite_rows(l_schema_paths,a_random_seed,l_tags);
-  end;
-  
-  function get_cached_suite_rows(
     a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
     a_tags             ut_varchar2_rows := null
