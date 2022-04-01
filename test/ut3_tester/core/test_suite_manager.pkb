@@ -958,11 +958,11 @@ end;]';
   procedure test_search_nonex_prc_wild is
     l_objects_to_run ut3_develop.ut_suite_items;
   begin
-    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_develop.test_package_1.nonexist*'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_tester.test_package_1.nonexist*'));
     ut.fail('Non existing package did not raise exception');
   exception
     when others then
-      ut.expect(sqlerrm).to_be_like('%failing_non_*%');
+      ut.expect(sqlerrm).to_be_like('%nonexist*%');
   end;  
 
   procedure test_search_nonex_path_wild is

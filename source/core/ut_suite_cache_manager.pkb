@@ -151,28 +151,41 @@ create or replace package body ut_suite_cache_manager is
     
     return l_results;
   end;
+  
   /*
-    The object name is populate but suitepath not 
-    We will use that object and try to match.
-    We can pass also a wildcard this will result in one to many.
+    First SQL queries for objects where procedure is null or its only wildcard.
+    We split that due to fact that we can use func min to combine rows.
     
-    Get all data that do not have an wildcard and not require expanding.
-    We will take them as they are.
-      a)suite path is populated 
-      b)suite path and object is empty so schema name is by default ( or passed)
+    Second union is responsible expanding paths where the procedure filter is given
+    We cannot select min here as filter can cover only half of tests within
+    package. Even if the filter doesnt return anything we still capture a proc filter
+    name for error reporting later on.
+    
+    Third SQL cover scenario where a suitapath only is populated and wildcard is given
+    
+    Fourth SQL cover scenario where suitepath is populated with no filters
   */   
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
   begin   
     with paths_to_expand as ( 
       select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
-        nvl2(sp.procedure_name,c.name,null) as procedure_name
+        null as procedure_name
+        from table(a_schema_paths) sp left outer join ut_suite_cache c
+        on ( c.object_owner = upper(sp.schema_name)
+        and c.object_name like  replace(upper(sp.object_name),'*','%'))
+        where sp.suite_path is null and sp.object_name is not null
+        and ( sp.procedure_name is null or sp.procedure_name = '*')
+        group by sp.schema_name,nvl(c.object_name,sp.object_name)
+      union all
+      select /*+ no_parallel */ path as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
+        nvl(c.name,sp.procedure_name) as procedure_name
         from table(a_schema_paths) sp left outer join ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%')
         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
         where sp.suite_path is null and sp.object_name is not null
-        group by sp.schema_name,nvl(c.object_name,sp.object_name),nvl2(sp.procedure_name,c.name,null)
+        and (sp.procedure_name is not null and sp.procedure_name != '*')      
       union all
       select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
         from
@@ -218,18 +231,17 @@ create or replace package body ut_suite_cache_manager is
       from ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
-      and ( 
-        (sp.suite_path is not null and
-        sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
-      or
-        ( c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
-        and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
-        and c.name like nvl(upper(sp.procedure_name),c.name) ) )          
+      and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
+        or
+        ( 
+          c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
+          and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
+          and c.name like nvl(upper(sp.procedure_name),c.name) 
+        ))          
         or
         ( sp.suite_path is null
-        and c.object_name like nvl(upper(replace(sp.object_name,'*','%')),c.object_name)					 
-        and c.name like nvl(upper(replace(sp.procedure_name,'*','%')),c.name)
-         ))) where r_num = 1;           
+        and c.object_name = nvl(upper(sp.object_name),c.object_name)					 
+        and c.name = nvl(upper(sp.procedure_name),c.name)))) where r_num =1;        
     return l_suite_items;
   end;
   
