@@ -78,7 +78,10 @@ create or replace package test_suite_manager is
   
   --%test(Prepare runner for nonexisting package using wildcard filter)
   procedure test_search_nonex_pck_wild;
-  
+
+   --%test(Prepare runner for nonexisting procedure using wildcard filter)
+  procedure test_search_nonex_prc_wild;
+
   --%test(Prepare runner for nonexisting path using wildcard filter)
   procedure test_search_nonex_path_wild;
 
