@@ -64,15 +64,10 @@ create or replace package body ut_suite_cache_manager is
                  s.y, null, s.z
                ) as obj
           from logical_suite_data s
-      ),
-      items as (
-        select obj from suite_items
-        union all
-        select obj from logical_suites
       )
-    select /*+ no_parallel */ c.obj
-      from items c
-     order by c.obj.object_owner,{:random_seed:}]';
+      select /*+ no_parallel */obj from suite_items
+      union all
+      select /*+ no_parallel */ obj from logical_suites]';
 
   function get_missing_cache_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_result       ut_varchar2_rows;
@@ -294,6 +289,43 @@ create or replace package body ut_suite_cache_manager is
   end;
   
   /*
+    We will sort a suites in hierarchical structure.
+    Sorting from bottom to top so when we consolidate
+    we will go in proper order.
+    For random seed we will add an extra sort that can be null
+  */
+  procedure sort_and_randomize_tests(
+    a_suite_rows in out ut_suite_cache_rows,
+    a_random_seed  positive := null) 
+  is
+    l_suite_rows ut_suite_cache_rows;
+  begin
+    with
+    extract_parent_child as (
+        select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,s.line_no,a_random_seed random_seed
+          from table(a_suite_rows) s),        
+      t1(path,parent_path,object_owner,line_no,random_seed) as (
+        --Anchor memeber
+        select s.path, parent_path,s.object_owner,s.line_no,random_seed
+          from extract_parent_child s
+          where parent_path is null
+        union all
+        --Recursive member
+        select t2.path, t2.parent_path,t2.object_owner,t2.line_no,t2.random_seed
+          from t1,extract_parent_child t2
+          where t2.parent_path = t1.path
+          and t1.object_owner = t2.object_owner)
+      search depth first by line_no desc,random_seed set order1
+      select  value(i) as obj  
+        bulk collect into l_suite_rows 
+        from t1 c
+        join table(a_suite_rows) i on i.object_owner = c.object_owner and i.path = c.path
+        order by order1 desc;
+        
+    a_suite_rows := l_suite_rows;
+  end;
+  
+  /*
   * Public code
   */
   
@@ -308,6 +340,7 @@ create or replace package body ut_suite_cache_manager is
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
+    l_results2         ut_suite_cache_rows := ut_suite_cache_rows();
     l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
     l_schema_paths    ut_path_items;
     l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
@@ -316,7 +349,6 @@ create or replace package body ut_suite_cache_manager is
 
     l_schema_paths := a_schema_paths;
     l_sql := gc_get_bulk_cache_suite_sql;
-    l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed));
     l_suite_items := get_suite_items(a_schema_paths);
     if l_tags.count > 0 then
       l_suite_items := get_tags_suites(l_suite_items,l_tags);
@@ -325,7 +357,9 @@ create or replace package body ut_suite_cache_manager is
        
     execute immediate l_sql
       bulk collect into l_results
-      using l_suite_items, a_random_seed;
+      using l_suite_items;
+      
+    sort_and_randomize_tests(l_results,a_random_seed);
     return l_results;
   end;
     
