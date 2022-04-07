@@ -270,7 +270,7 @@ create or replace package body ut_suite_cache_manager is
     extract_parent_child as (
         select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,
           case when a_random_seed is null then s.line_no else null end line_no,
-          case when a_random_seed is null then null else ut_runner.hash_suite_path(s.path, a_random_seed) end random_seed
+          case when a_random_seed is null then null else ut_utils.hash_suite_path(s.path, a_random_seed) end random_seed
           from table(a_suite_rows) s),        
       t1(path,parent_path,object_owner,line_no,random_seed) as (
         --Anchor memeber

@@ -265,37 +265,6 @@ create or replace package body ut_runner is
     end loop;
   end;
 
-  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2 is
-    l_start_pos pls_integer := 1;
-    l_end_pos   pls_integer := 1;
-    l_result    varchar2(4000);
-    l_item      varchar2(4000);
-    l_at_end    boolean := false;
-  begin
-    if a_random_seed is null then
-      l_result := a_path;
-      end if;
-    if a_path is not null then
-      loop
-        l_end_pos := instr(a_path,'.',l_start_pos);
-        if l_end_pos = 0 then
-          l_end_pos := length(a_path)+1;
-          l_at_end  := true;
-          end if;
-        l_item := substr(a_path,l_start_pos,l_end_pos-l_start_pos);
-        if l_item is not null then
-          l_result  :=
-            l_result ||
-              ut_utils.get_hash( to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ) );
-          end if;
-        exit when l_at_end;
-        l_result  := l_result || chr(0);
-        l_start_pos := l_end_pos + 1;
-      end loop;
-      end if;
-    return l_result;
-  end;
-
   procedure coverage_start(a_coverage_run_id raw) is
   begin
     ut_coverage.coverage_start(a_coverage_run_id);
