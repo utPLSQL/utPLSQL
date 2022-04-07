@@ -901,7 +901,7 @@ create or replace package body ut_utils is
   begin
     if a_random_seed is null then
       l_result := a_path;
-      end if;
+    end if;
     if a_path is not null then
       loop
         l_end_pos := instr(a_path,'.',l_start_pos);
