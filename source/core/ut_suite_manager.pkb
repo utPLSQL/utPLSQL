@@ -279,7 +279,7 @@ create or replace package body ut_suite_manager is
           pragma inline(get_logical_suite, 'YES');
           a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
         end if;
-        if l_prev_level > l_level then
+        if l_prev_level > l_level then    
           l_items_at_level(l_prev_level).delete;
         end if;
         l_prev_level := l_level;

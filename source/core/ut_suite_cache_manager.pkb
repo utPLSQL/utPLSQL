@@ -259,6 +259,7 @@ create or replace package body ut_suite_cache_manager is
     Sorting from bottom to top so when we consolidate
     we will go in proper order.
     For random seed we will add an extra sort that can be null
+    TODO: Verify object owner join
   */
   procedure sort_and_randomize_tests(
     a_suite_rows in out ut_suite_cache_rows,
@@ -281,14 +282,13 @@ create or replace package body ut_suite_cache_manager is
         --Recursive member
         select t2.path, t2.parent_path,t2.object_owner,t2.line_no,t2.random_seed
           from t1,extract_parent_child t2
-          where t2.parent_path = t1.path
-          and t1.object_owner = t2.object_owner)
+          where t2.parent_path = t1.path)
       search depth first by line_no desc,random_seed desc nulls last set order1
       select  value(i) as obj  
         bulk collect into l_suite_rows 
         from t1 c
         join table(a_suite_rows) i on i.object_owner = c.object_owner and i.path = c.path
-        order by order1 desc;
+        order by order1 desc;      
         
     a_suite_rows := l_suite_rows;
   end;
