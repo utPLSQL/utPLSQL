@@ -258,8 +258,10 @@ create or replace package body ut_suite_cache_manager is
     We will sort a suites in hierarchical structure.
     Sorting from bottom to top so when we consolidate
     we will go in proper order.
-    For random seed we will add an extra sort that can be null
-    TODO: Verify object owner join
+    For random seed we will add an extra sort that can be null.
+    The object owner is irrelevant on joing via path as we already
+    resolved a list of test we want to use so as long they share a suitepath
+    they are correct.
   */
   procedure sort_and_randomize_tests(
     a_suite_rows in out ut_suite_cache_rows,

@@ -45,10 +45,8 @@ The **functions** can only be used in SELECT statements. They execute the specif
 ## ut.run procedures
 
 The examples below illustrate different ways and options to invoke `ut.run` procedures.
-As part of the syntax you can use a wildcard character `*` to call test by part of his name or to call few tests that match a call.
-Schema name is still mandatory and cannot contain a wildcard character whether is a suitepath or object.
-
-
+You can use a wildcard character `*` to call tests by part of their name or to call tests that are located on paths matched by part of path string.
+Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
 
 ```sql
 alter session set current_schema=hr;
@@ -142,7 +140,7 @@ begin
   ut.run('hr.test*');
 end;
 ```
-Executes all tests from schema _hr_ starting with name _test_.
+Executes all tests in schema `hr` located in packages starting with name `test`.
 
 ```sql
 set serveroutput on
