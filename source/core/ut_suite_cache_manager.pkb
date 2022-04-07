@@ -88,40 +88,6 @@ create or replace package body ut_suite_cache_manager is
     return l_result;
   end;
 
-  function get_random_seed_sql(a_random_seed positive) return varchar2 is
-  begin
-    return case
-           when a_random_seed is null then q'[
-              nlssort(
-                replace(
-                  /*suite path until objects name (excluding contexts and test path) with trailing dot (full stop)*/
-                  substr( c.obj.path, 1, instr( c.obj.path, lower(c.obj.object_name), -1 ) + length(c.obj.object_name) ),
-                  '.',
-                  /*'.' replaced with chr(0) to assure that child elements come before parent when sorting in descending order*/
-                  chr(0)
-                ),
-                'nls_sort=binary'
-              )desc nulls last,
-              case when c.obj.self_type = 'UT_SUITE_CONTEXT' then
-                ( select /*+ no_parallel */ max( x.line_no ) + 1
-                    from ut_suite_cache x
-                   where c.obj.object_owner = x.object_owner
-                     and c.obj.object_name = x.object_name
-                     and x.path like c.obj.path || '.%'
-                )
-              else
-                c.obj.line_no
-              end,
-              /*assures that child contexts come before parent contexts*/
-              regexp_count(c.obj.path,'\.') desc,
-              :a_random_seed]'
-           else
-             ' ut_runner.hash_suite_path(
-               c.obj.path, :a_random_seed
-             ) desc nulls last'
-           end;
-  end;
-  
   function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_\*]+))?(\.([A-Za-z0-9$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
@@ -302,7 +268,9 @@ create or replace package body ut_suite_cache_manager is
   begin
     with
     extract_parent_child as (
-        select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,s.line_no,a_random_seed random_seed
+        select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,
+          case when a_random_seed is null then s.line_no else null end line_no,
+          case when a_random_seed is null then null else ut_runner.hash_suite_path(s.path, a_random_seed) end random_seed
           from table(a_suite_rows) s),        
       t1(path,parent_path,object_owner,line_no,random_seed) as (
         --Anchor memeber
@@ -315,7 +283,7 @@ create or replace package body ut_suite_cache_manager is
           from t1,extract_parent_child t2
           where t2.parent_path = t1.path
           and t1.object_owner = t2.object_owner)
-      search depth first by line_no desc,random_seed set order1
+      search depth first by line_no desc,random_seed desc nulls last set order1
       select  value(i) as obj  
         bulk collect into l_suite_rows 
         from t1 c
