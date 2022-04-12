@@ -295,7 +295,8 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_suite_data_cursor;
   end reconstruct_from_cache;
-
+  
+  --TODO: daj do public ut_suite_cache_rows i zmienic na SQL
   function get_filtered_cursor(
     a_unfiltered_rows in ut_suite_cache_rows,
     a_skip_all_objects boolean  := false
@@ -306,26 +307,21 @@ create or replace package body ut_suite_manager is
     if ut_metadata.user_has_execute_any_proc() or a_skip_all_objects then
       l_result := a_unfiltered_rows;
     else
-      for i in (
-          select /*+ no_parallel */ c.* from table(a_unfiltered_rows) c
-            where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
-          union all
-          select /*+ no_parallel */ c.* from table(a_unfiltered_rows) c
-            where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
-            and ( exists
-              ( select 1
-                  from all_objects a
-                  where a.object_name = c.object_name
-                    and a.owner       = c.object_owner
-                    and a.object_type = 'PACKAGE'
-              )
-            or c.self_type = 'UT_LOGICAL_SUITE'))
-      loop
-        l_result.extend;
-        l_result(l_result.last) := ut_suite_cache_row(i.id,i.self_type,i.path,i.object_owner,i.object_name,i.name,i.line_no,i.parse_time,
-          i.description,i.rollback_type,i.disabled_flag,i.disabled_reason,i.warnings,i.before_all_list,i.after_all_list,i.before_each_list,
-          i.before_test_list,i.after_each_list,i.after_test_list,i.expected_error_codes,i.tags,i.item);
-      end loop;
+      select obj bulk collect into l_result
+      from (
+        select /*+ no_parallel */  value(c) as obj from table(a_unfiltered_rows) c
+          where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
+        union all
+        select /*+ no_parallel */ value(c) as obj from table(a_unfiltered_rows) c
+          where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
+          and ( exists
+           ( select 1
+               from all_objects a
+               where a.object_name = c.object_name
+               and a.owner       = c.object_owner
+               and a.object_type = 'PACKAGE'
+            )
+          or c.self_type = 'UT_LOGICAL_SUITE'));
     end if; 
     return l_result;
   end;
@@ -373,6 +369,8 @@ create or replace package body ut_suite_manager is
     l_filtered_rows := get_filtered_cursor(l_unfiltered_rows,a_skip_all_objects);
     reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
     
+    ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
+
     open l_result for 
       select * from table(l_filtered_rows);
     return l_result;

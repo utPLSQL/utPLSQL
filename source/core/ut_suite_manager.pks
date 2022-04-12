@@ -39,6 +39,7 @@ create or replace package ut_suite_manager authid current_user is
    * @return array containing root suites-ready to be executed
    *
    */
+  --TODO:Zerknij czy mozna wywalic 
   function configure_execution_by_path(a_paths ut_varchar2_list, a_random_seed positive := null) return ut_suite_items;
 
   /**

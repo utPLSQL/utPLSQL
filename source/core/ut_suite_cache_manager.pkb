@@ -19,12 +19,11 @@ create or replace package body ut_suite_cache_manager is
   /*
   * Private code
   */
-
-  gc_get_bulk_cache_suite_sql    constant varchar2(32767) :=
-    q'[with  
+  cursor c_get_bulk_cache_suite(cp_suite_items in ut_suite_cache_rows) is
+    with  
       suite_items as (
         select  /*+ cardinality(c 500) */ value(c) as obj
-          from table(:suite_items) c),
+          from table(cp_suite_items) c),
       suitepaths as (
         select distinct substr(c.obj.path,1,instr(c.obj.path,'.',-1)-1) as suitepath,
                         c.obj.path as path,
@@ -65,9 +64,9 @@ create or replace package body ut_suite_cache_manager is
                ) as obj
           from logical_suite_data s
       )
-      select /*+ no_parallel */obj from suite_items
+      select /*+ no_parallel */ obj from suite_items
       union all
-      select /*+ no_parallel */ obj from logical_suites]';
+      select /*+ no_parallel */ obj from logical_suites;
 
   function get_missing_cache_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_result       ut_varchar2_rows;
@@ -126,6 +125,9 @@ create or replace package body ut_suite_cache_manager is
     
     Fourth SQL cover scenario where suitepath is populated with no filters
   */   
+
+  --TODO: Przenies w osobny with clause z nazwami jako opis.
+  -- i with clause na tablice.
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
   begin   
@@ -310,26 +312,21 @@ create or replace package body ut_suite_cache_manager is
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
-    l_results2         ut_suite_cache_rows := ut_suite_cache_rows();
     l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
     l_schema_paths    ut_path_items;
     l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
-    l_sql             varchar2(32767);
   begin     
 
     l_schema_paths := a_schema_paths;
-    l_sql := gc_get_bulk_cache_suite_sql;
     l_suite_items := get_suite_items(a_schema_paths);
     if l_tags.count > 0 then
       l_suite_items := get_tags_suites(l_suite_items,l_tags);
     end if;
-    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
-       
-    execute immediate l_sql
-      bulk collect into l_results
-      using l_suite_items;
+    
+    open c_get_bulk_cache_suite(l_suite_items);
+    fetch c_get_bulk_cache_suite bulk collect into l_results;
+    close c_get_bulk_cache_suite;
       
-    sort_and_randomize_tests(l_results,a_random_seed);
     return l_results;
   end;
     
