@@ -296,7 +296,6 @@ create or replace package body ut_suite_manager is
     close a_suite_data_cursor;
   end reconstruct_from_cache;
   
-  --TODO: daj do public ut_suite_cache_rows i zmienic na SQL
   function get_filtered_cursor(
     a_unfiltered_rows in ut_suite_cache_rows,
     a_skip_all_objects boolean  := false

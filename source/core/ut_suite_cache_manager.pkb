@@ -125,51 +125,63 @@ create or replace package body ut_suite_cache_manager is
     
     Fourth SQL cover scenario where suitepath is populated with no filters
   */   
-
-  --TODO: Przenies w osobny with clause z nazwami jako opis.
-  -- i with clause na tablice.
   function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
     l_schema_paths ut_path_items:= ut_path_items();
   begin   
-    with paths_to_expand as ( 
+    with 
+      schema_paths as (
+      select * from table(a_schema_paths)
+    ),    
+      paths_for_object as ( 
       select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
         null as procedure_name
-        from table(a_schema_paths) sp left outer join ut_suite_cache c
+        from schema_paths sp left outer join ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%'))
         where sp.suite_path is null and sp.object_name is not null
         and ( sp.procedure_name is null or sp.procedure_name = '*')
         group by sp.schema_name,nvl(c.object_name,sp.object_name)
-      union all
+      ),
+      paths_for_procedures as (
       select /*+ no_parallel */ path as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
         nvl(c.name,sp.procedure_name) as procedure_name
-        from table(a_schema_paths) sp left outer join ut_suite_cache c
+        from schema_paths sp left outer join ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%')
         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
         where sp.suite_path is null and sp.object_name is not null
         and (sp.procedure_name is not null and sp.procedure_name != '*')      
-      union all
+      ),
+      paths_for_suite_path_with_ast as (
       select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-        from
-        table(a_schema_paths) sp left outer join ut_suite_cache c on
+        from schema_paths sp left outer join ut_suite_cache c on
         ( c.object_owner = upper(sp.schema_name) 
         and c.path like replace(sp.suite_path,'*','%'))       
         where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
-      union all
+      ),
+      straigth_suite_paths as (
       select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-       from table(a_schema_paths) sp
+       from schema_paths sp
        where 
        (sp.suite_path is not null and instr(sp.suite_path,'*') = 0)
        or 
        (sp.suite_path is null and sp.object_name is null)
+    ),
+    all_suitepaths_together as (
+    select * from paths_for_object
+    union all
+    select * from paths_for_procedures
+    union all
+    select * from paths_for_suite_path_with_ast
+    union all 
+    select * from straigth_suite_paths
     )
     select ut_path_item(schema_name,object_name,procedure_name,suite_path)
       bulk collect into l_schema_paths
       from 
       (select schema_name,object_name,procedure_name,suite_path,
       row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) as r_num
-      from paths_to_expand)
+      from all_suitepaths_together)
       where r_num = 1 ;
     return l_schema_paths;
   end;
