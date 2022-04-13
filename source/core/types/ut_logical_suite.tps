@@ -21,6 +21,9 @@ create or replace type ut_logical_suite force under ut_suite_item (
   */
   items        ut_suite_items,
 
+  constructor function ut_logical_suite (
+    self in out nocopy ut_logical_suite, a_object_owner varchar2, a_object_name varchar2, a_path varchar2
+  ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_skip_reason in varchar2),
   overriding member procedure set_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer, a_force boolean := false),
   overriding member function  do_execute(self in out nocopy ut_logical_suite) return boolean,

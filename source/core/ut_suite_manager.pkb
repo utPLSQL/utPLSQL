@@ -170,14 +170,14 @@ create or replace package body ut_suite_manager is
     end loop;
   end;
 
-  function get_logical_suite(
-    a_rows tt_cached_suites,
-    a_idx pls_integer,
+  procedure get_logical_suite(
+    l_result out nocopy ut_suite_item,
+    a_rows              tt_cached_suites,
+    a_idx               pls_integer,
     a_level             pls_integer,
     a_prev_level        pls_integer,
     a_items_at_level    t_item_levels
-  ) return ut_suite_item is
-    l_result ut_suite_item;
+  ) is
   begin
       case a_rows( a_idx ).self_type
         when 'UT_SUITE' then
@@ -282,7 +282,6 @@ create or replace package body ut_suite_manager is
             );
       end case;
     l_result.results_count.warnings_count := l_result.warnings.count;
-    return l_result;
   end;
   
   procedure reconstruct_from_cache(
@@ -308,11 +307,11 @@ create or replace package body ut_suite_manager is
           end if;
           l_items_at_level(l_level).extend;
           pragma inline(get_logical_suite, 'YES');
-          l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+          get_logical_suite(l_items_at_level(l_level)(l_items_at_level(l_level).last), l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
         else
           a_suites.extend;
           pragma inline(get_logical_suite, 'YES');
-          a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+          get_logical_suite(a_suites(a_suites.last), l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
         end if;
         if l_prev_level > l_level then
           l_items_at_level(l_prev_level).delete;
@@ -330,6 +329,63 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_suite_data_cursor;
   end reconstruct_from_cache;
+
+  procedure reconstruct_from_cache_json(
+    a_suites            in out nocopy ut_suite_items,
+    a_suite_data_cursor sys_refcursor
+  ) is
+    c_bulk_limit        constant pls_integer := 1000;
+    l_items_at_level    t_item_levels;
+    l_rows              ut_suite_items;
+    l_level             pls_integer;
+    l_prev_level        pls_integer;
+    l_idx               integer;
+    l_tmp_logical_suite ut_logical_suite;
+  begin
+    loop
+      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+
+      l_idx := l_rows.first;
+      while l_idx is not null loop
+        l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+        if l_level > 1 then
+          if not l_items_at_level.exists(l_level) then
+            l_items_at_level(l_level) := ut_suite_items();
+          end if;
+          l_items_at_level(l_level).extend;
+          if l_rows(l_idx).self_type in ('UT_LOGICAL_SUITE','UT_SUITE','UT_SUITE_CONTEXT') then
+              l_tmp_logical_suite := treat(l_rows(l_idx) as ut_logical_suite);
+              l_tmp_logical_suite.items := case when l_prev_level > l_level then l_items_at_level(l_prev_level) else ut_suite_items() end;
+              l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_tmp_logical_suite;
+          else
+            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_rows(l_idx);
+          end if;
+        else
+          a_suites.extend;
+          if l_rows(l_idx).self_type in ('UT_LOGICAL_SUITE','UT_SUITE','UT_SUITE_CONTEXT') and l_prev_level > l_level then
+              l_tmp_logical_suite := treat(l_rows(l_idx) as ut_logical_suite);
+              l_tmp_logical_suite.items := case when l_prev_level > l_level then l_items_at_level(l_prev_level) else ut_suite_items() end;
+              a_suites(a_suites.last) := l_tmp_logical_suite;
+          else
+            a_suites(a_suites.last) := l_rows(l_idx);
+          end if;
+        end if;
+        if l_prev_level > l_level then
+          l_items_at_level(l_prev_level) := ut_suite_items();
+        end if;
+        l_prev_level := l_level;
+        l_idx := l_rows.next(l_idx);
+      end loop;
+      exit when a_suite_data_cursor%NOTFOUND;
+    end loop;
+
+    reverse_list_order( a_suites );
+
+    for i in 1 .. a_suites.count loop
+      a_suites( i ).set_rollback_type( a_suites( i ).get_rollback_type );
+    end loop;
+    close a_suite_data_cursor;
+  end reconstruct_from_cache_json;
 
   function get_cached_suite_data(
     a_object_owner     varchar2,
@@ -365,6 +421,48 @@ create or replace package body ut_suite_manager is
                  and a.object_type = 'PACKAGE'
            )
         or c.self_type = 'UT_LOGICAL_SUITE';
+    end if;
+
+    return l_result;
+  end;
+
+  function get_cached_suite_data_json(
+    a_object_owner     varchar2,
+    a_path             varchar2 := null,
+    a_object_name      varchar2 := null,
+    a_procedure_name   varchar2 := null,
+    a_skip_all_objects boolean  := false,
+    a_random_seed      positive,
+    a_tags             ut_varchar2_rows := null
+  ) return sys_refcursor is
+    l_unfiltered_rows  sys_refcursor;
+    l_result           sys_refcursor;
+    l_suites           ut_suite_items;
+  begin
+    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows_json_cur(
+      a_object_owner,
+      a_path,
+      a_object_name,
+      a_procedure_name,
+      a_random_seed,
+      a_tags
+    );
+    if a_skip_all_objects then
+      l_result := l_unfiltered_rows;
+    else
+      fetch l_unfiltered_rows bulk collect into l_suites;
+      close l_unfiltered_rows;
+      open l_result for
+        select /*+ no_parallel */ c.obj from (select value(c) as obj, rownum rn from table(l_suites) c) c
+         where exists
+           ( select 1
+               from all_objects a
+               where a.object_name = c.obj.object_name
+                 and a.owner       = c.obj.object_owner
+                 and a.object_type = 'PACKAGE'
+           )
+           or c.obj.self_type = 'UT_LOGICAL_SUITE'
+         order by rn;
     end if;
 
     return l_result;
@@ -455,9 +553,22 @@ create or replace package body ut_suite_manager is
   begin
     refresh_cache(a_owner_name);
 
-    reconstruct_from_cache(
+--     reconstruct_from_cache(
+--       a_suites,
+--       get_cached_suite_data(
+--         a_owner_name,
+--         a_path,
+--         a_object_name,
+--         a_procedure_name,
+--         can_skip_all_objects_scan(a_owner_name),
+--         a_random_seed,
+--         a_tags
+--       )
+--     );
+
+    reconstruct_from_cache_json(
       a_suites,
-      get_cached_suite_data(
+      get_cached_suite_data_json(
         a_owner_name,
         a_path,
         a_object_name,

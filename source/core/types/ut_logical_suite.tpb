@@ -16,6 +16,17 @@ create or replace type body ut_logical_suite as
   limitations under the License.
   */
 
+  constructor function ut_logical_suite (
+    self in out nocopy ut_logical_suite, a_object_owner varchar2, a_object_name varchar2, a_path varchar2
+  ) return self as result is
+  begin
+    self.self_type := $$plsql_unit;
+    self.init(a_object_owner, a_object_name, a_object_name, null);
+    self.path  := a_path;
+    self.items := ut_suite_items();
+    self.tags  := ut_varchar2_rows();
+    return;
+  end;
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_skip_reason in varchar2) is
   begin
     ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);

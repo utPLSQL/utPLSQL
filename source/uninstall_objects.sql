@@ -94,6 +94,8 @@ drop package ut_suite_builder;
 
 drop package ut_suite_cache_manager;
 
+drop table ut_suite_cache_json purge;
+
 drop table ut_suite_cache purge;
 
 drop type ut_suite_cache_rows force;

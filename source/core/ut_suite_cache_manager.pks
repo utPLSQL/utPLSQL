@@ -54,6 +54,15 @@ create or replace package ut_suite_cache_manager authid definer is
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows;
 
+  function get_cached_suite_rows_json_cur(
+    a_object_owner     varchar2,
+    a_path             varchar2 := null,
+    a_object_name      varchar2 := null,
+    a_procedure_name   varchar2 := null,
+    a_random_seed      positive := null,
+    a_tags             ut_varchar2_rows := null
+  ) return sys_refcursor;
+
   /*
   * Retrieves suite item info rows from cache.
   * Returned data is not filtered by user access rights.

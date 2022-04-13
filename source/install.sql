@@ -149,6 +149,7 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/ut_suite_cache_package.sql'
 @@install_component.sql 'core/ut_suite_cache_seq.sql'
 @@install_component.sql 'core/ut_suite_cache.sql'
+@@install_component.sql 'core/ut_suite_cache_json.sql'
 
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pkb'
