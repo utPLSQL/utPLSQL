@@ -84,7 +84,7 @@ begin
 end;
 ```
 
-Executes all tests from all packages that are on suitepath starting with _com_.
+Executes all tests in schema `hr` from all packages that are on suitepath starting with `com`.
 
 ```sql
 set serveroutput on
@@ -148,7 +148,7 @@ begin
   ut.run('hr.test_apply_bonus.bonus_*');
 end;
 ```
-Executes all test procedures from package _hr.test_apply_bonus_ that starting with _bonus_.
+Executes test procedures with names starting with `bonus` in package `hr.test_apply_bonus` .
 
 
 **Note:**
