@@ -258,12 +258,12 @@ create or replace package body ut_suite_cache_manager is
          from table(a_suite_items) c
         where exists (
           select 1 from included_tags t
-           where t.path||'.' like c.path || '.%' /*all parents and self*/
-              or c.path||'.' like t.path || '.%' /*all children and self*/
+           where t.path||'.' like c.path || '.%' /*all ancestors and self*/
+              or c.path||'.' like t.path || '.%' /*all descendants and self*/
           )
         and not exists (
           select 1 from excluded_tags t
-           where c.path||'.' like t.path || '.%' /*all children and self*/
+           where c.path||'.' like t.path || '.%' /*all descendants and self*/
           );
     return l_suite_tags;      
   end;
