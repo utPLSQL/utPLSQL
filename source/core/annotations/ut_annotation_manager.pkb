@@ -61,15 +61,15 @@ create or replace package body ut_annotation_manager as
     l_refresh_needed boolean;
     l_objects_view   varchar2(200) := ut_metadata.get_objects_view_name();
     l_cached_objects ut_annotation_objs_cache_info;
-    l_result         ut_annotation_objs_cache_info;
+    l_result         ut_annotation_objs_cache_info := ut_annotation_objs_cache_info();
   begin
-    ut_event_manager.trigger_event( 'get_objects_to_refresh - start' );
+    ut_event_manager.trigger_event( 'get_objects_to_refresh - start', ut_key_anyvalues().put('ut_trigger_check.is_alive()',ut_trigger_check.is_alive()) );
 
     l_refresh_needed := ( ut_trigger_check.is_alive() = false ) or a_modified_after is null;
-    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type, a_modified_after );
     if l_refresh_needed then
       --limit the list to objects that exist and are visible to the invoking user
       --enrich the list by info about cache validity
+      l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type, a_modified_after );
       execute immediate
         'select /*+ no_parallel cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
                 '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
@@ -94,8 +94,6 @@ create or replace package body ut_annotation_manager as
              else 'o.last_ddl_time >= cast(:a_modified_after as date)'
              end
         bulk collect into l_result using l_cached_objects, a_modified_after;
-    else
-      l_result := l_cached_objects;
     end if;
     ut_event_manager.trigger_event('get_objects_to_refresh - end (count='||l_result.count||')');
     return l_result;

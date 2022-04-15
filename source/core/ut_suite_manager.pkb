@@ -366,7 +366,7 @@ create or replace package body ut_suite_manager is
            )
         or c.self_type = 'UT_LOGICAL_SUITE';
     end if;
-    
+
     return l_result;
   end;
 
@@ -578,7 +578,7 @@ create or replace package body ut_suite_manager is
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
     end loop;
 
-    ut_event_manager.trigger_event('configure_execution_by_path - start');
+    ut_event_manager.trigger_event('configure_execution_by_path - end');
   end configure_execution_by_path;
 
   function get_suites_info(
