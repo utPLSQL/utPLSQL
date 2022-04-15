@@ -84,7 +84,7 @@ create or replace package body ut_suite_manager is
           when sys.dbms_assert.invalid_schema_name then
             if l_object like '%*%' or ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
               a_paths(i) := c_current_schema || '.' || a_paths(i);
-              l_schema := c_current_schema;              
+              l_schema := c_current_schema;
             else
               raise;
             end if;
@@ -279,7 +279,7 @@ create or replace package body ut_suite_manager is
           pragma inline(get_logical_suite, 'YES');
           a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
         end if;
-        if l_prev_level > l_level then    
+        if l_prev_level > l_level then
           l_items_at_level(l_prev_level).delete;
         end if;
         l_prev_level := l_level;
@@ -295,11 +295,11 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_suite_data_cursor;
   end reconstruct_from_cache;
-  
+
   function get_filtered_cursor(
     a_unfiltered_rows in ut_suite_cache_rows,
     a_skip_all_objects boolean  := false
-  ) 
+  )
   return ut_suite_cache_rows is
     l_result           ut_suite_cache_rows := ut_suite_cache_rows();
   begin
@@ -321,22 +321,22 @@ create or replace package body ut_suite_manager is
                and a.object_type = 'PACKAGE'
             )
           or c.self_type = 'UT_LOGICAL_SUITE'));
-    end if; 
+    end if;
     return l_result;
   end;
-  
+
   procedure reconcile_paths_and_suites(
     a_schema_paths     ut_path_items,
     a_filtered_rows    ut_suite_cache_rows
   ) is
-  begin 
+  begin
     for i in ( select  /*+ no_parallel */ sp.schema_name,sp.object_name,sp.procedure_name,
         sp.suite_path,sc.path
       from table(a_schema_paths) sp left outer join
-      table(a_filtered_rows) sc on 
-        (( upper(sp.schema_name) = upper(sc.object_owner) and upper(sp.object_name) = upper(sc.object_name) 
+      table(a_filtered_rows) sc on
+        (( upper(sp.schema_name) = upper(sc.object_owner) and upper(sp.object_name) = upper(sc.object_name)
            and nvl(upper(sp.procedure_name),sc.name) = sc.name )
-        or (sc.path = sp.suite_path))          
+        or (sc.path = sp.suite_path))
         where sc.path is null)
     loop
       if i.suite_path is not null then
@@ -346,9 +346,9 @@ create or replace package body ut_suite_manager is
       elsif i.object_name is not null then
         raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||i.schema_name||'.'||i.object_name|| ' does not exist');
       end if;
-    end loop;    
+    end loop;
   end;
-  
+
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
@@ -363,14 +363,14 @@ create or replace package body ut_suite_manager is
       a_schema_paths,
       a_random_seed,
       a_tags
-    );  
-    
+    );
+
     l_filtered_rows := get_filtered_cursor(l_unfiltered_rows,a_skip_all_objects);
     reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
-    
+
     ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
 
-    open l_result for 
+    open l_result for
       select * from table(l_filtered_rows);
     return l_result;
   end;
@@ -486,7 +486,7 @@ create or replace package body ut_suite_manager is
       get_cached_suite_data(
         l_schema_paths,
         null,
-        null,        
+        null,
         a_skip_all_objects
       )
     );
@@ -528,7 +528,7 @@ create or replace package body ut_suite_manager is
     l_schema             varchar2(4000);
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
-    a_suites := ut_suite_items();    
+    a_suites := ut_suite_items();
     --resolve schema names from paths and group paths by schema name
     l_schema_names := resolve_schema_names(l_paths);
 
@@ -538,9 +538,9 @@ create or replace package body ut_suite_manager is
       refresh_cache(upper(l_schema_names(l_schema)));
       l_schema := l_schema_names.next(l_schema);
     end loop;
-    
+
     l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-    
+
     --We will get a single list of paths rather than loop by loop.
     add_suites_for_paths(
       l_schema_paths,
@@ -548,13 +548,13 @@ create or replace package body ut_suite_manager is
       a_random_seed,
       a_tags
     );
-        
+
     --propagate rollback type to suite items after organizing suites into hierarchy
     for i in 1 .. a_suites.count loop
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
     end loop;
 
-    ut_event_manager.trigger_event('configure_execution_by_path - start');
+    ut_event_manager.trigger_event('configure_execution_by_path - end');
   end configure_execution_by_path;
 
   function get_suites_info(
@@ -564,11 +564,11 @@ create or replace package body ut_suite_manager is
     l_all_suite_info     ut_suite_items_info;
     l_schema_names       ut_varchar2_rows;
     l_schema_paths       ut_path_items;
-    l_paths              ut_varchar2_list := a_paths; 
+    l_paths              ut_varchar2_list := a_paths;
     l_schema             varchar2(4000);
     l_unfiltered_rows    ut_suite_cache_rows;
     l_filtered_rows      ut_suite_cache_rows;
-   
+
   begin
     l_schema_names := resolve_schema_names(l_paths);
     --refresh cache
