@@ -297,7 +297,7 @@ create or replace package body ut_suite_cache_manager is
       if a_parse_time > l_cached_parse_time or l_cached_parse_time is null then
 
         update /*+ no_parallel */ ut_suite_cache_schema t
-           set t.parse_time = a_parse_time
+           set t.parse_time = greatest(t.parse_time,a_parse_time)
          where object_owner = l_object_owner;
 
         if sql%rowcount = 0 then
