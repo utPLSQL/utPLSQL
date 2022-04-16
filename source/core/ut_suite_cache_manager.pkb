@@ -203,7 +203,7 @@ create or replace package body ut_suite_cache_manager is
   begin
     select obj bulk collect into  l_suite_items
     from (
-    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path order by path asc) as r_num  
+    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num  
       from ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
