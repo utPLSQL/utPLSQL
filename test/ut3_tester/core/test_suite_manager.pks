@@ -196,14 +196,44 @@ create or replace package test_suite_manager is
 
   --%context(wildcard_filters)
 
-  --%test(Execute test_packages using a object_name with wildcard )
+  --%test(Execute test_packages using a object_name with wildcard at the end )
   procedure test_wild_card_obj_name;
 
-  --%test(Execute test_packages using a procedure name with wildcard )
+  --%test(Execute test_packages using a procedure name with wildcard at the end)
   procedure test_wild_card_prc_name;
 
-  --%test(Execute test_packages using a path name with wildcard )
+  --%test(Execute test_packages using a path name with wildcard at the end)
   procedure test_wild_card_path_name;
+
+  --%test(Execute test_packages using a object_name with wildcard in the front)
+  procedure test_wild_card_front_obj_name;
+
+  --%test(Execute test_packages using a procedure name with wildcard in the front)
+  procedure test_wild_card_front_prc_name;
+
+  -- %test(Execute test_packages using a path name with wildcard in the front)
+  procedure test_wild_card_front_path_name;
+
+  --%test(Execute test_packages using a object_name with wildcard in the middle)
+  procedure test_wild_card_mid_obj_name;
+
+  --%test(Execute test_packages using a procedure name with wildcard in the middle)
+  procedure test_wild_card_mid_prc_name;
+
+  -- %test(Execute test_packages using a path name with wildcard in the middle)
+  procedure test_wild_card_mid_path_name;
+
+  --%test(Execute test_packages using a object_name with multiple wildcards)
+  procedure test_wild_card_mul_obj_name;
+
+  --%test(Execute test_packages using a procedure name with multiple wildcards)
+  procedure test_wild_card_mul_prc_name;
+
+  -- %test(Execute test_packages using a path name with multiple wildcards)
+  procedure test_wild_card_mul_path_name;
+
+  -- %test(Execute test_packages using a path name with multiple wildcards on different level)
+  procedure tst_wild_card_mul_lv_path_name;
 
   --%endcontext
 

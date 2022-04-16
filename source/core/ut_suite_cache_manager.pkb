@@ -156,7 +156,8 @@ create or replace package body ut_suite_cache_manager is
       select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
         from schema_paths sp left outer join ut_suite_cache c on
         ( c.object_owner = upper(sp.schema_name) 
-        and c.path like replace(sp.suite_path,'*','%'))       
+        --and c.path like replace(sp.suite_path,'*','%'))
+        and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[A-Za-z0-9$#_]*')))
         where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
       ),
       straigth_suite_paths as (
