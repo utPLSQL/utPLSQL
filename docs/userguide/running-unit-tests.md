@@ -46,6 +46,7 @@ The **functions** can only be used in SELECT statements. They execute the specif
 
 The examples below illustrate different ways and options to invoke `ut.run` procedures.
 You can use a wildcard character `*` to call tests by part of their name or to call tests that are located on paths matched by part of path string.
+Wildcard character can be placed anywhere on the path and can occur mutliple times.
 Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
 
 ```sql
@@ -85,6 +86,15 @@ end;
 ```
 
 Executes all tests in schema `hr` from all packages that are on suitepath starting with `com`.
+
+```sql
+set serveroutput on
+begin
+  ut.run('hr:co*.my_*.my_*');
+end;
+```
+
+Executes all tests in schema `hr` from all packages that starting with `my_` and all tests starting with `my_*` that are on suitepath starting with `co` .
 
 ```sql
 set serveroutput on
