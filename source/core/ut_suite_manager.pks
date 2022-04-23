@@ -39,6 +39,7 @@ create or replace package ut_suite_manager authid current_user is
    * @return array containing root suites-ready to be executed
    *
    */
+  --TODO:Zerknij czy mozna wywalic 
   function configure_execution_by_path(a_paths ut_varchar2_list, a_random_seed positive := null) return ut_suite_items;
 
   /**
@@ -79,15 +80,11 @@ create or replace package ut_suite_manager authid current_user is
   /**
   * Returns a ref cursor containing information about unit test suites and the tests contained in them
   *
-  * @param   a_owner          owner of unit tests to retrieve
-  * @param   a_package_name   name of test package (optional)
-  * @param   a_procedure_name name of test procedure (optional)
-  * @return  ut_suite_items_info table of objects
+  * @param   a_paths          list of paths to be resolved and return a suites.
   */
   function get_suites_info(
-    a_owner_name     varchar2, 
-    a_package_name   varchar2 := null
-  ) return sys_refcursor;
+    a_paths     ut_varchar2_list
+  ) return sys_refcursor; 
 
   /**
   * Returns true if given suite item exists

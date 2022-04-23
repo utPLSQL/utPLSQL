@@ -88,6 +88,10 @@ drop type ut_suite_items_info force;
 
 drop type ut_suite_item_info force;
 
+drop type ut_path_items force;
+
+drop type ut_path_item force;
+
 drop package ut_suite_manager;
 
 drop package ut_suite_builder;

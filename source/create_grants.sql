@@ -60,6 +60,7 @@ grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_items_info to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_item_info to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_cache_rows to &ut3_user;
 grant execute on &&ut3_owner..ut_run_info to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 

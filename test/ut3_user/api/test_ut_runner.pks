@@ -65,6 +65,11 @@ create or replace package test_ut_runner is
   --%aftertest(cleanup_cache)
   procedure test_get_suites_info_twotag;  
 
+  --%test(get_suites_info returns a cursor containing records for a newly created test with passed path)
+  --%beforetest(setup_cache_objects)
+  --%aftertest(cleanup_cache)
+  procedure test_get_suites_info_by_path;
+
   --%test(get_reporters_list returns a cursor containing all built-in reporters and information about output-reporter)
   --%beforetest(setup_cache_objects)
   --%aftertest(cleanup_cache)

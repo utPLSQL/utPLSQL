@@ -344,6 +344,38 @@ end;';
     ut.expect(l_actual).to_equal(l_expected);
   end;
 
+  procedure test_get_suites_info_by_path is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_expected for
+      select
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
+             'some.path.dummy_test_package' path, 0 disabled_flag, null disabled_reason,null tags
+        from dual union all
+      select
+             'UT3_USER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'dummy_test' item_description, 'UT_TEST' item_type, 6 item_line_no,
+             'some.path.dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag, null disabled_reason,null tags
+        from dual union all
+      select
+             'UT3_USER'  object_owner, 'PATH' object_name, 'PATH' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some.path' path, 0 disabled_flag, null disabled_reason, null tags
+        from dual union all
+      select
+             'UT3_USER'  object_owner, 'SOME' object_name, 'SOME' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some' path, 0 disabled_flag, null disabled_reason, null tags
+        from dual;
+    --Act
+    open l_actual for select * from table(ut3_develop.ut_runner.get_suites_info('ut3_user:some.path.dummy_test_package'));
+    --Assert
+    ut.expect(l_actual).to_equal(l_expected);
+  end;
+
   procedure test_get_reporters_list is
     l_expected sys_refcursor;
     l_actual   sys_refcursor;

@@ -854,7 +854,7 @@ Failures:%
     l_results        ut3_develop.ut_varchar2_list;
   begin
     select * bulk collect into l_random_results
-      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 3 ) )
+      from table ( ut3_develop.ut.run( 'ut3_tester_helper.test_package_1', a_random_test_order_seed => 6 ) )
      where trim(column_value) is not null and column_value not like 'Finished in %'
       and column_value not like '%Tests were executed with random order %';
 

@@ -453,6 +453,11 @@ create or replace package ut_utils authid definer is
   function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
 
   /*
+  * Returns a hash value of suitepath based on input path and random seed
+  */
+  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
+
+  /*
   * Verifies that the input string is a qualified SQL name using sys.dbms_assert.qualified_sql_name
   * If null value passed returns null
   */

@@ -104,7 +104,14 @@ create or replace package ut_runner authid current_user is
   * @param   a_package_name name of unit test package to retrieve (optional), if NULL all unit test packages are returned
   * @return  ut_suite_items_info table of objects
   */
-  function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined;
+  function get_suites_info(a_owner varchar2, a_package_name varchar2) return ut_suite_items_info pipelined;
+
+  /**
+  * Returns a pipelined collection containing information about unit test suites and the tests contained in them
+  *
+  * @param   a_path a path from which we lookg for object or suite
+  */
+  function get_suites_info(a_path varchar2 := null) return ut_suite_items_info pipelined;
 
 
   /**
@@ -143,11 +150,6 @@ create or replace package ut_runner authid current_user is
   * @return tt_reporters_info
    */
   function get_reporters_list return tt_reporters_info pipelined;
-
-  /*
-  * Returns a hash value of suitepath based on input path and random seed
-  */
-  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
 
   procedure coverage_start(a_coverage_run_id raw);
 

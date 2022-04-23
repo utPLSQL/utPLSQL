@@ -75,8 +75,17 @@ create or replace package test_suite_manager is
  
   --%test(Prepare runner for nonexisting package with schema) 
   procedure test_search_nonexisting_pck;
- 
-   --%test(Prepare runner for nonexisting package without schema) 
+  
+  --%test(Prepare runner for nonexisting package using wildcard filter)
+  procedure test_search_nonex_pck_wild;
+
+   --%test(Prepare runner for nonexisting procedure using wildcard filter)
+  procedure test_search_nonex_prc_wild;
+
+  --%test(Prepare runner for nonexisting path using wildcard filter)
+  procedure test_search_nonex_path_wild;
+
+  --%test(Prepare runner for nonexisting package without schema) 
   procedure test_search_nonexist_sch_pck; 
 
   --%test(Test description with comma)
@@ -185,6 +194,48 @@ create or replace package test_suite_manager is
   --%aftertest(clean_remove_annot_test)
   procedure test_rem_cache_on_crt_anno;
 
+  --%context(wildcard_filters)
+
+  --%test(Execute test_packages using a object_name with wildcard at the end )
+  procedure test_wild_card_obj_name;
+
+  --%test(Execute test_packages using a procedure name with wildcard at the end)
+  procedure test_wild_card_prc_name;
+
+  --%test(Execute test_packages using a path name with wildcard at the end)
+  procedure test_wild_card_path_name;
+
+  --%test(Execute test_packages using a object_name with wildcard in the front)
+  procedure test_wild_card_front_obj_name;
+
+  --%test(Execute test_packages using a procedure name with wildcard in the front)
+  procedure test_wild_card_front_prc_name;
+
+  -- %test(Execute test_packages using a path name with wildcard in the front)
+  procedure test_wild_card_front_path_name;
+
+  --%test(Execute test_packages using a object_name with wildcard in the middle)
+  procedure test_wild_card_mid_obj_name;
+
+  --%test(Execute test_packages using a procedure name with wildcard in the middle)
+  procedure test_wild_card_mid_prc_name;
+
+  -- %test(Execute test_packages using a path name with wildcard in the middle)
+  procedure test_wild_card_mid_path_name;
+
+  --%test(Execute test_packages using a object_name with multiple wildcards)
+  procedure test_wild_card_mul_obj_name;
+
+  --%test(Execute test_packages using a procedure name with multiple wildcards)
+  procedure test_wild_card_mul_prc_name;
+
+  -- %test(Execute test_packages using a path name with multiple wildcards)
+  procedure test_wild_card_mul_path_name;
+
+  -- %test(Execute test_packages using a path name with multiple wildcards on different level)
+  procedure tst_wild_card_mul_lv_path_name;
+
+  --%endcontext
 
 end test_suite_manager;
 /

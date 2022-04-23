@@ -39,6 +39,16 @@ To get a full information about suite `TEST_STUFF` including suite description, 
 select * from table(ut_runner.get_suites_info(USER, 'TEST_STUFF')) where item_type = 'UT_TEST';
 ```
 
+To get a full information about suites that have a path like  `ut3:tests.test_package_*` including suite description, all contexts and tests in a suite 
+```sql
+select * from table(ut_runner.get_suites_info('ut3:tests.test_package_*') where item_type = 'UT_TEST';
+```
+
+To get a full information about suites that have object name like  `test_package_*` including suite description, all contexts and tests in a suite 
+```sql
+select * from table(ut_runner.get_suites_info('test_package_*'));
+```
+
 ## Checking if schema contains tests
 
 Function `ut_runner.has_suites(a_owner)` returns boolean value indicating if given schema contains test suites.

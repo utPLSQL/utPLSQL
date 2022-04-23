@@ -41,29 +41,40 @@ create or replace package ut_suite_cache_manager authid definer is
   procedure remove_missing_objs_from_cache(a_schema_name varchar2);
 
   /*
+  *  We will sort a suites in hierarchical structure.
+  *  Sorting from bottom to top so when we consolidate
+  *  we will go in proper order.
+  */
+  procedure sort_and_randomize_tests(
+    a_suite_rows in out ut_suite_cache_rows,
+    a_random_seed  positive := null);
+
+  /*
   * Retrieves suite items data from cache.
   * Returned data is not filtered by user access rights.
   * Not to be used publicly. Used internally for building suites at runtime.
   */
   function get_cached_suite_rows(
-    a_object_owner     varchar2,
-    a_path             varchar2 := null,
-    a_object_name      varchar2 := null,
-    a_procedure_name   varchar2 := null,
+    a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
     a_tags             ut_varchar2_rows := null
   ) return ut_suite_cache_rows;
-
+  
+  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
+  
   /*
   * Retrieves suite item info rows from cache.
   * Returned data is not filtered by user access rights.
   * Not to be used publicly. Used internally for building suites info.
   */
   function get_cached_suite_info(
-    a_object_owner     varchar2,
-    a_object_name      varchar2
+    a_schema_paths     ut_path_items
+  ) return ut_suite_cache_rows;
+  
+  function get_suite_items_info(
+    a_suite_cache_items ut_suite_cache_rows
   ) return ut_suite_items_info;
-
+  
   /*
   * Retrieves list of cached suite packages.
   * Returned data is not filtered by user access rights.
