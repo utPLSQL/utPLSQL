@@ -23,4 +23,4 @@ Add any other context or screenshots about the feature request here.
 > Please do not create issues for generic SQL or PL/SQL questions. There are other forums and communities to help you with those. See [ASKTom](https://asktom.oracle.com) for example.
 
 **Want to discuss**
-If you want to discuss your issue, join [our SLACK chat](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA).
+If you want to discuss your issue, join [our SLACK chat](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww).
