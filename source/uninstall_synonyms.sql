@@ -15,10 +15,10 @@ begin
         and not exists (select 1 from all_objects o where o.owner = s.table_owner and o.object_name = s.table_name)
   )
   loop
-    i := i + 1;
     begin
       execute immediate 'drop '||syn.syn_name;
       dbms_output.put_line('Dropped '||syn.syn_name||' for object '||syn.for_object);
+      i := i + 1;      
       exception
       when others then
       dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
