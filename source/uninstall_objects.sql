@@ -1,5 +1,4 @@
 set echo off
-set serverout on
 declare
   procedure drop_if_exists(a_object_type varchar2, a_object_name varchar2) is
     l_count integer;
