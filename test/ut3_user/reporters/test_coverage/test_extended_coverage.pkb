@@ -113,9 +113,9 @@ create or replace package body test_extended_coverage is
   begin
     --Arrange
     l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     l_not_expected := '%<file path="package body ut3_tester_helper.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';            
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -140,9 +140,9 @@ create or replace package body test_extended_coverage is
   begin
     --Arrange
     l_expected := '%<file path="package body ut3_develop.regex123_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     l_not_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';            
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -167,9 +167,9 @@ create or replace package body test_extended_coverage is
   begin
     --Arrange
     l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     l_not_expected := '%<file path="package body ut3_tester_helper.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';            
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -194,9 +194,9 @@ create or replace package body test_extended_coverage is
   begin
     --Arrange
     l_expected := '%<file path="package body ut3_develop.regex_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     l_not_expected := '%<file path="package body ut3_develop.regex123_dummy_cov">' ||
-      '%<lineToCover lineNumber="4" covered="true"/>%';            
+      '%<lineToCover lineNumber="4" covered="true"%/>%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
