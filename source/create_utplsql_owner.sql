@@ -42,5 +42,7 @@ end;
 
 grant execute on dbms_crypto to &ut3_owner_schema;
 
+grant execute on dbms_lob to &ut3_owner_schema;
+
 grant alter session to &ut3_owner_schema;
 
