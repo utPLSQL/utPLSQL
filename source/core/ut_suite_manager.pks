@@ -30,7 +30,7 @@ create or replace package ut_suite_manager authid current_user is
    * @param a_schema_names list of schemas to return the information for
    * @return array containing unit test schema and object names
    */
-  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows, a_schema_name_expr varchar2) return ut_object_names;
 
   /**
    * Builds a hierarchical suites based on given suite-paths

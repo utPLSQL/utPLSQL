@@ -493,13 +493,21 @@ create or replace package body ut_suite_manager is
     return l_suites;
   end;
 
-  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names is
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows, a_schema_name_expr varchar2) return ut_object_names is
+    l_schema_names ut_varchar2_rows := a_schema_names;
   begin
-    for i in 1 .. a_schema_names.count loop
-      refresh_cache(a_schema_names(i));
+    if a_schema_name_expr is not null then
+      select username
+        bulk collect into l_schema_names
+        from all_users
+       where regexp_like(username,a_schema_name_expr,'i');
+    end if;
+
+    for i in 1 .. l_schema_names.count loop
+      refresh_cache(l_schema_names(i));
     end loop;
 
-    return ut_suite_cache_manager.get_cached_packages( a_schema_names );
+    return ut_suite_cache_manager.get_cached_packages( l_schema_names );
   end;
 
   function get_schema_names(a_paths ut_varchar2_list) return ut_varchar2_rows is
