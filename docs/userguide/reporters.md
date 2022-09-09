@@ -161,5 +161,20 @@ Some of the information in debug log might be redundant.
 > - db object names
 > - etc.
 
- 
-       
+# Custom reporters
+
+It is possible to add your own reporters by creating an appropriate object type. In principle, it has to be a subtype of `ut_reporter_base`. However, if the reporter is expected to produce output consumable by a client oustside of the database (e.g. the data has to be reported to the screen or to a file), then you should base it on `ut_output_reporter_base` (which is a subtype of `ut_reporter_base`). In contrast, if you would like to create a reporter that, for example, saves the data to a database table, then it should be based directly on `ut_reporter_base`. (Currently, all reporters in the utPLSQL framework are based on `ut_output_reporter_base`.) Coverage reporters are based on `ut_coverage_reporter_base` (a subtype of `ut_output_reporter_base`).
+
+If need to produce a colored text output from the custom reporter, then you can build it basing on `ut_console_reporter_base` (a subtype of `ut_output_reporter_base`). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like `ut_documentation_reporter` or `ut_junit_reporter`, and override just some of the functionality.
+
+It is recommended to create the reporter type in the schema where utPLSQL is installed (by default it is the `UT3` schema). Note that before running the utPLSQL uninstall scripts, all custom reporters should be dropped (cf. [the installation documentation](install.md)). In particular, when upgrading to a newer version of utPLSQL, one has to drop the custom reporters and recreate them after the upgrade.
+
+**Note:**
+> It is possible, but cumbersome, to use another schema for storing the custom reporters. This requires to create a synonym for the base reporter type in the schema that is going to own the custom reporter, and to provide appropriate grants both to the owner of the custom reporter and to the user running the reporter. After upgrading or reinstalling utPLSQL, the extra privileges need to be recreated. This approach is not recommended.
+
+Assuming that the custom reporter type is created in the `UT3` schema, to run the tests using a custom reporter just call: `exec ut.run(ut3.custom_reporter_name());`, optionally providing parameter values to the `custom_reporter_name` constructor.
+
+One may get acquainted with the source code of the standard reporters bundled with utPLSQL (including the coverage reporters) by browsing the [`source/reporters/`](https://github.com/utPLSQL/utPLSQL/tree/develop/source/reporters) directory. The base reporter types `ut_reporter_base`, `ut_output_reporter_base` and `ut_console_reporter_base` are defined in [`source/core/types`](https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/types). The base coverage reporter type `ut_coverage_reporter_base` is in [`source/core/coverage`](https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/coverage). There are also two examples of custom reporters in [`examples/custom_reporters/`](https://github.com/utPLSQL/utPLSQL/tree/develop/examples/custom_reporters), both extending the functionality of `ut_documentation_reporter`:
+
+* `ut_custom_reporter` accepts an integer parameter `a_tab_size`; it alters the behaviour of `ut_documentation_reporter` by changing the size of the indentation according to the parameter value (by default the indentation is increased).
+* `ut_expectations_reporter` accepts a `varchar2` parameter `a_report_all_expectations`; if its value is `'Y'` (which is the default), then the reporter shows the results of all expectations that are run. This stays in contrast with `ut_documentation_reporter`, which shows the results of all tests that are run, but only of the expectations that failed (keep in mind that a single test may consist of several expectations).
