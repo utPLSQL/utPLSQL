@@ -24,7 +24,7 @@ You may download the latest release of the command line client from [here](https
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
-DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest | awk '/zipball_url/ { print $2 }' | sed -r 's/"|,//g')
+DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g')
 # Download the latest release "zip" file
 curl -Lk "${DOWNLOAD_URL}" -o utplsql-cli.zip
 # Extract downloaded "zip" file
