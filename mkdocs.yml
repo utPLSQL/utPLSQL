@@ -1,17 +1,79 @@
 # Format documented here
 # http://www.mkdocs.org/user-guide/configuration/
 
-site_name: utPLSQL
+site_url: http://utPLSQL.org/
+site_name: utPLSQL-framework
 site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracle PL/SQL
 copyright: Copyright &copy; 2016 - 2017 utPLSQL Team
-repo_url: https://github.com/utPLSQL/utPLSQL
-theme: mkdocs
+#repo_url: https://github.com/utPLSQL/utPLSQL  # disable for offline docs
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+  logo: assets/icon-transparent.png
+  favicon: assets/favicon.png
+  features:
+    - navigation.instant  # disable for offline docs
+#    - navigation.indexes
+    - navigation.tabs
+    - navigation.tracking
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+extra:
+#  homepage: http://jgebal.github.io/
+#  homepage: http://utPLSQL.org/
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/utPLSQL
+    - icon: fontawesome/brands/slack
+      link: https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww
+    - icon: fontawesome/brands/github
+      link: https://github.com/utPLSQL
+    - icon: fontawesome/solid/envelope
+      link: mailto:utPLSQL@utPLSQL.org
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  version:            # disable for offline docs
+    provider: mike    # disable for offline docs
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - toc:
+      permalink: true
 use_directory_urls: false
 strict: true
 
-pages:
-  - Home: index.md
+plugins:
+  - search
+  - mike
+  - git-revision-date-localized: # disable for offline docs
+      enable_creation_date: true # disable for offline docs
+      type: datetime             # disable for offline docs
+
+nav:
   - User Guide:
+       - index.md
        - Installation: userguide/install.md
        - Getting Started: userguide/getting-started.md
        - Annotations: userguide/annotations.md
@@ -22,8 +84,8 @@ pages:
        - Upgrade utPLSQL: userguide/upgrade.md
   - Reporting:
        - Using reporters: userguide/reporters.md
-       - Reporting errors: userguide/exception-reporting.md
        - Code coverage: userguide/coverage.md
+       - Error handling and reporting: userguide/exception-reporting.md
   - About:
        - Project Details: about/project-details.md
        - License: about/license.md
