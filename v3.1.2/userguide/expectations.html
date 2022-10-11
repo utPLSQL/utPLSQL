@@ -1,0 +1,1873 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="utPLSQL Documenation Powerful Unit Testing Framework for Oracle PL/SQL">
+      
+      
+      
+        <link rel="canonical" href="http://utPLSQL.org/v3.1.2/userguide/expectations.html">
+      
+      <link rel="icon" href="../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
+    
+    
+      
+        <title>Expectations - utPLSQL-framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#expectation-concepts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="utPLSQL-framework" class="md-header__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            utPLSQL-framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Expectations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.html" class="md-tabs__link md-tabs__link--active">
+        User Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="reporters.html" class="md-tabs__link">
+        Reporting
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../about/project-details.html" class="md-tabs__link">
+        About
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="utPLSQL-framework" class="md-nav__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    utPLSQL-framework
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1">
+          User Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="User Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          User Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Introduction to utPLSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="install.html" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting-started.html" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="annotations.html" class="md-nav__link">
+        Annotations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Expectations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="expectations.html" class="md-nav__link md-nav__link--active">
+        Expectations
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#providing-a-custom-failure-message" class="md-nav__link">
+    Providing a custom failure message
+  </a>
+  
+    <nav class="md-nav" aria-label="Providing a custom failure message">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-tests-example" class="md-nav__link">
+    Dynamic tests example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="advanced_data_comparison.html" class="md-nav__link">
+        Advanced data comparison
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running-unit-tests.html" class="md-nav__link">
+        Running unit tests
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="best-practices.html" class="md-nav__link">
+        Testing best pracitces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="upgrade.html" class="md-nav__link">
+        Upgrade utPLSQL
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Reporting
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reporting" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Reporting
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reporters.html" class="md-nav__link">
+        Using reporters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="coverage.html" class="md-nav__link">
+        Code coverage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="exception-reporting.html" class="md-nav__link">
+        Error handling and reporting
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          About
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="About" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          About
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/project-details.html" class="md-nav__link">
+        Project Details
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/license.html" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/support.html" class="md-nav__link">
+        Support
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/authors.html" class="md-nav__link">
+        Authors
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/utPLSQL/utPLSQL/edit/master/docs/userguide/expectations.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="expectation-concepts">Expectation concepts<a class="headerlink" href="#expectation-concepts" title="Permanent link">&para;</a></h1>
+<p>Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
+utPLSQL uses a combination of expectation and matcher to perform the check on the data.</p>
+<p>Example of a unit test procedure body.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;the tested value&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;optional custom failure message&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="s1">&#39;the expected value&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.
+You can also add a custom failure message for an expectation.</p>
+<p>Matcher defines the comparison operation to be performed on expected and actual values.
+Pseudo-code:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">a_message</span><span class="w"> </span><span class="err">{</span><span class="n">varchar2</span><span class="err">}</span><span class="p">]</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">a_message</span><span class="w"> </span><span class="err">{</span><span class="n">varchar2</span><span class="err">}</span><span class="p">]</span><span class="w"> </span><span class="p">).</span><span class="n">not_to</span><span class="p">(</span><span class="w"> </span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+</code></pre></div></p>
+<p>All matchers have shortcuts like below, sou you don't need to surround matcher with brackets, unless you want to pass it as parameter to the expectation.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">not_to_</span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="providing-a-custom-failure-message">Providing a custom failure message<a class="headerlink" href="#providing-a-custom-failure-message" title="Permanent link">&para;</a></h2>
+<p>You can provide a custom failure message as second argument for the expectation.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="w">  </span><span class="c1">-- Pseudocode</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">a_message</span><span class="w"> </span><span class="err">{</span><span class="n">varchar2</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1">-- Example</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;supercat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;checked superhero-animal was not a dog&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="s1">&#39;superdog&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+</code></pre></div></p>
+<p>If the message is provided, it is being added to the normal failure message returned by the matcher.</p>
+<p>This is mostly useful when your expectations accept dynamic content, as you can provide additional context to make failing test results more readable.</p>
+<h3 id="dynamic-tests-example">Dynamic tests example<a class="headerlink" href="#dynamic-tests-example" title="Permanent link">&para;</a></h3>
+<p>You have a bunch of tables and an archive functionality for them and you want to test if the things you put into live-tables are removed from live-tables and present in archive-tables.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">procedure</span><span class="w"> </span><span class="n">test_data_existance</span><span class="p">(</span><span class="w"> </span><span class="n">i_tableName</span><span class="w"> </span><span class="n">varchar2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">as</span><span class="w"></span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">v_count_real</span><span class="w"> </span><span class="nb">integer</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">v_count_archive</span><span class="w"> </span><span class="nb">integer</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">execute</span><span class="w"> </span><span class="k">immediate</span><span class="w"> </span><span class="s1">&#39;select count(*) from &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">i_tablename</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">v_count_real</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">execute</span><span class="w"> </span><span class="k">immediate</span><span class="w"> </span><span class="s1">&#39;select count(*) from &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">i_tablename</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;_ARCHIVE&#39;</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">v_count_archive</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">v_count_archive</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failure checking entry-count of &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">i_tablename</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;_archive&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">v_count_real</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failure checking entry-count of &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">i_tablename</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w"> </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_archive_data</span><span class="w"></span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="k">as</span><span class="w"></span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="c1">-- Arrange</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">   </span><span class="c1">-- insert several data into real-tables here</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="c1">-- Act</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">    </span><span class="n">package_to_test</span><span class="p">.</span><span class="n">archive_data</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="c1">-- Assert</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="n">test_data_existance</span><span class="p">(</span><span class="s1">&#39;TABLE_A&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">    </span><span class="n">test_data_existance</span><span class="p">(</span><span class="s1">&#39;TABLE_B&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="n">test_data_existance</span><span class="p">(</span><span class="s1">&#39;TABLE_C&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">    </span><span class="n">test_data_existance</span><span class="p">(</span><span class="s1">&#39;TABLE_D&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+A failed output will look like this:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Failures:
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  1) test_archive_data
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>      &quot;failure checking entry-count of table_a_archive&quot;
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>      Actual: 2 (number) was expected to equal: 1 (number) 
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>      at &quot;UT_TEST_PACKAGE.TEST_DATA_EXISTANCE&quot;, line 12 ut.expect( v_count_archive, &#39;failure checking entry-count of &#39; || i_tablename || &#39;_archive&#39; ).to_( equal(1) );
+</code></pre></div></p>
+<h1 id="expecting-exceptions">Expecting exceptions<a class="headerlink" href="#expecting-exceptions" title="Permanent link">&para;</a></h1>
+<p>Testing is not limited to checking for happy-path scenarios. When writing tests, you often want to check that in specific scenarios, an exception is thrown.</p>
+<p>Use the <code>--%throws</code> annotation, to test for expected exceptions </p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">divide</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="n">varchar2</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">varchar2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">number</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="o">/</span><span class="n">y</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">test_divide</span><span class="w"> </span><span class="k">as</span><span class="w"></span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="c1">--%suite(Divide function)</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="c1">--%test(Return divided numbers)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">divides_numbers</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="c1">--%test(Throws divisor equal)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="c1">--%throws(-01476)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raises_divisor_exception</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="k">end</span><span class="p">;</span><span class="w">  </span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">test_divide</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">divides_numbers</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">    </span><span class="n">ut3</span><span class="p">.</span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="n">divide</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">)).</span><span class="n">to_equal</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raises_divisor_exception</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="nb">integer</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">divide</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;test_divide&#39;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div></p>
+<p>For details see documentation of the <a href="annotations.html#throws-annotation"><code>--%throws</code> annotation.</a>  </p>
+<h1 id="matchers">Matchers<a class="headerlink" href="#matchers" title="Permanent link">&para;</a></h1>
+<p>utPLSQL provides the following matchers to perform checks on the expected and actual values.  </p>
+<ul>
+<li><code>be_between</code></li>
+<li><code>be_empty</code></li>
+<li><code>be_false</code></li>
+<li><code>be_greater_than</code></li>
+<li><code>be_greater_or_equal</code></li>
+<li><code>be_less_or_equal</code></li>
+<li><code>be_less_than</code></li>
+<li><code>be_like</code></li>
+<li><code>be_not_null</code></li>
+<li><code>be_null</code></li>
+<li><code>be_true</code></li>
+<li><code>equal</code></li>
+<li><code>have_count</code></li>
+<li><code>match</code></li>
+</ul>
+<h2 id="be_between">be_between<a class="headerlink" href="#be_between" title="Permanent link">&para;</a></h2>
+<p>Validates that the actual value is between the lower and upper bound.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_between</span><span class="p">(</span><span class="w"> </span><span class="n">a_lower_bound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">a_upper_bound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_between</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="c1">--or</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_between</span><span class="p">(</span><span class="w"> </span><span class="n">a_lower_bound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">a_upper_bound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_between</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w">  </span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_empty">be_empty<a class="headerlink" href="#be_empty" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the provided dataset is empty.</p>
+<p>Can be used with <code>BLOB</code>,<code>CLOB</code>, <code>refcursor</code> or <code>nested table</code>/<code>varray</code> passed as <code>ANYDATA</code></p>
+<p><strong>Note:</strong>
+BLOB/CLOB that is initialized is not NULL but it is actually equal to <code>empty_blob()</code>/<code>empty_clob()</code>.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">procedure</span><span class="w"> </span><span class="n">test_if_cursor_is_empty</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">l_cursor</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="k">open</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_empty</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="c1">--or</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_empty</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">procedure</span><span class="w"> </span><span class="n">test_if_cursor_is_empty</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">l_data</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="n">l_data</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertCollection</span><span class="p">(</span><span class="w"> </span><span class="n">l_data</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_empty</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="c1">--or</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertCollection</span><span class="p">(</span><span class="w"> </span><span class="n">l_data</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_empty</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<h2 id="be_false">be_false<a class="headerlink" href="#be_false" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the provided value is false.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_false</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_false</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_greater_or_equal">be_greater_or_equal<a class="headerlink" href="#be_greater_or_equal" title="Permanent link">&para;</a></h2>
+<p>Checks if the actual value is greater or equal than the expected.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">sysdate</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_greater_or_equal</span><span class="p">(</span><span class="w"> </span><span class="n">sysdate</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="c1">--or</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">sysdate</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_greater_or_equal</span><span class="p">(</span><span class="w"> </span><span class="n">sysdate</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_greater_than">be_greater_than<a class="headerlink" href="#be_greater_than" title="Permanent link">&para;</a></h2>
+<p>Checks if the actual value is greater than the expected.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_greater_than</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_greater_than</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_less_or_equal">be_less_or_equal<a class="headerlink" href="#be_less_or_equal" title="Permanent link">&para;</a></h2>
+<p>Checks if the actual value is less or equal than the expected.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_less_or_equal</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_less_or_equal</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_less_than">be_less_than<a class="headerlink" href="#be_less_than" title="Permanent link">&para;</a></h2>
+<p>Checks if the actual value is less than the expected.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_less_than</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_less_than</span><span class="p">(</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_like">be_like<a class="headerlink" href="#be_like" title="Permanent link">&para;</a></h2>
+<p>Validates that the actual value is like the expected expression.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Lorem_impsum&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_like</span><span class="p">(</span><span class="w"> </span><span class="n">a_mask</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;%rem#_%&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_escape_char</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;#&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Lorem_impsum&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_like</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;%rem#_%&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Lorem_impsum&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_like</span><span class="p">(</span><span class="w"> </span><span class="n">a_mask</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;%rem#_%&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_escape_char</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;#&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Lorem_impsum&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_like</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;%rem#_%&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Parameters <code>a_mask</code> and <code>a_escape_char</code> represent valid parameters of the <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142">Oracle LIKE condition</a></p>
+<h2 id="be_not_null">be_not_null<a class="headerlink" href="#be_not_null" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the actual value is not null.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">begin</span><span class="w"> </span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">to_clob</span><span class="p">(</span><span class="s1">&#39;ABC&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_not_null</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">to_clob</span><span class="p">(</span><span class="s1">&#39;ABC&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_not_null</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">to_clob</span><span class="p">(</span><span class="s1">&#39;ABC&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">not_to</span><span class="p">(</span><span class="w"> </span><span class="n">be_null</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_null">be_null<a class="headerlink" href="#be_null" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the actual value is null.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="k">cast</span><span class="p">(</span><span class="k">null</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_null</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="k">cast</span><span class="p">(</span><span class="k">null</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_null</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="be_true">be_true<a class="headerlink" href="#be_true" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the provided value is true.
+- <code>boolean</code></p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">begin</span><span class="w"> </span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_be_true</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_true</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="have_count">have_count<a class="headerlink" href="#have_count" title="Permanent link">&para;</a></h2>
+<p>Unary matcher that validates if the provided dataset count is equal to expected value.</p>
+<p>Can be used with <code>refcursor</code> or <code>table type</code></p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">procedure</span><span class="w"> </span><span class="n">test_if_cursor_is_empty</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="n">l_cursor</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="k">open</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">connect</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">level</span><span class="w"> </span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="p">).</span><span class="n">to_have_count</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">  </span><span class="c1">--or</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_cursor</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">have_count</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="match">match<a class="headerlink" href="#match" title="Permanent link">&para;</a></h2>
+<p>Validates that the actual value is matching the expected regular expression.</p>
+<p>Usage:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">begin</span><span class="w"> </span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;123-456-ABcd&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_match</span><span class="p">(</span><span class="w"> </span><span class="n">a_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;\d{3}-\d{3}-[a-z]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_modifiers</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;i&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;some value&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_match</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;^some.*&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="c1">--or </span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;123-456-ABcd&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="k">match</span><span class="p">(</span><span class="w"> </span><span class="n">a_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;\d{3}-\d{3}-[a-z]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_modifiers</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;i&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;some value&#39;</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="k">match</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;^some.*&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Parameters <code>a_pattern</code> and <code>a_modifiers</code> represent a valid regexp pattern accepted by <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501">Oracle REGEXP_LIKE condition</a></p>
+<h2 id="equal">equal<a class="headerlink" href="#equal" title="Permanent link">&para;</a></h2>
+<p>The equal matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
+If you are comparing <code>varchar2</code> to a <code>number</code> will fail even if the text contains the same numeric value as the number.
+The matcher will also fail when comparing a <code>timestamp</code> to a <code>timestamp with timezone</code> data-type etc.
+The matcher enables detection data-type changes. 
+If you expect your variable to be a number and it is now some other type, the test will fail and give you early indication of a potential problem.</p>
+<p>To keep it simple, the <code>equal</code> matcher will only succeed if you compare apples to apples.</p>
+<p>Example usage
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">function</span><span class="w"> </span><span class="n">get_animal</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">varchar2</span><span class="w"> </span><span class="k">is</span><span class="w"> </span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">test_animals_getter</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">    </span><span class="c1">--%suite(Animals getter tests)</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">    </span><span class="c1">--%test(get_animal - returns a dog)</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_1_get_animal</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">    </span><span class="c1">--%test(get_animal - returns a dog)</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_2_get_animal</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">    </span><span class="c1">--%test(get_animal - returns a dog)</span>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_3_get_animal</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a><span class="w">    </span><span class="c1">--%test(get_animal - returns a dog)</span>
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_4_get_animal</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a><span class="w">    </span><span class="c1">--%test(get_animal - returns a dog)</span>
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_5_get_animal</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">test_animals_getter</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a><span class="w">    </span><span class="c1">--The below tests perform exactly the same check.</span>
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a><span class="w">    </span><span class="c1">--They use different syntax to achieve the goal. </span>
+<a id="__codelineno-21-27" name="__codelineno-21-27" href="#__codelineno-21-27"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_1_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-28" name="__codelineno-21-28" href="#__codelineno-21-28"></a><span class="w">      </span><span class="n">l_actual</span><span class="w">   </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-29" name="__codelineno-21-29" href="#__codelineno-21-29"></a><span class="w">      </span><span class="n">l_expected</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-30" name="__codelineno-21-30" href="#__codelineno-21-30"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-31" name="__codelineno-21-31" href="#__codelineno-21-31"></a><span class="w">      </span><span class="c1">--Arrange</span>
+<a id="__codelineno-21-32" name="__codelineno-21-32" href="#__codelineno-21-32"></a><span class="w">      </span><span class="n">l_actual</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-33" name="__codelineno-21-33" href="#__codelineno-21-33"></a><span class="w">      </span><span class="c1">--Act</span>
+<a id="__codelineno-21-34" name="__codelineno-21-34" href="#__codelineno-21-34"></a><span class="w">      </span><span class="n">l_expected</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">get_animal</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-21-35" name="__codelineno-21-35" href="#__codelineno-21-35"></a><span class="w">      </span><span class="c1">--Assert</span>
+<a id="__codelineno-21-36" name="__codelineno-21-36" href="#__codelineno-21-36"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_actual</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="n">l_expected</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-37" name="__codelineno-21-37" href="#__codelineno-21-37"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-38" name="__codelineno-21-38" href="#__codelineno-21-38"></a>
+<a id="__codelineno-21-39" name="__codelineno-21-39" href="#__codelineno-21-39"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_2_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-40" name="__codelineno-21-40" href="#__codelineno-21-40"></a><span class="w">      </span><span class="n">l_expected</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-41" name="__codelineno-21-41" href="#__codelineno-21-41"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-42" name="__codelineno-21-42" href="#__codelineno-21-42"></a><span class="w">      </span><span class="c1">--Act</span>
+<a id="__codelineno-21-43" name="__codelineno-21-43" href="#__codelineno-21-43"></a><span class="w">      </span><span class="n">l_expected</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">get_animal</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-21-44" name="__codelineno-21-44" href="#__codelineno-21-44"></a><span class="w">      </span><span class="c1">--Assert</span>
+<a id="__codelineno-21-45" name="__codelineno-21-45" href="#__codelineno-21-45"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_expected</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-46" name="__codelineno-21-46" href="#__codelineno-21-46"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-47" name="__codelineno-21-47" href="#__codelineno-21-47"></a>
+<a id="__codelineno-21-48" name="__codelineno-21-48" href="#__codelineno-21-48"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_3_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-49" name="__codelineno-21-49" href="#__codelineno-21-49"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-50" name="__codelineno-21-50" href="#__codelineno-21-50"></a><span class="w">      </span><span class="c1">--Act / Assert</span>
+<a id="__codelineno-21-51" name="__codelineno-21-51" href="#__codelineno-21-51"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">get_animal</span><span class="p">()</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-52" name="__codelineno-21-52" href="#__codelineno-21-52"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-53" name="__codelineno-21-53" href="#__codelineno-21-53"></a>
+<a id="__codelineno-21-54" name="__codelineno-21-54" href="#__codelineno-21-54"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_4_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-55" name="__codelineno-21-55" href="#__codelineno-21-55"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-56" name="__codelineno-21-56" href="#__codelineno-21-56"></a><span class="w">      </span><span class="c1">--Act / Assert</span>
+<a id="__codelineno-21-57" name="__codelineno-21-57" href="#__codelineno-21-57"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">get_animal</span><span class="p">()</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_nulls_are_equal</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-58" name="__codelineno-21-58" href="#__codelineno-21-58"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-59" name="__codelineno-21-59" href="#__codelineno-21-59"></a>
+<a id="__codelineno-21-60" name="__codelineno-21-60" href="#__codelineno-21-60"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_5_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-61" name="__codelineno-21-61" href="#__codelineno-21-61"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-62" name="__codelineno-21-62" href="#__codelineno-21-62"></a><span class="w">      </span><span class="c1">--Act / Assert</span>
+<a id="__codelineno-21-63" name="__codelineno-21-63" href="#__codelineno-21-63"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">get_animal</span><span class="p">()</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-64" name="__codelineno-21-64" href="#__codelineno-21-64"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-65" name="__codelineno-21-65" href="#__codelineno-21-65"></a>
+<a id="__codelineno-21-66" name="__codelineno-21-66" href="#__codelineno-21-66"></a><span class="w">    </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_variant_6_get_animal</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-21-67" name="__codelineno-21-67" href="#__codelineno-21-67"></a><span class="w">    </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-21-68" name="__codelineno-21-68" href="#__codelineno-21-68"></a><span class="w">      </span><span class="c1">--Act / Assert</span>
+<a id="__codelineno-21-69" name="__codelineno-21-69" href="#__codelineno-21-69"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">get_animal</span><span class="p">()</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">equal</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a dog&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_nulls_are_equal</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-21-70" name="__codelineno-21-70" href="#__codelineno-21-70"></a><span class="w">    </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-21-71" name="__codelineno-21-71" href="#__codelineno-21-71"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p><strong>Comparing NULLs is by default a success!</strong>
+The <code>a_nulls_are_equal</code> parameter controls the behavior of a <code>null = null</code> comparison.
+To change the behavior of <code>NULL = NULL</code> comparison pass the <code>a_nulls_are_equal =&gt; false</code> to the <code>equal</code> matcher.  </p>
+<h2 id="comparing-cursors-object-types-nested-tables-and-varrays">Comparing cursors, object types, nested tables and varrays<a class="headerlink" href="#comparing-cursors-object-types-nested-tables-and-varrays" title="Permanent link">&para;</a></h2>
+<p>utPLSQL is capable of comparing compound data-types including:
+- ref cursors 
+- object types
+- nested table/varray types</p>
+<h3 id="notes-on-comparison-of-compound-data">Notes on comparison of compound data<a class="headerlink" href="#notes-on-comparison-of-compound-data" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.   </li>
+<li>Cursors, nested table and varray types are compared as <strong>ordered lists of elements</strong>. If order of elements differ, expectation will fail.   </li>
+<li>Comparison of compound data is data-type aware. So a column <code>ID NUMBER</code> in a cursor is not the same as <code>ID VARCHAR2(100)</code>, even if they both hold the same numeric values.</li>
+<li>Comparison of cursor columns containing <code>DATE</code> will only compare date part <strong>and ignore time</strong> by default. See <a href="#comparing-cursor-data-containing-date-fields">Comparing cursor data containing DATE fields</a> to check how to enable date-time comparison in cursors.</li>
+<li>To compare nested table/varray type you need to convert it to <code>anydata</code> by using <code>anydata.convertCollection()</code>  </li>
+<li>To compare object type you need to convert it to <code>anydata</code> by using <code>anydata.convertObject()</code>  </li>
+<li>It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query<ul>
+<li>On Oracle 11g Release 2 - pipelined table functions are needed (see section <a href="https://oracle-base.com/articles/misc/pipelined-table-functions">Implicit (Shadow) Types in this artcile</a>)</li>
+<li>On Oracle 12c and above - use <a href="https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1">TABLE function on nested tables/varrays/associative arrays of PL/SQL records</a> </li>
+</ul>
+</li>
+</ul>
+<p>utPLSQL offers advanced data-comparison options, for comparing compound data-types. The options allow you to:
+- define columns/attributes to exclude from comparison
+- define columns/attributes to include in comparison
+- and more</p>
+<p>For details on available options and how to use them, read the <a href="advanced_data_comparison.html">advanced data comparison</a> guide.   </p>
+<h3 id="diff-functionality-for-compound-data-types">Diff functionality for compound data-types<a class="headerlink" href="#diff-functionality-for-compound-data-types" title="Permanent link">&para;</a></h3>
+<p>When comparing compound data, utPLSQL will determine the difference between the expected and the actual data.
+The diff includes:
+- differences in column names, column positions and column data-type for cursor data
+- only data in columns/rows that differ</p>
+<p>The diff aims to make it easier to identify what is not expected in the actual data.</p>
+<p>Consider the following expected cursor data</p>
+<table>
+<thead>
+<tr>
+<th align="center">ID (NUMBER)</th>
+<th align="center">FIRST_NAME (VARCHAR2)</th>
+<th align="center">LAST_NAME (VARCHAR2)</th>
+<th align="center">SALARY (NUMBER)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">1</td>
+<td align="center">JACK</td>
+<td align="center">SPARROW</td>
+<td align="center">10000</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">LUKE</td>
+<td align="center">SKYWALKER</td>
+<td align="center">1000</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">TONY</td>
+<td align="center">STARK</td>
+<td align="center">1000000</td>
+</tr>
+</tbody>
+</table>
+<p>And the actual cursor data: </p>
+<table>
+<thead>
+<tr>
+<th align="center">~~GENDER (VARCHAR2)~~</th>
+<th align="center">FIRST_NAME (VARCHAR2)</th>
+<th align="center">LAST_NAME (VARCHAR2)</th>
+<th align="center">SALARY <em>(VARCHAR2)</em></th>
+<th align="center"><em>ID</em> (NUMBER)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">M</td>
+<td align="center">JACK</td>
+<td align="center">SPARROW</td>
+<td align="center"><strong>25000</strong></td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center">M</td>
+<td align="center">TONY</td>
+<td align="center">STARK</td>
+<td align="center">1000000</td>
+<td align="center">3</td>
+</tr>
+<tr>
+<td align="center"><strong>F</strong></td>
+<td align="center"><strong>JESSICA</strong></td>
+<td align="center"><strong>JONES</strong></td>
+<td align="center"><strong>2345</strong></td>
+<td align="center"><strong>4</strong></td>
+</tr>
+<tr>
+<td align="center">M</td>
+<td align="center">LUKE</td>
+<td align="center">SKYWALKER</td>
+<td align="center">1000</td>
+<td align="center">2</td>
+</tr>
+</tbody>
+</table>
+<p>The two datasets above have the following differences:
+- column ID is misplaced (should be first column but is last)
+- column SALARY has data-type VARCHAR2 but should be NUMBER
+- column GENDER exists in actual but not in the expected (it is an Extra column)
+- data in column SALARY for row number 1 in actual is not matching expected 
+- row number 2 in actual (ID=3) is not matching expected 
+- row number 3 in actual (ID=4) is not matching expected
+- row number 4 in actual (ID=2) is not expected in results (Extra row in actual)  </p>
+<p>utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in the compared dataset.</p>
+<p>Below example illustrates, how utPLSQL will report such differences.<br />
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">test_cursor_compare</span><span class="w"> </span><span class="k">as</span><span class="w"></span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span><span class="c1">--%suite</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span><span class="c1">--%test</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">do_test</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">test_cursor_compare</span><span class="w"> </span><span class="k">as</span><span class="w"></span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">do_test</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">    </span><span class="n">l_actual</span><span class="w">   </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="n">l_expected</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="n">l_expected</span><span class="w"> </span><span class="k">for</span><span class="w"></span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JACK&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SPARROW&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">all</span><span class="w"></span>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;LUKE&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SKYWALKER&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">all</span><span class="w"></span>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TONY&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;STARK&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a><span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="n">l_actual</span><span class="w"> </span><span class="k">for</span><span class="w"></span>
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="s1">&#39;M&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">GENDER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JACK&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SPARROW&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;25000&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">all</span><span class="w"></span>
+<a id="__codelineno-22-24" name="__codelineno-22-24" href="#__codelineno-22-24"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="s1">&#39;M&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">GENDER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TONY&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;STARK&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;100000&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-25" name="__codelineno-22-25" href="#__codelineno-22-25"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">all</span><span class="w"></span>
+<a id="__codelineno-22-26" name="__codelineno-22-26" href="#__codelineno-22-26"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="s1">&#39;F&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">GENDER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JESSICA&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JONES&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2345&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-27" name="__codelineno-22-27" href="#__codelineno-22-27"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">all</span><span class="w"></span>
+<a id="__codelineno-22-28" name="__codelineno-22-28" href="#__codelineno-22-28"></a><span class="w">      </span><span class="k">select</span><span class="w"> </span><span class="s1">&#39;M&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">GENDER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;LUKE&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">FIRST_NAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SKYWALKER&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LAST_NAME</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;1000&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">SALARY</span><span class="w"></span>
+<a id="__codelineno-22-29" name="__codelineno-22-29" href="#__codelineno-22-29"></a><span class="w">        </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-30" name="__codelineno-22-30" href="#__codelineno-22-30"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="n">l_actual</span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="n">l_expected</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-22-31" name="__codelineno-22-31" href="#__codelineno-22-31"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-32" name="__codelineno-22-32" href="#__codelineno-22-32"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-22-33" name="__codelineno-22-33" href="#__codelineno-22-33"></a><span class="o">/</span><span class="w"></span>
+</code></pre></div></p>
+<p>When the test package is executed using: </p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serverout</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;test_cursor_compare&#39;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+We get the following report:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>test_cursor_compare
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>  do_test [.052 sec] (FAILED - 1)
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>Failures:
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>  1) do_test
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>      Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>      Diff:
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>      Columns:
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>        Column &lt;ID&gt; is misplaced. Expected position: 1, actual position: 4.
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>        Column &lt;SALARY&gt; data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>        Column &lt;GENDER&gt; [position: 1, data-type: CHAR] is not expected in results.
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>      Rows: [ 4 differences ]
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>        Row No. 1 - Actual:   &lt;SALARY&gt;25000&lt;/SALARY&gt;
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>        Row No. 1 - Expected: &lt;SALARY&gt;10000&lt;/SALARY&gt;
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>        Row No. 2 - Actual:   &lt;FIRST_NAME&gt;TONY&lt;/FIRST_NAME&gt;&lt;LAST_NAME&gt;STARK&lt;/LAST_NAME&gt;&lt;ID&gt;3&lt;/ID&gt;&lt;SALARY&gt;100000&lt;/SALARY&gt;
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>        Row No. 2 - Expected: &lt;ID&gt;2&lt;/ID&gt;&lt;FIRST_NAME&gt;LUKE&lt;/FIRST_NAME&gt;&lt;LAST_NAME&gt;SKYWALKER&lt;/LAST_NAME&gt;&lt;SALARY&gt;1000&lt;/SALARY&gt;
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>        Row No. 3 - Actual:   &lt;FIRST_NAME&gt;JESSICA&lt;/FIRST_NAME&gt;&lt;LAST_NAME&gt;JONES&lt;/LAST_NAME&gt;&lt;ID&gt;4&lt;/ID&gt;&lt;SALARY&gt;2345&lt;/SALARY&gt;
+<a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a>        Row No. 3 - Expected: &lt;ID&gt;3&lt;/ID&gt;&lt;FIRST_NAME&gt;TONY&lt;/FIRST_NAME&gt;&lt;LAST_NAME&gt;STARK&lt;/LAST_NAME&gt;&lt;SALARY&gt;100000&lt;/SALARY&gt;
+<a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>        Row No. 4 - Extra:    &lt;GENDER&gt;M&lt;/GENDER&gt;&lt;FIRST_NAME&gt;LUKE&lt;/FIRST_NAME&gt;&lt;LAST_NAME&gt;SKYWALKER&lt;/LAST_NAME&gt;&lt;ID&gt;2&lt;/ID&gt;&lt;SALARY&gt;1000&lt;/SALARY&gt;
+<a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a>      at &quot;UT3.TEST_CURSOR_COMPARE&quot;, line 22 ut.expect(l_actual).to_equal(l_expected);
+<a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a>
+<a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a>
+<a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a>Finished in .053553 seconds
+<a id="__codelineno-24-25" name="__codelineno-24-25" href="#__codelineno-24-25"></a>1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
+</code></pre></div></p>
+<p>utPLSQL identifies and reports on columns:
+- column misplacement
+- column data-type mismatch
+- extra/missing columns</p>
+<p>When comparing rows utPLSQL:
+- reports only mismatched columns when rows match
+- reports columns existing in both data-sets when whole row is not matching
+- reports whole extra (not expected) row from actual when actual has extra rows 
+- reports whole missing (expected) row from expected when expected has extra rows </p>
+<h3 id="object-and-nested-table-data-type-comparison-examples">Object and nested table data-type comparison examples<a class="headerlink" href="#object-and-nested-table-data-type-comparison-examples" title="Permanent link">&para;</a></h3>
+<p>When comparing object type / nested table / varray, utPLSQL will check:
+- if data-types match
+- if data in the compared elements is the same.</p>
+<p>The diff functionality for objects / nested tables / varrays is similar to diff on cursors.
+When diffing, utPLSQL will not check name and data-type of individual attribute as the type itself defines the underlying structure.  </p>
+<p>Below examples demonstrate how to compare object and nested table data-types. </p>
+<p>Object type comparison.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">create</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">department</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">object</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span><span class="w"></span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_dept</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">department</span><span class="w"> </span><span class="k">is</span><span class="w"> </span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;IT&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">demo_dept</span><span class="w"> </span><span class="k">as</span><span class="w"> </span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="w">  </span><span class="c1">--%suite(demo)</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">  </span><span class="c1">--%test(demo of object to object comparison)</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_department</span><span class="p">;</span><span class="w"> </span>
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">demo_dept</span><span class="w"> </span><span class="k">as</span><span class="w"> </span>
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_department</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="w">    </span><span class="n">v_actual</span><span class="w">   </span><span class="n">department</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="w">    </span><span class="c1">--Act/ Assert</span>
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertObject</span><span class="p">(</span><span class="w"> </span><span class="n">get_dept</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertObject</span><span class="p">(</span><span class="w"> </span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;demo_dept&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a>
+<a id="__codelineno-25-29" name="__codelineno-25-29" href="#__codelineno-25-29"></a><span class="k">drop</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">demo_dept</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-30" name="__codelineno-25-30" href="#__codelineno-25-30"></a><span class="k">drop</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_dept</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-25-31" name="__codelineno-25-31" href="#__codelineno-25-31"></a><span class="k">drop</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">department</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Table type comparison.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">create</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">department</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">object</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span><span class="w"></span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="k">create</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">departments</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">department</span><span class="w"></span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_depts</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">departments</span><span class="w"> </span><span class="k">is</span><span class="w"> </span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">departments</span><span class="p">(</span><span class="w"> </span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;IT&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">demo_depts</span><span class="w"> </span><span class="k">as</span><span class="w"> </span>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">  </span><span class="c1">--%suite(demo)</span>
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">  </span><span class="c1">--%test(demo of collection comparison)</span>
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_departments</span><span class="p">;</span><span class="w"> </span>
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">demo_depts</span><span class="w"> </span><span class="k">as</span><span class="w"> </span>
+<a id="__codelineno-26-18" name="__codelineno-26-18" href="#__codelineno-26-18"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">test_departments</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-26-19" name="__codelineno-26-19" href="#__codelineno-26-19"></a><span class="w">    </span><span class="n">v_expected</span><span class="w"> </span><span class="n">departments</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-20" name="__codelineno-26-20" href="#__codelineno-26-20"></a><span class="w">    </span><span class="n">v_actual</span><span class="w">   </span><span class="n">departments</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-21" name="__codelineno-26-21" href="#__codelineno-26-21"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-26-22" name="__codelineno-26-22" href="#__codelineno-26-22"></a><span class="w">    </span><span class="n">v_expected</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">departments</span><span class="p">(</span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">department</span><span class="p">(</span><span class="s1">&#39;IT&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-26-23" name="__codelineno-26-23" href="#__codelineno-26-23"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertCollection</span><span class="p">(</span><span class="w"> </span><span class="n">get_depts</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="w"> </span><span class="n">anydata</span><span class="p">.</span><span class="n">convertCollection</span><span class="p">(</span><span class="w"> </span><span class="n">v_expected</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-26-24" name="__codelineno-26-24" href="#__codelineno-26-24"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-25" name="__codelineno-26-25" href="#__codelineno-26-25"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-26" name="__codelineno-26-26" href="#__codelineno-26-26"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-27" name="__codelineno-26-27" href="#__codelineno-26-27"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-26-28" name="__codelineno-26-28" href="#__codelineno-26-28"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;demo_depts&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-26-29" name="__codelineno-26-29" href="#__codelineno-26-29"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-30" name="__codelineno-26-30" href="#__codelineno-26-30"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-26-31" name="__codelineno-26-31" href="#__codelineno-26-31"></a>
+<a id="__codelineno-26-32" name="__codelineno-26-32" href="#__codelineno-26-32"></a><span class="k">drop</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">demo_dept</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-33" name="__codelineno-26-33" href="#__codelineno-26-33"></a><span class="k">drop</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_depts</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-34" name="__codelineno-26-34" href="#__codelineno-26-34"></a><span class="k">drop</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">departments</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-26-35" name="__codelineno-26-35" href="#__codelineno-26-35"></a><span class="k">drop</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="n">department</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<h3 id="comparing-cursor-data-containing-date-fields">Comparing cursor data containing DATE fields<a class="headerlink" href="#comparing-cursor-data-containing-date-fields" title="Permanent link">&para;</a></h3>
+<p><strong>Important note</strong></p>
+<p>utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.
+Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.
+The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.
+By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.</p>
+<p>You should use procedures <code>ut.set_nls</code>, <code>ut.reset_nls</code> around cursors that you want to compare in your tests.
+This way, the DATE data in cursors will be properly formatted for comparison using date-time format.</p>
+<p>The example below makes use of <code>ut.set_nls</code>, <code>ut.reset_nls</code>, so that the date in <code>l_expected</code> and <code>l_actual</code> is compared using date-time formatting.<br />
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">description</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">4000</span><span class="p">),</span><span class="w"> </span><span class="n">event_date</span><span class="w">  </span><span class="nb">date</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_events</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">  </span><span class="n">l_result</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">  </span><span class="k">open</span><span class="w"> </span><span class="n">l_result</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">description</span><span class="p">,</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">events</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">l_result</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">test_get_events</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w">  </span><span class="c1">--%suite(get_events)</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="w">  </span><span class="c1">--%beforeall</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">setup_events</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">  </span><span class="c1">--%test(returns event within date range)</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">get_events_for_date_range</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">test_get_events</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="w">  </span><span class="n">gc_description</span><span class="w"> </span><span class="n">constant</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Test event&#39;</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="w">  </span><span class="n">gc_event_date</span><span class="w">  </span><span class="n">constant</span><span class="w"> </span><span class="nb">date</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">to_date</span><span class="p">(</span><span class="s1">&#39;2016-09-08 06:51:22&#39;</span><span class="p">,</span><span class="s1">&#39;yyyy-mm-dd hh24:mi:ss&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="w">  </span><span class="n">gc_second</span><span class="w">      </span><span class="n">constant</span><span class="w"> </span><span class="nb">number</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="o">/</span><span class="mi">24</span><span class="o">/</span><span class="mi">60</span><span class="o">/</span><span class="mi">60</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">setup_events</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a><span class="w">    </span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="p">(</span><span class="n">description</span><span class="p">,</span><span class="w"> </span><span class="n">event_date</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="n">gc_description</span><span class="p">,</span><span class="w"> </span><span class="n">gc_event_date</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a>
+<a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">get_events_for_date_range</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a><span class="w">    </span><span class="n">l_actual</span><span class="w">            </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a><span class="w">    </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a><span class="w">    </span><span class="c1">--Arrange</span>
+<a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">set_nls</span><span class="p">();</span><span class="w"> </span><span class="c1">-- Change the NLS settings for date to be ISO date-time &#39;YYYY-MM-DD HH24:MI:SS&#39; </span>
+<a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a><span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">gc_description</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">description</span><span class="p">,</span><span class="w"> </span><span class="n">gc_event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">gc_second</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a><span class="w">    </span><span class="c1">--Act</span>
+<a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a><span class="w">    </span><span class="n">l_actual</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">get_events</span><span class="p">();</span><span class="w"></span>
+<a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">reset_nls</span><span class="p">();</span><span class="w"> </span><span class="c1">-- Change the NLS settings after cursors were opened</span>
+<a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a><span class="w">    </span><span class="c1">--Assert</span>
+<a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">l_actual</span><span class="w"> </span><span class="p">).</span><span class="n">not_to_equal</span><span class="p">(</span><span class="w"> </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a>
+<a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">bad_test</span><span class="w"> </span><span class="k">is</span><span class="w"></span>
+<a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a><span class="w">    </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a><span class="w">  </span><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a><span class="w">    </span><span class="c1">--Arrange</span>
+<a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a><span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">gc_description</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">description</span><span class="p">,</span><span class="w"> </span><span class="n">gc_event_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">gc_second</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">event_date</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a><span class="w">    </span><span class="c1">--Act / Assert</span>
+<a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">get_events</span><span class="p">()</span><span class="w"> </span><span class="p">).</span><span class="n">not_to_equal</span><span class="p">(</span><span class="w"> </span><span class="n">l_expected_bad_date</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a>
+<a id="__codelineno-27-54" name="__codelineno-27-54" href="#__codelineno-27-54"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-55" name="__codelineno-27-55" href="#__codelineno-27-55"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-27-56" name="__codelineno-27-56" href="#__codelineno-27-56"></a>
+<a id="__codelineno-27-57" name="__codelineno-27-57" href="#__codelineno-27-57"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-27-58" name="__codelineno-27-58" href="#__codelineno-27-58"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;test_get_events&#39;</span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-27-59" name="__codelineno-27-59" href="#__codelineno-27-59"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-60" name="__codelineno-27-60" href="#__codelineno-27-60"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-27-61" name="__codelineno-27-61" href="#__codelineno-27-61"></a>
+<a id="__codelineno-27-62" name="__codelineno-27-62" href="#__codelineno-27-62"></a><span class="k">drop</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">events</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-63" name="__codelineno-27-63" href="#__codelineno-27-63"></a><span class="k">drop</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">get_events</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-27-64" name="__codelineno-27-64" href="#__codelineno-27-64"></a><span class="k">drop</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">test_get_events</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+In the above example:
+- The test <code>get_events_for_date_range</code> will succeed, as the <code>l_expected_bad_date</code> cursor contains different date-time then the cursor returned by <code>get_events</code> function call.
+- The test <code>bad_test</code> will fail, as the column <code>event_date</code> will get compared as DATE without TIME.</p>
+<h1 id="negating-a-matcher">Negating a matcher<a class="headerlink" href="#negating-a-matcher" title="Permanent link">&para;</a></h1>
+<p>Expectations provide a very convenient way to perform a check on a negated matcher.</p>
+<p>Syntax to check for matcher evaluating to true:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">begin</span><span class="w"> </span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Syntax to check for matcher evaluating to false:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">not_to_</span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">a_actual</span><span class="w"> </span><span class="err">{</span><span class="k">data</span><span class="o">-</span><span class="k">type</span><span class="err">}</span><span class="w"> </span><span class="p">).</span><span class="n">not_to</span><span class="p">(</span><span class="w"> </span><span class="err">{</span><span class="n">matcher</span><span class="err">}</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></p>
+<p>If a matcher evaluated to NULL, then both <code>to_</code> and <code>not_to</code> will cause the expectation to report failure.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">begin</span><span class="w"></span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="p">).</span><span class="n">to_</span><span class="p">(</span><span class="w"> </span><span class="n">be_true</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="p">).</span><span class="n">not_to</span><span class="p">(</span><span class="w"> </span><span class="n">be_true</span><span class="p">()</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will report failure.</p>
+<h1 id="supported-data-types">Supported data types<a class="headerlink" href="#supported-data-types" title="Permanent link">&para;</a></h1>
+<p>The matrix below illustrates the data types supported by different matchers.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Matcher</th>
+<th align="center">blob</th>
+<th align="center">boolean</th>
+<th align="center">clob</th>
+<th align="center">date</th>
+<th align="center">number</th>
+<th align="center">timestamp</th>
+<th align="center">timestamp<br>with<br>timezone</th>
+<th align="center">timestamp<br>with<br>local<br>timezone</th>
+<th align="center">varchar2</th>
+<th align="center">interval<br>year<br>to<br>month</th>
+<th align="center">interval<br>day<br>to<br>second</th>
+<th align="center">cursor</th>
+<th align="center">nested<br>table<br>/ varray</th>
+<th align="center">object</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>be_not_null</strong></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td align="left"><strong>be_null</strong></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td align="left"><strong>be_false</strong></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_true</strong></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_greater_than</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_greater_or_equal</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_less_or_equal</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_less_than</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_between</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>equal</strong></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td align="left"><strong>match</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_like</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>be_empty</strong></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left"><strong>have_count</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">July 11, 2018 00:51:41</span>
+      
+        <br>
+        Created:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">January 15, 2017 02:28:15</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="annotations.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Annotations" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Annotations
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="advanced_data_comparison.html" class="md-footer__link md-footer__link--next" aria-label="Next: Advanced data comparison" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Advanced data comparison
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2016 - 2018 utPLSQL Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/utPLSQL" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww" target="_blank" rel="noopener" title="join.slack.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/utPLSQL" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    <a href="mailto:utPLSQL@utPLSQL.org" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l217.6 163.2c11.4 8.5 27 8.5 38.4 0l217.6-163.2c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48H48zM0 176v208c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V176L294.4 339.2a63.9 63.9 0 0 1-76.8 0L0 176z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+  
+    
+  
+
+
+
+  
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
+<input type="checkbox" class="md-toggle" id="__settings">
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        <label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);console.log(new FormData(form)),__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
+      
+    
+  </body>
+</html>
