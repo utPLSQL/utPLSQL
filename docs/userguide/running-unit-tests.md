@@ -1,7 +1,5 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4036--develop-blue.svg)
 
-# Running tests
-
 utPLSQL framework provides two main entry points to run unit tests from within the database: 
 
 - `ut.run` procedures and functions
@@ -10,7 +8,7 @@ utPLSQL framework provides two main entry points to run unit tests from within t
 These two entry points differ in purpose and behavior.
 Most of the time you will want to use `ut.run` as `ut_runner.run` is designed for API integration and does not display the results to the screen.
 
-# Running from CI servers and command line
+## Running from CI servers and command line
 
 The best way to run your tests from CI server or command line is to use the [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) command line client.
 
@@ -32,7 +30,7 @@ unzip -q utplsql-cli.zip
 ```
 
 
-# ut.run
+## ut.run
 
 The `ut` package contains overloaded `run` procedures and functions.
 The `run` API is designed to be called directly by a developer when using an IDE/SQL console to execute unit tests.
@@ -42,7 +40,7 @@ A single line call is enough to execute a set of tests from one or more schemes.
 The **procedures** execute the specified tests and produce output to DBMS_OUTPUT using the specified reporter.
 The **functions** can only be used in SELECT statements. They execute the specified tests and produce outputs as a pipelined data stream to be consumed by a select statement.
 
-## ut.run procedures
+### ut.run procedures
 
 The examples below illustrate different ways and options to invoke `ut.run` procedures.
 You can use a wildcard character `*` to call tests by part of their name or to call tests that are located on paths matched by part of path string.
@@ -179,7 +177,7 @@ Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBM
 
 For details on build-in reporters look at [reporters documentation](reporters.md).
 
-## ut.run functions
+### ut.run functions
 
 The `ut.run` functions provide exactly the same functionality as the `ut.run` procedures. 
 You may use the same sets of parameters with both functions and procedures. 
@@ -195,7 +193,7 @@ Example.
 select * from table(ut.run('hr.test_apply_bonus', ut_junit_reporter()));
 ```
 
-# ut_runner.run procedures
+## ut_runner.run procedures
 
 The `ut_runner` package provides an API for integrating utPLSQL with other products. Maven, Jenkins, SQL Develper, PL/SQL Developer, TOAD and others can leverage this API to call utPLSQL.
 
@@ -262,16 +260,16 @@ select
 ```
 
   
-# Order of test execution
+## Order of test execution
 
-## Default order
+### Default order
 
 When unit tests are executed without random order, they are ordered by:
 - schema name
 - suite path or test package name if `--%suitepath` was not specified for that package  
 - `--%test` line number in package
  
-## Random order
+### Random order
 
 You can force a test run to execute tests in random order by providing one of options to `ut.run`:
 - `a_random_test_order` - true/false for procedures and 1/0 for functions
@@ -317,7 +315,7 @@ select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 30
 **Note**
 >Random order seed must be a positive number within range of 1 .. 1 000 000 000. 
   
-# Run by Tags
+## Run by Tags
 
 In addition to the path, you can filter the tests to be run by specifying tags. Tags are defined in the test / context / suite with the `--%tags`-annotation ([Read more](annotations.md#tags)).  
 Multiple tags are separated by comma. 
@@ -338,7 +336,7 @@ You can also exclude specific tags by adding a `-` (dash) in front of the tag
 select * from table(ut.run('hr.test_apply_bonus', a_tags => '-suite1'))
 ```
 
-# Keeping uncommitted data after test-run
+## Keeping uncommitted data after test-run
 
 utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
 
@@ -359,7 +357,7 @@ end;
 **Note:**
 >This option is not available when running tests using `ut.run` as a table function.
 
-# Reports character-set encoding
+## Reports character-set encoding
 
 To get properly encoded reports, when running utPLSQL with HTML/XML reports on data containing national characters you need to provide your client character set when calling `ut.run` functions and procedures.
 

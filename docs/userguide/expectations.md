@@ -1,6 +1,7 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4036--develop-blue.svg)
 
-# Expectation concepts 
+## Expectation concepts 
+
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
 
 utPLSQL uses expectations and matchers to perform the check on the data.
@@ -82,12 +83,14 @@ SUCCESS
 **Note:**
 > The examples in the document will be only using shortcut syntax, to keep the document brief.  
 
-# Using expectations
+## Using expectations
+
 There are two ways to use expectations:
 - by invoking utPLSQL framework to execute suite(s) of utPLSQL tests  
 - without invoking the utPLSQL framework - running expectations standalone
 
 ## Running expectations within utPLSQL framework
+
 When expectations are ran as a part of a test suite, the framework tracks:
 - status of each expectation 
 - outcomes (messages) produced by each expectation
@@ -166,7 +169,7 @@ When expectations are invoked outside of utPLSQL framework the outputs from expe
 **Note:**
 > The examples in the document will be only using standalone expectations, to keep the document brief.  
 
-# Matchers
+## Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
 
 - `be_between( a_upper_bound {data-type}, a_lower_bound {data-type} )`
@@ -312,7 +315,7 @@ FAILURE
 ```
 Since NULL is neither *true* nor *false*, both expectations will report failure.
 
-# Supported data types
+## Supported data types
 
 The matrix below illustrates the data types supported by different matchers.
 
@@ -336,7 +339,7 @@ The matrix below illustrates the data types supported by different matchers.
 | **be_within().of_()**     |      |         |      |   X  |   X    |    X      |               X               |                   X                    |          |                                 |                                 |        |                             |        |      |
 | **be_within_pct().of_()** |      |         |      |      |   X    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
 
-# Expecting exceptions
+## Expecting exceptions
 
 Testing is not limited to checking for happy-path scenarios. When writing tests, you often want to validate that in specific scenarios, an exception is thrown.
 
@@ -385,7 +388,7 @@ Finished in .009229 seconds
 For more details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
 
 
-# Matchers 
+## Matchers 
 
 You can choose different matchers to validate that your PL/SQL code is working as expected.
 
@@ -1747,7 +1750,7 @@ FAILURE
   at "anonymous block", line 32
 ```
 
-# Comparing Json objects
+## Comparing Json objects
 
 utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
 

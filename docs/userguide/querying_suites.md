@@ -1,8 +1,5 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4036--develop-blue.svg)
 
-# Qyerying for test suites
-
-
 ## Obtaining information about suites 
 
 utPLSQL framework provides ability to read inforamtion about unit test suites that exist in a schema.

@@ -1,7 +1,5 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4036--develop-blue.svg)
 
-# Annotations
-
 Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
 No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
@@ -38,7 +36,7 @@ There **can not** be any empty lines or comments between annotation line and pro
 There can be many annotations for a procedure. 
 
 Valid procedure annotations example:
-```sql
+```sql linenums="1"
 package test_package is
   --%suite
 
