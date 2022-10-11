@@ -1,11 +1,12 @@
 # Format documented here
 # http://www.mkdocs.org/user-guide/configuration/
+# https://squidfunk.github.io/mkdocs-material/getting-started/
 
 site_url: http://utPLSQL.org/
 site_name: utPLSQL-framework
-site_description: utPLSQL Ultimate Unit Testing Framework for Oracle PL/SQL
+site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
 copyright: Copyright &copy; 2016 - 2022 utPLSQL Team
-#repo_url: https://github.com/utPLSQL/utPLSQL  # disable for offline docs
+repo_url: https://github.com/utPLSQL/utPLSQL
 theme:
   name: material
   palette:
@@ -70,7 +71,7 @@ plugins:
   - git-revision-date-localized: # disable for offline docs
       enable_creation_date: true # disable for offline docs
       type: datetime             # disable for offline docs
-      
+
 nav:
   - User Guide:
        - index.md
@@ -81,7 +82,7 @@ nav:
        - Advanced data comparison: userguide/advanced_data_comparison.md
        - Running unit tests: userguide/running-unit-tests.md
        - Querying for test suites: userguide/querying_suites.md
-       - Testing best pracitces: userguide/best-practices.md
+       - Testing best practices: userguide/best-practices.md
        - Upgrade utPLSQL: userguide/upgrade.md
   - Reporting:
        - Using reporters: userguide/reporters.md
