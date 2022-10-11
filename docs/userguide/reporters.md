@@ -2,7 +2,7 @@
 
 utPLSQL provides the following reporting formats.
 
-# Documentation reporter
+## Documentation reporter
 
 The `ut_documentation_reporter` is the default reporting format used by the framework.
 It provides a human readable test results.
@@ -26,7 +26,7 @@ The documentation report provides the following information.
 - Summary with total number of tests, number of tests with status and timing for the execution 
 
 
-## Color output from documentation reporter
+### Color output from documentation reporter
 
 When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix) [available for Windows](http://adoxa.altervista.org/ansicon/), you can obtain the coloured outputs from the documentation reporter.
 
@@ -41,7 +41,7 @@ Example outputs from documentation reporter.
 ![doc_reporter_outputs](../images/documentation_reporter_color.png)
 
 
-# JUnit reporter 
+## JUnit reporter 
 
 Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [JUnit](https://en.wikipedia.org/wiki/JUnit) format.
 The `ut_junit_reporter` in earlier version referred as `ut_xunit_reporter` is producing outcomes as JUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
@@ -63,7 +63,7 @@ Example of failure report details
 
 
 
-# Teamcity reporter
+## Teamcity reporter
 
 [Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports JUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
 The TeamCity format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
@@ -83,7 +83,7 @@ Example of failure report details
 ![junit_reporter_outputs_errors](../images/teamcity_report_example_errors.png)
 
 
-# Sonar test reporter
+## Sonar test reporter
 If you are using [SonarQube](https://www.sonarqube.org/) or [SonarCloud](https://about.sonarcloud.io/) to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
 utPLSQL provides two reporters to for SonarQube:
 - `ut_sonar_test_reporter` - provides an XML output of each test executed per each project test file (package) 
@@ -99,7 +99,7 @@ Providing invalid paths or paths to non-existing files will result in failure wh
 
 For details on how to invoke reporter with paths, see the **Coverage reporters** section.
 
-# TFS / VSTS Reporter
+## TFS / VSTS Reporter
 If you are using [TFS](https://www.visualstudio.com/tfs/) or [VSTS](https://www.visualstudio.com/team-services/) to do static code analysis for you PLSQL projects and run builds, your code analysis can benefit from code coverage and test results. TFS reporter is designed specifically to [work with Microsoft Team Fundation Server](https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts) report format which is very old version of [JUnit](https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd).
 Main diffrence between standard JUnit is that <testsuite> elements cannot be nested and attribute skipped is not present.
 
@@ -117,12 +117,12 @@ Details:
 ![tfs_junit_reporter_outputs](../images/tfs_details.png)
 
 
-# Coverage reporters
+## Coverage reporters
 
 utPLSQL comes with a set of build-in coverage reporters. Have a look into the [coverage documentation](coverage.md) to learn more about them.
 
 
-# Debug reporter
+## Debug reporter
 
 The `ut_debug_reporter` provides a highly verbose output containing thorough details about framework and test execution.
 
@@ -161,11 +161,11 @@ Some of the information in debug log might be redundant.
 > - db object names
 > - etc.
 
-# Custom reporters
+## Custom reporters
 
 It is possible to add your own reporters by creating an appropriate object type. In principle, it has to be a subtype of `ut_reporter_base`. However, if the reporter is expected to produce output consumable by a client oustside of the database (e.g. the data has to be reported to the screen or to a file), then you should base it on `ut_output_reporter_base` (which is a subtype of `ut_reporter_base`). In contrast, if you would like to create a reporter that, for example, saves the data to a database table, then it should be based directly on `ut_reporter_base`. (Currently, all reporters in the utPLSQL framework are based on `ut_output_reporter_base`.) Coverage reporters are based on `ut_coverage_reporter_base` (a subtype of `ut_output_reporter_base`).
 
-If need to produce a colored text output from the custom reporter, then you can build it basing on `ut_console_reporter_base` (a subtype of `ut_output_reporter_base`). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like `ut_documentation_reporter` or `ut_junit_reporter`, and override just some of the functionality.
+If you need to produce a colored text output from the custom reporter, then you can build it basing on `ut_console_reporter_base` (a subtype of `ut_output_reporter_base`). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like `ut_documentation_reporter` or `ut_junit_reporter`, and override just some of the functionality.
 
 It is recommended to create the reporter type in the schema where utPLSQL is installed (by default it is the `UT3` schema). Note that before running the utPLSQL uninstall scripts, all custom reporters should be dropped (cf. [the installation documentation](install.md)). In particular, when upgrading to a newer version of utPLSQL, one has to drop the custom reporters and recreate them after the upgrade.
 

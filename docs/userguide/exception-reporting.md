@@ -1,12 +1,11 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4037--develop-blue.svg)
 
-# Exception handling and reporting
-
 The utPLSQL is responsible for handling exceptions wherever they occur in the test run. utPLSQL is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
 The framework provides a full stacktrace for every exception that was thrown. The stacktrace is clean and does not include any utPLSQL library calls in it.
 To achieve rerunability, the package state invalidation exceptions (ORA-04068, ORA-04061) are not handled and test execution will be interrupted if such exceptions are encountered. This is because of how Oracle behaves on those exceptions.
 
 Test execution can fail for different reasons. The failures on different exceptions are handled as follows:
+
 * A test package without body - each `--%test` is reported as failed with exception, nothing is executed
 * A test package with _invalid body_ - each `--%test` is reported as failed with exception, nothing is executed
 * A test package with _invalid spec_ - package is not considered a valid unit test package and is excluded from execution. When trying to run a test package with invalid spec explicitly, exception is raised. Only valid specifications are parsed for annotations 

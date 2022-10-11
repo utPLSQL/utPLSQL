@@ -7,7 +7,7 @@ utPLSQL is designed in a way that allows you to follow
 
 Below is an example of building a simple function with TDD.
 
-# Gather requirements
+## Gather requirements
 
 We have a requirement to build a function that will return a substring of a string that is passed to the function.
 
@@ -17,12 +17,12 @@ The function should accept three parameters:
 - start_position
 - end_position
 
-# Create a test 
+## Create a test 
 
 We will start from the bare minimum and move step by step, executing tests every time we make minimal progress.
 This way, we assure we don't jump ahead too much and produce code that is untested or untestable.
 
-## Create test package
+### Create test package
 
 ```sql
 create or replace package test_betwnstr as
@@ -43,7 +43,7 @@ Finished in .451423 seconds
 0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-## Define specification for the test
+### Define specification for the test
 
 ```sql
 create or replace package test_betwnstr as
@@ -76,7 +76,7 @@ Finished in .509673 seconds
 
 Well our test is failing as the package specification requires a body.
 
-## Define body of first test
+### Define body of first test
 
 ```sql
 create or replace package body test_betwnstr as
@@ -110,9 +110,9 @@ Finished in .415851 seconds
 Our test is failing as the test suite package body is invalid.
 Looks like we need to define the function we want to test.
 
-# Implement code to fulfill the requirement
+## Implement code to fulfill the requirement
 
-## Define tested function 
+### Define tested function 
 
 ```sql
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2
@@ -143,7 +143,7 @@ Finished in .375178 seconds
 So now we see that our test works but the function does not return the expected results.
 Let us fix this and continue from here.
 
-## Fix the tested function
+### Fix the tested function
 
 The function returned a string one character short, so we need to add 1 to the substr parameter.
 
@@ -169,14 +169,14 @@ Finished in .006077 seconds
 
 So our test is now passing, great!
 
-# Refactor
+## Refactor
 
 Once our tests are passing, we can safely refactor (restructure) the code as we have a safety harness 
 in place to ensure that after the restructuring and cleanup of the code, everything is still working.
 
 One thing worth mentioning is that refactoring of tests is as important as refactoring of code. Maintainability of both is equally important.
 
-# Further requirements
+## Further requirements
 
 It seems like our work is done. We have a function that returns a substring from start position to end position.
 As we move through the process of adding tests, it's very important to think about edge cases.
@@ -195,7 +195,7 @@ Here is a list of edge cases for our function:
 We should define expected behavior for each of these edge cases.
 Once defined we can start implementing tests for those behaviors and adjust the tested function to meet the requirements specified in the tests.
 
-## Add test for additional requirement
+### Add test for additional requirement
 
 A new requirement was added: 
   Start position zero - should be treated as start position one
@@ -250,7 +250,7 @@ Finished in .232584 seconds
 
 Looks like our function does not work as expected for zero start position.
 
-## Implementing the requirement
+### Implementing the requirement
 
 Let's fix our function so that the new requirement is met
 
@@ -281,7 +281,7 @@ Finished in .012718 seconds
 
 Great! We have made some visible progress.
 
-## Refactoring
+### Refactoring
 
 When all tests are passing we can proceed with a safe cleanup of our code.
 
@@ -308,7 +308,7 @@ Finished in .013739 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-# Remaining requirements
+## Remaining requirements
 
 You may continue on with the remaining edge cases from here.
 

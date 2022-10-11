@@ -1,8 +1,8 @@
 ![version](https://img.shields.io/badge/version-v3.1.13.4037--develop-blue.svg)
 
-# Coverage
 utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting uses package DBMS_PROFILER (and DBMS_PLSQL_CODE_COVERAGE on Oracle database version 12.2 and above) provided with Oracle database.
 Code coverage is gathered for the following source types:
+
 * package bodies
 * type bodies
 * triggers
@@ -15,6 +15,7 @@ Code coverage is gathered for the following source types:
 
 To obtain information about code coverage for unit tests, run utPLSQL with one of built-in code coverage reporters.
 The following code coverage reporters are supplied with utPLSQL:
+
 * `ut_coverage_html_reporter` - generates a HTML coverage report providing summary and detailed information on code coverage. The HTML reporter is based on the open-source [simplecov-html](https://github.com/colszowka/simplecov-html) reporter for Ruby. It includes source code of the code that was covered (if the code is accessible for test user)  
 * `ut_coveralls_reporter` - generates a [Coveralls compatible JSON](https://coveralls.zendesk.com/hc/en-us/articles/201774865-API-Introduction) coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [Coveralls](https://coveralls.io)
 * `ut_coverage_sonar_reporter`  - generates a [Sonar Compatible XML](https://docs.sonarqube.org/latest/analysis/generic-test/) coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by services like [SonarQube](https://www.sonarqube.org/) and [SonarCloud](https://about.sonarcloud.io/)
@@ -23,6 +24,7 @@ The following code coverage reporters are supplied with utPLSQL:
 ## Security model
 utPLSQL code coverage uses DBMS_PROFILER to gather information about the execution of code under test and therefore follows the [DBMS_PROFILER's Security Model](https://docs.oracle.com/database/121/ARPLS/d_profil.htm#ARPLS67465).
 In order to be able to gather coverage information, the user executing unit tests needs to be either:
+
 * The owner of the code that is being tested
 * Have the following privileges to be able to gather coverage on code owned by other users:
     * `create any procedure` system privilege
@@ -144,6 +146,7 @@ You may specify both _include_ and _exclude_ options to gain more control over w
 
 **Important notes**
 The order of priority is for evaluation of include/exclude filter parameters is as follows.
+
 - if `a_source_file_mappings` is defined then all include/exclude parameters are ignored (see section below for usage of `a_source_file_mappings` parameter )
 - else if `a_include_schema_expr` or `a_include_object_expr` parameter is specified then parameters `a_coverage_schemes` and `a_include_objects` are ignored
 - else if `a_include_objects` is specified then the coverage is gathered only on specified database objects. 
@@ -300,6 +303,7 @@ They are abstracted from database, schema names, packages, procedures and functi
 To be able to effectively use reporters dedicated for those tools, utPLSQL provides functionality for mapping database object names to project files.
 
 There are a few significant differences when running coverage on project files compared to running coverage on schema(s).
+
 - Coverage is only reported on objects that were successfully mapped to project files.
 - Project files (database objects) that were not executed at all are not reported as fully uncovered. It is up to the consumer (Sonar/Coveralls) to determine if project file should be considered as 0% coverage or just ignored.
 
@@ -335,6 +339,7 @@ C:
 ``` 
 
 By default, utPLSQL will convert file paths into database objects using the following regular expression `/(((\w|[$#])+)\.)?((\w|[$#])+)\.(\w{3})$`
+
 - object owner (if it is present) is identified by the expression in the second set of  brackets
 - object name is identified by the expression in the fourth set of brackets
 - object type is identified by the expression in the sixth set of brackets
