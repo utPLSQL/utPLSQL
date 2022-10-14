@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.13.4037--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.13.4041--develop-blue.svg)
 
 The utPLSQL is responsible for handling exceptions wherever they occur in the test run. utPLSQL is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
 The framework provides a full stacktrace for every exception that was thrown. The stacktrace is clean and does not include any utPLSQL library calls in it.
