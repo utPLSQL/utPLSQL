@@ -2,77 +2,77 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://utPLSQL.org/v3.0.3/index.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/about/authors.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/about/license.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/about/project-details.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/about/support.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/annotations.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/best-practices.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/coverage.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/exception-reporting.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/expectations.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/getting-started.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/install.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/reporters.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/running-unit-tests.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://utPLSQL.org/v3.0.3/userguide/upgrade.html</loc>
-         <lastmod>2022-10-11</lastmod>
+         <lastmod>2022-10-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
