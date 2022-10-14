@@ -5,7 +5,8 @@ site_url: http://utPLSQL.org/
 site_name: utPLSQL-framework
 site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracle PL/SQL
 copyright: Copyright &copy; 2016 - 2018 utPLSQL Team
-repo_url: https://github.com/utPLSQL/utPLSQL
+extra_css:
+  - stylesheets/extra.css
 theme:
   name: material
   palette:
@@ -59,6 +60,9 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
   - toc:
       permalink: true
 use_directory_urls: false
