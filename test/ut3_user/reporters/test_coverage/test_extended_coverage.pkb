@@ -128,8 +128,10 @@ create or replace package body test_extended_coverage is
             )
           ]'
         );          
+
     --Assert
-    ut.expect(l_actual).to_be_like(l_expected);
+    --The below is a workaround for problem with large CLOB like comparison on 11g XE db.
+    ut.expect(to_char(substr(l_actual,instr(l_actual,'<file path="package body ut3_tester_helper.regex_dummy_cov">'),2000))).to_be_like(l_expected);
     ut.expect(l_actual).not_to_be_like(l_not_expected);
     ut.expect(l_actual).not_to_be_like('%ut3_tester_helper.test_regex_dummy_cov%');
   end;
