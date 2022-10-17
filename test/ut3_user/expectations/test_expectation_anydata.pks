@@ -233,5 +233,11 @@ create or replace package test_expectation_anydata is
   
   --%test ( Reports success when comparing complex nested objects )
   procedure complex_nested_object_success;      
+
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  --%test ( Compares object types with long names - Issue #1235 )
+  procedure long_names_object_types;
+  $end
+
 end;
 /

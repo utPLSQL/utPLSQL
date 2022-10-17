@@ -1211,5 +1211,20 @@ Rows: [ 60 differences, showing first 20 ]
 	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
   end;  
+
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  procedure long_names_object_types is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace type tp_r_ug_sportsman_invitation_result is object ( code number(18) )';
+    execute immediate 'begin ut.expect(anydata.convertObject(tp_r_ug_sportsman_invitation_result(1))).to_equal(anydata.convertObject(tp_r_ug_sportsman_invitation_result(1))); end;';
+    execute immediate 'drop type tp_r_ug_sportsman_invitation_result';
+  exception
+    when others then
+    execute immediate 'drop type tp_r_ug_sportsman_invitation_result';
+    raise;
+  end;
+  $end
+
 end;
 /
