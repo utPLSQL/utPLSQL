@@ -48,6 +48,20 @@ create or replace package body coverage_helper is
       end;
     end;]';
 
+    execute immediate q'[create or replace package ut3_develop.some_other_package is
+      procedure do_stuff(i_input in number);
+    end;]';
+
+    execute immediate q'[create or replace package body ut3_develop.some_other_package is
+      procedure do_stuff(i_input in number) is
+      begin
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
+        else
+          dbms_output.put_line('should not get here');
+        end if;
+      end;
+    end;]';
+
     execute immediate q'[create or replace package ut3_develop.test_dummy_coverage is
       --%suite(dummy coverage test)
       --%suitepath(coverage_testing)
@@ -77,6 +91,7 @@ create or replace package body coverage_helper is
     pragma autonomous_transaction;
   begin
     begin execute immediate q'[drop package ut3_develop.test_dummy_coverage]';    exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.some_other_package]';    exception when others then null; end;
     begin execute immediate q'[drop package ut3_develop.]'||covered_package_name; exception when others then null; end;
   end;
  

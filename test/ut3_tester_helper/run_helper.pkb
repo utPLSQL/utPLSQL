@@ -616,7 +616,7 @@ create or replace package body run_helper is
   
   function get_schema_ut_packages(a_owner in varchar2) return ut3_develop.ut_object_names is
   begin
-    return ut3_develop.ut_suite_manager.get_schema_ut_packages(ut3_develop.ut_varchar2_rows(a_owner));
+    return ut3_develop.ut_suite_manager.get_schema_ut_packages(ut3_develop.ut_varchar2_rows(a_owner), null);
   end;
     
   function ut_output_buffer_tmp return t_out_buff_tab pipelined is

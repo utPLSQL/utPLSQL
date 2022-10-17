@@ -66,6 +66,7 @@ create or replace package body test_proftab_coverage is
         );
     --Assert
     ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_like('%<file path="package body ut3_develop.test_dummy_coverage%">%');
   end;
 
   procedure coverage_for_file is
