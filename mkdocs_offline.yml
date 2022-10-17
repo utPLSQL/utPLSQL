@@ -9,7 +9,7 @@ site_url: http://utPLSQL.org/
 site_name: utPLSQL-framework
 site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
 copyright: Copyright &copy; 2016 - 2022 utPLSQL Team
-repo_url: https://github.com/utPLSQL/utPLSQL
+#repo_url: https://github.com/utPLSQL/utPLSQL # disable for offline docs
 extra_css:
   - stylesheets/extra.css
 theme:
@@ -30,7 +30,7 @@ theme:
   logo: assets/icon-transparent.png
   favicon: assets/favicon.png
   features:
-    - navigation.instant  # disable for offline docs
+#    - navigation.instant  # disable for offline docs
 #    - navigation.indexes
     - navigation.tabs
     - navigation.tracking
@@ -57,8 +57,8 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
-  version:            # disable for offline docs
-    provider: mike    # disable for offline docs
+#  version:            # disable for offline docs
+#    provider: mike    # disable for offline docs
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -74,11 +74,11 @@ use_directory_urls: false
 strict: true
 
 plugins:
-  - search
+#  - search                        # disable for offline docs
   - mike
-  - git-revision-date-localized: # disable for offline docs
-      enable_creation_date: true # disable for offline docs
-      type: datetime             # disable for offline docs
+#  - git-revision-date-localized: # disable for offline docs
+#      enable_creation_date: true # disable for offline docs
+#      type: datetime             # disable for offline docs
 
 nav:
   - User Guide:

@@ -245,11 +245,13 @@ jobs:
           git commit -m 'Updated project version after build [skip ci]'
           git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
 
-      - name: Copy and push documentation to utPLSQL-github-io repo
-        id: push-documentation
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: .github/scripts/push_docs_to_github_io.sh
+      - name: Build and publish documentation
+        run: |
+          pip install mkdocs
+          pip install mkdocs-git-revision-date-localized-plugin
+          pip install mkdocs-material
+          pip install mike
+          mike deploy -p develop
 
   dispatch:
     name: Dispatch downstream builds

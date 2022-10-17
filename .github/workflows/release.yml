@@ -10,36 +10,6 @@ defaults:
 
 jobs:
 
-  publish:
-    name: Deploy documentation
-    concurrency: publish
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: c-py/action-dotenv-to-setenv@v2
-        with:
-          env-file: .github/variables/.env
-      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
-
-      - name: Set buid version number env variables
-        run: .github/scripts/set_version_numbers_env.sh
-
-      - name: Setup git config
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-      - name: Update project version & build number in source code and documentation
-        run:  .github/scripts/update_project_version.sh
-        
-      - name: Copy and push documentation to utPLSQL-github-io repo
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: .github/scripts/push_docs_to_github_io.sh
-
   upload_artifacts:
     name: Upload archives
     concurrency: upload
@@ -54,7 +24,7 @@ jobs:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
       
-      - name: Set buid version number env variables
+      - name: Set build version number env variables
         run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number in source code and documentation
@@ -65,10 +35,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Build html documentation
+      - name: Build and publish documentation
         run: |
           pip install mkdocs
-          mkdocs build --clean --strict          
+          pip install mkdocs-git-revision-date-localized-plugin
+          pip install mkdocs-material
+          pip install mike
+          mike deploy -p -u ${UTPLSQL_VERSION} latest
+          mkdocs build --clean -f mkdocs_offline.yml         
           rm -rf docs/* 
           cp -r -v site/* docs
           git add .
