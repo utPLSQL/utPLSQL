@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"

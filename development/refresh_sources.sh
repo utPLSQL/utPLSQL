@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-. development/env.sh
+. ./development/env.sh
 
 # remove sub-direcotry containing main branch shallow copy
 rm -rf ${UTPLSQL_DIR:-utPLSQL_latest_release}

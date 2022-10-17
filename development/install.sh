@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-. development/env.sh
+. ./development/env.sh
 
 header="******************************************************************************************"
 if ! development/cleanup.sh; then

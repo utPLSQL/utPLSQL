@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 export SQLCLI=sql # For sqlcl client
 #export SQLCLI=sqlplus # For sqlplus client
