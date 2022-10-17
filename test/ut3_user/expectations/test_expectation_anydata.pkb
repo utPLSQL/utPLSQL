@@ -1216,12 +1216,24 @@ Rows: [ 60 differences, showing first 20 ]
   procedure long_names_object_types is
     pragma autonomous_transaction;
   begin
-    execute immediate 'create or replace type tp_r_ug_sportsman_invitation_result is object ( code number(18) )';
-    execute immediate 'begin ut.expect(anydata.convertObject(tp_r_ug_sportsman_invitation_result(1))).to_equal(anydata.convertObject(tp_r_ug_sportsman_invitation_result(1))); end;';
-    execute immediate 'drop type tp_r_ug_sportsman_invitation_result';
+    execute immediate q'[create or replace type
+      very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it
+      is object (
+        code number(18)
+      )]';
+    execute immediate q'[
+      begin
+        ut3_develop.ut.expect(anydata.convertObject(
+          very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it(1)
+        )).to_equal(anydata.convertObject(
+          very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it(1)
+        ));
+      end;]';
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    execute immediate 'drop type very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it';
   exception
     when others then
-    execute immediate 'drop type tp_r_ug_sportsman_invitation_result';
+    execute immediate 'drop type very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it';
     raise;
   end;
   $end
