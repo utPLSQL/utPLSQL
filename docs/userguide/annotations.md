@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.13.4041--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.13.4049--develop-blue.svg)
 
 Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
 No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
