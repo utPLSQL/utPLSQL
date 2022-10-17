@@ -91,7 +91,11 @@ create or replace type body ut_cursor_details as
     a_cursor_number in number
   ) return self as result is
     l_columns_count    pls_integer;
+    $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
     l_columns_desc     dbms_sql.desc_tab3;
+    $else
+    l_columns_desc     dbms_sql.desc_tab4;
+    $end
     l_is_collection    boolean;
     l_hierarchy_level  integer := 1;
   begin
