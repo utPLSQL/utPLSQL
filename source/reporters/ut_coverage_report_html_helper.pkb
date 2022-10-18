@@ -134,9 +134,11 @@ create or replace package body ut_coverage_report_html_helper is
       l_file_part           varchar2(32767);
       l_result              ut_varchar2_rows := ut_varchar2_rows();
       l_coverage_pct        number(5, 2);
-      l_coverage_block_pct  number(5, 2);
       l_hits                varchar2(30);
       l_blocks              varchar2(30);
+      l_line_text           varchar2(32767);
+      e_buffer_too_small    exception;
+      pragma exception_init ( e_buffer_too_small, -19011 );
     begin
 
      l_coverage_pct := coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
@@ -148,10 +150,16 @@ create or replace package body ut_coverage_report_html_helper is
       ut_utils.append_to_list(l_result, l_file_part);
     
       for line_no in 1 .. a_source_code.count loop
+        begin
+          l_line_text := dbms_xmlgen.convert(a_source_code(line_no));
+        exception
+          when e_buffer_too_small then
+            l_line_text := dbms_xmlgen.convert(to_clob(a_source_code(line_no)));
+        end;
         if not a_coverage_unit.lines.exists(line_no) then
           l_file_part := '
             <li class="' || line_status(null) || '" data-hits="" data-linenumber="' || line_no || '">
-            <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) ||
+            <code class="sql">' || l_line_text ||
                          '</code></li>';
         else
           l_hits := to_char(a_coverage_unit.lines(line_no).executions);
@@ -188,7 +196,7 @@ create or replace package body ut_coverage_report_html_helper is
                            '</span>';
           end if;
           l_file_part := l_file_part || '
-              <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) ||
+              <code class="sql">' || l_line_text ||
                          '</code></li>';
         end if;
         ut_utils.append_to_list(l_result, l_file_part);
@@ -222,7 +230,6 @@ create or replace package body ut_coverage_report_html_helper is
     l_file_part     varchar2(32767);
     l_title         varchar2(100) := 'All files';
     l_coverage_pct  number(5, 2);
-    l_coverage_block_pct  number(5, 2);
     l_result        ut_varchar2_rows;
     l_id            varchar2(50) := object_id(a_title);
     l_unit_coverage ut_coverage.t_unit_coverage;
