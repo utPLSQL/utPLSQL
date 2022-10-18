@@ -53,12 +53,12 @@ create or replace package body test_html_coverage_reporter is
          --%suite
 
          --%test
-         procedure crashing_ut_coverage_html_reporter;
+         procedure fail_ut_coverage_html_reporter;
       end;]';
 
     execute immediate q'[
       create or replace package body test_f is
-         procedure crashing_ut_coverage_html_reporter is
+         procedure fail_ut_coverage_html_reporter is
          begin
             ut3_develop.ut.expect(f()).to_be_greater_or_equal(1);
          end;
