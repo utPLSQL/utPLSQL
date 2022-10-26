@@ -13,7 +13,7 @@
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/exception-reporting.html">
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.6">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
     
     
       
@@ -658,23 +658,66 @@
 
   <h1>Error handling and reporting</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4063--develop-blue.svg" /></p>
-<p>The utPLSQL is responsible for handling exceptions wherever they occur in the test run. utPLSQL is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
-The framework provides a full stacktrace for every exception that was thrown. The stacktrace is clean and does not include any utPLSQL library calls in it.
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4064--develop-blue.svg" /></p>
+<p>utPLSQL is responsible for handling exceptions wherever they occur in the test run. The framework is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
+The framework provides a full stacktrace for every exception that was thrown. The reported stacktrace does not include any utPLSQL library calls in it.
 To achieve rerunability, the package state invalidation exceptions (ORA-04068, ORA-04061) are not handled and test execution will be interrupted if such exceptions are encountered. This is because of how Oracle behaves on those exceptions.</p>
 <p>Test execution can fail for different reasons. The failures on different exceptions are handled as follows:</p>
-<ul>
-<li>A test package without body - each <code>--%test</code> is reported as failed with exception, nothing is executed</li>
-<li>A test package with <em>invalid body</em> - each <code>--%test</code> is reported as failed with exception, nothing is executed</li>
-<li>A test package with <em>invalid spec</em> - package is not considered a valid unit test package and is excluded from execution. When trying to run a test package with invalid spec explicitly, exception is raised. Only valid specifications are parsed for annotations </li>
-<li>A test package that is raising an exception in <code>--%beforeall</code> - each <code>--%test</code> is reported as failed with exception, <code>--%test</code>, <code>--%beforeeach</code>, <code>--%beforetest</code>, <code>--%aftertest</code> and <code>--%aftereach</code> are not executed. <code>--%afterall</code> is executed to allow cleanup of whatever was done in <code>--%beforeall</code></li>
-<li>A test package that is raising an exception in <code>--%beforeeach</code> - each <code>--%test</code> is reported as failed with exception, <code>--%test</code>, <code>--%beforetest</code> and <code>--%aftertest</code> is not executed. The <code>--%aftereach</code> and <code>--%afterall</code> blocks are getting executed to allow cleanup of whatever was done in <code>--%before...</code> blocks</li>
-<li>A test package that is raising an exception in <code>--%beforetest</code> - the <code>--%test</code> is reported as failed  with exception, <code>--%test</code> is not executed. The <code>--%aftertest</code>, <code>--%aftereach</code> and <code>--%afterall</code> blocks are getting executed to allow cleanup of whatever was done in <code>--%before...</code> blocks</li>
-<li>A test package that is raising an exception in <code>--%test</code> - the <code>--%test</code> is reported as failed with exception. The execution of other blocks continues normally</li>
-<li>A test package that is raising an exception in <code>--%aftertest</code> - the <code>--%test</code> is reported as failed with exception. The execution of other blocks continues normally</li>
-<li>A test package that is raising an exception in <code>--%aftereach</code> - each <code>--%test</code> is reported as failed with exception.</li>
-<li>A test package that is raising an exception in <code>--%afterall</code> - all blocks of  the package are executed, as the <code>--%afterall</code> is the last step of package execution. Exception in <code>--%afterall</code> is not affecting test results. A warning with exception stacktrace is displayed in the summary</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Problem /  error</th>
+<th>Framework behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A test package <strong>without body</strong></td>
+<td>each <code>--%test</code> is reported as failed with exception, nothing is executed</td>
+</tr>
+<tr>
+<td>A test package with <strong>invalid body</strong></td>
+<td>each <code>--%test</code> is reported as failed with exception, nothing is executed</td>
+</tr>
+<tr>
+<td>A test package with <strong>invalid spec</strong></td>
+<td>package is not considered a valid unit test package and is excluded from execution. When trying to run a test package with invalid spec explicitly, exception is raised. Only valid specifications are parsed for annotations</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%beforeall</code></td>
+<td>each <code>--%test</code> is reported as failed with exception, <code>--%test</code>, <code>--%beforeeach</code>, <code>--%beforetest</code>, <code>--%aftertest</code> and <code>--%aftereach</code> are not executed. <code>--%afterall</code> is executed to allow cleanup of whatever was done in <code>--%beforeall</code></td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%beforeeach</code></td>
+<td>each <code>--%test</code> is reported as failed with exception, <code>--%test</code>, <code>--%beforetest</code> and <code>--%aftertest</code> is not executed. The <code>--%aftereach</code> and <code>--%afterall</code> blocks are getting executed to allow cleanup of whatever was done in <code>--%before...</code> blocks</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%beforetest</code></td>
+<td>the <code>--%test</code> is reported as failed  with exception, <code>--%test</code> is not executed. The <code>--%aftertest</code>, <code>--%aftereach</code> and <code>--%afterall</code> blocks are getting executed to allow cleanup of whatever was done in <code>--%before...</code> blocks</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%test</code></td>
+<td>the <code>--%test</code> is reported as failed with exception. The execution of other blocks continues normally</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%aftertest</code></td>
+<td>the <code>--%test</code> is reported as failed with exception. The execution of other blocks continues normally</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%aftereach</code></td>
+<td>each <code>--%test</code> is reported as failed with exception.</td>
+</tr>
+<tr>
+<td>A test package that is raising an exception in <code>--%afterall</code></td>
+<td>all blocks of  the package are executed, as the <code>--%afterall</code> is the last step of package execution. Exception in <code>--%afterall</code> is not affecting test results. A warning with exception stacktrace is displayed in the summary</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If an exception is thrown in an <code>afterall</code> procedure then <strong>no failure reported by utPLSQL</strong>.<br>
+Framework will only report a warning on the suite that the <code>afterall</code> belongs to.</p>
+</div>
 <p>Example of reporting with exception thrown in <code>%beforetest</code>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Remove rooms by name
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  Removes a room without content in it (FAILED - 1)
@@ -777,7 +820,7 @@ To achieve rerunability, the package state invalidation exceptions (ORA-04068, O
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 19, 2022 20:23:40</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 26, 2022 21:28:55</span>
       
         <br>
         Created:
@@ -955,10 +998,10 @@ To achieve rerunability, the package state invalidation exceptions (ORA-04068, O
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);console.log(new FormData(form)),__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
+      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
       
     
   </body>

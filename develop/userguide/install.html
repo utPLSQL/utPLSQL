@@ -13,7 +13,7 @@
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/install.html">
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.6">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
     
     
       
@@ -876,7 +876,7 @@
 
   <h1>Installation</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4063--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4064--develop-blue.svg" /></p>
 <h2 id="supported-database-versions">Supported database versions<a class="headerlink" href="#supported-database-versions" title="Permanent link">&para;</a></h2>
 <p>utPLSQL is continuously tested against following versions of Oracle databases</p>
 <ul>
@@ -964,44 +964,41 @@ This process can be time-consuming if DB schema is large.     </p>
 <p>The headless scripts accept three optional parameters that define:
 - username to create as owner of utPLSQL (default <code>ut3</code>)<br />
 - password for owner of utPLSQL (default <code>XNtxj8eEgA6X6b6f</code>)
-- tablespace to use for storage of profiler data (default <code>users</code>)  </p>
+- tablespace to use for storage of profiler and utPLSQL cache data (default <code>users</code>)  </p>
 <p>The scripts need to be executed by <code>SYSDBA</code>, in order to grant access to <code>DBMS_LOCK</code> and <code>DBMS_CRYPTO</code> system packages.</p>
-<p><strong>Note:</strong></p>
-<blockquote>
-<p>Grant on <code>DBMS_LOCK</code> is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses <code>DBMS_SESSION.SLEEP</code> so access to <code>DBMS_LOCK</code> package is no longer needed. </p>
-</blockquote>
-<p><strong>Note:</strong></p>
-<blockquote>
-<p>The user performing the installation must have the <code>ADMINISTER DATABASE TRIGGER</code> privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.</p>
-</blockquote>
-<p><strong>Note:</strong></p>
-<blockquote>
-<p>When installing with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.
-For Oracle 11g following users are excluded:
-ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL </p>
-<p>For Oracle 12c and above the users returned by below query are excluded by utPLSQL:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">username</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">all_users</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">oracle_maintained</span><span class="o">=</span><span class="s1">&#39;Y&#39;</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<ul>
+<li>Grant on <code>DBMS_LOCK</code> is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses <code>DBMS_SESSION.SLEEP</code> so access to <code>DBMS_LOCK</code> package is no longer needed.<br></li>
+<li>The user performing the installation must have the <code>ADMINISTER DATABASE TRIGGER</code> privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.<br></li>
+<li>When installed with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.<br><ul>
+<li>For Oracle 11g following users are excluded:<br>
+    ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL<br> </li>
+<li>For Oracle 12c and above the users returned by below query are excluded by utPLSQL:<br>
+    <code>select username from all_users where oracle_maintained='Y';</code> <br></li>
+</ul>
+</li>
+</ul>
+</div>
 <h3 id="installation-without-ddl-trigger">Installation without DDL trigger<a class="headerlink" href="#installation-without-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql  
 </code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
 </code></pre></div></p>
 <h3 id="installation-with-ddl-trigger">Installation with DDL trigger<a class="headerlink" href="#installation-with-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless_with_trigger.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql  
 </code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_verySecret_password utp3_tablespace   
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_verySecret_password utp3_tablespace   
 </code></pre></div></p>
 <h2 id="recommended-schema">Recommended Schema<a class="headerlink" href="#recommended-schema" title="Permanent link">&para;</a></h2>
 <p>It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
@@ -1030,16 +1027,16 @@ Installing uPLSQL into a shared schema is really not recommended as you loose is
 <li><code>tablespace name</code> - the tablespace name to hold data created during test execution</li>
 </ul>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus sys/sys_password@database as sysdba @create_utPLSQL_owner.sql ut3 ut3 users  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus sys/sys_password@database as sysdba @create_utPLSQL_owner.sql ut3 ut3 users  
 </code></pre></div></p>
 <h3 id="installing-utplsql">Installing utPLSQL<a class="headerlink" href="#installing-utplsql" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL framework into your database, go to <code>source</code> directory, run the <code>install.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.<br />
 Schema must be created prior to calling the <code>install</code> script.
 You may install utPLSQL from any account that has sufficient privileges to create objects in other users schema.  </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus admin/admins_password@database @install.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus admin/admins_password@database @install.sql ut3  
 </code></pre></div></p>
 <h3 id="installing-ddl-trigger">Installing DDL trigger<a class="headerlink" href="#installing-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To minimize startup time of utPLSQL framework (especially on a database with large schema) it is recommended to install utPLSQL DDL trigger to enable utPLSQL annotation to be updated at compile-time.</p>
@@ -1048,13 +1045,13 @@ If using the owner schema of utPLSQL to install trigger, the owner needs to have
 If using different user to install trigger, the user needs to have <code>ADMINISTER DATABASE TRIGGER</code> and <code>CREATE ANY TRIGGER</code> system privileges. </p>
 <p>To install DDL trigger go to <code>source</code> directory, run the <code>install_ddl_trigger.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus admin/admins_password@database @install_ddl_trigger.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus admin/admins_password@database @install_ddl_trigger.sql ut3  
 </code></pre></div></p>
-<p><strong>Note:</strong></p>
-<blockquote>
-<p>Trigger can be installed ant any point in time.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Trigger can be installed ant any point in time after the utPLSQL installation. The framework will detect the presence of DDL trigger and act accordingly.</p>
+</div>
 <h3 id="allowing-other-users-to-access-the-utplsql-framework">Allowing other users to access the utPLSQL framework<a class="headerlink" href="#allowing-other-users-to-access-the-utplsql-framework" title="Permanent link">&para;</a></h3>
 <p>In order to allow other users to access utPLSQL, synonyms must be created and privileges granted.
 You have two options:</p>
@@ -1064,14 +1061,14 @@ You have two options:</p>
 </ul>
 <p>To grant utPLSQL to public execute script <code>source/create_synonyms_and_grants_for_public.sql</code> and provide <code>schema_name</code> where utPLSQL is installed. </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
 </code></pre></div>
 To grant utPLSQL to an individual user, execute scripts <code>source/create_user_grants.sql</code> and <code>source/create_user_synonyms.sql</code>, provide <code>schema_name</code> where utPLSQL is installed and <code>user_name</code> to grant access for.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>sqlplus ut3_owner_schema/ut3_password@database @create_user_grants.sql ut3 hr
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus ut3_owner_schema/ut3_password@database @create_user_grants.sql ut3 hr
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
 </code></pre></div></p>
 <p>The following tools that support the SQL*Plus commands can be used to run the installation script:</p>
 <ul>
@@ -1081,13 +1078,15 @@ To grant utPLSQL to an individual user, execute scripts <code>source/create_user
 </ul>
 <h2 id="checking-environment-and-utplsql-version">Checking environment and utPLSQL version<a class="headerlink" href="#checking-environment-and-utplsql-version" title="Permanent link">&para;</a></h2>
 <p>To check the framework version execute the following query:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
-</code></pre></div></p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></td></tr></table></div></p>
 <p>Additionally you may retrieve more information about your environment by executing the following query:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">select</span><span class="w"> </span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
-</code></pre></div></p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">select</span><span class="w"> </span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+</code></pre></div></td></tr></table></div></p>
 <h2 id="additional-requirements">Additional requirements<a class="headerlink" href="#additional-requirements" title="Permanent link">&para;</a></h2>
 <p>In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
 This is a requirement of <a href="https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476">DBMS_PROFILER package</a>.</p>
@@ -1096,8 +1095,8 @@ Running code coverage on objects that the user does not own will <strong>not pro
 <h2 id="uninstalling-utplsql">Uninstalling utPLSQL<a class="headerlink" href="#uninstalling-utplsql" title="Permanent link">&para;</a></h2>
 <p>To uninstall run <code>uninstall.sql</code> and provide <code>schema_name</code> where utPLSQL is installed.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>sqlplus admin/admins_password@database @uninstall.sql ut3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span> <span class="nb">source</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sqlplus admin/admins_password@database @uninstall.sql ut3
 </code></pre></div></p>
 <p>The uninstall script will remove all the objects installed by the installation script.
 Additionally, all the public and private synonyms pointing to the objects in the utPLSQL schema will be removed.</p>
@@ -1118,7 +1117,7 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 19, 2022 20:23:40</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 26, 2022 21:28:55</span>
       
         <br>
         Created:
@@ -1296,10 +1295,10 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);console.log(new FormData(form)),__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
+      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
       
     
   </body>

@@ -13,7 +13,7 @@
         <link rel="canonical" href="http://utPLSQL.org/develop/index.html">
       
       <link rel="icon" href="assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.6">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
     
     
       
@@ -720,13 +720,21 @@
 
   <h1>Index</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4063--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4064--develop-blue.svg" /></p>
 <h2 id="what-is-utplsql">What is utPLSQL<a class="headerlink" href="#what-is-utplsql" title="Permanent link">&para;</a></h2>
 <p>utPLSQL is a Unit Testing framework for Oracle PL/SQL.
 The framework follows industry standards and best patterns of modern Unit Testing frameworks like <a href="http://junit.org/junit4/">JUnit</a> and <a href="http://rspec.info/">RSpec</a></p>
 <h2 id="demo-project">Demo project<a class="headerlink" href="#demo-project" title="Permanent link">&para;</a></h2>
-<p>Have a look at our <a href="https://github.com/utPLSQL/utPLSQL-demo-project/">demo project</a>.</p>
-<p>It uses <a href="https://travis-ci.org/utPLSQL/utPLSQL-demo-project">Travis CI</a> to build on every commit, runs all tests, publishes test results and code coverage to <a href="https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project">SonarCloud</a>.</p>
+<p>Have a look at <a href="https://github.com/utPLSQL/utPLSQL-demo-project/">utPLSQL demo project</a> to see:</p>
+<ul>
+<li>sample code and tests</li>
+<li>demo of deployment automation that leverages:</li>
+<li>Flyway / Liquidbase for scripting and deployment of DB changes </li>
+<li>Docker container with Oracle XE Database</li>
+<li>GitHub Actions and Azure Pipelines to orchestrate the deployment and testing process</li>
+<li>utPLSQL framework for writhing, execution of tests as well as reporting test results and code coverage</li>
+<li><a href="(https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project).">Sonar</a> for code quality gate, test results and code coverage reporting  </li>
+</ul>
 <h2 id="three-steps">Three steps<a class="headerlink" href="#three-steps" title="Permanent link">&para;</a></h2>
 <p>With just three simple steps you can define and run your unit tests for PLSQL code.</p>
 <ol>
@@ -739,22 +747,24 @@ The framework follows industry standards and best patterns of modern Unit Testin
 <p>Check out the sections on <a href="userguide/annotations.html">annotations</a> and <a href="userguide/expectations.html">expectations</a> to see how to define your tests.  </p>
 <h2 id="command-line">Command line<a class="headerlink" href="#command-line" title="Permanent link">&para;</a></h2>
 <p>You can use the utPLSQL command line client <a href="https://github.com/utPLSQL/utPLSQL-cli">utPLSQL-cli</a> to run tests without the need for Oracle Client or any IDE like SQLDeveloper/TOAD etc.</p>
-<p>Amongst many benefits they provide ability to:
-* see the progress of test execution for long-running tests - real-time reporting
-* use many reporting formats simultaneously and save reports to files (publish)
-* map your project source files and test files into database objects </p>
+<p>Amongst many benefits they provide ability to:</p>
+<ul>
+<li>see the progress of test execution for long-running tests - real-time reporting</li>
+<li>use many reporting formats simultaneously and save reports to files (publish)</li>
+<li>map your project source files and test files into database objects </li>
+</ul>
 <p>Download the <a href="https://github.com/utPLSQL/utPLSQL-cli/releases/latest">latest client</a> and you are good to go.
 See <a href="https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md">project readme</a> for details.  </p>
 <h2 id="coverage">Coverage<a class="headerlink" href="#coverage" title="Permanent link">&para;</a></h2>
-<p>If you want to have code coverage gathered on your code , it's best to use <code>ut_run</code> to execute your tests with multiple reporters and have both test execution report as well as coverage report saved to a file.</p>
-<p>Check out the <a href="userguide/coverage.html">coverage documentation</a> for options of coverage reporting</p>
+<p>It is best to use utPLSQL-cli or execute tests and gather code coverage from command line.
+Check out the <a href="userguide/coverage.html">coverage documentation</a> for options of coverage reporting</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 19, 2022 20:23:40</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 26, 2022 21:28:55</span>
       
         <br>
         Created:
@@ -917,10 +927,10 @@ See <a href="https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md">proj
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);console.log(new FormData(form)),__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.078830c0.min.js"></script>
+      <script src="assets/javascripts/bundle.8492ddcf.min.js"></script>
       
     
   </body>

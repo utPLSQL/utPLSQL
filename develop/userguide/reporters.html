@@ -13,7 +13,7 @@
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/reporters.html">
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.6">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
     
     
       
@@ -754,8 +754,8 @@
 
   <h1>Using reporters</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4063--develop-blue.svg" /></p>
-<p>utPLSQL provides the following reporting formats.</p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4064--develop-blue.svg" /></p>
+<p>utPLSQL provides several reporting formats. The sections below describe most of them. </p>
 <h2 id="documentation-reporter">Documentation reporter<a class="headerlink" href="#documentation-reporter" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_documentation_reporter</code> is the default reporting format used by the framework.
 It provides a human readable test results.</p>
@@ -764,13 +764,15 @@ It provides a human readable test results.</p>
 <p><code>exec ut.run(ut_documentation_reporter());</code></p>
 <p>Example outputs from documentation reporter.</p>
 <p><img alt="doc_reporter_outputs" src="../images/documentation_reporter.png" /></p>
-<p>The documentation report provides the following information.
-- Test suite name or test package name  (nested with suitepath if suitepath is used)
-- Test description name or test procedure name
-- Information about test failing <code>(FAILED - n)</code> 
-- Information about disabled test <code>(IGNORED)</code> 
-- List of all errors and failures
-- Summary with total number of tests, number of tests with status and timing for the execution </p>
+<p>Documentation reporter provides the following information.</p>
+<ul>
+<li>Test suite name or test package name  (nested with suitepath if suitepath is used)</li>
+<li>Test description name or test procedure name</li>
+<li>Information about test failing <code>(FAILED - n)</code> </li>
+<li>Information about disabled test <code>(IGNORED)</code> </li>
+<li>List of all errors and failures</li>
+<li>Summary with total number of tests, number of tests with status and timing for the execution </li>
+</ul>
 <h3 id="color-output-from-documentation-reporter">Color output from documentation reporter<a class="headerlink" href="#color-output-from-documentation-reporter" title="Permanent link">&para;</a></h3>
 <p>When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix) <a href="http://adoxa.altervista.org/ansicon/">available for Windows</a>, you can obtain the coloured outputs from the documentation reporter.</p>
 <p>To invoke tests with documentation reporter in color mode use one of following calls.  </p>
@@ -800,70 +802,81 @@ The TeamCity format developed by Jetbrains is supported by utPLSQL with <code>ut
 <p>Example of failure report details</p>
 <p><img alt="junit_reporter_outputs_errors" src="../images/teamcity_report_example_errors.png" /></p>
 <h2 id="sonar-test-reporter">Sonar test reporter<a class="headerlink" href="#sonar-test-reporter" title="Permanent link">&para;</a></h2>
-<p>If you are using <a href="https://www.sonarqube.org/">SonarQube</a> or <a href="https://about.sonarcloud.io/">SonarCloud</a> to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
-utPLSQL provides two reporters to for SonarQube:
-- <code>ut_sonar_test_reporter</code> - provides an XML output of each test executed per each project test file (package) 
-- <code>ut_coverage_sonar_reporter</code> - provides XML output of code coverage per each project source file </p>
+<p>If you are using <a href="https://www.sonarqube.org/">SonarQube</a> or <a href="https://about.sonarcloud.io/">SonarCloud</a> to do static code analysis for you PLSQL projects,
+your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for SonarQube:</p>
+<ul>
+<li><code>ut_sonar_test_reporter</code> - provides an XML output of each test executed per each project test file (package) </li>
+<li><code>ut_coverage_sonar_reporter</code> - provides XML output of code coverage per each project source file </li>
+</ul>
 <p><code>ut_sonar_test_reporter</code> needs to be called with a list of paths to test files (packages).
 The paths to files can be relative to the project root directory (recommended) or be absolute. </p>
 <p><code>ut_coverage_sonar_reporter</code> needs to be called with a list of paths to source files for your project.
 The paths to files can be relative to the project root directory (recommended) or be absolute.</p>
 <p>Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.</p>
-<p>For details on how to invoke reporter with paths, see the <strong>Coverage reporters</strong> section.</p>
+<p>For details on how to invoke reporter with paths, see the <a href="coverage.html">Code coverage</a> section.</p>
 <h2 id="tfs-vsts-reporter">TFS / VSTS Reporter<a class="headerlink" href="#tfs-vsts-reporter" title="Permanent link">&para;</a></h2>
-<p>If you are using <a href="https://www.visualstudio.com/tfs/">TFS</a> or <a href="https://www.visualstudio.com/team-services/">VSTS</a> to do static code analysis for you PLSQL projects and run builds, your code analysis can benefit from code coverage and test results. TFS reporter is designed specifically to <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts">work with Microsoft Team Fundation Server</a> report format which is very old version of <a href="https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd">JUnit</a>.
-Main diffrence between standard JUnit is that <testsuite> elements cannot be nested and attribute skipped is not present.</p>
-<p>utPLSQL provides test reporter to for TFS / VSTS server:
-- <code>ut_tfs_junit_reporter</code> - provides an XML output of each test executed per each project test file (package) </p>
-<p>Example of test report from TFS CI server.</p>
+<p>If you are using <a href="https://www.visualstudio.com/tfs/">TFS</a> or <a href="https://www.visualstudio.com/team-services/">VSTS</a> to do static code analysis for you PLSQL projects and run builds, 
+your code analysis can benefit from code coverage and test results. TFS reporter is designed specifically to <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts">work with Microsoft Team Fundation Server</a> report format which is very old version of <a href="https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd">JUnit</a>.
+Main difference between standard JUnit is that <testsuite> elements cannot be nested and attribute skipped is not present.</p>
+<p>utPLSQL provides a dedicated <code>ut_tfs_junit_reporter</code> reporter to for TFS / VSTS servers. The reporter provides an XML output of each test executed per each project test file (package).
+Example of test report from TFS CI server.</p>
 <p>Summary:</p>
 <p><img alt="tfs_junit_reporter_outputs" src="../images/tfs_summary.png" /></p>
 <p>Details:</p>
 <p><img alt="tfs_junit_reporter_outputs" src="../images/tfs_details.png" /></p>
 <h2 id="coverage-reporters">Coverage reporters<a class="headerlink" href="#coverage-reporters" title="Permanent link">&para;</a></h2>
-<p>utPLSQL comes with a set of build-in coverage reporters. Have a look into the <a href="coverage.html">coverage documentation</a> to learn more about them.</p>
+<p>utPLSQL comes with a set of build-in coverage reporters.
+<a href="coverage.html">Code coverage</a> section describes in details how to use configure and use code coverage.</p>
 <h2 id="debug-reporter">Debug reporter<a class="headerlink" href="#debug-reporter" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_debug_reporter</code> provides a highly verbose output containing thorough details about framework and test execution.</p>
 <p>Use this reporter only when you need to investigate framework issues or raise a bug report to utPLSQL team.</p>
 <p>Usage of this reporter might have impact on performance of test-suite execution.</p>
-<p>Amongst others, reporter provides the following information:
-- framework version
-- database version
-- database OS
-- database, instance and session NLS settings
-- timing of each event
-- time between events logged
-- time from start of the run
-- stack trace
-- information about input parameters for the run including
-    - run paths
-    - source file mappings
-    - test file mappings
-    - coverage schemas
-    - coverage exclusions and inclusions
-    - client character set
-- information about every step of the run including
-    - every suite and context
-    - every before/after procedure
-    - every test
-    - every expectation and it's result</p>
-<p>Some of the information in debug log might be redundant.</p>
-<p><strong>Note:</strong></p>
-<blockquote>
-<p>Some of the information in debug log may be sensitive. In particular:
-- expectation results and messages (logged even for successful runs)
-- test structure
-- db object names
-- etc.</p>
-</blockquote>
+<p>Amongst others, reporter provides the following information:</p>
+<ul>
+<li>framework version</li>
+<li>database version</li>
+<li>database OS</li>
+<li>database, instance and session NLS settings</li>
+<li>timing of each event</li>
+<li>time between events logged</li>
+<li>time from start of the run</li>
+<li>stack trace</li>
+<li>information about input parameters for the run including<ul>
+<li>run paths</li>
+<li>source file mappings</li>
+<li>test file mappings</li>
+<li>coverage schemas</li>
+<li>coverage exclusions and inclusions</li>
+<li>client character set</li>
+</ul>
+</li>
+<li>information about every step of the run including<ul>
+<li>every suite and context</li>
+<li>every before/after procedure</li>
+<li>every test</li>
+<li>every expectation and it's result</li>
+</ul>
+</li>
+</ul>
+<p>Some information in debug log might be redundant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some information in debug log may be sensitive. In particular:<br>
+ - expectation results and messages (logged even for successful runs)<br>
+ - test structure<br>
+ - db object names<br>
+ - etc.</p>
+</div>
 <h2 id="custom-reporters">Custom reporters<a class="headerlink" href="#custom-reporters" title="Permanent link">&para;</a></h2>
-<p>It is possible to add your own reporters by creating an appropriate object type. In principle, it has to be a subtype of <code>ut_reporter_base</code>. However, if the reporter is expected to produce output consumable by a client oustside of the database (e.g. the data has to be reported to the screen or to a file), then you should base it on <code>ut_output_reporter_base</code> (which is a subtype of <code>ut_reporter_base</code>). In contrast, if you would like to create a reporter that, for example, saves the data to a database table, then it should be based directly on <code>ut_reporter_base</code>. (Currently, all reporters in the utPLSQL framework are based on <code>ut_output_reporter_base</code>.) Coverage reporters are based on <code>ut_coverage_reporter_base</code> (a subtype of <code>ut_output_reporter_base</code>).</p>
+<p>It is possible to add your own reporters by creating an appropriate object type. 
+In principle, it has to be a subtype of <code>ut_reporter_base</code>. However, if the reporter is expected to produce output consumable by a client oustside of the database (e.g. the data has to be reported to the screen or to a file), then you should base it on <code>ut_output_reporter_base</code> (which is a subtype of <code>ut_reporter_base</code>). In contrast, if you would like to create a reporter that, for example, saves the data to a database table, then it should be based directly on <code>ut_reporter_base</code>. (Currently, all reporters in the utPLSQL framework are based on <code>ut_output_reporter_base</code>.) Coverage reporters are based on <code>ut_coverage_reporter_base</code> (a subtype of <code>ut_output_reporter_base</code>).</p>
 <p>If you need to produce a colored text output from the custom reporter, then you can build it basing on <code>ut_console_reporter_base</code> (a subtype of <code>ut_output_reporter_base</code>). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like <code>ut_documentation_reporter</code> or <code>ut_junit_reporter</code>, and override just some of the functionality.</p>
 <p>It is recommended to create the reporter type in the schema where utPLSQL is installed (by default it is the <code>UT3</code> schema). Note that before running the utPLSQL uninstall scripts, all custom reporters should be dropped (cf. <a href="install.html">the installation documentation</a>). In particular, when upgrading to a newer version of utPLSQL, one has to drop the custom reporters and recreate them after the upgrade.</p>
-<p><strong>Note:</strong></p>
-<blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>It is possible, but cumbersome, to use another schema for storing the custom reporters. This requires to create a synonym for the base reporter type in the schema that is going to own the custom reporter, and to provide appropriate grants both to the owner of the custom reporter and to the user running the reporter. After upgrading or reinstalling utPLSQL, the extra privileges need to be recreated. This approach is not recommended.</p>
-</blockquote>
+</div>
 <p>Assuming that the custom reporter type is created in the <code>UT3</code> schema, to run the tests using a custom reporter just call: <code>exec ut.run(ut3.custom_reporter_name());</code>, optionally providing parameter values to the <code>custom_reporter_name</code> constructor.</p>
 <p>One may get acquainted with the source code of the standard reporters bundled with utPLSQL (including the coverage reporters) by browsing the <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/reporters"><code>source/reporters/</code></a> directory. The base reporter types <code>ut_reporter_base</code>, <code>ut_output_reporter_base</code> and <code>ut_console_reporter_base</code> are defined in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/types"><code>source/core/types</code></a>. The base coverage reporter type <code>ut_coverage_reporter_base</code> is in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/coverage"><code>source/core/coverage</code></a>. There are also two examples of custom reporters in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/examples/custom_reporters"><code>examples/custom_reporters/</code></a>, both extending the functionality of <code>ut_documentation_reporter</code>:</p>
 <ul>
@@ -876,7 +889,7 @@ Main diffrence between standard JUnit is that <testsuite> elements cannot be nes
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 19, 2022 20:23:40</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 26, 2022 21:28:55</span>
       
         <br>
         Created:
@@ -1054,10 +1067,10 @@ Main diffrence between standard JUnit is that <testsuite> elements cannot be nes
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);console.log(new FormData(form)),__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
+      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
       
     
   </body>
