@@ -9,9 +9,14 @@ Code coverage is gathered for the following source types:
 * procedures
 * functions
 
-**Note**
+!!! note
 
-> The package and type specifications are excluded from code coverage analysis. This limitation is introduced to avoid false-negatives. Typically package specifications contain no executable code. The only exception is initialization of global constants and variables in package specification. Since most package specifications are not executable at all, there is no information available on the number of lines covered and those would be reported as 0% covered, which is not desirable.
+    The package and type specifications are excluded from code coverage analysis. 
+    This limitation is introduced to avoid false-negatives.
+    Typically package specifications contain no executable code. 
+    The only exception is initialization of global constants and variables in package specification.
+    Since most package specifications are not executable at all, there is no information available 
+    on the number of lines covered and those would be reported as 0% covered, which is not desirable.
 
 To obtain information about code coverage for unit tests, run utPLSQL with one of built-in code coverage reporters.
 The following code coverage reporters are supplied with utPLSQL:
@@ -39,7 +44,7 @@ Using the code coverage functionality is as easy as using any other [reporter](r
 All you need to do, is pass the constructor of the reporter to the `ut.run` procedure call.
 
 Example:
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run(ut_coverage_html_reporter());
@@ -58,7 +63,7 @@ The report allow you to navigate to each source file and inspect line by line co
 ![Coverage Details page](../images/coverage_html_details.png)
 
 
-#### Oracle 12.2 extended coverage with profiler and block coverage
+### Oracle 12.2 extended coverage with profiler and block coverage
 Using data collected from profiler and block coverage running parallel we are able to enrich information about coverage.
 For every line recorded by the profiler if we have a partially covered same line in block coverage we will display that information
 presenting line as partially covered, displaying number of block and how many blocks have been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.
@@ -89,8 +94,8 @@ The parameters used to execute tests determine if utPLSQL will be using one appr
 If parameter `a_source_file_mappings` or `a_source_files` is provided, then coverage is gathered on project files provided, otherwise coverage is gathered on schemas.  
 
 
-**Note**
-> Regardless of the options provided, all unit test packages are excluded from the coverage report. Coverage reports provide information only about the **tested** code.
+!!! note
+    Regardless of the options provided, all unit test packages are excluded from the coverage report. Coverage reports provide information only about the **tested** code.
 
 The default behavior of coverage reporting can be altered using invocation parameters.
 
@@ -99,17 +104,16 @@ The default behavior of coverage reporting can be altered using invocation param
 To gather coverage for all objects in the **current schema** execute tests with coverage report as argument.
 This is the default reporting option and therefore additional coverage options don't need to be provided. 
 
-```sql
+```sql linenums="1"
 exec ut.run(ut_coverage_html_reporter());
 ```
 
-**Note**
+!!! note
 
-> When no filters are used, the size of the coverage report will depend two factors:
-> - the type of report (does the report include source code or not)
-> - the amount of source code in the database schema
->
->Keep in mind that for schemas containing a lot of code, it can take quite some time to produce the coverage report.
+    When no filters are used, the size of the coverage report will depend two factors:<br>
+        - the type of report (does the report include source code or not)<br>
+        - the amount of source code in the database schema<br>
+    Keep in mind that for schemas containing a lot of code, it can take quite some time to produce the coverage report.
 
 #### Setting coverage schema(s)
 
@@ -117,7 +121,7 @@ By default, coverage is gathered on the schema(s) derived from suite paths provi
 This is a valid approach as long as your test packages and tested code share the same schema.
 
 So when you run:
-```sql
+```sql linenums="1"
 exec ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter());
 ```
 Coverage will be gathered on both `user_1` and `user_2` objects.
@@ -126,13 +130,18 @@ If your tests live in a different schema from the tested code you may override t
 
 In the example below, coverage will still be gathered for `user_1` and `user_2` objects, even thought we run the tests located in schema `unit_test_schema`
 
-```sql
-exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes => ut_varchar2_list('user_1','user_2') );
+```sql linenums="1"
+begin
+  ut.run('unit_test_schema', ut_coverage_html_reporter(), 
+    a_coverage_schemes => ut_varchar2_list('user_1','user_2') 
+  );
+end;
 ```
 
 #### Filtering objects in coverage reports
 
 Multiple parameters can be used to define the scope of coverage report.
+
 - `a_source_file_mappings ( ut_file_mappings )` - map of filenames to database objects. It is used for file-based coverage - see below.
 - `a_include_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be included in the coverage report. Case-insensitive. 
 - `a_include_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be included in the coverage report. Case-insensitive.
@@ -144,22 +153,23 @@ Multiple parameters can be used to define the scope of coverage report.
 
 You may specify both _include_ and _exclude_ options to gain more control over what needs to be included / excluded from the coverage report.
 
-**Important notes**
-The order of priority is for evaluation of include/exclude filter parameters is as follows.
 
-- if `a_source_file_mappings` is defined then all include/exclude parameters are ignored (see section below for usage of `a_source_file_mappings` parameter )
-- else if `a_include_schema_expr` or `a_include_object_expr` parameter is specified then parameters `a_coverage_schemes` and `a_include_objects` are ignored
-- else if `a_include_objects` is specified then the coverage is gathered only on specified database objects. 
-  - if `a_coverage_schemes` is specified then those schemas are used for objects in `a_include_objects` without schema name    
-  - if `a_coverage_schemes` is not specified then schema from paths (`a_paths`) parameter are used for objects in `a_include_objects` without schema name    
-- else if, only the `a_coverage_schemes` is specified then the coverage is gathered only on specified database schemas
-- else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure
-- else if no paths were specified, the coverage is gathered on current schema of the session running the tests
+!!! warning "Important note"
 
+    The order of priority is for evaluation of include/exclude filter parameters is as follows.<br>
+    - if `a_source_file_mappings` is defined then all include/exclude parameters are ignored (see section below for usage of `a_source_file_mappings` parameter )<br>
+    - else if `a_include_schema_expr` or `a_include_object_expr` parameter is specified then parameters `a_coverage_schemes` and `a_include_objects` are ignored<br>
+    - else if `a_include_objects` is specified then the coverage is gathered only on specified database objects.<br> 
+      - if `a_coverage_schemes` is specified then those schemas are used for objects in `a_include_objects` without schema name<br>    
+      - if `a_coverage_schemes` is not specified then schema from paths (`a_paths`) parameter are used for objects in `a_include_objects` without schema name<br>    
+    - else if, only the `a_coverage_schemes` is specified then the coverage is gathered only on specified database schemas<br>
+    - else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure<br>
+    - else if no paths were specified, the coverage is gathered on current schema of the session running the tests
+    
 The exclude parameters are not mutually-exclusive and can be mixed together. All of exclude parameters are always applied.  
 
 Example: Limiting coverage by schema regex.
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_include_schema_expr => '^ut3_develop'
@@ -169,7 +179,7 @@ end;
 Will result in showing coverage for all schemas that match regular expression `^ut3_develop`
 
 Example: Limiting coverage by schema regex with parameter `a_include_objects` ignored. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(),
     a_include_schema_expr => '^ut3_develop', a_include_objects => ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
@@ -179,7 +189,7 @@ end;
 Will result in showing coverage for all schemas that match regular expression `^ut3_develop`.
 
 Example: Limiting coverage by object regex. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_include_object_expr => 'regex123'
@@ -189,7 +199,7 @@ end;
 Will result in showing coverage for all objects that name match regular expression `regex123`.
 
 Example: Limiting coverage by object regex with parameter `a_include_objects` ignored. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_include_object_expr => 'utl', a_include_objects => ut_varchar2_list( 'user_2.utils_package' )
@@ -199,7 +209,7 @@ end;
 Will result in showing coverage for all objects that name match regular expression `utl`.
 
 Example: Limiting coverage by excluding schema with regex. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_exclude_schema_expr => 'er_1$'
@@ -209,7 +219,7 @@ end;
 Will result in showing coverage for objects in all schema except schemas that are matching regular expression `er_1$`
 
 Example: Limiting coverage by excluding schema with regex and excluding specific object. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_exclude_schema_expr => 'er_1$', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
@@ -220,7 +230,7 @@ Will result in showing coverage for objects in all schemas except schemas that a
 Will also exclude object `user_2.utils_package` from coverage report
 
 Example: Limiting coverage by excluding objects with regex. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_exclude_object_expr => 'utl'
@@ -230,7 +240,7 @@ end;
 Will result in showing coverage for all objects that name is not matching regular expression `utl`.
 
 Example: Limiting coverage by excluding objects with regex with parameter `a_exclude_objects` ignored. 
-```sql
+```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
     a_exclude_object_expr => 'utl', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
@@ -242,14 +252,18 @@ Will also exclude object `user_2.utils_package` from coverage report
 
 
 Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
-```sql
-exec ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), a_include_objects=>ut_varchar2_list('award_bonus'));
+```sql linenums="1"
+begin
+  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
+    a_include_objects=>ut_varchar2_list('award_bonus')
+  );
+end;
 ```
 Executes all tests in schemas: `user_1` and `user_2`. Coverage will only be reported on objects `user_1.award_bonus`, `user_2.award_bonus`
 
 
 Example: Limiting coverage by object name, for tested code located in different schemas than the unit tests.
-```sql
+```sql linenums="1"
 begin
   ut.run(
     'unit_test_schema', ut_coverage_html_reporter(),
@@ -262,7 +276,7 @@ Executes all tests in schema `unit_test_schema`. Coverage will only be reported 
 Objects that do not exist in the database but were specified in `a_include_objects` will be ignored.
 
 Example: Limiting coverage by object owner and name.
-```sql
+```sql linenums="1"
 begin
   ut.run(
     'unit_test_schema', ut_coverage_html_reporter(),
@@ -275,7 +289,7 @@ Executes all tests in schema `unit_test_schema`. Coverage will only be reported 
 The `a_exclude_objects` can be used in the same way as `a_include_objects`.
 
 Example: Excluding objects from coverage report by providing a list of object owner/name to be excluded.
-```sql
+```sql linenums="1"
 begin
   ut.run(
     'unit_test_schema.test_award_bonus', ut_coverage_html_reporter(), 
@@ -285,12 +299,12 @@ end;
 ```
 Executes test `test_award_bonus` in schema `unit_test_schema`. Coverage will be reported on all objects in schema `ut3_user` except the `betwnstr` object.
 
-**Note**
-> Filtering using `a_include_objects` and `a_exclude_objects` is only applicable when gathering coverage for a schema. Those filters are not applied when reporting coverage on project files.
+!!! note
+    Filtering using `a_include_objects` and `a_exclude_objects` is only applicable when gathering coverage for a schema. Those filters are not applied when reporting coverage on project files.
 
-**Note**
-> When running coverage on schema objects, all source code of package bodies, functions, procedures, type bodies and triggers that were not executed will be reported as having 0% code coverage and all source code lines will show as uncovered.
-> This is different from the behavior when gathering coverage on project files.
+!!! note
+    When running coverage on schema objects, all source code of package bodies, functions, procedures, type bodies and triggers that were not executed will be reported as having 0% code coverage and all source code lines will show as uncovered.
+    This is different from the behavior when gathering coverage on project files.
 
 
 ### Project based Coverage
@@ -345,16 +359,17 @@ By default, utPLSQL will convert file paths into database objects using the foll
 - object type is identified by the expression in the sixth set of brackets
 
 
-**Note**
-> utPLSQL will replace any '\\' with '/' for the purpose of mapping files to objects. The paths shown in the results will remain (contain '\' where it was present).
-> This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    
+!!! note
+    utPLSQL will replace any '\\' with '/' for the purpose of mapping files to objects. The paths shown in the results will remain (contain '\' where it was present).
+    This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    
 
-**Note**
-> Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases) and extracted it into your projects root directory (my_project).
-> The examples assume that you run the utPLSQL-cli from `my_project` directory.    
+!!! note
+    Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases) 
+    and extracted it into your projects root directory
+    and that you run the utPLSQL-cli from that directory.    
 
 Windows:
-```
+```pwsh
 utPLSQL-cli\bin\utplsql run test_runner/pass@db_host:db_port/db_service_name ^
  -p=hr,hotel ^
  -source_path=sources ^
@@ -374,6 +389,7 @@ utPLSQL-cli/bin/utplsql run test_runner/pass@db_host:db_port/db_service_name \
 ```
 
 The above commands will:
+
 - connect as user `test_runner`
 - run all utPLSQL v3 tests for users `hr`, `hotel`
 - map database code to project files in `sources` directory and save code coverage results into `coverage.html`
@@ -424,7 +440,7 @@ Note that the owner/name/type subexpressions don't need to be explicitly specifi
 In the below example, they were specified explicitly only for `source_path`, `test_path` doesn't have subexpressions specified and so they are default (2/3/4).
 
 Windows:
-```
+```pwsh
 utPLSQL-cli\bin\utplsql run test_runner/pass@db_url ^
  -p=hr,hotel ^
  -source_path=sources ^
@@ -487,7 +503,7 @@ For the database objects mapped to `souces` directory user `code_owner`  will be
 For the database objects mapped to `tests`  directory user `tests_owner` will be used. 
 
 Windows:
-```
+```pwsh
 utPLSQL-cli\bin\utplsql run test_runner/pass@db_url ^
  -p=tests_owner ^
  -source_path=sources -owner=code_owner ^
@@ -506,9 +522,9 @@ utPLSQL-cli/bin/utplsql run test_runner/pass@db_url \
  -f=ut_sonar_test_reporter    -o=test_results.xml
 ```
 
-**Note**  
-> When the project folder structure does not provide any information about source code owner and test owner, you can specify the owner for tests and owner for code explicitly.
-> Such project configuration supports only single-owner for source code and single owner for tests.  
+!!! note
+    When the project folder structure does not provide any information about source code owner and test owner, you can specify the owner for tests and owner for code explicitly.
+    Such project configuration supports only single-owner for source code and single owner for tests.  
 
 Tested code is mapped to files in `coverage.html`
 
@@ -585,7 +601,7 @@ C:
 
 
 Windows:
-```
+```pwsh
 utPLSQL-cli\bin\utplsql run test_runner/pass@db_url ^
  -p=hr,hotel ^
  -source_path=sources ^
@@ -636,7 +652,8 @@ Unit test code is mapped to files in `test_results.xml`
 
 #### Object-file mapping rules
 
-In order to allow deterministic and accurate mapping of database source-code into project files, the project directory and file structure needs to meet certain criteria.  
+In order to allow deterministic and accurate mapping of database source-code into project files, the project directory and file structure needs to meet certain criteria.
+
 - Source code is kept separate from test code (separate directories)
 - Each database (source-code) object is stored in an individual file. Package/type specification is kept separate from its body.
 - File name (file path) contains the name of database object
@@ -650,6 +667,7 @@ In order to allow deterministic and accurate mapping of database source-code int
 The `ut.run` command provides interface to map project into database objects when executing tests.
 While it is much easier to perform mapping directly from command line, it is possible to achieve similar functionality from any SQL client.
 The main differences when using the `ut.run(...)` command, will be:
+
 - you can only use single reporter and therefore will get only one report from test execution
 - you need to provide fill list of project files rather than point to `sources` and `tests` directories
 
@@ -701,7 +719,7 @@ C:
 
 To execute all tests and map database source code into source file names you could use the following command in any SQL client:        
 
-```sql
+```sql linenums="1"
 begin
   ut.run(
     ut_varchar2_list('hr','hotel'),
@@ -733,7 +751,7 @@ end;
 ```
 
 To execute all tests and map database tests code into test file names you could use the following command in any SQL client:        
-```sql
+```sql linenums="1"
 begin
   ut.run(
     ut_varchar2_list('hr','hotel'),
@@ -778,7 +796,7 @@ Following API calls enable the  standalone coverage reporting.
 - `.get_report_cursor( ... )` - coverage reporters function producing coverage report as ref-cursor 
 
 Example:
-```sql
+```sql linenums="1"
 --SESSION 1
 -- gather coverage on code using specific coverage_run_id value
 declare
@@ -795,7 +813,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 --SESSION 2
 -- alternative approach
 -- gather coverage on code using specific coverage_run_id value
@@ -807,7 +825,7 @@ exec ut_runner.coverage_stop();
 ```
 
 
-```sql
+```sql linenums="1"
 --SESSION 1 or SESSION2 2 or SESSION 3 
 -- run after calls in SESSION 1 & 2 are finished
 -- retrieve coverage report in HTML format coverage_run_id value
@@ -821,7 +839,7 @@ select *
   ); 
 ```  
 
-```sql
+```sql linenums="1"
 --SESSION 1 or SESSION2 2 or SESSION 3 
 -- run after calls in SESSION 1 & 2 are finished
 declare
@@ -839,20 +857,20 @@ end;
 ```  
 
 Specification of parameters for `get_report` and `get_report_cursor`
-```sql
+```sql linenums="1"
 function get_report(
    a_coverage_options ut_coverage_options,
    a_client_character_set varchar2 := null 
 ) return ut_varchar2_rows pipelined
 ```
  
-```sql
+```sql linenums="1"
 function get_report_cursor(
    a_coverage_options ut_coverage_options,
    a_client_character_set varchar2 := null 
 ) return sys_refcursor
 ```
-```sql
+```sql linenums="1"
 ut_coverage_options(
   coverage_run_id          raw,
   schema_names             ut_varchar2_rows := null,

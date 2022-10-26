@@ -5,20 +5,21 @@ No additional configuration files or tables are needed for test cases. The annot
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
 Annotation is defined by:
+
 - single line comment `--` (double hyphen)
 - followed directly by a `%` (percent)
 - followed by annotation name 
 - followed by optional annotation text placed in single brackets. 
 
-All of text between first opening bracket and last closing bracket in annotation line is considered to be annotation text
+All text between first opening bracket and last closing bracket in annotation line is considered to be annotation text
 
-Examples:
-`--%suite(The name of my test suite)` - represents `suite` annotation with text `The name of my test suite`  
+For example  `--%suite(The name of my test suite)` represents `suite` annotation with `The name of my test suite` as annotation text.  
 
-utPLSQL interprets the whole line of annotation and will treat all the text from the first opening bracket in the line to the last closing bracket 
+utPLSQL interprets the whole line of annotation and will treat text from the first opening bracket in the line to the last closing bracket in that line as annotation text 
 
-Example:
- `--%suite(Stuff) -- we should name this ( correctly )` - represents `suite` annotation with text `Stuff) -- we should name this ( correctly `  
+In below example we have a `suite` annotation with `Stuff) -- we should name this ( correctly ` as the annotation text
+
+`--%suite(Stuff) -- we should name this ( correctly )`
 
 Do not place comments within annotation line to avoid unexpected behaviors.
 
@@ -57,7 +58,7 @@ end;
 ```
 
 Invalid procedure annotations examples:
-```sql
+```sql linenums="1"
 package test_package is
   --%suite
    
@@ -88,7 +89,7 @@ Those annotations placed at any place in package except directly before procedur
 We strongly recommend putting package level annotations at the very top of package except for the `--%context` annotations (described below)  
 
 Valid package annotations example:
-```sql
+```sql linenums="1"
 package test_package is
 
   --%suite
@@ -106,7 +107,7 @@ end;
 ```
 
 Invalid  package annotations examples:
-```sql
+```sql linenums="1"
 package test_package is
   --%suite               --This is wrong as suite annotation is not a procedure annotation
   procedure irrelevant;
@@ -120,29 +121,29 @@ end;
 
 ## Supported annotations
 
-| Annotation |Level| Description |
-| --- | --- | --- |
-| `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
-| `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a context/suite/test. Overrides the `<description>` provided with `suite`/`test`/`context` annotation. This annotation is redundant and might be removed in future releases. |
-| `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can be provided (see `displayname`). |
-| `--%throws(<exception>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric constant names, exception constant names, predefined Oracle exception names. |
-| `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
-| `--%beforeall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite. |
-| `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
-| `--%afterall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once after all elements of the suite. |
-| `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
-| `--%beforeeach([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed before each `%test` procedure in the suite. |
-| `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
-| `--%aftereach([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed after each `%test` procedure in the suite. |
-| `--%beforetest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure. |
-| `--%aftertest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
-| `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `--%disabled(<reason>)` | Package/procedure | Used to disable a suite, whole context or a test. Disabled suites/contexts/tests do not get executed, they are however marked and reported as disabled in a test run. The reason that will be displayed next to disabled tests is decided based on hierarchy suites -> context -> test |
-| `--%context(<description>)` | Package | Denotes start of a named context (sub-suite) in a suite package an optional description for context can be provided. |
-| `--%name(<name>)` | Package | Denotes name for a context. Must be placed after the context annotation and before start of nested context. |
-| `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
-| `--%tags` | Package/procedure | Used to label a test or a suite for purpose of identification |
+| Annotation                                                 | Level             | Description                                                                                                                                                                                                                                                                                                                  |
+|------------------------------------------------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--%suite( <description> )`                                | Package           | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`).                                                                                                                                                                                                                    |
+| `--%suitepath( <path> )`                                   | Package           | Similar to java package. The annotation allows logical grouping of suites into hierarchies.                                                                                                                                                                                                                                  |
+| `--%displayname( <description> )`                          | Package/procedure | Human-readable and meaningful description of a context/suite/test. Overrides the `<description>` provided with `suite`/`test`/`context` annotation. This annotation is redundant and might be removed in future releases.                                                                                                    |
+| `--%test( <description> )`                                 | Procedure         | Denotes that the annotated procedure is a unit test procedure.  Optional test description can be provided (see `displayname`).                                                                                                                                                                                               |
+| `--%throws( <exception>[,...] )`                           | Procedure         | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric constant names, exception constant names, predefined Oracle exception names.                                                                                               |
+| `--%beforeall`                                             | Procedure         | Denotes that the annotated procedure should be executed once before all elements of the suite.                                                                                                                                                                                                                               |
+| `--%beforeall( [[<owner>.]<package>.]<procedure>[,...] )`  | Package           | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite.                                                                                                                                                                                                                            |
+| `--%afterall`                                              | Procedure         | Denotes that the annotated procedure should be executed once after all elements of the suite.                                                                                                                                                                                                                                |
+| `--%afterall( [[<owner>.]<package>.]<procedure>[,...] )`   | Package           | Denotes that the mentioned procedure(s) should be executed once after all elements of the suite.                                                                                                                                                                                                                             |
+| `--%beforeeach`                                            | Procedure         | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite.                                                                                                                                                                                                                          |
+| `--%beforeeach( [[<owner>.]<package>.]<procedure>[,...] )` | Package           | Denotes that the mentioned procedure(s) should be executed before each `%test` procedure in the suite.                                                                                                                                                                                                                       |
+| `--%aftereach`                                             | Procedure         | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite.                                                                                                                                                                                                                           |
+| `--%aftereach( [[<owner>.]<package>.]<procedure>[,...] )`  | Package           | Denotes that the mentioned procedure(s) should be executed after each `%test` procedure in the suite.                                                                                                                                                                                                                        |
+| `--%beforetest( [[<owner>.]<package>.]<procedure>[,...] )` | Procedure         | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure.                                                                                                                                                                                                                               |
+| `--%aftertest( [[<owner>.]<package>.]<procedure>[,...] )`  | Procedure         | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure.                                                                                                                                                                                                                                |
+| `--%rollback( <type> )`                                    | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `--%disabled( <reason> )`                                  | Package/procedure | Used to disable a suite, whole context or a test. Disabled suites/contexts/tests do not get executed, they are however marked and reported as disabled in a test run. The reason that will be displayed next to disabled tests is decided based on hierarchy suites -> context -> test                                       |
+| `--%context( <description> )`                              | Package           | Denotes start of a named context (sub-suite) in a suite package an optional description for context can be provided.                                                                                                                                                                                                         |
+| `--%name( <name> )`                                        | Package           | Denotes name for a context. Must be placed after the context annotation and before start of nested context.                                                                                                                                                                                                                  |
+| `--%endcontext`                                            | Package           | Denotes end of a nested context (sub-suite) in a suite package                                                                                                                                                                                                                                                               |
+| `--%tags`                                                  | Package/procedure | Used to label a test or a suite for purpose of identification                                                                                                                                                                                                                                                                |
 
 ### Suite
 
@@ -162,13 +163,13 @@ If the parameters are placed without brackets or with incomplete brackets, they 
 
 
 Suite package without description.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -179,13 +180,13 @@ Finished in .002415 seconds
 ```
 
 Suite package with description.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -196,14 +197,14 @@ Finished in .001646 seconds
 ```
 
 When multiple `--%suite` annotations are specified in package, the first annotation will be used and a warning message will appear indicating duplicate annotation.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   --%suite(Bad annotation)
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -221,14 +222,14 @@ Finished in .003318 seconds
 ```
 
 When `--%suite` annotation is bound to procedure, it is ignored and results in package not getting recognized as test suite.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   procedure some_proc;
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -255,7 +256,7 @@ If `--%test` raises an unhandled exception the following will happen:
 - test execution will continue uninterrupted for rest of the suite 
 
 Test procedure without description.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   
@@ -268,7 +269,7 @@ create or replace package body test_package as
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -280,7 +281,7 @@ Finished in .004109 seconds
 ```
 
 Test procedure with description.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   
@@ -294,7 +295,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -306,7 +307,7 @@ Finished in .006828 seconds
 ```
 
 When multiple `--%test` annotations are specified for a procedure, the first annotation will be used and a warning message will appear indicating duplicate annotation.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   
@@ -321,7 +322,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -344,7 +345,7 @@ Marks annotated suite package or test procedure as disabled.
 You can provide the reason why the test is disabled that will be displayed in output.
 
 Disabling suite.
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   --%disabled(Reason for disabling suite)
@@ -365,7 +366,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -378,7 +379,7 @@ Finished in .001441 seconds
 ```
 
 Disabling the context(s).
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   
@@ -408,7 +409,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -423,7 +424,7 @@ Finished in .005079 seconds
 ```
 
 Disabling individual test(s).
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
   
@@ -444,7 +445,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -461,7 +462,7 @@ Finished in .005868 seconds
 There are two possible ways  to use the `--%beforeall` annotation.
 
 As a procedure level annotation:
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%beforeall
@@ -473,7 +474,7 @@ procedure some_test;
 Marks annotated procedure to be executed before all test procedures in a suite.
 
 As a package level annotation (not associated with any procedure).
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%beforeall(to_be_executed_before_all, other_package.some_setup)
@@ -490,6 +491,7 @@ Indicates that the procedure(s) mentioned as the annotation parameter are to be 
 If `--%beforeall` raises an exception, suite content cannot be safely executed as the setup was not executed successfully for the suite. 
 
 If `--%beforeall` raises an exception the following will happen:
+
 - the `--%beforeall` procedures that follow the failed one, **will not be executed**
 - all `--%test` procedures and their `--%beforeeach`, `--%aftereach`, `--%beforetest` and `--%aftertest` procedures within suite package **will not be executed**
 - all `--%test` procedures **will be marked as failed**
@@ -500,7 +502,7 @@ When multiple `--%beforeall` procedures are defined in a suite package, all of t
 
 For multiple `--%beforeall` procedures order of execution is defined by annotation position in the package specification.
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -528,9 +530,10 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
+
 ```
 Tests for a package
   --- SETUP_STUFF invoked ---
@@ -544,7 +547,7 @@ Finished in .012292 seconds
 In the below example a combination pacakge and procedure level `--%beforeall` annotations is used.
 The order of execution of the beforeall procedures is determined by the annotation position in package. 
 All of the `--%beforeall` procedures get invoked before any test is executed in a suite.  
- ```sql
+```sql linenums="1"
   create or replace package test_package as
     --%suite(Tests for a package)
   
@@ -593,12 +596,13 @@ All of the `--%beforeall` procedures get invoked before any test is executed in 
     procedure other_test is begin null; end;
   end;
   /
- ```
+```
 
- ```sql
+```sql linenums="1"
  exec ut.run('test_package');
- ```
- ```
+```
+
+```
 Tests for a package
   --- INITIAL_SETUP invoked ---
   --- ANOTHER_SETUP invoked ---
@@ -609,11 +613,11 @@ Tests for a package
  
 Finished in .018944 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
- ```
+```
 
 When multiple `--%beforeall` annotations are specified for a procedure, the first annotation will be used and a warning message will appear indicating duplicate annotation.  
 When procedure is annotated as both `--%beforeall` and `--%test`, the procedure will become a test and a warning message will appear indicating invalid annotation combination.    
-```sql
+```sql linenums="1"
  create or replace package test_package as
    --%suite(Tests for a package)
  
@@ -644,10 +648,11 @@ When procedure is annotated as both `--%beforeall` and `--%test`, the procedure 
  /
 ```
 
- ```sql
+```sql linenums="1"
  exec ut.run('test_package');
- ```
- ```
+```
+
+```
 Tests for a package
   --- INITIAL_SETUP invoked ---
   Description of tested behavior [.003 sec]
@@ -665,7 +670,7 @@ Warnings:
  
 Finished in .012158 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)
- ```
+```
 
 
 ### Afterall
@@ -673,7 +678,7 @@ Finished in .012158 seconds
 There are two possible ways  to use the `--%afterall` annotation.
 
 As a procedure level annotation:
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%afterall
@@ -685,7 +690,7 @@ procedure some_test;
 Marks annotated procedure to be executed after all test procedures in a suite.
 
 As a package level annotation (not associated with any procedure).
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%afterall(to_be_executed_after_all, other_package.some_cleanup)
@@ -694,11 +699,12 @@ As a package level annotation (not associated with any procedure).
 procedure some_test;
 
 procedure to_be_executed_after_all;
-
 ```
+
 Indicates that the procedure(s) mentioned as the annotation parameter are to be executed after all test procedures in a suite.
 
 If `--%afterall` raises an exception the following will happen:
+
 - a warning will be raised, indicating that `--%afterall` procedure has failed
 - execution will continue uninterrupted for rest of the suite 
 
@@ -711,7 +717,7 @@ For multiple `--%afterall` procedures order of execution is defined by annotatio
 
 All rules defined for `--%beforeall` also apply for `--%afterall` annotation. See [beforeall](#Beforeall) for more details.
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -739,9 +745,10 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
+
 ```
 Tests for a package
   Description of tested behavior [.003 sec]
@@ -760,7 +767,7 @@ That means that the procedure will be executed as many times as there are test i
 There are two possible ways  to use the `--%beforeeach` annotation.
 
 As a procedure level annotation:
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%beforeeach
@@ -772,7 +779,7 @@ procedure some_test;
 Marks annotated procedure to be executed before each test procedures in a suite.
 
 As a package level annotation (not associated with any procedure).
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%beforeeach(to_be_executed_before_each, other_package.some_setup)
@@ -781,14 +788,15 @@ As a package level annotation (not associated with any procedure).
 procedure some_test;
 
 procedure to_be_executed_before_each;
-
 ```
+
 Indicates that the procedure(s) mentioned as the annotation parameter are to be executed before each test procedure in a suite.
 
 
 If a test is marked as disabled the `--%beforeeach` procedure is not invoked for that test.
 
 If `--%beforeeach` raises an unhandled exception the following will happen:
+
 - the following `--%beforeeach` as well as all `--%beforetest` for that test **will not be executed**
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
@@ -801,7 +809,7 @@ When multiple `--%beforeeach` procedures are defined in a suite, all of them wil
 
 For multiple `--%beforeeach` procedures order of execution is defined by annotation position in the package specification.
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -842,9 +850,10 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
+
 ```
 Tests for a package
   ---SETUP_STUFF invoked ---
@@ -871,7 +880,7 @@ That means that the procedure will be executed as many times as there are test i
 There are two possible ways  to use the `--%aftereach` annotation.
 
 As a procedure level annotation:
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%aftereach
@@ -883,7 +892,7 @@ procedure some_test;
 Marks annotated procedure to be executed after each test procedures in a suite.
 
 As a package level annotation (not associated with any procedure).
-```sql
+```sql linenums="1"
 --%suite(Some test suite)
 
 --%aftereach(to_be_executed_after_each, other_package.some_setup)
@@ -892,13 +901,14 @@ As a package level annotation (not associated with any procedure).
 procedure some_test;
 
 procedure to_be_executed_after_each;
-
 ```
+
 Indicates that the procedure(s) mentioned as the annotation parameter are to be executed after each test procedure in a suite.
 
 If a test is marked as disabled the `--%aftereach` procedure is not invoked for that test.
 
 If `--%aftereach` raises an unhandled exception the following will happen:
+
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
 - the `--%afterall` procedures **will be executed**
@@ -910,7 +920,7 @@ For multiple `--%aftereach` procedures order of execution is defined by the anno
 
 As a rule, the `--%aftereach` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftereach` procedures have raised unhandled exceptions. 
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -950,7 +960,7 @@ create or replace package body test_package as
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -972,6 +982,7 @@ See [beforeall](#Beforeall) for more examples.
 ### Beforetest
 
 Indicates specific setup procedure(s) to be executed for a test. The procedure(s) can be located either:
+
 - within current package (package name is optional)
 - within another package 
 
@@ -982,6 +993,7 @@ The `--%beforetest` procedures are executed after invoking all `--%beforeeach` f
 If a test is marked as disabled the `--%beforetest` procedures are not invoked for that test.
 
 If `--%beforetest` raises an unhandled exception the following will happen:
+
 - the following `--%beforetest` for that test **will not be executed**
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
@@ -991,12 +1003,13 @@ If `--%beforetest` raises an unhandled exception the following will happen:
 When multiple `--%beforetest` procedures are defined for a test, all of them will be executed before invoking the test.
 
 The order of execution for `--%beforetest` procedures is defined by:
+
 - position of procedure on the list within single annotation
 - annotation position
 
 As a rule, the `--%beforetest` execution gets aborted if preceding `--%beforeeach` or `--%beforetest` failed. 
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -1038,7 +1051,7 @@ create or replace package body test_package as
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -1060,6 +1073,7 @@ Finished in .015185 seconds
 ### Aftertest
 
 Indicates specific cleanup procedure(s) to be executed for a test. The procedure(s) can be located either:
+
 - within current package (package name is optional)
 - within another package 
 
@@ -1068,6 +1082,7 @@ The annotation need to be placed alongside `--%test` annotation.
 If a test is marked as disabled the `--%aftertest` procedures are not invoked for that test.
 
 If `--%aftertest` raises an unhandled exception the following will happen:
+
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the following `--%aftertest` and all `--%aftereach` procedures **will be executed** for the errored test
 - the `--%afterall` procedures **will be executed**
@@ -1076,12 +1091,13 @@ If `--%aftertest` raises an unhandled exception the following will happen:
 When multiple `--%aftertest` procedures are defined for a test, all of them will be executed after invoking the test.
 
 The order of execution for `--%aftertest` procedures is defined by:
+
 - position of procedure on the list within single annotation
 - annotation position
 
 As a rule, the `--%aftertest` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftertest` procedures have raised unhandled exceptions. 
 
-```sql
+```sql linenums="1"
 create or replace package test_package as
   --%suite(Tests for a package)
 
@@ -1123,7 +1139,7 @@ create or replace package body test_package as
 end;
 /
 ```
-```sql
+```sql linenums="1"
 exec ut.run('test_package');
 ```
 ```
@@ -1158,6 +1174,7 @@ Contexts allow for creating sub-suites within a suite package and they allow for
 In essence, context behaves like a suite within a suite. 
 
 Context have following characteristics:
+
 - context starts with the `--%context` annotation and ends with `--%endcontext`. Everything placed between those two annotations belongs to that context
 - can have a description provided as parameter for example `--%context(Some interesting stuff)`. 
 - can have a name provided with `--%name` annotation. This is different than with `suite` and `test` annotations, where name is taken from `package/procedure` name.
@@ -1175,7 +1192,7 @@ Context have following characteristics:
 The below example illustrates usage of `--%context` for separating tests for individual procedures of package.
 
 Sample tables and code
-```sql
+```sql linenums="1"
 create table rooms (
   room_key number primary key,
   name varchar2(100) not null
@@ -1232,11 +1249,12 @@ end;
 ```
 
 Below test suite defines:
+
 - `--%beforeall` outside of context, that will be executed before all tests
 - `--%context(remove_rooms_by_name)` to group tests related to `remove_rooms_by_name` functionality
 - `--%context(add_rooms_content)` to group tests related to `add_rooms_content` functionality
 
-```sql
+```sql linenums="1"
 create or replace package test_rooms_management is
 
   gc_null_value_exception constant integer := -1400;
@@ -1355,8 +1373,8 @@ end;
 /
 ```
 
-When te tests are executed
-```sql
+When the tests are executed
+```sql linenums="1"
 exec ut.run('test_rooms_management');
 ```
 The following report is displayed
@@ -1378,7 +1396,7 @@ Finished in .035261 seconds
 Example of nested contexts test suite specification.
 *Source - [slide 145](https://www.slideshare.net/Kevlin/structure-and-interpretation-of-test-cases/145?src=clipshare) of Structure and Interpretation of Test Cases by Kevlin Henney*
 
-```sql
+```sql linenums="1"
 create or replace package queue_spec as
   --%suite(Queue specification)
 
@@ -1468,7 +1486,7 @@ The `--%name` can be useful when you would like to run only a specific context o
 
 Consider the below example.
 
-```sql
+```sql linenums="1"
 create or replace package queue_spec as
   --%suite(Queue specification)
 
@@ -1501,22 +1519,22 @@ end;
 
 In the above code, suitepaths, context names and context descriptions will be as follows.
 
-| suitepath | description | name |
-|-----------|------------|------|
-| queue_spec | Queue specification | queue_spec |
-| queue_spec.context_#1 | A new queue | context_#1 |
-| queue_spec.context_#2 | An empty queue | context_#2 |
-| queue_spec.context_#3 | A non empty queue | context_#3 |
-| queue_spec.context_#3.context_#1 | that is not full | context_#1 |
-| queue_spec.context_#3.context_#2 | that is full | context_#2 |
+| suitepath                        | description          | name       |
+|----------------------------------|----------------------|------------|
+| queue_spec                       | Queue specification  | queue_spec |
+| queue_spec.context_#1            | A new queue          | context_#1 |
+| queue_spec.context_#2            | An empty queue       | context_#2 |
+| queue_spec.context_#3            | A non empty queue    | context_#3 |
+| queue_spec.context_#3.context_#1 | that is not full     | context_#1 |
+| queue_spec.context_#3.context_#2 | that is full         | context_#2 |
 
 In order to run only the tests for the context `A non empty queue that is not full` you will need to call utPLSQL as below:
-```sql 
+```sql linenums="1" 
   exec ut.run(':queue_spec.context_#3.context_#1');
 ```
 
 You can use `--%name` annotation to explicitly name contexts on suitepath.  
-```sql
+```sql linenums="1"
 create or replace package queue_spec as
   --%suite(Queue specification)
 
@@ -1554,23 +1572,25 @@ end;
 
 In the above code, suitepaths, context names and context descriptions will be as follows.
 
-| suitepath | description | name |
-|-----------|------------|------|
-| queue_spec | Queue specification | queue_spec |
-| queue_spec.a_new_queue | A new queue | a_new_queue |
-| queue_spec.an_empty_queue | An empty queue | an_empty_queue |
-| queue_spec.a_non_empty_queue | A non empty queue | a_non_empty_queue |
-| queue_spec.a_non_empty_queue.that_is_not_full | that is not full | that_is_not_full |
-| queue_spec.a_non_empty_queue.that_is_full | that is full | that_is_full |
+| suitepath                                     | description           | name              |
+|-----------------------------------------------|-----------------------|-------------------|
+| queue_spec                                    | Queue specification   | queue_spec        |
+| queue_spec.a_new_queue                        | A new queue           | a_new_queue       |
+| queue_spec.an_empty_queue                     | An empty queue        | an_empty_queue    |
+| queue_spec.a_non_empty_queue                  | A non empty queue     | a_non_empty_queue |
+| queue_spec.a_non_empty_queue.that_is_not_full | that is not full      | that_is_not_full  |
+| queue_spec.a_non_empty_queue.that_is_full     | that is full          | that_is_full      |
 
 
 The `--%name` annotation is only relevant for:
+
 - running subsets of tests by given context suitepath
 - some of test reports, like `ut_junit_reporter` that use suitepath or test-suite element names (not descriptions) for reporting   
 
 #### Name naming convention
 
 The value of `--%name` annotation must follow the following naming rules:
+
 - cannot contain spaces
 - cannot contain a `.` (full stop/dot)
 - is case-insensitive  
@@ -1583,13 +1603,13 @@ It allows for grouping of tests / suites using various categorization and place 
 
 e.g. 
 
-```sql
+```sql linenums="1"
 --%tags(batch,daily,csv)
 ```
 
 or
 
-```sql
+```sql linenums="1"
 --%tags(online,json)
 --%tags(api)
 ```
@@ -1603,7 +1623,7 @@ When a suite/context is tagged, all of its children will automatically inherit t
 
 
 Sample test suite package with tags.
-```sql
+```sql linenums="1"
 create or replace package ut_sample_test is
 
    --%suite(Sample Test Suite)
@@ -1643,17 +1663,17 @@ end ut_sample_test;
 
 Execution of the test is done by using the parameter `a_tags`
 
-```sql
+```sql linenums="1"
 select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
 ```
 The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
 
-```sql
+```sql linenums="1"
 select * from table(ut.run(a_tags => 'complex'));
 ```
 The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
 
-```sql
+```sql linenums="1"
 select * from table(ut.run(a_tags => 'fast'));
 ```
 The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
@@ -1677,7 +1697,7 @@ In order to do so, prefix the tag name to exclude with a `-` (dash) sign when in
 
 Examples (based on above sample test suite)
 
-```sql
+```sql linenums="1"
 select * from table(ut.run(a_tags => 'api,fast,-complex'));
 ```
 The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
@@ -1705,7 +1725,7 @@ If you want to create tests for your application it is recommended to structure 
 The `--%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `--%suitepath` is used by the framework to form them into a hierarchical structure. 
 
 Your payments recognition test package might look like:
-```sql
+```sql linenums="1"
 create or replace package test_payment_recognition as
 
   --%suite(Payment recognition tests)
@@ -1724,7 +1744,7 @@ end test_payment_recognition;
 ```
 
 And payments set off test package:
-```sql
+```sql linenums="1"
 create or replace package test_payment_set_off as
 
   --%suite(Payment set off tests)
@@ -1743,7 +1763,7 @@ When you execute tests for your application, the framework constructs a test sui
 The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `--%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
 
 An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
-```sql
+```sql linenums="1"
 create or replace package payments as
 
   --%suite(Payments)
@@ -1758,6 +1778,7 @@ end payments;
 ```
 
 When executing tests, `path` for executing tests can be provided in three ways:
+
 * schema - execute all tests in the schema
 * [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests by `suitepath` in all suites on path suite1[.suite2][.suite3]...[.procedure]. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
 * [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
@@ -1798,6 +1819,7 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 ### Throws
 
 The `--%throws` annotation allows you to specify a list of exceptions as one of:
+
 - number literals - example `--%throws(-20134)`
 - variables of type exception defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
 - variables of type number defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
@@ -1814,9 +1836,9 @@ The framework will raise a warning, when `--%throws` annotation has invalid argu
 Annotation `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
 
 Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To capture it use `NO_DATA_FOUND` named exception or `-1403` exception No.
-​                                                                                                        
+                                                                                                        
 Example:
-```sql
+```sql linenums="1"
 create or replace package exc_pkg is
   c_e_option1  constant number := -20200;
   c_e_option2  constant varchar2(10) := '-20201';
@@ -1979,7 +2001,7 @@ Finished in .025784 seconds
 
 ## Order of execution
 
-```sql
+```sql linenums="1"
 create or replace package test_employee_pkg is
 
   --%suite(Employee management)
@@ -2101,46 +2123,50 @@ When processing the test suite `test_employee_pkg` defined in [Example of annota
   rollback to savepoint 'before-suite'
 ```
 
-**Note**
->utPLSQL does not guarantee ordering of tests in suite. On contrary utPLSQL might give random order of tests/contexts in suite.
->
->Order of execution within multiple occurrences of `before`/`after` procedures is determined by the order of annotations in specific block (context/suite) of package specification.
+!!! note
+    utPLSQL does not guarantee ordering of tests in suite. On contrary utPLSQL might give random order of tests/contexts in suite.<br>
+    Order of execution within multiple occurrences of `before`/`after` procedures is determined by the order of annotations in specific block (context/suite) of package specification.
 
 ## sys_context
 
 It is possible to access information about currently running suite.
 The information is available by calling `sys_context( 'UT3_INFO', attribute )`.
-It can be accessed from any procecure invoked as part of utPLSQL test execution.
+It can be accessed from any procedure invoked as part of utPLSQL test execution.
 
-**Note:**
-> Context name is derived from schema name where utPLSQL is installed.
-> The context name in below examples represents the default install schema -> `UT3`
-> If you install utPLSQL into another schema the context name will be different.
-> For example if utPLSQL is installed into `HR` schema, the context name will be `HR_INFO`
+!!! note 
+    Context name is derived from schema name where utPLSQL is installed.<br>
+    The context name in below examples represents the default install schema -> `UT3`<br>
+    If you install utPLSQL into another schema the context name will be different.<br>
+    For example if utPLSQL is installed into `HR` schema, the context name will be `HR_INFO`
 
 Following attributes are populated:
-- For entire duration of the test-run:
-    - `sys_context( 'UT3_INFO', 'COVERAGE_RUN_ID' );` - Value of COVERAGE_RUN_ID used by utPLSQL internally for coverage gathering 
-    - `sys_context( 'UT3_INFO', 'RUN_PATHS' );` - list of suitepaths / suitenames used as input parameters for call to `ut.run(...)` or `ut_runner.run(...)`
-    - `sys_context( 'UT3_INFO', 'SUITE_DESCRIPTION' );` - the description of test suite that is currently being executed
-    - `sys_context( 'UT3_INFO', 'SUITE_PACKAGE' );` -  the owner and name of test suite package that is currently being executed
-    - `sys_context( 'UT3_INFO', 'SUITE_PATH' );` - the suitepath for the test suite package that is currently being executed
-    - `sys_context( 'UT3_INFO', 'SUITE_START_TIME' );` - the execution start timestamp of test suite package that is currently being executed
-    - `sys_context( 'UT3_INFO', 'CURRENT_EXECUTABLE_NAME' );` - the owner.package.procedure of currently running test suite executable
-    - `sys_context( 'UT3_INFO', 'CURRENT_EXECUTABLE_TYPE' );` - the type of currently running test suite executable (one of: `beforeall`, `beforeeach`, `beforetest`, `test`, `aftertest`, `aftereach`, `afterall`
 
-- When running in suite context
-    - `sys_context( 'UT3_INFO', 'CONTEXT_DESCRIPTION' );` - the description of test suite context that is currently being executed 
-    - `sys_context( 'UT3_INFO', 'CONTEXT_NAME' );` - the name of test suite context that is currently being executed 
-    - `sys_context( 'UT3_INFO', 'CONTEXT_PATH' );` - the suitepath for the currently executed test suite context
-    - `sys_context( 'UT3_INFO', 'CONTEXT_START_TIME' );` - the execution start timestamp for the currently executed test suite context
-- When running a suite executable procedure that is a `test` or `beforeeach`, `aftereach`, `beforetest`, `aftertest`
-    - `sys_context( 'UT3_INFO', 'TEST_DESCRIPTION' );` - the description of test for which the current executable is being invoked
-    - `sys_context( 'UT3_INFO', 'TEST_NAME' );` -  the name of test for which the current executable is being invoked
-    - `sys_context( 'UT3_INFO', 'TEST_START_TIME' );` - the execution start timestamp of test that is currently being executed (the time when first `beforeeach`/`beforetest` was called for that test)
+| Name                    | Scope         | Description                                                                                                                                         |
+|-------------------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| COVERAGE_RUN_ID         | run           | Value of COVERAGE_RUN_ID used by utPLSQL internally for coverage gathering                                                                          | 
+| RUN_PATHS               | run           | list of suitepaths / suitenames used as input parameters for call to `ut.run(...)` or `ut_runner.run(...)`                                          |
+| SUITE_DESCRIPTION       | run           | the description of test suite that is currently being executed                                                                                      |
+| SUITE_PACKAGE           | run           | the owner and name of test suite package that is currently being executed                                                                           |
+| SUITE_PATH              | run           | the suitepath for the test suite package that is currently being executed                                                                           |
+| SUITE_START_TIME        | run           | the execution start timestamp of test suite package that is currently being executed                                                                |
+| CURRENT_EXECUTABLE_NAME | run           | the owner.package.procedure of currently running test suite executable                                                                              |
+| CURRENT_EXECUTABLE_TYPE | run           | the type of currently running test suite executable (one of: `beforeall`, `beforeeach`, `beforetest`, `test`, `aftertest`, `aftereach`, `afterall`  |
+ | CONTEXT_DESCRIPTION     | suite context | the description of test suite context that is currently being executed                                                                              |  
+ | CONTEXT_NAME            | suite context | the name of test suite context that is currently being executed                                                                                     |  
+ | CONTEXT_PATH            | suite context | the suitepath for the currently executed test suite context                                                                                         |  
+ | CONTEXT_START_TIME      | suite context | the execution start timestamp for the currently executed test suite context                                                                         |  
+| TEST_DESCRIPTION        | test*         | the description of test for which the current executable is being invoked                                                                           |
+| TEST_NAME               | test*         | the name of test for which the current executable is being invoked                                                                                  |
+| TEST_START_TIME         | test*         | the execution start timestamp of test that is currently being executed (the time when first `beforeeach`/`beforetest` was called for that test)     |
+
+!!! note "Scopes"
+    - run - context information is available in any element of test run<br>
+    - suite context - context information is available in any element nested within a suite context<br> 
+    - test* - context information is available when executing following procedure types: test, beforetest, aftertest, beforeeach or aftereach 
+
  
 Example:
-```sql
+```sql linenums="1"
 create or replace procedure which_procecure_called_me is
 begin
   dbms_output.put_line(
@@ -2199,7 +2225,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 exec ut.run('test_call');
 ```
 
@@ -2232,14 +2258,14 @@ If you are in a situation where your database is controlled via CI/CD server and
 
 To build the annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner)` for every unit test owner for which you want to have the annotation cache prebuilt.
 Example:
-```sql
+```sql linenums="1"
 exec ut_runner.rebuild_annotation_cache('HR');
 ```
 
 To purge the annotation cache call `ut_runner.purge_cache(a_object_owner, a_object_type)`.
 Both parameters are optional and if not provided, all owners/object_types will be purged. 
 Example:
-```sql
+```sql linenums="1"
 exec ut_runner.purge_cache('HR', 'PACKAGE');
 ```
 

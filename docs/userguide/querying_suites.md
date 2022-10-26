@@ -22,27 +22,27 @@ Querying the data from function provides the follwing details:
 - `tags`     - tags associated with suites
 
 To get list of all test suites in current schema 
-```sql
+```sql linenums="1"
 select * from table(ut_runner.get_suites_info()) where item_type = 'UT_SUITE';
 ```
 
 To get list of all tests for test suite `TEST_STUFF` in current user schema  
-```sql
+```sql linenums="1"
 select * from table(ut_runner.get_suites_info(USER, 'TEST_STUFF')) where item_type = 'UT_TEST';
 ```
 
 To get a full information about suite `TEST_STUFF` including suite description, all contexts and tests in a suite  
-```sql
+```sql linenums="1"
 select * from table(ut_runner.get_suites_info(USER, 'TEST_STUFF')) where item_type = 'UT_TEST';
 ```
 
 To get a full information about suites that have a path like  `ut3:tests.test_package_*` including suite description, all contexts and tests in a suite 
-```sql
+```sql linenums="1"
 select * from table(ut_runner.get_suites_info('ut3:tests.test_package_*') where item_type = 'UT_TEST';
 ```
 
 To get a full information about suites that have object name like  `test_package_*` including suite description, all contexts and tests in a suite 
-```sql
+```sql linenums="1"
 select * from table(ut_runner.get_suites_info('test_package_*'));
 ```
 
@@ -51,7 +51,7 @@ select * from table(ut_runner.get_suites_info('test_package_*'));
 Function `ut_runner.has_suites(a_owner)` returns boolean value indicating if given schema contains test suites.
 
 Example:
-```sql
+```sql linenums="1"
 begin
   if ut_runner.has_suites(USER) then
     dbms_output.put_line( 'User '||USER||' owns test suites' );
@@ -66,7 +66,7 @@ end;
 Function `ut_runner.is_suite(a_owner, a_package_name) ` returns boolean value indicating if given package is a test suites.
 
 Example:
-```sql
+```sql linenums="1"
 begin
   if ut_runner.is_suite(USER,'TEST_STUFF') then
     dbms_output.put_line( 'Package '||USER||'.TEST_STUFF is a test suite' );
@@ -81,7 +81,7 @@ end;
 Function `ut_runner.is_test(a_owner, a_package_name, a_procedure_name) ` returns boolean value indicating if given package is a test suites.
 
 Example:
-```sql
+```sql linenums="1"
 begin
   if ut_runner.is_test(USER,'TEST_STUFF','A_TEST_TO_CHECK_STUFF') then
     dbms_output.put_line( 'Procedure '||USER||'.TEST_STUFF.A_TEST_TO_CHECK_STUFF is a test' );

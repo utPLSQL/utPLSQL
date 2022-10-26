@@ -7,9 +7,15 @@ The framework follows industry standards and best patterns of modern Unit Testin
  
 ## Demo project
 
-Have a look at our [demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).
+Have a look at [utPLSQL demo project](https://github.com/utPLSQL/utPLSQL-demo-project/) to see:
 
-It uses [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project) to build on every commit, runs all tests, publishes test results and code coverage to [SonarCloud](https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project).
+- sample code and tests
+- demo of deployment automation that leverages:
+  - Flyway / Liquidbase for scripting and deployment of DB changes 
+  - Docker container with Oracle XE Database
+  - GitHub Actions and Azure Pipelines to orchestrate the deployment and testing process
+  - utPLSQL framework for writhing, execution of tests as well as reporting test results and code coverage
+  - [Sonar]((https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project).) for code quality gate, test results and code coverage reporting  
 
 ## Three steps
 
@@ -31,6 +37,7 @@ Check out the sections on [annotations](userguide/annotations.md) and [expectati
 You can use the utPLSQL command line client [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) to run tests without the need for Oracle Client or any IDE like SQLDeveloper/TOAD etc.
 
 Amongst many benefits they provide ability to:
+
 * see the progress of test execution for long-running tests - real-time reporting
 * use many reporting formats simultaneously and save reports to files (publish)
 * map your project source files and test files into database objects 
@@ -40,8 +47,7 @@ See [project readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.
 
 ## Coverage
 
-If you want to have code coverage gathered on your code , it's best to use `ut_run` to execute your tests with multiple reporters and have both test execution report as well as coverage report saved to a file.
-
+It is best to use utPLSQL-cli or execute tests and gather code coverage from command line.
 Check out the [coverage documentation](userguide/coverage.md) for options of coverage reporting
 
 

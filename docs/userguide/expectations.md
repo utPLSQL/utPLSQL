@@ -7,7 +7,7 @@ Validation of the code under test (the tested logic of procedure/function etc.) 
 utPLSQL uses expectations and matchers to perform the check on the data.
 
 Example of an expectation
-```sql
+```sql linenums="1"
 begin
   ut.expect( 'the tested value' ).to_equal('the expected value');
 end;
@@ -22,6 +22,7 @@ FAILURE
 ```
 
 Expectation is a combination of:
+
 - the expected value
 - optional custom message for the expectation 
 - the matcher used to perform comparison
@@ -30,7 +31,7 @@ Expectation is a combination of:
 
 Matcher defines the comparison operation to be performed on expected (and actual) value.
 Pseudo-code:
-```sql
+```sql linenums="1"
   ut.expect( a_actual {data-type} [, a_message {varchar2}] ).to_( {matcher} );
   ut.expect( a_actual {data-type} [, a_message {varchar2}] ).not_to( {matcher} );
 ```
@@ -38,7 +39,7 @@ Pseudo-code:
 Expectations provide two variants of syntax that you can use. Both variants are functionally-equal but give different usage flexibility.  
 
 Syntax where matcher is passed as parameter to the expectation:
-```sql
+```sql linenums="1"
   ut.expect( a_actual ).to_( {matcher} );
   ut.expect( a_actual ).not_to( {matcher} );
   -- example
@@ -46,7 +47,7 @@ Syntax where matcher is passed as parameter to the expectation:
 ```
 
 Shortcut syntax, where matcher is directly part of expectation:
-```sql
+```sql linenums="1"
   ut.expect( a_actual ).to_{matcher};
   ut.expect( a_actual ).not_to_{matcher};
   
@@ -57,7 +58,7 @@ Shortcut syntax, where matcher is directly part of expectation:
 When using shortcut syntax you don't need to surround matcher with brackets. Shortcut syntax is provided for convenience.
 
 If you would like to perform more dynamic checks in your code, you could pass the matcher into a procedure like in the below example:
-```sql
+```sql linenums="1"
 declare
   procedure do_check( p_actual varchar2, p_matcher ut_matcher ) is 
   begin
@@ -80,8 +81,8 @@ SUCCESS
   Actual: 'Alibaba' (varchar2) was expected to match: 'ali' , modifiers 'i'
 ```
 
-**Note:**
-> The examples in the document will be only using shortcut syntax, to keep the document brief.  
+!!! note
+    In order to keep the document brief, the examples in the document are only using the standalone expectations syntax.  
 
 ## Using expectations
 
@@ -91,17 +92,19 @@ There are two ways to use expectations:
 
 ## Running expectations within utPLSQL framework
 
-When expectations are ran as a part of a test suite, the framework tracks:
+When expectations are run as a part of a test suite, the framework tracks:
+
 - status of each expectation 
 - outcomes (messages) produced by each expectation
 - call stack to each expectation
 
 In this case:
+
 - expectation results of are not sent directly to `dbms_output`
 - utPLSQL Reporters used when running suite decide on how the expectation results are formatted and displayed    
 
 Example of test suite with an expectation:
-```sql
+```sql linenums="1"
 create or replace package test_divide as 
   --%suite(Divide two numbers)
 
@@ -159,15 +162,13 @@ Please read about different options for [running test suites](running-unit-tests
 ## Running expectations outside utPLSQL framework
 When expectations are invoked outside of utPLSQL framework the outputs from expectations are redirected straight to `dbms_output`.
 
-**Note:**
-> The output from expectation contains call stack trace only when expectation fails.                                       
-> Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
+!!! note
+    The output from expectation contains call stack trace only when expectation fails.<br>                                       
+    Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
 
-**Important**
-> Please do not use expectations as part of your production code. They are not designed to be used as part of your code. Expectations are meant to be used only as part of your day-to-day testing activities.
+!!! warning "**Important**"
+    Please do not use expectations as part of your production code. They are not designed to be used as part of your code. Expectations are meant to be used only as part of your day-to-day testing activities.
 
-**Note:**
-> The examples in the document will be only using standalone expectations, to keep the document brief.  
 
 ## Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
@@ -193,7 +194,7 @@ You can provide a custom failure message by passing it as the second parameter t
 `ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher}`
 
 Example:
-````sql
+````sql linenums="1"
 exec  ut.expect( 'supercat', 'checked superhero-animal was not a dog' ).to_equal('superdog');
 ````
 
@@ -208,6 +209,7 @@ If the message is provided, it is being added to the normal failure message retu
 This is mostly useful when your expectations accept dynamic content, as you can provide additional context to make failing test results more readable.
 
 In most cases, there is no need to provide custom message to expectation. This is because utPLSQL identifies:
+
 - The test used to execute the expectation
 - The line number where the expectation is placed in your test code
 - The line text of the expectation
@@ -215,7 +217,7 @@ In most cases, there is no need to provide custom message to expectation. This i
 Custom message is useful, if your expectation is placed in a shared procedure to perform a check and your test is using the procedure multiple times.
 
 Example:
-```sql
+```sql linenums="1"
 create or replace package shared_expectation_test is
   --%suite
   
@@ -265,6 +267,7 @@ Finished in .066344 seconds
 ```  
 
 In the tests results window you can see the list of failed expectations for a test as well as:
+
 - the additional message for expectation
 - the reason why the expectation failed
 - the line number of the expectation
@@ -276,7 +279,7 @@ In the tests results window you can see the list of failed expectations for a te
 Expectations provide a very convenient way to perform a check on a negated matcher.
 
 Syntax to check for matcher evaluating to true:
-```sql
+```sql linenums="1"
 begin 
   ut.expect( a_actual {data-type} ).to_{matcher};
   ut.expect( a_actual {data-type} ).to_( {matcher} );
@@ -284,7 +287,7 @@ end;
 ```
 
 Syntax to check for matcher evaluating to false:
-```sql
+```sql linenums="1"
 begin
   ut.expect( a_actual {data-type} ).not_to_{matcher};
   ut.expect( a_actual {data-type} ).not_to( {matcher} );
@@ -294,7 +297,7 @@ end;
 If a matcher evaluated to NULL, then both `to_` and `not_to` will cause the expectation to report failure.
 
 Example:
-```sql
+```sql linenums="1"
 declare
   l_actual boolean;
 begin
@@ -346,7 +349,7 @@ Testing is not limited to checking for happy-path scenarios. When writing tests,
 Use the `--%throws` annotation, to test for expected exceptions. 
 
 Example:
-```sql
+```sql linenums="1"
 create or replace function divide(x varchar2, y varchar2) return number is
 begin
   return x/y;
@@ -397,7 +400,7 @@ You can choose different matchers to validate that your PL/SQL code is working a
 Validates that the actual value is between the lower and upper bound.
 
 Example:
-```sql
+```sql linenums="1"
 declare
   l_timestamp     timestamp := current_timestamp;
   l_timestamp_tz  timestamp with time zone := systimestamp;
@@ -454,12 +457,12 @@ Unary matcher that validates if the provided dataset is empty.
 
 Can be used with `BLOB`,`CLOB`, `refcursor` or `nested table`/`varray` passed as `ANYDATA`
 
-**Note:**
-BLOB/CLOB that is initialized is not NULL but it is actually equal to `empty_blob()`/`empty_clob()`.
+!!! note
+    BLOB/CLOB that is initialized is not NULL but it is actually equal to `empty_blob()`/`empty_clob()`.
 
 
 Example:
-```sql
+```sql linenums="1"
 declare
   l_cursor sys_refcursor;
 begin
@@ -502,7 +505,7 @@ FAILURE
 Unary matcher that validates if the provided value is false.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( ( 1 = 0 ) ).to_be_false();
   ut.expect( ( 1 = 1 ) ).to_( be_false() );
@@ -530,7 +533,7 @@ SUCCESS
 Checks if the actual value is greater or equal than the expected.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( sysdate ).to_be_greater_or_equal( sysdate - 1 );
   ut.expect( sysdate ).to_( be_greater_or_equal( sysdate + 1 ) );
@@ -558,7 +561,7 @@ SUCCESS
 Checks if the actual value is greater than the expected.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( 2 ).to_be_greater_than( 1 );
   ut.expect( 0 ).to_( be_greater_than( 1 ) );
@@ -586,7 +589,7 @@ SUCCESS
 Checks if the actual value is less or equal than the expected.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( 3 ).to_be_less_or_equal( 3 );
   ut.expect( 4 ).to_( be_less_or_equal( 3 ) );
@@ -614,7 +617,7 @@ SUCCESS
 Checks if the actual value is less than the expected.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( 3 ).to_be_less_than( 2 );
   ut.expect( 0 ).to_( be_less_than( 2 ) );
@@ -650,7 +653,7 @@ Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracl
 If you use Oracle Database version 11.2.0.4, you may run into Oracle Bug 14402514: WRONG RESULTS WITH LIKE ON CLOB USING ESCAPE CHARACTER. In this case we recommend to use `match` instead of `be_like`.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( 'Lorem_impsum' ).to_be_like( '%rem%');
   ut.expect( 'Lorem_impsum' ).to_be_like( '%rem\_i%', '\' );
@@ -680,7 +683,7 @@ SUCCESS
 Unary matcher that validates if the actual value is not null.
 
 Usage:
-```sql
+```sql linenums="1"
 begin 
   ut.expect( to_clob('ABC') ).to_be_not_null();
   ut.expect( to_clob('') ).to_( be_not_null() );
@@ -708,7 +711,7 @@ SUCCESS
 Unary matcher that validates if the actual value is null.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( '' ).to_be_null();
   ut.expect( 0 ).to_( be_null() );
@@ -736,7 +739,7 @@ SUCCESS
 Unary matcher that validates if the provided value is true.
 
 Usage:
-```sql
+```sql linenums="1"
 begin
   ut.expect( ( 1 = 0 ) ).to_be_true();
   ut.expect( ( 1 = 1 ) ).to_( be_true() );
@@ -766,7 +769,7 @@ Unary matcher that validates if the provided dataset count is equal to expected 
 Can be used with `refcursor`, `json` or `table type`
 
 Usage:
-```sql
+```sql linenums="1"
 declare
   l_cursor sys_refcursor;
   l_collection ut_varchar2_list;
@@ -806,7 +809,7 @@ Syntax:
 Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
 
 Usage:
-```sql
+```sql linenums="1"
 begin 
   ut.expect( '123-456-ABcd' ).to_match( '\d{3}-\d{3}-[a-z]{4}', 'i' );
   ut.expect( 'some value' ).to_( match( '^some.*' ) ) ;
@@ -844,7 +847,7 @@ Syntax:
 
 `ut.expect( a_actual ).to_equal( a_expected [, a_nulls_are_equal])[.advanced_options]`
 Example usage
-```sql
+```sql linenums="1"
 declare
   l_actual   varchar2(20);
   l_expected varchar2(20);
@@ -911,10 +914,10 @@ FAILURE
 ```
 
 
-**Note:**
->**Comparing NULLs gives success by default **
-The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.
-To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
+!!! note
+    **by default, comparing NULL to NULL gives success**<br>
+    The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.<br>
+    To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
 ## contain
 
@@ -931,7 +934,7 @@ The matcher will cause a test to fail if actual data set does not contain some o
 ![included_set](../images/venn21.gif)
 
 **Example 1.**
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -963,7 +966,7 @@ FAILURE
 When duplicate rows are present in expected data set, actual data set must also include the same amount of duplicates.
 
 **Example 2.**
-```sql
+```sql linenums="1"
 declare
   l_actual   ut_varchar2_list;
   l_expected ut_varchar2_list;
@@ -991,7 +994,7 @@ The negated version of `contain` ( `not_to_contain` ) is successful only when al
 ![not_overlapping_set](../images/venn22.gif)
 
 **Example 3.**
-```sql
+```sql linenums="1"
 declare
   l_actual   ut_varchar2_list;
   l_expected ut_varchar2_list;
@@ -1028,7 +1031,7 @@ FAILURE
 
 **Example 4.**
 
-```sql
+```sql linenums="1"
 declare
   l_actual   ut_varchar2_list;
   l_expected ut_varchar2_list;
@@ -1061,7 +1064,7 @@ FAILURE
 
 **Example 5.**
 
-```sql
+```sql linenums="1"
 declare
   l_actual   ut_varchar2_list;
   l_expected ut_varchar2_list;
@@ -1134,7 +1137,7 @@ The distance must be expressed as a non-negative number or non-negative interval
 > The behavior is similar to a call to `months_between()` function with results rounded to full monts ie. round(months_between(date, date))
 
 **Example 1.**
-```sql
+```sql linenums="1"
 begin
   ut.expect(3).to_be_within(1).of_(4);
 end;
@@ -1142,7 +1145,7 @@ end;
 ```
 
 **Example 2.**
-```sql
+```sql linenums="1"
 begin
   ut.expect(3).to_be_within(1).of_(5);
 end;
@@ -1160,7 +1163,7 @@ Failures:
 ```
 
 **Example 3.**
-```sql
+```sql linenums="1"
 begin
   ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);
 end;
@@ -1190,7 +1193,7 @@ The formula used for calcuation of expectation is:
 ```
 
 **Example 1.**
-```sql
+```sql linenums="1"
 begin
   ut.expect(9).to_be_within_pct(10).of_(10);
 end;
@@ -1206,6 +1209,7 @@ SUCCESS
 ## Comparing cursors, object types, nested tables and varrays 
 
 utPLSQL is capable of comparing compound data-types including:
+
 - ref cursors 
 - object types
 - nested table/varray types
@@ -1227,6 +1231,7 @@ utPLSQL is capable of comparing compound data-types including:
   See [issue #880](https://github.com/utPLSQL/utPLSQL/issues/880) for details. *Note: This behavior might be fixed in future releases, when utPLSQL is no longer depending on XMLType for compound data comparison.*
 
 utPLSQL offers advanced data-comparison options, for comparing compound data-types. The options allow you to:
+
 - define columns/attributes to exclude from comparison
 - define columns/attributes to include in comparison
 - and more ...
@@ -1237,6 +1242,7 @@ For details on available options and how to use them, read the [advanced data co
 
 When comparing compound data, utPLSQL will determine the difference between the expected and the actual data.
 The diff includes:
+
 - differences in column names, column positions and column data-type for cursor data
 - only data in columns/rows that differ
 
@@ -1246,9 +1252,9 @@ Consider the following expected cursor data
 
 | ID (NUMBER)|  FIRST_NAME (VARCHAR2) |  LAST_NAME (VARCHAR2)  | SALARY (NUMBER) |
 |:----------:|:----------------------:|:----------------------:|:---------------:|
-|   1        |            JACK        |        SPARROW         |          10000  |
-|   2        |            LUKE        |        SKYWALKER       |           1000  |
-|   3        |            TONY        |        STARK           |        1000000  |
+|   1        |            JACK        |        SPARROW         |      10000      |
+|   2        |            LUKE        |        SKYWALKER       |      1000       |
+|   3        |            TONY        |        STARK           |     1000000     |
 
 And the actual cursor data: 
 
@@ -1261,6 +1267,7 @@ And the actual cursor data:
 
 
 The two data-sets above have the following differences:
+
 - column ID is misplaced (should be first column but is last)
 - column SALARY has data-type VARCHAR2 but should be NUMBER
 - column GENDER exists in actual but not in the expected (it is an Extra column)
@@ -1272,7 +1279,7 @@ The two data-sets above have the following differences:
 utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in the compared dataset.
 
 Below example illustrates, how utPLSQL will report such differences.  
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -1320,11 +1327,13 @@ FAILURE
 ```
 
 utPLSQL identifies and reports on columns:
+
 - column misplacement
 - column data-type mismatch
 - extra/missing columns
 
 When comparing rows utPLSQL:
+
 - reports only mismatched columns when rows match
 - reports columns existing in both data-sets when whole row is not matching
 - reports whole extra (not expected) row from actual when actual has extra rows 
@@ -1334,6 +1343,7 @@ When comparing rows utPLSQL:
 ### Object and nested table data-type comparison examples
 
 When comparing object type / nested table / varray, utPLSQL will check:
+
 - if data-types match
 - if data in the compared elements is the same.
 
@@ -1343,7 +1353,7 @@ When diffing, utPLSQL will not check name and data-type of individual attribute 
 Below examples demonstrate how to compare object and nested table data-types. 
 
 Object type comparison.
-```sql
+```sql linenums="1"
 create type department as object(name varchar2(30))
 /
 
@@ -1371,7 +1381,7 @@ FAILURE
 ```
 
 Table type comparison.
-```sql
+```sql linenums="1"
 create type department as object(name varchar2(30))
 /
 create type departments as table of department
@@ -1409,7 +1419,7 @@ FAILURE
 ```
 
 Some of the possible combinations of anydata and their results:
-```sql
+```sql linenums="1"
 clear screen
 set serverout on
 set feedback off
@@ -1593,18 +1603,18 @@ FAILURE
 
 ### Comparing cursor data containing DATE fields 
 
-**Important note**
+!!! warning "Important note"
 
-utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.
-Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.
-The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.
-By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.
+    utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.<br>
+    Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.<br>
+    The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.<br>
+    By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.<br>
 
 You should surround cursors and expectations with procedures `ut.set_nls`, `ut.reset_nls`.
 This way, the DATE data in cursors will be properly formatted for comparison using date-time format.
 
 The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that the date in `l_expected` and `l_actual` is compared using date-time formatting.  
-```sql
+```sql linenums="1"
 clear screen
 alter session set nls_date_format='yyyy-mm-dd';
 set serverout on
@@ -1649,6 +1659,7 @@ drop table events;
 ```
 
 In the above example:
+
 - The first expectation is successful, as the `l_expected` cursor contains different date-time then the cursor returned by `get_events` function call
 - The second expectation fails, as the column `event_date` will get compared as DATE without TIME (using default current session NLS date format)
 
@@ -1687,7 +1698,7 @@ This applies to `timestamp`,`timestamp with timezone`, `timestamp with local tim
 
 Example below illustrates usage of `cast` operator to assure appropriate precision is applied on timestamp bind-variables in cursor result-set   
 
-```sql
+```sql linenums="1"
 clear screen
 set serverout on
 set feedback off
@@ -1754,8 +1765,8 @@ FAILURE
 
 utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
 
-**Note:**
-> Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
+!!! note
+    Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
 
 
 ### Notes on comparison of json data
@@ -1769,7 +1780,7 @@ utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 
 
 
 Compare JSON example using `json_element_t`:
-```sql
+```sql linenums="1"
 declare
   l_expected json_element_t;
   l_actual   json_element_t;
@@ -1851,7 +1862,7 @@ FAILURE
 ```
 
 Comparing parts of JSON example using `json_element_t` subtypes:
-```sql
+```sql linenums="1"
 declare
   l_actual         json_object_t;
   l_actual_extract json_array_t;

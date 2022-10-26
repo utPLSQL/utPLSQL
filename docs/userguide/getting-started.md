@@ -24,7 +24,7 @@ This way, we assure we don't jump ahead too much and produce code that is untest
 
 ### Create test package
 
-```sql
+```sql linenums="1"
 create or replace package test_betwnstr as
 
   --%suite(Between string function)
@@ -45,7 +45,7 @@ Finished in .451423 seconds
 
 ### Define specification for the test
 
-```sql
+```sql linenums="1"
 create or replace package test_betwnstr as
 
   --%suite(Between string function)
@@ -78,7 +78,7 @@ Well our test is failing as the package specification requires a body.
 
 ### Define body of first test
 
-```sql
+```sql linenums="1"
 create or replace package body test_betwnstr as
 
   procedure basic_usage is
@@ -114,7 +114,7 @@ Looks like we need to define the function we want to test.
 
 ### Define tested function 
 
-```sql
+```sql linenums="1"
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2
 is
 begin
@@ -147,7 +147,7 @@ Let us fix this and continue from here.
 
 The function returned a string one character short, so we need to add 1 to the substr parameter.
 
-```sql
+```sql linenums="1"
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2 
 is
 begin
@@ -200,7 +200,7 @@ Once defined we can start implementing tests for those behaviors and adjust the 
 A new requirement was added: 
   Start position zero - should be treated as start position one
 
-```sql
+```sql linenums="1"
 create or replace package test_betwnstr as
 
   --%suite(Between string function)
@@ -254,7 +254,7 @@ Looks like our function does not work as expected for zero start position.
 
 Let's fix our function so that the new requirement is met
 
-```sql
+```sql linenums="1"
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2 
 is
 begin
@@ -288,7 +288,7 @@ When all tests are passing we can proceed with a safe cleanup of our code.
 The function works well, but we use the `return` twice, which is not the best coding practice.
 
 An alternative implementation could be cleaner.
-```sql
+```sql linenums="1"
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2
 is
 begin

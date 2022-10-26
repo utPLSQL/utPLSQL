@@ -47,7 +47,7 @@ You can use a wildcard character `*` to call tests by part of their name or to c
 Wildcard character can be placed anywhere on the path and can occur mutliple times.
 Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
 
-```sql
+```sql linenums="1"
 alter session set current_schema=hr;
 set serveroutput on
 begin
@@ -57,7 +57,7 @@ end;
 Executes all tests in current schema (_HR_).
 
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('HR');
@@ -66,7 +66,7 @@ end;
 Executes all tests in specified schema (_HR_).
 
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr:com.my_org.my_project');
@@ -76,7 +76,7 @@ end;
 Executes all tests from all packages that are on the _com.my_org.my_project_ suitepath.
 Check the [annotations documentation](annotations.md) to find out about suitepaths and how they can be used to organize test packages for your project.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr:com*');
@@ -85,7 +85,7 @@ end;
 
 Executes all tests in schema `hr` from all packages that are on suitepath starting with `com`.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr:co*.my_*.my_*');
@@ -94,7 +94,7 @@ end;
 
 Executes all tests in schema `hr` from all packages that starting with `my_` and all tests starting with `my_*` that are on suitepath starting with `co` .
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus');
@@ -103,7 +103,7 @@ end;
 Executes all tests from package _hr.test_apply_bonus_. 
 
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus.bonus_cannot_be_negative');
@@ -112,7 +112,7 @@ end;
 Executes single test procedure _hr.test_apply_bonus.bonus_cannot_be_negative_.
 
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus','cust'));
@@ -120,7 +120,7 @@ end;
 ```
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus,cust)');
@@ -129,7 +129,7 @@ end;
 
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus,cust');
@@ -142,7 +142,7 @@ Using a list of items to execute allows you to execute a fine-grained set of tes
 
 List can be passed as a comma separated list or a list of *ut_varchar2_list objects* or as a list within ut_varchar2_list.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test*');
@@ -150,7 +150,7 @@ end;
 ```
 Executes all tests in schema `hr` located in packages starting with name `test`.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus.bonus_*');
@@ -166,7 +166,7 @@ Executes test procedures with names starting with `bonus` in package `hr.test_ap
 The `ut.run` procedures and functions accept `a_reporter` attribute that defines the reporter to be used in the run.
 You can execute any set of tests with any of the predefined reporters.
 
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus', ut_junit_reporter());
@@ -189,7 +189,7 @@ Functions provide output as a pipelined stream and therefore need to be executed
 At the end of the run, the transaction is automatically rolled-back and all uncommitted changes are reverted.   
 
 Example.
-```sql
+```sql linenums="1"
 select * from table(ut.run('hr.test_apply_bonus', ut_junit_reporter()));
 ```
 
@@ -222,7 +222,7 @@ Running with multiple reporters.
 - each reporter for each test-run must have a unique `reporter_id`. The `reporter_id` is used between two sessions to identify the data stream 
 
 Example:
-```sql
+```sql linenums="1"
 --main test run ( session 1 )
 declare
   l_reporter      ut_realtime_reporter := ut_realtime_reporter();
@@ -234,7 +234,7 @@ end;
 /
 ```
 
-```sql
+```sql linenums="1"
 --report consumer ( session 2 )
 set arraysize 1
 set pagesize 0
@@ -247,7 +247,7 @@ select *
   );
 ```
 
-```sql
+```sql linenums="1"
 --alternative version of report consumer ( session 2 )
 set arraysize 1
 set pagesize 0
@@ -279,14 +279,14 @@ When tests are executed with random order, randomization is applied to single le
 This is needed to maintain visibility and accessibility of common setup/cleanup `beforeall`/`afterall` in tests.
 
 Example:
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus', a_random_test_order => true);
 end;
 ```
 
-```sql
+```sql linenums="1"
 select * from table(ut.run('hr.test_apply_bonus', a_random_test_order => 1));
 ```
 
@@ -301,14 +301,14 @@ Tests were executed with random order seed '302980531'.
 
 If you want to re-run tests using previously generated seed, you may do so by running them with parameter `a_random_test_order_seed`
 Example:
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus', a_random_test_order_seed => 302980531);
 end;
 ```
 
-```sql
+```sql linenums="1"
 select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 302980531));
 ```
 
@@ -321,18 +321,18 @@ In addition to the path, you can filter the tests to be run by specifying tags. 
 Multiple tags are separated by comma. 
 The framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run.
 
-```sql
+```sql linenums="1"
 begin
   ut.run('hr.test_apply_bonus', a_tags => 'test1,test2');
 end;
 ```
-```sql
+```sql linenums="1"
 select * from table(ut.run('hr.test_apply_bonus', a_tags => 'suite1'))
 ```
 
 You can also exclude specific tags by adding a `-` (dash) in front of the tag
 
-```sql
+```sql linenums="1"
 select * from table(ut.run('hr.test_apply_bonus', a_tags => '-suite1'))
 ```
 
@@ -347,7 +347,7 @@ Setting this flag to true has following side-effects:
 - automatic rollback is forced to be disabled in test-run even if it was explicitly enabled by using annotation `--%rollback(manual)
 
 Example invocation:
-```sql
+```sql linenums="1"
 set serveroutput on
 begin
   ut.run('hr.test_apply_bonus', a_force_manual_rollback => true);
@@ -366,7 +366,7 @@ If you run your tests using `utPLSQL-cli`, this is done automatically and no act
 To make sure that the reports will display your national characters properly when running from IDE like SQLDeveloper/TOAD/SQLPlus or sqlcl you need to provide the charaterset manualy to `ut.run`.
 
 Example call with characterset provided:
-```sql
+```sql linenums="1"
 begin
   ut.run('hr.test_apply_bonus', ut_junit_reporter(), a_client_character_set => 'Windows-1251');
 end;

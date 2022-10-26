@@ -48,7 +48,7 @@ When specifying column/attribute names, keep in mind that the names are **case s
 ## Excluding elements from data comparison
 
 Consider the following examples
-```sql
+```sql linenums="1"
 declare
   l_expected sys_refcursor;
   l_actual   sys_refcursor;
@@ -86,7 +86,7 @@ The actual data is equal/contains expected, when those columns are excluded.
 ## Selecting columns for data comparison
 
 Consider the following example
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -125,7 +125,7 @@ The actual data is equal/contains expected, when only those columns are included
 You can chain the advanced options in an expectation and mix the `varchar2` with `ut_varchar2_list` arguments.
 When doing so, the final list of items to include/exclude will be a concatenation of all items.   
 
-```sql
+```sql linenums="1"
 declare
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -163,7 +163,7 @@ SUCCESS
 
 Example of `include / exclude` for anydata.convertCollection
 
-```sql
+```sql linenums="1"
 create or replace type person as object(
   name varchar2(100),
   age  integer
@@ -219,7 +219,7 @@ Unordered option allows for quick comparison of two compound data types without 
 
 Result of such comparison will be limited to only information about row existing or not existing in given set without actual information about exact differences.
 
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -267,7 +267,7 @@ The extra or missing rows will be presented to user as well as all non-matching 
 Join by option can be used in conjunction with include or exclude options. 
 However if any of the join keys is part of exclude set, comparison will fail and report to user that sets could not be joined on specific key, as the key was excluded.
 
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -305,7 +305,7 @@ FAILURE
 
 You can use `join_by` syntax in combination with `contain` matcher.
 
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -322,7 +322,7 @@ end;
 ```
 
 Above test will indicate that in actual data-set
-```sql
+```sql linenums="1"
 FAILURE
   Actual: refcursor [ count = 28 ] was expected to contain: refcursor [ count = 29 ]
   Diff:
@@ -335,7 +335,7 @@ FAILURE
 
 You can specify multiple columns in `join_by`
 
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;
@@ -371,7 +371,7 @@ To reference attribute as PK, use slash symbol `/` to separate nested elements.
 
 In the below example, cursors are joined using the `NAME` attribute of object in column `SOMEONE`
 
-```sql
+```sql linenums="1"
 create or replace type person as object(
   name varchar2(100),
   age  integer
@@ -414,7 +414,7 @@ FAILURE
 > `join_by` does not support joining on individual elements of nested table. You can still use data of the nested table as a PK value.
 > When collection is referenced in `join_by`, test will fail with appropriate message, as it cannot perform a join.
 
-```sql
+```sql linenums="1"
 create or replace type person as object(
   name varchar2(100),
   age  integer
@@ -463,7 +463,7 @@ You may provide items for `include`/`exclude`/`join_by` as a a ut_varchar2_list 
 - nested table and varray items type attributes are nested under `<ARRAY><OBJECTY_TYPE>` elements
 
 Example of a valid parameter to include columns: `RN`, `A_Column`, `SOME_COL` in data comparison. 
-```sql
+```sql linenums="1"
 declare
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -494,7 +494,7 @@ Expectations that compare compound data type data with `unordered_columns` optio
 
 This option can be useful whn we have no control over the ordering of the column or the column order is not of importance from testing perspective.
 
-```sql
+```sql linenums="1"
 declare
   l_actual   sys_refcursor;
   l_expected sys_refcursor;

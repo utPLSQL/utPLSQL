@@ -60,11 +60,13 @@ extra:
 #  version:            # disable for offline docs
 #    provider: mike    # disable for offline docs
 markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
   - pymdownx.caret
   - pymdownx.mark
   - pymdownx.tilde

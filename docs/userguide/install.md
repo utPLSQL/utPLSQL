@@ -116,26 +116,18 @@ This process can be time-consuming if DB schema is large.
 The headless scripts accept three optional parameters that define:
 - username to create as owner of utPLSQL (default `ut3`)  
 - password for owner of utPLSQL (default `XNtxj8eEgA6X6b6f`)
-- tablespace to use for storage of profiler data (default `users`)  
+- tablespace to use for storage of profiler and utPLSQL cache data (default `users`)  
 
 The scripts need to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
 
-**Note:**
-> Grant on `DBMS_LOCK` is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses `DBMS_SESSION.SLEEP` so access to `DBMS_LOCK` package is no longer needed. 
-
-**Note:**
-> The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.
-
-**Note:**
-> When installing with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.
-For Oracle 11g following users are excluded:
-> ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL 
->
-> For Oracle 12c and above the users returned by below query are excluded by utPLSQL:
->
->```sql
->  select username from all_users where oracle_maintained='Y';
->```
+!!! warning "Important"
+    - Grant on `DBMS_LOCK` is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses `DBMS_SESSION.SLEEP` so access to `DBMS_LOCK` package is no longer needed.<br>
+    - The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.<br>
+    - When installed with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.<br>
+        - For Oracle 11g following users are excluded:<br>
+            ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL<br> 
+        - For Oracle 12c and above the users returned by below query are excluded by utPLSQL:<br>
+            `select username from all_users where oracle_maintained='Y';` <br>
  
 ### Installation without DDL trigger
 
@@ -232,8 +224,8 @@ cd source
 sqlplus admin/admins_password@database @install_ddl_trigger.sql ut3  
 ```
 
-**Note:**
->Trigger can be installed ant any point in time.
+!!! note
+    Trigger can be installed ant any point in time after the utPLSQL installation. The framework will detect the presence of DDL trigger and act accordingly.
 
 
 ### Allowing other users to access the utPLSQL framework
@@ -268,12 +260,12 @@ The following tools that support the SQL*Plus commands can be used to run the in
 ## Checking environment and utPLSQL version
 
 To check the framework version execute the following query:
-```sql
+```sql linenums="1"
 select substr(ut.version(),1,60) as ut_version from dual;
 ```
 
 Additionally you may retrieve more information about your environment by executing the following query:
-```sql
+```sql linenums="1"
 select 
   xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
   from dual;
