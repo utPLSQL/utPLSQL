@@ -13,7 +13,7 @@
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/expectations.html">
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
@@ -21,10 +21,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.472b142f.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
         
       
       
@@ -119,6 +119,7 @@
         
           
           
+          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -126,6 +127,7 @@
             </label>
           
         
+          
           
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
@@ -485,124 +487,130 @@
     Matchers
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Matchers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#be_between" class="md-nav__link">
     be_between
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_empty" class="md-nav__link">
     be_empty
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_false" class="md-nav__link">
     be_false
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_greater_or_equal" class="md-nav__link">
     be_greater_or_equal
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_greater_than" class="md-nav__link">
     be_greater_than
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_less_or_equal" class="md-nav__link">
     be_less_or_equal
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_less_than" class="md-nav__link">
     be_less_than
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_like" class="md-nav__link">
     be_like
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_not_null" class="md-nav__link">
     be_not_null
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_null" class="md-nav__link">
     be_null
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#be_true" class="md-nav__link">
     be_true
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#have_count" class="md-nav__link">
     have_count
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#match" class="md-nav__link">
     match
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#equal" class="md-nav__link">
     equal
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#contain" class="md-nav__link">
     contain
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#to_be_within-of" class="md-nav__link">
     to_be_within of
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#to_be_within_pct-of" class="md-nav__link">
     to_be_within_pct of
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -942,7 +950,7 @@
 
   <h1>Expectations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4064--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4067--develop-blue.svg" /></p>
 <h2 id="expectation-concepts">Expectation concepts<a class="headerlink" href="#expectation-concepts" title="Permanent link">&para;</a></h2>
 <p>Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.</p>
 <p>utPLSQL uses expectations and matchers to perform the check on the data.</p>
@@ -1692,10 +1700,10 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>Finished in .009229 seconds
 <a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 </code></pre></div></p>
-<p>For more details see documentation of the <a href="annotations.html#throws-annotation"><code>--%throws</code> annotation.</a>  </p>
+<p>For more details see documentation of the <a href="annotations.html#throws"><code>--%throws</code> annotation.</a>  </p>
 <h2 id="matchers_1">Matchers<a class="headerlink" href="#matchers_1" title="Permanent link">&para;</a></h2>
 <p>You can choose different matchers to validate that your PL/SQL code is working as expected.</p>
-<h2 id="be_between">be_between<a class="headerlink" href="#be_between" title="Permanent link">&para;</a></h2>
+<h3 id="be_between">be_between<a class="headerlink" href="#be_between" title="Permanent link">&para;</a></h3>
 <p>Validates that the actual value is between the lower and upper bound.</p>
 <p>Example:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1"> 1</a></span>
@@ -1765,7 +1773,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>SUCCESS
 <a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a>  Actual: &#39;Abb&#39; (varchar2) was expected to be between: &#39;Aba&#39;  and &#39;Abc&#39;
 </code></pre></div></p>
-<h2 id="be_empty">be_empty<a class="headerlink" href="#be_empty" title="Permanent link">&para;</a></h2>
+<h3 id="be_empty">be_empty<a class="headerlink" href="#be_empty" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the provided dataset is empty.</p>
 <p>Can be used with <code>BLOB</code>,<code>CLOB</code>, <code>refcursor</code> or <code>nested table</code>/<code>varray</code> passed as <code>ANYDATA</code></p>
 <div class="admonition note">
@@ -1818,7 +1826,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>  The matcher &#39;be empty&#39; cannot be used with data type (number).
 <a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>  at &quot;anonymous block&quot;, line 9
 </code></pre></div></p>
-<h2 id="be_false">be_false<a class="headerlink" href="#be_false" title="Permanent link">&para;</a></h2>
+<h3 id="be_false">be_false<a class="headerlink" href="#be_false" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the provided value is false.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-23-1">1</a></span>
@@ -1847,7 +1855,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>SUCCESS
 <a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>  Actual: TRUE (boolean) was expected not to be false
 </code></pre></div></p>
-<h2 id="be_greater_or_equal">be_greater_or_equal<a class="headerlink" href="#be_greater_or_equal" title="Permanent link">&para;</a></h2>
+<h3 id="be_greater_or_equal">be_greater_or_equal<a class="headerlink" href="#be_greater_or_equal" title="Permanent link">&para;</a></h3>
 <p>Checks if the actual value is greater or equal than the expected.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span>
@@ -1876,7 +1884,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>SUCCESS
 <a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>  Actual: 2019-07-07T22:43:29 (date) was expected not to be greater or equal: 2019-07-08T22:43:29 (date)
 </code></pre></div></p>
-<h2 id="be_greater_than">be_greater_than<a class="headerlink" href="#be_greater_than" title="Permanent link">&para;</a></h2>
+<h3 id="be_greater_than">be_greater_than<a class="headerlink" href="#be_greater_than" title="Permanent link">&para;</a></h3>
 <p>Checks if the actual value is greater than the expected.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span>
@@ -1905,7 +1913,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>SUCCESS
 <a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>  Actual: 0 (number) was expected not to be greater than: 1 (number)
 </code></pre></div></p>
-<h2 id="be_less_or_equal">be_less_or_equal<a class="headerlink" href="#be_less_or_equal" title="Permanent link">&para;</a></h2>
+<h3 id="be_less_or_equal">be_less_or_equal<a class="headerlink" href="#be_less_or_equal" title="Permanent link">&para;</a></h3>
 <p>Checks if the actual value is less or equal than the expected.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-29-1">1</a></span>
@@ -1934,7 +1942,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>SUCCESS
 <a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>  Actual: 4 (number) was expected not to be less or equal: 3 (number)
 </code></pre></div></p>
-<h2 id="be_less_than">be_less_than<a class="headerlink" href="#be_less_than" title="Permanent link">&para;</a></h2>
+<h3 id="be_less_than">be_less_than<a class="headerlink" href="#be_less_than" title="Permanent link">&para;</a></h3>
 <p>Checks if the actual value is less than the expected.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-31-1">1</a></span>
@@ -1963,7 +1971,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>  Actual: 0 (number) was expected not to be less than: 2 (number)
 <a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>  at &quot;anonymous block&quot;, line 5
 </code></pre></div></p>
-<h2 id="be_like">be_like<a class="headerlink" href="#be_like" title="Permanent link">&para;</a></h2>
+<h3 id="be_like">be_like<a class="headerlink" href="#be_like" title="Permanent link">&para;</a></h3>
 <p>Validates that the actual value is like the expected expression.</p>
 <p>Syntax:</p>
 <p><code>ut.expect( a_actual ).to_be_like( a_mask [, a_escape_char] )</code></p>
@@ -1999,7 +2007,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>SUCCESS
 <a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>  Actual: &#39;Lorem_impsum&#39; (varchar2) was expected not to be like: &#39;%reM%&#39; 
 </code></pre></div></p>
-<h2 id="be_not_null">be_not_null<a class="headerlink" href="#be_not_null" title="Permanent link">&para;</a></h2>
+<h3 id="be_not_null">be_not_null<a class="headerlink" href="#be_not_null" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the actual value is not null.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-35-1">1</a></span>
@@ -2028,7 +2036,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>SUCCESS
 <a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a>  Actual: NULL (varchar2) was expected not to be not null
 </code></pre></div></p>
-<h2 id="be_null">be_null<a class="headerlink" href="#be_null" title="Permanent link">&para;</a></h2>
+<h3 id="be_null">be_null<a class="headerlink" href="#be_null" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the actual value is null.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-37-1">1</a></span>
@@ -2057,7 +2065,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a>SUCCESS
 <a id="__codelineno-38-10" name="__codelineno-38-10" href="#__codelineno-38-10"></a>  Actual: 0 (number) was expected not to be null
 </code></pre></div></p>
-<h2 id="be_true">be_true<a class="headerlink" href="#be_true" title="Permanent link">&para;</a></h2>
+<h3 id="be_true">be_true<a class="headerlink" href="#be_true" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the provided value is true.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-39-1">1</a></span>
@@ -2086,7 +2094,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a>  Actual: TRUE (boolean) was expected not to be true
 <a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a>  at &quot;anonymous block&quot;, line 5
 </code></pre></div></p>
-<h2 id="have_count">have_count<a class="headerlink" href="#have_count" title="Permanent link">&para;</a></h2>
+<h3 id="have_count">have_count<a class="headerlink" href="#have_count" title="Permanent link">&para;</a></h3>
 <p>Unary matcher that validates if the provided dataset count is equal to expected value.</p>
 <p>Can be used with <code>refcursor</code>, <code>json</code> or <code>table type</code></p>
 <p>Usage:
@@ -2128,7 +2136,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>  Actual: ut3.ut_varchar2_list [ count = 3 ] was expected not to have [ count = 3 ]
 <a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>  at &quot;anonymous block&quot;, line 11
 </code></pre></div></p>
-<h2 id="match">match<a class="headerlink" href="#match" title="Permanent link">&para;</a></h2>
+<h3 id="match">match<a class="headerlink" href="#match" title="Permanent link">&para;</a></h3>
 <p>Validates that the actual value is matching the expected regular expression.</p>
 <p>Syntax:</p>
 <p><code>ut.expect( a_actual ).to_match( a_pattern [, a_modifiers] );</code></p>
@@ -2160,7 +2168,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>  Actual: &#39;some value&#39; (varchar2) was expected not to match: &#39;^some.*&#39; 
 <a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a>  at &quot;anonymous block&quot;, line 5
 </code></pre></div></p>
-<h2 id="equal">equal<a class="headerlink" href="#equal" title="Permanent link">&para;</a></h2>
+<h3 id="equal">equal<a class="headerlink" href="#equal" title="Permanent link">&para;</a></h3>
 <p>The <code>equal</code> matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
 If you are comparing a <code>varchar2</code> to a <code>number</code>, it will fail even if the text contains the same numeric value as the number.
 The matcher will also fail when comparing a <code>timestamp</code> to a <code>timestamp with timezone</code> data-type etc.</p>
@@ -2261,7 +2269,7 @@ Example usage
 The <code>a_nulls_are_equal</code> parameter controls the behavior of a <code>null = null</code> comparison.<br>
 To change the behavior of <code>NULL = NULL</code> comparison pass the <code>a_nulls_are_equal =&gt; false</code> to the <code>equal</code> matcher.  </p>
 </div>
-<h2 id="contain">contain<a class="headerlink" href="#contain" title="Permanent link">&para;</a></h2>
+<h3 id="contain">contain<a class="headerlink" href="#contain" title="Permanent link">&para;</a></h3>
 <p>This matcher supports only compound data-types comparison. It check if the actual set contains all values of expected subset.</p>
 <p>When comparing data using the <code>contain</code> matcher, the data-types of columns for compared compound types must be exactly the same.</p>
 <p>The matcher supports all advanced comparison options as <code>equal</code> like: <code>include</code> , <code>exclude</code>, <code>join_by</code> etc..</p>
@@ -2455,7 +2463,7 @@ To change the behavior of <code>NULL = NULL</code> comparison pass the <code>a_n
 <a id="__codelineno-56-18" name="__codelineno-56-18" href="#__codelineno-56-18"></a>      Data:
 <a id="__codelineno-56-19" name="__codelineno-56-19" href="#__codelineno-56-19"></a>      &lt;ROW&gt;&lt;UT_VARCHAR2_LIST&gt;D&lt;/UT_VARCHAR2_LIST&gt;&lt;/ROW&gt;&lt;ROW&gt;&lt;UT_VARCHAR2_LIST&gt;E&lt;/UT_VARCHAR2_LIST&gt;&lt;/ROW&gt;&lt;ROW&gt;&lt;UT_VARCHAR2_LIST&gt;F&lt;/UT_VARCHAR2_LIST&gt;&lt;/ROW&gt;
 </code></pre></div></p>
-<h2 id="to_be_within-of">to_be_within of<a class="headerlink" href="#to_be_within-of" title="Permanent link">&para;</a></h2>
+<h3 id="to_be_within-of">to_be_within of<a class="headerlink" href="#to_be_within-of" title="Permanent link">&para;</a></h3>
 <p>Determines whether expected value is within range (tolerance) from another value.</p>
 <p>The logical formual used for calcuating the matcher is: 
 <div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>    result := ( abs( expected - actual ) &lt;= distance )
@@ -2562,7 +2570,7 @@ The behavior is similar to a call to <code>months_between()</code> function with
 <a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a>      at &quot;UT3_DEVELOP.UT_BE_WITHIN.OF_&quot;, line 55 l_result.expectation.to_(l_result );    
 <a id="__codelineno-62-6" name="__codelineno-62-6" href="#__codelineno-62-6"></a>      at &quot;UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST&quot;, line 5
 </code></pre></div></p>
-<h2 id="to_be_within_pct-of">to_be_within_pct of<a class="headerlink" href="#to_be_within_pct-of" title="Permanent link">&para;</a></h2>
+<h3 id="to_be_within_pct-of">to_be_within_pct of<a class="headerlink" href="#to_be_within_pct-of" title="Permanent link">&para;</a></h3>
 <p>Determines whether actual value is within percentage range of expected value. 
 The matcher only works with <code>number</code> data-type.</p>
 <p>The percentage deviation (distance) must be expressed as a non-negative number.
@@ -3110,7 +3118,7 @@ When diffing, utPLSQL will not check name and data-type of individual attribute 
 </code></pre></div></p>
 <h3 id="comparing-cursor-data-containing-date-fields">Comparing cursor data containing DATE fields<a class="headerlink" href="#comparing-cursor-data-containing-date-fields" title="Permanent link">&para;</a></h3>
 <div class="admonition warning">
-<p class="admonition-title">Important note</p>
+<p class="admonition-title">Important</p>
 <p>utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.<br>
 Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.<br>
 The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.<br>
@@ -3624,7 +3632,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">October 26, 2022 21:28:55</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">November 21, 2022 22:06:17</span>
       
         <br>
         Created:
@@ -3762,12 +3770,14 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
 
   
 
+
 <h4>Cookie consent</h4>
 <p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
-<input type="checkbox" class="md-toggle" id="__settings">
+<input class="md-toggle" type="checkbox" id="__settings" >
 <div class="md-consent__settings">
   <ul class="task-list">
     
+      
       
         
         
@@ -3805,7 +3815,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>
       
     
   </body>
