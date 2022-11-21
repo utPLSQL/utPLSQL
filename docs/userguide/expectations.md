@@ -388,7 +388,7 @@ Finished in .009229 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-For more details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
+For more details see documentation of the [`--%throws` annotation.](annotations.md#throws)  
 
 
 ## Matchers 
@@ -396,7 +396,7 @@ For more details see documentation of the [`--%throws` annotation.](annotations.
 You can choose different matchers to validate that your PL/SQL code is working as expected.
 
 
-## be_between
+### be_between
 Validates that the actual value is between the lower and upper bound.
 
 Example:
@@ -452,7 +452,7 @@ SUCCESS
   Actual: 'Abb' (varchar2) was expected to be between: 'Aba'  and 'Abc'
 ```
 
-## be_empty
+### be_empty
 Unary matcher that validates if the provided dataset is empty.
 
 Can be used with `BLOB`,`CLOB`, `refcursor` or `nested table`/`varray` passed as `ANYDATA`
@@ -501,7 +501,7 @@ FAILURE
   at "anonymous block", line 9
 ```
 
-## be_false
+### be_false
 Unary matcher that validates if the provided value is false.
 
 Usage:
@@ -529,7 +529,7 @@ SUCCESS
   Actual: TRUE (boolean) was expected not to be false
 ```
 
-## be_greater_or_equal
+### be_greater_or_equal
 Checks if the actual value is greater or equal than the expected.
 
 Usage:
@@ -557,7 +557,7 @@ SUCCESS
   Actual: 2019-07-07T22:43:29 (date) was expected not to be greater or equal: 2019-07-08T22:43:29 (date)
 ```
 
-## be_greater_than
+### be_greater_than
 Checks if the actual value is greater than the expected.
 
 Usage:
@@ -585,7 +585,7 @@ SUCCESS
   Actual: 0 (number) was expected not to be greater than: 1 (number)
 ```
 
-## be_less_or_equal
+### be_less_or_equal
 Checks if the actual value is less or equal than the expected.
 
 Usage:
@@ -613,7 +613,7 @@ SUCCESS
   Actual: 4 (number) was expected not to be less or equal: 3 (number)
 ```
 
-## be_less_than
+### be_less_than
 Checks if the actual value is less than the expected.
 
 Usage:
@@ -641,7 +641,7 @@ FAILURE
   at "anonymous block", line 5
 ```
 
-## be_like
+### be_like
 Validates that the actual value is like the expected expression.
 
 Syntax:
@@ -679,7 +679,7 @@ SUCCESS
   Actual: 'Lorem_impsum' (varchar2) was expected not to be like: '%reM%' 
 ```
 
-## be_not_null
+### be_not_null
 Unary matcher that validates if the actual value is not null.
 
 Usage:
@@ -707,7 +707,7 @@ SUCCESS
   Actual: NULL (varchar2) was expected not to be not null
 ```
 
-## be_null
+### be_null
 Unary matcher that validates if the actual value is null.
 
 Usage:
@@ -735,7 +735,7 @@ SUCCESS
   Actual: 0 (number) was expected not to be null
 ```
 
-## be_true
+### be_true
 Unary matcher that validates if the provided value is true.
 
 Usage:
@@ -763,7 +763,7 @@ FAILURE
   at "anonymous block", line 5
 ```
 
-## have_count
+### have_count
 Unary matcher that validates if the provided dataset count is equal to expected value.
 
 Can be used with `refcursor`, `json` or `table type`
@@ -799,7 +799,7 @@ FAILURE
   at "anonymous block", line 11
 ```
 
-## match
+### match
 Validates that the actual value is matching the expected regular expression.
 
 Syntax:
@@ -833,7 +833,7 @@ FAILURE
   at "anonymous block", line 5
 ```
 
-## equal
+### equal
 The `equal` matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
 If you are comparing a `varchar2` to a `number`, it will fail even if the text contains the same numeric value as the number.
 The matcher will also fail when comparing a `timestamp` to a `timestamp with timezone` data-type etc.
@@ -919,7 +919,7 @@ FAILURE
     The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.<br>
     To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
-## contain
+### contain
 
 This matcher supports only compound data-types comparison. It check if the actual set contains all values of expected subset.
 
@@ -1100,7 +1100,7 @@ SUCCESS
       <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
 ```
 
-## to_be_within of
+### to_be_within of
 
 Determines whether expected value is within range (tolerance) from another value.
 
@@ -1181,7 +1181,7 @@ Failures:
 ```
 
 
-## to_be_within_pct of
+### to_be_within_pct of
 
 Determines whether actual value is within percentage range of expected value. 
 The matcher only works with `number` data-type.
@@ -1603,7 +1603,7 @@ FAILURE
 
 ### Comparing cursor data containing DATE fields 
 
-!!! warning "Important note"
+!!! warning "Important"
 
     utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.<br>
     Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.<br>
