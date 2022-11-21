@@ -255,7 +255,9 @@ jobs:
           pip install mkdocs
           pip install mkdocs-git-revision-date-localized-plugin
           pip install mkdocs-material
-          pip install mike
+#          pip install mike
+#         using develop version of mike - see https://github.com/jimporter/mike/issues/123
+          pip install git+https://github.com/jimporter/mike.git
           mike deploy -p develop
 
   dispatch:
