@@ -67,7 +67,7 @@ jobs:
   slack-workflow-status:
     if: always()
     name: Post Workflow Status To Slack
-    needs: [ publish, upload_artifacts ]
+    needs: [ upload_artifacts ]
     runs-on: ubuntu-latest
     steps:
       - name: Slack Workflow Notification
