@@ -213,8 +213,7 @@ jobs:
       API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
     if: |
       github.repository == 'utPLSQL/utPLSQL' &&
-      github.base_ref == null &&
-      ( startsWith( github.ref, 'refs/heads/release/v' ) || github.ref == 'refs/heads/develop' )
+      github.base_ref == null && github.ref == 'refs/heads/develop'
     steps:
       - name: 🔍 API_TOKEN_GITHUB
         if: env.API_TOKEN_GITHUB == ''
