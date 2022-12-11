@@ -15,7 +15,10 @@ To create a release follow the below steps
    - Wait for the [Github Actions `Release`](https://github.com/utPLSQL/utPLSQL/actions/workflows/release.yml) process to complete successfully. The process will upload release artifacts (`zip` and `tar.gz` files along with `md5`) 
    - After Release build was completed successfully, merge the `main` branch back into `develop` branch. At this point, main branch and release tag should be at the same commit version and artifacts should be uploaded into Github release. 
    - After develop branch was built, increase the version number in `VERSION` file to represent next planned release version.
-   - Clone `utplsql.githug.io` project and add a new announcement about next version being released in `_posts`. Use previous announcements as a template. Make sure to set date, time and post title properly.
+   - Clone `utplsql.githug.io` project and:
+     - Add a new announcement about next version being released in `docs/_posts`. Use previous announcements as a template. Make sure to set date, time and post title properly. 
+     - Add the post to list in `mkdocs.yml` file in root directory of that repository.
+     - Add the link to the post at the beginning of the `docs/index.md` file.
 
 The following will happen:
    - build executed on branch `release/vX.Y.Z-[something]` updates files `sonar-project.properties`, `VERSION` with project version derived from the release branch name
