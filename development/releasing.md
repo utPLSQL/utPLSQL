@@ -3,7 +3,7 @@
 To create a release follow the below steps
 
 ## Release preparation
-   - Create a **draft** of Release from the `main` branch using [github releases page](https://github.com/utPLSQL/utPLSQL/releases) and populate release description using information found on the issues and pull requests **since previous release**.
+   - Create a **draft** of a Release with version number `vX.Y.X`  sourced from the `main` branch using [github releases page](https://github.com/utPLSQL/utPLSQL/releases) and populate release description using information found on the issues and pull requests **since previous release**.
    To find issues closed after certain date use [advanced filters](https://help.github.com/articles/searching-issues-and-pull-requests/#search-by-open-or-closed-state). 
    Example: [`is:issue closed:>2018-07-22`](https://github.com/utPLSQL/utPLSQL/issues?utf8=%E2%9C%93&q=is%3Aissue+closed%3A%3E2018-07-22+)
 
@@ -11,11 +11,9 @@ To create a release follow the below steps
    - create the release branch from `develop` branch and make sure to name the release branch: `release/vX.Y.Z`
    - update, commit and push at least one file change in the release branch, to kick off a build on [GithubActions](https://github.com/utPLSQL/utPLSQL/actions) or kick-off a build manually for that branch after it was created on github. 
    - wait for the build to complete successfully as it will update the version to be release number (without develop)
-   - merge the release branch to `main` branch and wait for build on `main` branch to complete successfully  (do not use Squash/rebase for merge operation)
-   - Publish the release on the `main` branch and tag it with version number `vX.Y.Z`
-   - Wait for the release build to finish successfully on Github Actions as this will upload release artifacts (`zip` and `tar.gz` files along with `md5`) 
-   - After A Release build was completed successfully, merge main branch back into develop branch.
-   - At this point, main branch and release tag should be at the same commit version and artifacts should be uploaded into Github release. 
+   - merge the release branch to `main` branch and publish [the previously prepared](#release-preparation) release draft.
+   - Wait for the [Github Actions `Release`](https://github.com/utPLSQL/utPLSQL/actions/workflows/release.yml) process to complete successfully. The process will upload release artifacts (`zip` and `tar.gz` files along with `md5`) 
+   - After Release build was completed successfully, merge the `main` branch back into `develop` branch. At this point, main branch and release tag should be at the same commit version and artifacts should be uploaded into Github release. 
    - After develop branch was built, increase the version number in `VERSION` file to represent next planned release version.
    - Clone `utplsql.githug.io` project and add a new announcement about next version being released in `_posts`. Use previous announcements as a template. Make sure to set date, time and post title properly.
 
