@@ -12,8 +12,14 @@
       
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/querying_suites.html">
       
+      
+        <link rel="prev" href="running-unit-tests.html">
+      
+      
+        <link rel="next" href="best-practices.html">
+      
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
     
     
       
@@ -21,11 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
-        
       
       
 
@@ -118,8 +123,6 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          
-          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -127,8 +130,6 @@
             </label>
           
         
-          
-          
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
           
@@ -169,7 +170,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -311,12 +312,13 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
       
       
       
-      
-        <label class="md-nav__link" for="__nav_1">
+        <label class="md-nav__link" for="__nav_1" tabindex="0" aria-expanded="true">
           User Guide
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -543,12 +545,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_2">
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
           Reporting
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -619,12 +622,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
           About
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -713,9 +717,10 @@
                   
 
 
+
   <h1>Querying for test suites</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4070--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.14.4072--develop-blue.svg" /></p>
 <h2 id="obtaining-information-about-suites">Obtaining information about suites<a class="headerlink" href="#obtaining-information-about-suites" title="Permanent link">&para;</a></h2>
 <p>utPLSQL framework provides ability to read inforamtion about unit test suites that exist in a schema.</p>
 <p>Pipelined table function <code>ut_runner.get_suites_info(a_owner, a_package_name)</code> allows you to retrieve information about:</p>
@@ -736,19 +741,19 @@
 <li><code>tags</code>     - tags associated with suites</li>
 </ul>
 <p>To get list of all test suites in current schema 
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">())</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_SUITE&#39;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">())</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_SUITE&#39;</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p>To get list of all tests for test suite <code>TEST_STUFF</code> in current user schema<br />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">))</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">))</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p>To get a full information about suite <code>TEST_STUFF</code> including suite description, all contexts and tests in a suite<br />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">))</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">))</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p>To get a full information about suites that have a path like  <code>ut3:tests.test_package_*</code> including suite description, all contexts and tests in a suite 
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="s1">&#39;ut3:tests.test_package_*&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="s1">&#39;ut3:tests.test_package_*&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UT_TEST&#39;</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p>To get a full information about suites that have object name like  <code>test_package_*</code> including suite description, all contexts and tests in a suite 
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="s1">&#39;test_package_*&#39;</span><span class="p">));</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut_runner</span><span class="p">.</span><span class="n">get_suites_info</span><span class="p">(</span><span class="s1">&#39;test_package_*&#39;</span><span class="p">));</span>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="checking-if-schema-contains-tests">Checking if schema contains tests<a class="headerlink" href="#checking-if-schema-contains-tests" title="Permanent link">&para;</a></h2>
 <p>Function <code>ut_runner.has_suites(a_owner)</code> returns boolean value indicating if given schema contains test suites.</p>
@@ -759,13 +764,13 @@
 <span class="normal"><a href="#__codelineno-5-4">4</a></span>
 <span class="normal"><a href="#__codelineno-5-5">5</a></span>
 <span class="normal"><a href="#__codelineno-5-6">6</a></span>
-<span class="normal"><a href="#__codelineno-5-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">has_suites</span><span class="p">(</span><span class="k">USER</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
-<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;User &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39; owns test suites&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="k">else</span><span class="w"></span>
-<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;User &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39; does not own test suites&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span><span class="w"></span>
-<a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-5-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">begin</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">has_suites</span><span class="p">(</span><span class="k">USER</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;User &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39; owns test suites&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="k">else</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;User &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39; does not own test suites&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="checking-if-package-is-a-test-suite">Checking if package is a test suite<a class="headerlink" href="#checking-if-package-is-a-test-suite" title="Permanent link">&para;</a></h2>
 <p>Function <code>ut_runner.is_suite(a_owner, a_package_name)</code> returns boolean value indicating if given package is a test suites.</p>
@@ -776,13 +781,13 @@
 <span class="normal"><a href="#__codelineno-6-4">4</a></span>
 <span class="normal"><a href="#__codelineno-6-5">5</a></span>
 <span class="normal"><a href="#__codelineno-6-6">6</a></span>
-<span class="normal"><a href="#__codelineno-6-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">is_suite</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
-<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Package &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF is a test suite&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">  </span><span class="k">else</span><span class="w"></span>
-<a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Package &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF is not a test suite&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span><span class="w"></span>
-<a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-6-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">begin</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">is_suite</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Package &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF is a test suite&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">  </span><span class="k">else</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Package &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF is not a test suite&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="checking-if-procedure-is-a-test-within-a-suite">Checking if procedure is a test within a suite<a class="headerlink" href="#checking-if-procedure-is-a-test-within-a-suite" title="Permanent link">&para;</a></h2>
 <p>Function <code>ut_runner.is_test(a_owner, a_package_name, a_procedure_name)</code> returns boolean value indicating if given package is a test suites.</p>
@@ -793,13 +798,13 @@
 <span class="normal"><a href="#__codelineno-7-4">4</a></span>
 <span class="normal"><a href="#__codelineno-7-5">5</a></span>
 <span class="normal"><a href="#__codelineno-7-6">6</a></span>
-<span class="normal"><a href="#__codelineno-7-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">is_test</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">,</span><span class="s1">&#39;A_TEST_TO_CHECK_STUFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
-<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Procedure &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF.A_TEST_TO_CHECK_STUFF is a test&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="k">else</span><span class="w"></span>
-<a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Procedure &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF.A_TEST_TO_CHECK_STUFF is not a test&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span><span class="w"></span>
-<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-7-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">begin</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">is_test</span><span class="p">(</span><span class="k">USER</span><span class="p">,</span><span class="s1">&#39;TEST_STUFF&#39;</span><span class="p">,</span><span class="s1">&#39;A_TEST_TO_CHECK_STUFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Procedure &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF.A_TEST_TO_CHECK_STUFF is a test&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="k">else</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="n">dbms_output</span><span class="p">.</span><span class="n">put_line</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Procedure &#39;</span><span class="o">||</span><span class="k">USER</span><span class="o">||</span><span class="s1">&#39;.TEST_STUFF.A_TEST_TO_CHECK_STUFF is not a test&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">if</span><span class="p">;</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 
   <hr>
@@ -807,7 +812,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">December 11, 2022 19:27:38</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">January 20, 2023 22:38:37</span>
       
         <br>
         Created:
@@ -831,42 +836,6 @@
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="running-unit-tests.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Running unit tests" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Running unit tests
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="best-practices.html" class="md-footer__link md-footer__link--next" aria-label="Next: Testing best practices" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Testing best practices
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -987,12 +956,11 @@
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
       
-    
     
   </body>
 </html>

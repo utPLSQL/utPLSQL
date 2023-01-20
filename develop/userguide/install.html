@@ -12,8 +12,14 @@
       
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/install.html">
       
+      
+        <link rel="prev" href="../index.html">
+      
+      
+        <link rel="next" href="getting-started.html">
+      
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
     
     
       
@@ -21,11 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
-        
       
       
 
@@ -118,8 +123,6 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          
-          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -127,8 +130,6 @@
             </label>
           
         
-          
-          
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
           
@@ -169,7 +170,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -311,12 +312,13 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
       
       
       
-      
-        <label class="md-nav__link" for="__nav_1">
+        <label class="md-nav__link" for="__nav_1" tabindex="0" aria-expanded="true">
           User Guide
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -706,12 +708,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_2">
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
           Reporting
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -782,12 +785,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
           About
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -876,9 +880,10 @@
                   
 
 
+
   <h1>Installation</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4070--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.14.4072--develop-blue.svg" /></p>
 <h2 id="supported-database-versions">Supported database versions<a class="headerlink" href="#supported-database-versions" title="Permanent link">&para;</a></h2>
 <p>utPLSQL is continuously tested against following versions of Oracle databases</p>
 <ul>
@@ -922,15 +927,15 @@ utPLSQl does not purge profiler tables as those tables can can be shared with ot
 <h4 id="unixlinux">Unix/Linux<a class="headerlink" href="#unixlinux" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/bin/bash</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest <span class="p">|</span> awk <span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot;.zip\&quot;&quot;</span> <span class="p">|</span> sed <span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl -Lk <span class="s2">&quot;</span><span class="si">${</span><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span> -o utPLSQL.zip
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>utPLSQL.zip
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded &quot;zip&quot; file</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip -q utPLSQL.zip
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip<span class="w"> </span>-q<span class="w"> </span>utPLSQL.zip
 </code></pre></div>
 <p>You may download with a one-liner if that is more convenient.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="ch">#!/bin/bash</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl -LOk <span class="k">$(</span>curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest <span class="p">|</span> awk <span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot;.zip\&quot;&quot;</span> <span class="p">|</span> sed <span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span> 
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-LOk<span class="w"> </span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span><span class="w"> </span>
 </code></pre></div></p>
 <h4 id="windows">Windows<a class="headerlink" href="#windows" title="Permanent link">&para;</a></h4>
 <p>To run the script on windows you will need <a href="https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/">PowerShell 3.0</a> or above. 
@@ -985,22 +990,22 @@ This process can be time-consuming if DB schema is large.     </p>
 <h3 id="installation-without-ddl-trigger">Installation without DDL trigger<a class="headerlink" href="#installation-without-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w">  </span>
 </code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
 </code></pre></div></p>
 <h3 id="installation-with-ddl-trigger">Installation with DDL trigger<a class="headerlink" href="#installation-with-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless_with_trigger.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w">  </span>
 </code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_verySecret_password utp3_tablespace   
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
 </code></pre></div></p>
 <h2 id="recommended-schema">Recommended Schema<a class="headerlink" href="#recommended-schema" title="Permanent link">&para;</a></h2>
 <p>It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
@@ -1029,16 +1034,16 @@ Installing uPLSQL into a shared schema is really not recommended as you loose is
 <li><code>tablespace name</code> - the tablespace name to hold data created during test execution</li>
 </ul>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus sys/sys_password@database as sysdba @create_utPLSQL_owner.sql ut3 ut3 users  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus<span class="w"> </span>sys/sys_password@database<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@create_utPLSQL_owner.sql<span class="w"> </span>ut3<span class="w"> </span>ut3<span class="w"> </span>users<span class="w">  </span>
 </code></pre></div></p>
 <h3 id="installing-utplsql">Installing utPLSQL<a class="headerlink" href="#installing-utplsql" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL framework into your database, go to <code>source</code> directory, run the <code>install.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.<br />
 Schema must be created prior to calling the <code>install</code> script.
 You may install utPLSQL from any account that has sufficient privileges to create objects in other users schema.  </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus admin/admins_password@database @install.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install.sql<span class="w"> </span>ut3<span class="w">  </span>
 </code></pre></div></p>
 <h3 id="installing-ddl-trigger">Installing DDL trigger<a class="headerlink" href="#installing-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To minimize startup time of utPLSQL framework (especially on a database with large schema) it is recommended to install utPLSQL DDL trigger to enable utPLSQL annotation to be updated at compile-time.</p>
@@ -1047,8 +1052,8 @@ If using the owner schema of utPLSQL to install trigger, the owner needs to have
 If using different user to install trigger, the user needs to have <code>ADMINISTER DATABASE TRIGGER</code> and <code>CREATE ANY TRIGGER</code> system privileges. </p>
 <p>To install DDL trigger go to <code>source</code> directory, run the <code>install_ddl_trigger.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus admin/admins_password@database @install_ddl_trigger.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install_ddl_trigger.sql<span class="w"> </span>ut3<span class="w">  </span>
 </code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1063,14 +1068,14 @@ You have two options:</p>
 </ul>
 <p>To grant utPLSQL to public execute script <code>source/create_synonyms_and_grants_for_public.sql</code> and provide <code>schema_name</code> where utPLSQL is installed. </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@create_synonyms_and_grants_for_public.sql<span class="w"> </span>ut3<span class="w">  </span>
 </code></pre></div>
 To grant utPLSQL to an individual user, execute scripts <code>source/create_user_grants.sql</code> and <code>source/create_user_synonyms.sql</code>, provide <code>schema_name</code> where utPLSQL is installed and <code>user_name</code> to grant access for.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus ut3_owner_schema/ut3_password@database @create_user_grants.sql ut3 hr
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus<span class="w"> </span>ut3_owner_schema/ut3_password@database<span class="w"> </span>@create_user_grants.sql<span class="w"> </span>ut3<span class="w"> </span>hr
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>sqlplus<span class="w"> </span>user/user_password@database<span class="w"> </span>@create_user_synonyms.sql<span class="w"> </span>ut3<span class="w"> </span>hr
 </code></pre></div></p>
 <p>The following tools that support the SQL*Plus commands can be used to run the installation script:</p>
 <ul>
@@ -1080,14 +1085,14 @@ To grant utPLSQL to an individual user, execute scripts <code>source/create_user
 </ul>
 <h2 id="checking-environment-and-utplsql-version">Checking environment and utPLSQL version<a class="headerlink" href="#checking-environment-and-utplsql-version" title="Permanent link">&para;</a></h2>
 <p>To check the framework version execute the following query:
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p>Additionally you may retrieve more information about your environment by executing the following query:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
 <span class="normal"><a href="#__codelineno-13-2">2</a></span>
 <span class="normal"><a href="#__codelineno-13-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">select</span><span class="w"> </span>
-<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="additional-requirements">Additional requirements<a class="headerlink" href="#additional-requirements" title="Permanent link">&para;</a></h2>
 <p>In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
@@ -1097,8 +1102,8 @@ Running code coverage on objects that the user does not own will <strong>not pro
 <h2 id="uninstalling-utplsql">Uninstalling utPLSQL<a class="headerlink" href="#uninstalling-utplsql" title="Permanent link">&para;</a></h2>
 <p>To uninstall run <code>uninstall.sql</code> and provide <code>schema_name</code> where utPLSQL is installed.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span> <span class="nb">source</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sqlplus admin/admins_password@database @uninstall.sql ut3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@uninstall.sql<span class="w"> </span>ut3
 </code></pre></div></p>
 <p>The uninstall script will remove all the objects installed by the installation script.
 Additionally, all the public and private synonyms pointing to the objects in the utPLSQL schema will be removed.</p>
@@ -1119,7 +1124,7 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">December 11, 2022 19:27:38</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">January 20, 2023 22:38:37</span>
       
         <br>
         Created:
@@ -1143,42 +1148,6 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../index.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Index" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Index
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="getting-started.html" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Getting Started
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1299,12 +1268,11 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
       
-    
     
   </body>
 </html>

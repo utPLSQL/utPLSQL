@@ -12,8 +12,14 @@
       
         <link rel="canonical" href="http://utPLSQL.org/develop/userguide/running-unit-tests.html">
       
+      
+        <link rel="prev" href="advanced_data_comparison.html">
+      
+      
+        <link rel="next" href="querying_suites.html">
+      
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
     
     
       
@@ -21,11 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
-        
       
       
 
@@ -118,8 +123,6 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          
-          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -127,8 +130,6 @@
             </label>
           
         
-          
-          
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
           
@@ -169,7 +170,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -311,12 +312,13 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
       
       
       
-      
-        <label class="md-nav__link" for="__nav_1">
+        <label class="md-nav__link" for="__nav_1" tabindex="0" aria-expanded="true">
           User Guide
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -604,12 +606,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_2">
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
           Reporting
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -680,12 +683,13 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
           About
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -774,9 +778,10 @@
                   
 
 
+
   <h1>Running unit tests</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.13.4070--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.14.4072--develop-blue.svg" /></p>
 <p>utPLSQL framework provides two main entry points to run unit tests from within the database: </p>
 <ul>
 <li><code>ut.run</code> procedures and functions</li>
@@ -793,11 +798,11 @@ Most of the time you will want to use <code>ut.run</code> as <code>ut_runner.run
 <p>You may download the latest release of the command line client from <a href="https://github.com/utPLSQL/utPLSQL-cli/releases/latest">here</a> or do it automatically using the command below (Unix).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/bin/bash</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest <span class="p">|</span> awk <span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span> <span class="p">|</span> grep <span class="s2">&quot;.zip\&quot;&quot;</span> <span class="p">|</span> sed <span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl -Lk <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span> -o utplsql-cli.zip
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>utplsql-cli.zip
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded &quot;zip&quot; file</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip -q utplsql-cli.zip
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip<span class="w"> </span>-q<span class="w"> </span>utplsql-cli.zip
 </code></pre></div>
 <h2 id="utrun">ut.run<a class="headerlink" href="#utrun" title="Permanent link">&para;</a></h2>
 <p>The <code>ut</code> package contains overloaded <code>run</code> procedures and functions.
@@ -815,93 +820,93 @@ Schema name cannot contain a wildcard character whether is in a suitepath call o
 <span class="normal"><a href="#__codelineno-1-2">2</a></span>
 <span class="normal"><a href="#__codelineno-1-3">3</a></span>
 <span class="normal"><a href="#__codelineno-1-4">4</a></span>
-<span class="normal"><a href="#__codelineno-1-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">alter</span><span class="w"> </span><span class="k">session</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">current_schema</span><span class="o">=</span><span class="n">hr</span><span class="p">;</span><span class="w"></span>
-<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">();</span><span class="w"></span>
-<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-1-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">alter</span><span class="w"> </span><span class="k">session</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">current_schema</span><span class="o">=</span><span class="n">hr</span><span class="p">;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="k">begin</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests in current schema (<em>HR</em>).</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
 <span class="normal"><a href="#__codelineno-2-2">2</a></span>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span>
-<span class="normal"><a href="#__codelineno-2-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">begin</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">);</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests in specified schema (<em>HR</em>).</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
 <span class="normal"><a href="#__codelineno-3-2">2</a></span>
 <span class="normal"><a href="#__codelineno-3-3">3</a></span>
-<span class="normal"><a href="#__codelineno-3-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com.my_org.my_project&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="k">begin</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com.my_org.my_project&#39;</span><span class="p">);</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <p>Executes all tests from all packages that are on the <em>com.my_org.my_project</em> suitepath.
 Check the <a href="annotations.html">annotations documentation</a> to find out about suitepaths and how they can be used to organize test packages for your project.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
 <span class="normal"><a href="#__codelineno-4-3">3</a></span>
-<span class="normal"><a href="#__codelineno-4-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com*&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">begin</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com*&#39;</span><span class="p">);</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <p>Executes all tests in schema <code>hr</code> from all packages that are on suitepath starting with <code>com</code>.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
 <span class="normal"><a href="#__codelineno-5-2">2</a></span>
 <span class="normal"><a href="#__codelineno-5-3">3</a></span>
-<span class="normal"><a href="#__codelineno-5-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:co*.my_*.my_*&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">begin</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:co*.my_*.my_*&#39;</span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <p>Executes all tests in schema <code>hr</code> from all packages that starting with <code>my_</code> and all tests starting with <code>my_*</code> that are on suitepath starting with <code>co</code> .</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
 <span class="normal"><a href="#__codelineno-6-2">2</a></span>
 <span class="normal"><a href="#__codelineno-6-3">3</a></span>
-<span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="k">begin</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests from package <em>hr.test_apply_bonus</em>. </p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
 <span class="normal"><a href="#__codelineno-7-2">2</a></span>
 <span class="normal"><a href="#__codelineno-7-3">3</a></span>
-<span class="normal"><a href="#__codelineno-7-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_cannot_be_negative&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="k">begin</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_cannot_be_negative&#39;</span><span class="p">);</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes single test procedure <em>hr.test_apply_bonus.bonus_cannot_be_negative</em>.</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
 <span class="normal"><a href="#__codelineno-8-2">2</a></span>
 <span class="normal"><a href="#__codelineno-8-3">3</a></span>
-<span class="normal"><a href="#__codelineno-8-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="s1">&#39;cust&#39;</span><span class="p">));</span><span class="w"></span>
-<a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">begin</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="s1">&#39;cust&#39;</span><span class="p">));</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em>.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
 <span class="normal"><a href="#__codelineno-9-2">2</a></span>
 <span class="normal"><a href="#__codelineno-9-3">3</a></span>
-<span class="normal"><a href="#__codelineno-9-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust)&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">begin</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust)&#39;</span><span class="p">);</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <p>Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em>.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
 <span class="normal"><a href="#__codelineno-10-2">2</a></span>
 <span class="normal"><a href="#__codelineno-10-3">3</a></span>
-<span class="normal"><a href="#__codelineno-10-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="k">begin</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust&#39;</span><span class="p">);</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <p>Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em>.</p>
 <p>Using a list of items to execute allows you to execute a fine-grained set of tests.</p>
@@ -909,19 +914,19 @@ Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from 
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
 <span class="normal"><a href="#__codelineno-11-2">2</a></span>
 <span class="normal"><a href="#__codelineno-11-3">3</a></span>
-<span class="normal"><a href="#__codelineno-11-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test*&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-11-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="k">begin</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test*&#39;</span><span class="p">);</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests in schema <code>hr</code> located in packages starting with name <code>test</code>.</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
 <span class="normal"><a href="#__codelineno-12-2">2</a></span>
 <span class="normal"><a href="#__codelineno-12-3">3</a></span>
-<span class="normal"><a href="#__codelineno-12-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_*&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-12-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">begin</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_*&#39;</span><span class="p">);</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes test procedures with names starting with <code>bonus</code> in package <code>hr.test_apply_bonus</code> .</p>
 <p><strong>Note:</strong></p>
@@ -931,10 +936,10 @@ You can execute any set of tests with any of the predefined reporters.</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
 <span class="normal"><a href="#__codelineno-13-2">2</a></span>
 <span class="normal"><a href="#__codelineno-13-3">3</a></span>
-<span class="normal"><a href="#__codelineno-13-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">());</span><span class="w"></span>
-<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="k">begin</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">());</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 Executes all tests from package <em>HR.TEST_APPLY_BONUS</em> and provide outputs to DBMS_OUTPUT using the JUnit reporter. </p>
 <p>For details on build-in reporters look at <a href="reporters.html">reporters documentation</a>.</p>
@@ -949,7 +954,7 @@ Functions provide output as a pipelined stream and therefore need to be executed
 At the end of the run, the transaction is automatically rolled-back and all uncommitted changes are reverted.   </p>
 </blockquote>
 <p>Example.
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">()));</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">()));</span>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="ut_runnerrun-procedures">ut_runner.run procedures<a class="headerlink" href="#ut_runnerrun-procedures" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_runner</code> package provides an API for integrating utPLSQL with other products. Maven, Jenkins, SQL Develper, PL/SQL Developer, TOAD and others can leverage this API to call utPLSQL.</p>
@@ -984,14 +989,14 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 <span class="normal"><a href="#__codelineno-15-7">7</a></span>
 <span class="normal"><a href="#__codelineno-15-8">8</a></span>
 <span class="normal"><a href="#__codelineno-15-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="c1">--main test run ( session 1 )</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="k">declare</span><span class="w"></span>
-<a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">  </span><span class="n">l_reporter</span><span class="w">      </span><span class="n">ut_realtime_reporter</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">ut_realtime_reporter</span><span class="p">();</span><span class="w"></span>
-<a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">output_buffer</span><span class="p">.</span><span class="n">init</span><span class="p">();</span><span class="w"></span>
-<a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;ut3_tester&#39;</span><span class="p">,</span><span class="s1">&#39;ut3_user&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_reporters</span><span class="p">(</span><span class="w"> </span><span class="n">l_reporter</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
-<a id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="o">/</span><span class="w"></span>
+<a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="k">declare</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">  </span><span class="n">l_reporter</span><span class="w">      </span><span class="n">ut_realtime_reporter</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">ut_realtime_reporter</span><span class="p">();</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="k">begin</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">output_buffer</span><span class="p">.</span><span class="n">init</span><span class="p">();</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;ut3_tester&#39;</span><span class="p">,</span><span class="s1">&#39;ut3_user&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_reporters</span><span class="p">(</span><span class="w"> </span><span class="n">l_reporter</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="o">/</span>
 </code></pre></div></td></tr></table></div></p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-16-2"> 2</a></span>
@@ -1003,15 +1008,15 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 <span class="normal"><a href="#__codelineno-16-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-16-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-16-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="c1">--report consumer ( session 2 )</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="k">set</span><span class="w"> </span><span class="n">arraysize</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="k">set</span><span class="w"> </span><span class="n">pagesize</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="k">set</span><span class="w"> </span><span class="n">arraysize</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="k">set</span><span class="w"> </span><span class="n">pagesize</span><span class="w"> </span><span class="mi">0</span>
 <a id="__codelineno-16-4" name="__codelineno-16-4"></a>
 <a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span>
-<a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="w"></span>
-<a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">         </span><span class="n">ut_realtime_reporter</span><span class="p">()</span><span class="w"></span>
-<a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">           </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span><span class="w"></span>
-<a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">           </span><span class="p">.</span><span class="n">get_lines</span><span class="p">()</span><span class="w"></span>
-<a id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">  </span><span class="p">);</span><span class="w"></span>
+<a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">         </span><span class="n">ut_realtime_reporter</span><span class="p">()</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">           </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">           </span><span class="p">.</span><span class="n">get_lines</span><span class="p">()</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">  </span><span class="p">);</span>
 </code></pre></div></td></tr></table></div>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1">1</a></span>
 <span class="normal"><a href="#__codelineno-17-2">2</a></span>
@@ -1022,14 +1027,14 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 <span class="normal"><a href="#__codelineno-17-7">7</a></span>
 <span class="normal"><a href="#__codelineno-17-8">8</a></span>
 <span class="normal"><a href="#__codelineno-17-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="c1">--alternative version of report consumer ( session 2 )</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="k">set</span><span class="w"> </span><span class="n">arraysize</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="k">set</span><span class="w"> </span><span class="n">pagesize</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="k">set</span><span class="w"> </span><span class="n">arraysize</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="k">set</span><span class="w"> </span><span class="n">pagesize</span><span class="w"> </span><span class="mi">0</span>
 <a id="__codelineno-17-4" name="__codelineno-17-4"></a>
-<a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="k">select</span><span class="w"></span>
-<a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="n">ut_realtime_reporter</span><span class="p">()</span><span class="w"></span>
-<a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">      </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span><span class="w"></span>
-<a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">      </span><span class="p">.</span><span class="n">get_lines_cursor</span><span class="p">()</span><span class="w"></span>
-<a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"></span>
+<a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="k">select</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="n">ut_realtime_reporter</span><span class="p">()</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">      </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">      </span><span class="p">.</span><span class="n">get_lines_cursor</span><span class="p">()</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
 <h2 id="order-of-test-execution">Order of test execution<a class="headerlink" href="#order-of-test-execution" title="Permanent link">&para;</a></h2>
 <h3 id="default-order">Default order<a class="headerlink" href="#default-order" title="Permanent link">&para;</a></h3>
@@ -1047,12 +1052,12 @@ This is needed to maintain visibility and accessibility of common setup/cleanup 
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-1">1</a></span>
 <span class="normal"><a href="#__codelineno-18-2">2</a></span>
 <span class="normal"><a href="#__codelineno-18-3">3</a></span>
-<span class="normal"><a href="#__codelineno-18-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-18-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="k">begin</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
 </code></pre></div></td></tr></table></div>
 <p>When running with random order, the default report (<code>ut_documentation_reporter</code>) will include information about the random test run seed.
 Example output:
@@ -1066,12 +1071,12 @@ Example:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-21-1">1</a></span>
 <span class="normal"><a href="#__codelineno-21-2">2</a></span>
 <span class="normal"><a href="#__codelineno-21-3">3</a></span>
-<span class="normal"><a href="#__codelineno-21-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-21-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="k">begin</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">);</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">));</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">));</span>
 </code></pre></div></td></tr></table></div>
 <p><strong>Note</strong></p>
 <blockquote>
@@ -1083,14 +1088,14 @@ Multiple tags are separated by comma.
 The framework applies <code>OR</code> logic to all specified tags so any test / suite that matches at least one tag will be included in the test run.</p>
 <p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-23-1">1</a></span>
 <span class="normal"><a href="#__codelineno-23-2">2</a></span>
-<span class="normal"><a href="#__codelineno-23-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;test1,test2&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-23-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="k">begin</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;test1,test2&#39;</span><span class="p">);</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;suite1&#39;</span><span class="p">))</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;suite1&#39;</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div></p>
 <p>You can also exclude specific tags by adding a <code>-</code> (dash) in front of the tag</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;-suite1&#39;</span><span class="p">))</span><span class="w"></span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;-suite1&#39;</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
 <h2 id="keeping-uncommitted-data-after-test-run">Keeping uncommitted data after test-run<a class="headerlink" href="#keeping-uncommitted-data-after-test-run" title="Permanent link">&para;</a></h2>
 <p>utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.</p>
@@ -1104,10 +1109,10 @@ Setting this flag to true has following side-effects:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1">1</a></span>
 <span class="normal"><a href="#__codelineno-26-2">2</a></span>
 <span class="normal"><a href="#__codelineno-26-3">3</a></span>
-<span class="normal"><a href="#__codelineno-26-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<a id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_force_manual_rollback</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-26-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="k">begin</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_force_manual_rollback</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 <p><strong>Note:</strong></p>
 <blockquote>
@@ -1120,9 +1125,9 @@ Setting this flag to true has following side-effects:</p>
 <p>Example call with characterset provided:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span>
 <span class="normal"><a href="#__codelineno-27-2">2</a></span>
-<span class="normal"><a href="#__codelineno-27-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="k">begin</span><span class="w"></span>
-<a id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;Windows-1251&#39;</span><span class="p">);</span><span class="w"></span>
-<a id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="k">end</span><span class="p">;</span><span class="w"></span>
+<span class="normal"><a href="#__codelineno-27-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="k">begin</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;Windows-1251&#39;</span><span class="p">);</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="k">end</span><span class="p">;</span>
 </code></pre></div></td></tr></table></div></p>
 
   <hr>
@@ -1130,7 +1135,7 @@ Setting this flag to true has following side-effects:</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">December 11, 2022 19:27:38</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">January 20, 2023 22:38:37</span>
       
         <br>
         Created:
@@ -1154,42 +1159,6 @@ Setting this flag to true has following side-effects:</p>
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="advanced_data_comparison.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Advanced data comparison" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Advanced data comparison
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="querying_suites.html" class="md-footer__link md-footer__link--next" aria-label="Next: Querying for test suites" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Querying for test suites
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1310,12 +1279,11 @@ Setting this flag to true has following side-effects:</p>
       </div>
       <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
       
-    
     
   </body>
 </html>
