@@ -41,13 +41,6 @@ create or replace type body ut_output_reporter_base is
     return l_result;
   end;
 
-  overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
-    l_output_table_buffer ut_output_table_buffer;
-  begin
-    (self as ut_reporter_base).before_calling_run(a_run);
-    l_output_table_buffer := treat(self.output_buffer as ut_output_table_buffer);
-  end;
-
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2, a_item_type varchar2 := null) is
   begin
     self.output_buffer.send_line(a_text, a_item_type);
@@ -87,6 +80,7 @@ create or replace type body ut_output_reporter_base is
 
   overriding member procedure on_initialize(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
   begin
+    self.output_buffer.lock_buffer();
     self.output_buffer.send_line(null, 'initialize');
   end;
 

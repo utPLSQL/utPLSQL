@@ -16,12 +16,13 @@ create or replace package body test_output_buffer is
       || chr(13) || chr(10) || to_clob(lpad('a text', 31000, ',a text')) || to_clob(lpad('a text', 31000, ',a text'));
     l_expected_item_type := lpad('some item type',1000,'-');
     --Act
+    l_buffer.lock_buffer();
     l_buffer.send_clob(l_expected_text, l_expected_item_type);
     l_buffer.close();
 
     select text, item_type
       into l_actual_text, l_actual_item_type
-      from table(l_buffer.get_lines(0,0));
+      from table(l_buffer.get_lines(0.1,0.1));
 
     --Assert
     ut.expect(l_actual_text).to_equal(l_expected_text);
@@ -32,7 +33,14 @@ create or replace package body test_output_buffer is
 
     ut.expect(l_remaining).to_equal(0);
   end;
-  
+
+  procedure test_wait_for_producer is
+    l_buffer  ut3_develop.ut_output_buffer_base;
+  begin
+    l_buffer := ut3_develop.ut_output_clob_table_buffer();
+    ut.expect( l_buffer.get_lines_cursor(0.1,0) ).to_be_empty();
+  end;
+
   procedure test_doesnt_send_on_null_text is
     l_cur    sys_refcursor;
     l_result integer;
@@ -86,11 +94,12 @@ create or replace package body test_output_buffer is
   begin
     --Arrange
     l_expected := 'a text';
+    l_buffer.lock_buffer();
     l_buffer.send_line(l_expected);
     l_start := localtimestamp;
     --Act
     begin
-      select text into l_result from table(l_buffer.get_lines(1,1));
+      select text into l_result from table(l_buffer.get_lines(0,0.3));
       ut.fail('Expected a timeout exception but nothing was raised');
     exception 
       when others then
@@ -101,7 +110,7 @@ create or replace package body test_output_buffer is
       --Throws a timeout exception
       ut.expect(dbms_utility.format_error_stack()).to_match('ORA'||ut3_develop.ut_utils.gc_out_buffer_timeout);
       --Waited for one second
-      ut.expect(l_duration).to_be_greater_than(interval '0.99' second);
+      ut.expect(l_duration).to_be_greater_or_equal(interval '0.3' second);
     end;
 
     select count(1) into l_remaining from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp) where output_id = l_buffer.output_id;
@@ -116,13 +125,15 @@ create or replace package body test_output_buffer is
     l_buffer       ut3_develop.ut_output_buffer_base;
   begin
     --Arrange
-    l_stale_buffer.start_date := sysdate - 2;
+    l_stale_buffer.start_date := sysdate - 10;
     --initialize with new start date
     l_stale_buffer.init();
+    l_stale_buffer.lock_buffer();
     l_stale_buffer.send_line('some text');
     l_stale_buffer.close();
 
     l_fresh_buffer := ut3_develop.ut_output_table_buffer();
+    l_fresh_buffer.lock_buffer();
     l_fresh_buffer.send_line('some text');
     l_fresh_buffer.close();
 
@@ -131,9 +142,9 @@ create or replace package body test_output_buffer is
 
     --Assert
     -- Data in "fresh" buffer remains
-    ut.expect( l_fresh_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_have_count(1);
+    ut.expect( l_fresh_buffer.get_lines_cursor(0,0), l_fresh_buffer.self_type ).to_have_count(1);
     -- Data in "stale" buffer is purged and so the call to get_lines_cursor throws ORA-20218
-    ut.expect( l_stale_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_be_empty();
+    ut.expect( l_stale_buffer.get_lines_cursor(0,0), l_stale_buffer.self_type ).to_be_empty();
   end;
 
   procedure test_purge_text_buffer is

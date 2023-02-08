@@ -92,7 +92,6 @@ create or replace type body ut_coverage_reporter_base is
     ut_coverage_helper.cleanup_tmp_table();
     (l_reporter as ut_output_reporter_base).before_calling_run(null);
     l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options, a_client_character_set => a_client_character_set ) );
-    l_reporter.on_finalize(null);
     for i in (select /*+ no_parallel */ x.text from table(l_reporter.get_lines(1, 1)) x ) loop
       pipe row (i.text);
     end loop;
@@ -106,7 +105,6 @@ create or replace type body ut_coverage_reporter_base is
     ut_coverage_helper.cleanup_tmp_table();
     (l_reporter as ut_output_reporter_base).before_calling_run(null);
     l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options, a_client_character_set => a_client_character_set ) );
-    l_reporter.on_finalize(null);
     open l_result for select /*+ no_parallel */ x.text from table(l_reporter.get_lines(1, 1)) x;
     return l_result;
   end;

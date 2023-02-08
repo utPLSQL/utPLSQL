@@ -20,8 +20,7 @@ create or replace type ut_output_reporter_base under ut_reporter_base(
   member procedure init(self in out nocopy ut_output_reporter_base, a_self_type varchar2, a_output_buffer ut_output_buffer_base := null),
   overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw),
   member function  set_reporter_id(self in ut_output_reporter_base, a_reporter_id raw) return ut_output_reporter_base,
-  overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run),
-  
+
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2, a_item_type varchar2 := null),
   member procedure print_text_lines(self in out nocopy ut_output_reporter_base, a_text_lines ut_varchar2_rows, a_item_type varchar2 := null),
   member procedure print_clob(self in out nocopy ut_output_reporter_base, a_clob clob, a_item_type varchar2 := null),

@@ -305,15 +305,6 @@ create or replace package body coverage_helper is
     return l_status;
   end;
 
-  procedure sleep(a_time number) is
-  begin
-    $if dbms_db_version.version >= 18 $then
-      dbms_session.sleep(a_time);
-    $else
-      dbms_lock.sleep(a_time );
-    $end
-  end;
-
   procedure run_job_and_wait_for_finish(a_job_action varchar2) is
     l_status          varchar2(1000);
     l_job_name        varchar2(30);
@@ -323,7 +314,7 @@ create or replace package body coverage_helper is
   begin
     g_job_no := g_job_no + 1;
     l_job_name := 'utPLSQL_selftest_job_'||g_job_no;
-    sleep(0.15);
+    dbms_lock.sleep(0.15);
     dbms_scheduler.create_job(
       job_name      =>  l_job_name,
       job_type      =>  'PLSQL_BLOCK',
@@ -333,13 +324,13 @@ create or replace package body coverage_helper is
       auto_drop     =>  TRUE,
       comments      =>  'one-time-job'
       );
-    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 150 loop
+    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 300 loop
       l_status := get_job_status( l_job_name, l_timestamp );
-      sleep(0.1);
+      dbms_lock.sleep(0.1);
       i := i + 1;
     end loop;
     commit;
-    if l_status = 'FAILED' then
+    if nvl(l_status,'null') <> 'SUCCEEDED' then
       raise_application_error(-20000, 'Running a scheduler job failed');
     end if;
   end;
@@ -378,7 +369,7 @@ create or replace package body coverage_helper is
     pragma autonomous_transaction;
   begin
     run_job_and_wait_for_finish( a_plsql_block );
-
+    dbms_lock.sleep(0.1);
     execute immediate q'[
       declare
         l_results ut3_develop.ut_varchar2_list;

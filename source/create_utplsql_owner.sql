@@ -31,15 +31,7 @@ create user &ut3_owner_schema identified by "&ut3_password" default tablespace &
 
 grant create session, create sequence, create procedure, create type, create table, create view, create synonym to &ut3_owner_schema;
 
-begin
-  $if dbms_db_version.version < 18 $then
-    execute immediate 'grant execute on dbms_lock to &ut3_owner_schema';
-  $else
-    null;
-  $end
-end;
-/
-
+grant execute on dbms_lock to &ut3_owner_schema;
 grant execute on dbms_crypto to &ut3_owner_schema;
 grant execute on dbms_lob    to &ut3_owner_schema;
 grant execute on dbms_xmlgen to &ut3_owner_schema;
