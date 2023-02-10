@@ -73,6 +73,20 @@ create or replace type body ut_output_table_buffer is
     end if;
   end;
 
+  overriding member procedure lines_to_dbms_output(self in ut_output_table_buffer, a_initial_timeout number := null, a_timeout_sec number := null) is
+    l_data      sys_refcursor;
+    l_text      varchar2(32767);
+    l_item_type varchar2(32767);
+  begin
+    l_data := self.get_lines_cursor(a_initial_timeout, a_timeout_sec);
+    loop
+      fetch l_data into l_text, l_item_type;
+      exit when l_data%notfound;
+      dbms_output.put_line(l_text);
+    end loop;
+    close l_data;
+  end;
+
   overriding member procedure get_data_from_buffer_table(
     self in ut_output_table_buffer,
     a_last_read_message_id in out nocopy integer,

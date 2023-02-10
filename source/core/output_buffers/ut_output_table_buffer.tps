@@ -20,6 +20,7 @@ create or replace type ut_output_table_buffer under ut_output_buffer_base (
   overriding member procedure send_line(self in out nocopy ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null),
   overriding member procedure send_lines(self in out nocopy ut_output_table_buffer, a_text_list ut_varchar2_rows, a_item_type varchar2 := null),
   overriding member procedure send_clob(self in out nocopy ut_output_table_buffer, a_text clob, a_item_type varchar2 := null),
+  overriding member procedure lines_to_dbms_output(self in ut_output_table_buffer, a_initial_timeout number := null, a_timeout_sec number := null),
   overriding member procedure get_data_from_buffer_table(
       self in ut_output_table_buffer,
       a_last_read_message_id in out nocopy integer,

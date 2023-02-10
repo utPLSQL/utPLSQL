@@ -179,10 +179,14 @@ create or replace type body ut_output_buffer_base is
     loop
       fetch l_data into l_clob, l_item_type;
       exit when l_data%notfound;
-      l_lines := ut_utils.clob_to_table(l_clob);
-      for i in 1 .. l_lines.count loop
-        dbms_output.put_line(l_lines(i));
-      end loop;
+      if dbms_lob.getlength(l_clob) > 32767 then
+        l_lines := ut_utils.clob_to_table(l_clob);
+        for i in 1 .. l_lines.count loop
+          dbms_output.put_line(l_lines(i));
+        end loop;
+      else
+        dbms_output.put_line(l_clob);
+      end if;
     end loop;
     close l_data;
   end;
