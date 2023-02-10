@@ -38,7 +38,7 @@ create or replace package body test_output_buffer is
     l_buffer  ut3_develop.ut_output_buffer_base;
   begin
     l_buffer := ut3_develop.ut_output_clob_table_buffer();
-    ut.expect( l_buffer.get_lines_cursor(0.1,0) ).to_be_empty();
+    ut.expect( l_buffer.get_lines_cursor(0.1) ).to_be_empty();
   end;
 
   procedure test_doesnt_send_on_null_text is
