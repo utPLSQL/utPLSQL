@@ -64,100 +64,51 @@ create or replace type body ut_output_buffer_base is
       commit;
     end;
 
-  member function get_lines(a_initial_timeout number := null, a_timeout_sec number := null) return ut_output_data_rows pipelined is
-    lc_init_wait_sec        constant number := coalesce(a_initial_timeout, 10 );
-    lc_100_milisec          constant number(1,1) := 0.1; --sleep for 100 ms between checks
-    lc_500_milisec          constant number(3,1) := 0.5;     --sleep for 1 s when waiting long
-    lc_1_second             constant number(3,1) := 1;
-    l_buffer_rowids         ut_varchar2_rows;
-    l_buffer_data           ut_output_data_rows;
-    l_finished_flags        ut_integer_list;
-    l_last_read_message_id  integer;
-    l_already_waited_sec    number(10,2) := 0;
-    l_data_finished         boolean := false;
-    l_finished              boolean := false;
-    l_sleep_time            number(2,1) := lc_100_milisec;
-    l_lock_status           integer;
-    l_producer_started      boolean := false;
-    l_producer_finished     boolean := false;
-    function get_lock_status return integer is
-      l_result integer;
-      l_release_status integer;
-    begin
-      l_result := dbms_lock.request( self.lock_handle, dbms_lock.s_mode, 0, false );
-      if l_result = 0 then
-        l_release_status := dbms_lock.release( self.lock_handle );
-      end if;
-      return l_result;
-    end;
+  member function timeout_producer_not_started( a_producer_started boolean, a_already_waited_sec number, a_init_wait_sec number ) return boolean
+  is
+    l_result boolean := false;
   begin
-    while not l_finished loop
-
-      --check if the lock is still there on output - if yes, the main session is still running and so don't stop
-      l_lock_status := get_lock_status();
-      get_data_from_buffer_table( l_last_read_message_id, l_buffer_data, l_buffer_rowids, l_finished_flags );
-
-      --nothing fetched from output, wait and try again
-      if l_buffer_data.count = 0 then
-
-        dbms_lock.sleep(l_sleep_time);
-        l_already_waited_sec := l_already_waited_sec + l_sleep_time;
-
-        -- if waited more than lc_1_second seconds then increase wait period to minimize the CPU usage.
-        if l_already_waited_sec >= lc_1_second then
-          l_sleep_time := lc_500_milisec;
-        end if;
-
+    if not a_producer_started and a_already_waited_sec >= a_init_wait_sec then
+      if a_init_wait_sec > 0 then
+        self.remove_buffer_info();
+        raise_application_error(
+          ut_utils.gc_out_buffer_timeout,
+          'Timeout occurred while waiting for report data producer to start. Waited for: '||ut_utils.to_string( a_already_waited_sec )||' seconds.'
+        );
       else
-
-        l_already_waited_sec := 0;
-        l_sleep_time := lc_100_milisec;
-
-        for i in 1 .. l_buffer_data.count loop
-          if l_buffer_data(i).text is not null then
-            pipe row( l_buffer_data(i) );
-          elsif l_finished_flags(i) = 1 then
-            l_data_finished := true;
-            exit;
-          end if;
-        end loop;
-
-        remove_read_data(l_buffer_rowids);
-
+        l_result := true;
       end if;
-      l_producer_started := (l_lock_status <> 0 or l_buffer_data.count > 0) or l_producer_started;
-      l_producer_finished := (l_producer_started and l_lock_status = 0 and l_buffer_data.count = 0) or l_producer_finished;
+    end if;
+    return l_result;
+  end;
 
-      if not l_producer_started and l_already_waited_sec >= lc_init_wait_sec then
-
-        if lc_init_wait_sec > 0 then
-          self.remove_buffer_info();
-          raise_application_error(
-            ut_utils.gc_out_buffer_timeout,
-            'Timeout occurred while waiting for report data producer to start. Waited for: '||ut_utils.to_string( l_already_waited_sec )||' seconds.'
-          );
-        else
-          l_finished := true;
-        end if;
-
-      elsif not l_producer_finished and a_timeout_sec is not null and l_already_waited_sec >= a_timeout_sec then
-
-        if a_timeout_sec > 0 then
-          self.remove_buffer_info();
-          raise_application_error(
-            ut_utils.gc_out_buffer_timeout,
-            'Timeout occurred while waiting for more data from producer. Waited for: '||ut_utils.to_string( l_already_waited_sec )||' seconds.'
-          );
-        else
-          l_finished := true;
-        end if;
-
-      elsif (l_data_finished or l_producer_finished) then
-        l_finished := true;
+  member function timeout_producer_not_finished(a_producer_finished boolean, a_already_waited_sec number, a_timeout_sec number) return boolean
+  is
+    l_result boolean := false;
+  begin
+    if not a_producer_finished and a_timeout_sec is not null and a_already_waited_sec >= a_timeout_sec then
+      if a_timeout_sec > 0 then
+        self.remove_buffer_info();
+        raise_application_error(
+          ut_utils.gc_out_buffer_timeout,
+          'Timeout occurred while waiting for more data from producer. Waited for: '||ut_utils.to_string( a_already_waited_sec )||' seconds.'
+        );
+      else
+        l_result := true;
       end if;
-    end loop;
-    self.remove_buffer_info();
-    return;
+    end if;
+    return l_result;
+  end;
+
+  member function get_lock_status return integer is
+    l_result integer;
+    l_release_status integer;
+  begin
+    l_result := dbms_lock.request( self.lock_handle, dbms_lock.s_mode, 0, false );
+    if l_result = 0 then
+      l_release_status := dbms_lock.release( self.lock_handle );
+    end if;
+    return l_result;
   end;
 
   member function get_lines_cursor(a_initial_timeout number := null, a_timeout_sec number := null) return sys_refcursor is

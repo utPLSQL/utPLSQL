@@ -55,36 +55,86 @@ create or replace type body ut_output_clob_table_buffer is
     commit;
   end;
 
-  overriding member procedure get_data_from_buffer_table(
-      self in ut_output_clob_table_buffer,
-      a_last_read_message_id in out nocopy integer,
-      a_buffer_data    out nocopy ut_output_data_rows,
-      a_buffer_rowids  out nocopy ut_varchar2_rows,
-      a_finished_flags out nocopy ut_integer_list
-    ) is
-    lc_bulk_limit           constant integer     := 5000;
-  begin
-    a_last_read_message_id := coalesce(a_last_read_message_id, 0);
-    with ordered_buffer as (
-      select  /*+ no_parallel index(a) */ ut_output_data_row(a.text, a.item_type), rowidtochar(a.rowid), is_finished
-        from ut_output_clob_buffer_tmp a
-       where a.output_id = self.output_id
-         and a.message_id <= a_last_read_message_id + lc_bulk_limit
-       order by a.message_id
-    )
-    select /*+ no_parallel */ b.*
-      bulk collect into a_buffer_data, a_buffer_rowids, a_finished_flags
-      from ordered_buffer b;
-    a_last_read_message_id := a_last_read_message_id + a_finished_flags.count;
-  end;
+  overriding member function get_lines(a_initial_timeout number := null, a_timeout_sec number := null) return ut_output_data_rows pipelined is
+    lc_init_wait_sec        constant number := coalesce(a_initial_timeout, 10 );
+    l_buffer_rowids         ut_varchar2_rows;
+    l_buffer_data           ut_output_data_rows;
+    l_finished_flags        ut_integer_list;
+    l_last_read_message_id  integer;
+    l_already_waited_sec    number(10,2) := 0;
+    l_finished              boolean := false;
+    l_sleep_time            number(2,1);
+    l_lock_status           integer;
+    l_producer_started      boolean := false;
+    l_producer_finished     boolean := false;
+    procedure get_data_from_buffer_table(
+        a_last_read_message_id in out nocopy integer,
+        a_buffer_data    out nocopy ut_output_data_rows,
+        a_buffer_rowids  out nocopy ut_varchar2_rows,
+        a_finished_flags out nocopy ut_integer_list
+      ) is
+      lc_bulk_limit           constant integer     := 5000;
+    begin
+      a_last_read_message_id := coalesce(a_last_read_message_id, 0);
+      with ordered_buffer as (
+        select  /*+ no_parallel index(a) */ ut_output_data_row(a.text, a.item_type), rowidtochar(a.rowid), is_finished
+          from ut_output_clob_buffer_tmp a
+         where a.output_id = self.output_id
+           and a.message_id <= a_last_read_message_id + lc_bulk_limit
+         order by a.message_id
+      )
+      select /*+ no_parallel */ b.*
+        bulk collect into a_buffer_data, a_buffer_rowids, a_finished_flags
+        from ordered_buffer b;
+      a_last_read_message_id := a_last_read_message_id + a_finished_flags.count;
+    end;
 
-  overriding member procedure remove_read_data(self in ut_output_clob_table_buffer, a_buffer_rowids ut_varchar2_rows) is
-      pragma autonomous_transaction;
+    procedure remove_read_data(a_buffer_rowids ut_varchar2_rows) is
+        pragma autonomous_transaction;
+    begin
+      forall i in 1 .. a_buffer_rowids.count
+        delete from ut_output_clob_buffer_tmp a
+         where rowid = chartorowid(a_buffer_rowids(i));
+      commit;
+    end;
+
   begin
-    forall i in 1 .. a_buffer_rowids.count
-      delete from ut_output_clob_buffer_tmp a
-       where rowid = chartorowid(a_buffer_rowids(i));
-    commit;
+    while not l_finished loop
+
+      l_sleep_time := case when l_already_waited_sec >= 1 then 0.5 else 0.1 end;
+      l_lock_status := self.get_lock_status();
+      get_data_from_buffer_table( l_last_read_message_id, l_buffer_data, l_buffer_rowids, l_finished_flags );
+
+      if l_buffer_data.count > 0 then
+        l_already_waited_sec := 0;
+        for i in 1 .. l_buffer_data.count loop
+          if l_buffer_data(i).text is not null then
+            pipe row( l_buffer_data(i)  );
+          elsif l_finished_flags(i) = 1 then
+            l_finished := true;
+            exit;
+          end if;
+        end loop;
+        remove_read_data(l_buffer_rowids);
+      else
+        --nothing fetched from output, wait.
+        dbms_lock.sleep(l_sleep_time);
+        l_already_waited_sec := l_already_waited_sec + l_sleep_time;
+      end if;
+
+      l_producer_started := (l_lock_status <> 0 or l_buffer_data.count > 0) or l_producer_started;
+      l_producer_finished := (l_producer_started and l_lock_status = 0 and l_buffer_data.count = 0) or l_producer_finished;
+
+      l_finished :=
+        self.timeout_producer_not_finished(l_producer_finished, l_already_waited_sec, a_timeout_sec)
+        or self.timeout_producer_not_started(l_producer_started, l_already_waited_sec, lc_init_wait_sec)
+        or l_producer_finished
+        or l_finished;
+
+    end loop;
+
+    self.remove_buffer_info();
+    return;
   end;
 
 end;
