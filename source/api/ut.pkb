@@ -222,10 +222,15 @@ create or replace package body ut is
         raise_if_packages_invalidated();
         raise no_data_found;
       end if;
-      g_result_lines   := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
-      g_result_line_no := g_result_lines.first;
+      if l_clob is not null and l_clob != empty_clob() then
+        if length(l_clob) > ut_utils.gc_max_storage_varchar2_len then
+          g_result_lines   := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        else
+          g_result_lines   := ut_varchar2_list(l_clob);
+        end if;
+        g_result_line_no := g_result_lines.first;
+      end if;
     end if;
-    
     if g_result_line_no is not null then
       l_result         := g_result_lines(g_result_line_no);
       g_result_line_no := g_result_lines.next(g_result_line_no);
@@ -274,6 +279,7 @@ create or replace package body ut is
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
+        g_result_lines := ut_varchar2_list();
         pipe row( get_report_outputs( l_results ) );
       end loop;
     end if;
