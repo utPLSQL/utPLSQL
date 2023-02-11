@@ -121,7 +121,7 @@ The headless scripts accept three optional parameters that define:
 The scripts need to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
 
 !!! warning "Important"
-    - Grant on `DBMS_LOCK` is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses `DBMS_SESSION.SLEEP` so access to `DBMS_LOCK` package is no longer needed.<br>
+    - `DBMS_LOCK` is required for session synchronization between main session and session consuming realtime reports.<br>
     - The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.<br>
     - When installed with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.<br>
         - For Oracle 11g following users are excluded:<br>

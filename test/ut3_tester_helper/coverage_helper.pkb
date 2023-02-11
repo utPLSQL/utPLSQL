@@ -290,11 +290,11 @@ create or replace package body coverage_helper is
     ut3_develop.ut_runner.coverage_stop();
   end;
 
-  function get_job_status(a_job_name varchar2, a_job_started_after timestamp with time zone) return varchar2 is
-    l_status varchar2(1000);
+  function get_job_status(a_job_name varchar2, a_job_started_after timestamp with time zone) return user_scheduler_job_run_details%rowtype is
+    l_result user_scheduler_job_run_details%rowtype;
   begin
     begin
-      select status into l_status
+      select * into l_result
         from user_scheduler_job_run_details
        where job_name = upper(a_job_name)
          and req_start_date >= a_job_started_after;
@@ -302,20 +302,11 @@ create or replace package body coverage_helper is
       when no_data_found then
       null;
     end;
-    return l_status;
-  end;
-
-  procedure sleep(a_time number) is
-  begin
-    $if dbms_db_version.version >= 18 $then
-      dbms_session.sleep(a_time);
-    $else
-      dbms_lock.sleep(a_time );
-    $end
+    return l_result;
   end;
 
   procedure run_job_and_wait_for_finish(a_job_action varchar2) is
-    l_status          varchar2(1000);
+    l_job_run_info    user_scheduler_job_run_details%rowtype;
     l_job_name        varchar2(30);
     l_timestamp       timestamp with time zone := current_timestamp;
     i integer := 0;
@@ -323,7 +314,7 @@ create or replace package body coverage_helper is
   begin
     g_job_no := g_job_no + 1;
     l_job_name := 'utPLSQL_selftest_job_'||g_job_no;
-    sleep(0.15);
+    dbms_lock.sleep(0.15);
     dbms_scheduler.create_job(
       job_name      =>  l_job_name,
       job_type      =>  'PLSQL_BLOCK',
@@ -333,14 +324,14 @@ create or replace package body coverage_helper is
       auto_drop     =>  TRUE,
       comments      =>  'one-time-job'
       );
-    while (l_status is null or l_status not in ('SUCCEEDED','FAILED')) and i < 150 loop
-      l_status := get_job_status( l_job_name, l_timestamp );
-      sleep(0.1);
+    while (l_job_run_info.status is null or l_job_run_info.status not in ('SUCCEEDED','FAILED')) and i < 6000 loop
+      l_job_run_info := get_job_status( l_job_name, l_timestamp );
+      dbms_lock.sleep(0.1);
       i := i + 1;
     end loop;
     commit;
-    if l_status = 'FAILED' then
-      raise_application_error(-20000, 'Running a scheduler job failed');
+    if nvl(l_job_run_info.status,'null') <> 'SUCCEEDED' then
+      raise_application_error(-20000, 'Scheduler job '''||l_job_name||''', status='''||l_job_run_info.status||'''. Additional info: '||l_job_run_info.additional_info);
     end if;
   end;
 
@@ -378,7 +369,7 @@ create or replace package body coverage_helper is
     pragma autonomous_transaction;
   begin
     run_job_and_wait_for_finish( a_plsql_block );
-
+    dbms_lock.sleep(0.1);
     execute immediate q'[
       declare
         l_results ut3_develop.ut_varchar2_list;

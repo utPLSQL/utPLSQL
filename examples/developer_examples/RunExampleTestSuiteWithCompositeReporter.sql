@@ -20,6 +20,7 @@ begin
   ut_event_manager.initialize();
   ut_event_manager.add_listener(l_doc_reporter);
   ut_event_manager.add_listener(l_tc_reporter);
+  ut_event_manager.trigger_event(ut_event_manager.gc_initialize, l_run);
 
   l_suite := ut_suite(user, 'ut_exampletest',a_line_no=>1);
   l_suite.description := 'Test Suite Name';
