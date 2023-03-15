@@ -395,13 +395,13 @@ create or replace package test_expectations_cursor is
   procedure not_cont_join_incl_cols_as_lst;
   
   --%test(Cursor not_to[contain] data with of columns to include and join by value)
-  procedure not_cont_join_incl_cols_as_lst2;
+  procedure not_con_join_incl_cols_as_lst2;
 
   --%test(Cursor not contains data with of columns to exclude and join by value)
   procedure not_cont_join_excl_cols_as_lst; 
 
   --%test(Cursor not_to[contain] data with of columns to exclude and join by value)
-  procedure not_cont_join_excl_cols_as_lst2; 
+  procedure not_con_join_excl_cols_as_lst2; 
 
   --%test(Cursor to contain duplicates)
   procedure to_contain_duplicates;

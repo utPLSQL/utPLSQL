@@ -2448,7 +2448,7 @@ Diff:%
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
-  procedure not_cont_join_incl_cols_as_lst2 is
+  procedure not_con_join_incl_cols_as_lst2 is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
@@ -2474,7 +2474,7 @@ Diff:%
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
-  procedure not_cont_join_excl_cols_as_lst2 is
+  procedure not_con_join_excl_cols_as_lst2 is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
