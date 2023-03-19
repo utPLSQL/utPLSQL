@@ -195,6 +195,9 @@ create or replace package test_expectation_anydata is
   --%test( Success when anydata collection contains data from another anydata collection)
   procedure collection_to_contain; 
   
+  --%test( Success when anydata collection not contains data from another anydata collection)
+  procedure collection_not_to_contain;  
+
   --%test( Success when anydata object contains data from another anydata)
   procedure object_to_contain;     
   
