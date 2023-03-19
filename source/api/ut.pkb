@@ -278,8 +278,8 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
-        g_result_lines := ut_varchar2_list();
         pipe row( get_report_outputs( l_results ) );
       end loop;
     end if;
@@ -326,6 +326,7 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
         pipe row( get_report_outputs( l_results ) );
       end loop;
@@ -374,6 +375,7 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
         pipe row( get_report_outputs( l_results ) );
       end loop;
@@ -422,6 +424,7 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
         pipe row( get_report_outputs( l_results ) );
       end loop;
@@ -470,6 +473,7 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
         pipe row( get_report_outputs( l_results ) );
       end loop;
@@ -518,6 +522,7 @@ create or replace package body ut is
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      g_result_lines := ut_varchar2_list();
       loop
         pipe row( get_report_outputs( l_results ) );
       end loop;

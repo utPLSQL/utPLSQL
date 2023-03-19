@@ -570,6 +570,7 @@ create or replace package body ut_utils is
       end loop;
       exit when l_lines_data%notfound;
     end loop;
+    close l_lines_data;
     execute immediate 'truncate table ut_dbms_output_cache';
     commit;
   end;

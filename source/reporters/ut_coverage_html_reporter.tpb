@@ -22,7 +22,7 @@ create or replace type body ut_coverage_html_reporter is
     a_html_report_assets_path varchar2 := null
   ) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_bulk_buffer());
     self.project_name := a_project_name;
     assets_path := nvl(a_html_report_assets_path, ut_coverage_report_html_helper.get_default_html_assets_path());
     return;

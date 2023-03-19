@@ -20,7 +20,7 @@ create or replace type body ut_coverage_sonar_reporter is
     self in out nocopy ut_coverage_sonar_reporter
   ) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_bulk_buffer());
     return;
   end;
 
@@ -84,6 +84,12 @@ create or replace type body ut_coverage_sonar_reporter is
   end;
   
   begin
+--     execute immediate 'alter session set statistics_level=all';
+--     dbms_hprof.start_profiling(
+--       location => 'PLSHPROF_DIR'
+--       , filename => 'profiler_utPLSQL_run_on_'||$$plsql_unit||'_'||rawtohex(self.id)||'.txt'
+--     );
+--
     ut_coverage.coverage_stop();
 
     self.print_text_lines(
@@ -92,6 +98,7 @@ create or replace type body ut_coverage_sonar_reporter is
         a_run
       )
     );
+--     dbms_hprof.stop_profiling;
   end;
 
   overriding member function get_description return varchar2 as

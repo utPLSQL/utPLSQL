@@ -18,7 +18,7 @@ create or replace type body ut_tfs_junit_reporter is
 
   constructor function ut_tfs_junit_reporter(self in out nocopy ut_tfs_junit_reporter) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_bulk_buffer());
     return;
   end;
 

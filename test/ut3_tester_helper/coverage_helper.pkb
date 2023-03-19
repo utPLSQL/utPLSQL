@@ -493,8 +493,8 @@ create or replace package body coverage_helper is
       x dbms_output.chararr;
       i integer := 100000;
     begin
-      execute immediate 'alter session set statistics_level=all';
 /*
+      execute immediate 'alter session set statistics_level=all';
       dbms_hprof.start_profiling(
         location => 'PLSHPROF_DIR'
         , filename => 'profiler_utPLSQL_run_]'||rawtohex(l_coverage_id)||q'[.txt'
