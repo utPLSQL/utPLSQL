@@ -49,7 +49,7 @@ create or replace type body ut_output_bulk_buffer is
     select /*+ no_parallel */ self.output_id, self.last_write_message_id + rownum, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
-    self.last_write_message_id := self.last_write_message_id + SQL%rowcount;
+    self.last_write_message_id := self.last_write_message_id + sql%rowcount;
     commit;
   end;
 
@@ -87,15 +87,16 @@ create or replace type body ut_output_bulk_buffer is
       exit when l_data%notfound;
     end loop;
     close l_data;
+    self.remove_buffer_info();
   end;
 
   overriding member function get_lines_cursor(a_initial_timeout number := null, a_timeout_sec number := null) return sys_refcursor is
-    lc_init_wait_sec        constant number := coalesce(a_initial_timeout, 30 );
+    lc_init_wait_sec        constant number := coalesce(a_initial_timeout, 10 );
     l_already_waited_sec    number(10,2) := 0;
     l_sleep_time            number(2,1);
     l_exists                integer;
     l_finished              boolean := false;
-    l_data_produced         boolean;
+    l_data_produced         boolean := false;
     l_producer_active       boolean := false;
     l_producer_started      boolean := false;
     l_producer_finished     boolean := false;
@@ -115,11 +116,13 @@ create or replace type body ut_output_bulk_buffer is
       l_producer_active := (self.get_lock_status() <> 0);
       l_producer_started := (l_producer_active or l_data_produced ) or l_producer_started;
       l_producer_finished := (l_producer_started and not l_producer_active) or l_producer_finished;
-
       l_finished :=
         self.timeout_producer_not_finished(l_producer_finished, l_already_waited_sec, a_timeout_sec)
         or self.timeout_producer_not_started(l_producer_started, l_already_waited_sec, lc_init_wait_sec)
         or l_producer_finished;
+
+      dbms_lock.sleep(l_sleep_time);
+      l_already_waited_sec := l_already_waited_sec + l_sleep_time;
     end loop;
 
     open l_results for
@@ -152,8 +155,8 @@ create or replace type body ut_output_bulk_buffer is
       exit when l_data%notfound;
     end loop;
     close l_data;
-    return;
     self.remove_buffer_info();
+    return;
   end;
 
 end;
