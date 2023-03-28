@@ -270,7 +270,7 @@ create or replace package body ut_suite_cache_manager is
       l_tags := replace(replace_legacy_tag_notation(l_tags),' ');
     end if;
     l_tags := REGEXP_REPLACE(l_tags, 
-                      '(\(|\)|\||\!|\&)?([^|&!-]+)(\(|\)|\||\!|\&)?', 
+                      '(\(|\)|\||\!|\&)?([^|&!-()]+)(\(|\)|\||\!|\&)?', 
                       q'[\1q'<\2>' member of tags\3]');    
     --replace operands to XPath
     l_tags := REGEXP_REPLACE(l_tags, '\|',' or ');
@@ -310,12 +310,12 @@ with
     from suites_mv c where c.self_type in ('UT_TEST')
     and ]'||l_tags||q'[
   ),  
-  tests_with_tags_inherited_from_suite as (
+  tests_with_tags_inh_from_suite as (
    select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
    from suites_mv c join suites_matching_expr t 
      on (c.path||'.' like t.path || '.%' /*all descendants and self*/ and c.object_owner = t.object_owner)
   ),
-  tests_with_tags_promoted_to_suites as (
+  tests_with_tags_prom_to_suite as (
     select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
     from suites_mv c join tests_matching_expr t 
       on (t.path||'.' like c.path || '.%' /*all ancestors and self*/ and c.object_owner = t.object_owner)
@@ -323,10 +323,10 @@ with
   select obj from suites_mv c,
     (select id,row_number() over (partition by id order by id) r_num from
       (select id
-      from tests_with_tags_promoted_to_suites tst
+      from tests_with_tags_prom_to_suite tst
       where ]'||l_tags||q'[        
       union all
-      select id from tests_with_tags_inherited_from_suite tst
+      select id from tests_with_tags_inh_from_suite tst
       where ]'||l_tags||q'[   
       )
     ) t where c.id = t.id and r_num = 1 ]';

@@ -94,9 +94,6 @@ create or replace package ut_suite_cache_manager authid definer is
     a_package_name   varchar2,
     a_procedure_name varchar2
   ) return boolean;
-
-
-function create_where_filter(a_tags varchar2
-  ) return varchar2;
+ 
 end ut_suite_cache_manager;
 /
