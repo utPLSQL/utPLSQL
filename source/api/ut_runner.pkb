@@ -79,7 +79,8 @@ create or replace package body ut_runner is
     l_coverage_schema_names   ut_varchar2_rows;
     l_paths                   ut_varchar2_list;
     l_random_test_order_seed  positive;
-    l_tags                    ut_varchar2_rows := ut_varchar2_rows();
+    l_tags                    varchar2(4000) := a_tags;
+    
   begin
     ut_event_manager.initialize();
     if a_reporters is not empty then
@@ -94,6 +95,11 @@ create or replace package body ut_runner is
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
 
+    --Verify tag tag expression is valid
+    if regexp_like(l_tags,'[&|]{2,}|[!-]{2,}|[!-][&|]|[^-&|!]+[-!]|[-!|&][)]')
+      or (regexp_count(l_tags,'\(') <> regexp_count(l_tags,'\)')) then
+      raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression');
+    end if;
     if a_random_test_order_seed is not null then
       l_random_test_order_seed  := a_random_test_order_seed;
     elsif a_random_test_order then
@@ -118,12 +124,6 @@ create or replace package body ut_runner is
         l_coverage_schema_names := ut_suite_manager.get_schema_names(l_paths);
       end if;
 
-
-      if a_tags is not null then
-        l_tags := l_tags multiset union distinct ut_utils.convert_collection(
-          ut_utils.trim_list_elements(ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),ut_utils.gc_word_no_space))
-        );
-      end if;
       l_run := ut_run(
         a_run_paths => l_paths,
         a_coverage_options => ut_coverage_options(

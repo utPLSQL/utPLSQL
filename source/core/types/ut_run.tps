@@ -1,4 +1,4 @@
-create or replace type ut_run under ut_suite_item (
+create or replace type ut_run force under ut_suite_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2021 utPLSQL Project
@@ -21,7 +21,7 @@ create or replace type ut_run under ut_suite_item (
   project_name                   varchar2(4000),
   items                          ut_suite_items,
   run_paths                      ut_varchar2_list,
-  run_tags                       ut_varchar2_rows,
+  run_tags                       varchar2(4000),
   coverage_options               ut_coverage_options,
   test_file_mappings             ut_file_mappings,
   client_character_set           varchar2(100),
@@ -34,7 +34,7 @@ create or replace type ut_run under ut_suite_item (
     a_test_file_mappings     ut_file_mappings := null,
     a_client_character_set   varchar2 := null,
     a_random_test_order_seed positive := null,
-    a_run_tags               ut_varchar2_rows := null
+    a_run_tags               varchar2 := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_run,a_skip_reason in varchar2),
   overriding member function  do_execute(self in out nocopy ut_run) return boolean,

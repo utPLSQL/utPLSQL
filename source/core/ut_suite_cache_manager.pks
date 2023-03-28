@@ -57,7 +57,7 @@ create or replace package ut_suite_cache_manager authid definer is
   function get_cached_suite_rows(
     a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
-    a_tags             ut_varchar2_rows := null
+    a_tags             varchar2 := null
   ) return ut_suite_cache_rows;
   
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
@@ -95,5 +95,8 @@ create or replace package ut_suite_cache_manager authid definer is
     a_procedure_name varchar2
   ) return boolean;
 
+
+function create_where_filter(a_tags varchar2
+  ) return varchar2;
 end ut_suite_cache_manager;
 /

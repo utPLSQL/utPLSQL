@@ -121,6 +121,10 @@ create or replace package ut_utils authid definer is
   ex_failed_open_cur exception;
   gc_failed_open_cur constant pls_integer := -20218;
   pragma exception_init (ex_failed_open_cur, -20218);  
+
+  ex_invalid_tag_expression exception;
+  gc_invalid_tag_expression constant pls_integer := -20219;
+  pragma exception_init (ex_invalid_tag_expression, -20219);  
   
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;

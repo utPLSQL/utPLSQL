@@ -205,7 +205,7 @@ create or replace package body ut_suite_builder is
         l_tag_items := ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),','));
         if l_tag_items is not empty then
           for i in 1 .. l_tag_items.count loop
-            if regexp_like(l_tag_items(i),'^[^-](\S)+$') then
+            if regexp_like(l_tag_items(i),'^[^-!&|](\S)+$') then
               l_tags_list.extend();
               l_tags_list(l_tags_list.last) := l_tag_items(i);
             else

@@ -222,51 +222,117 @@ create or replace package body ut_suite_cache_manager is
   end;
   
   /*
+    To support a legact tag notation 
+    , = OR
+    - = NOT
+    we will perform a replace of that characters into
+    new notation.
+    || = OR
+    && = AND
+    ^  = NOT
+  */
+  --TODO: How do we prevent when old notation reach 4k an new will be longer?
+  function replace_legacy_tag_notation(a_tags varchar2
+  ) return varchar2 is
+    l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
+    l_tags_include varchar2(2000);
+    l_tags_exclude varchar2(2000);
+    l_return_tag varchar2(4000);
+  begin
+    select listagg( t.column_value,' | ')
+      within group( order by column_value) 
+    into l_tags_include
+    from table(l_tags) t
+    where t.column_value not like '-%';
+    
+    select listagg( replace(t.column_value,'-','!'),' & ')
+      within group( order by column_value) 
+    into l_tags_exclude
+    from table(l_tags) t
+    where t.column_value like '-%';   
+    
+    l_return_tag:= 
+    case when l_tags_include is not null then 
+      '('||l_tags_include||')' else null end  ||
+    case when l_tags_include is not null and l_tags_exclude is not null then
+    ' & ' else null end ||
+    case when l_tags_exclude is not null then 
+    '('||l_tags_exclude||')' else null end;
+      
+    return l_return_tag;
+  end;
+    
+  function create_where_filter(a_tags varchar2
+  ) return varchar2 is
+    l_tags varchar2(4000):= replace(a_tags,' ');
+  begin
+    if instr(l_tags,',') > 0 or instr(l_tags,'-') > 0 then
+      l_tags := replace(replace_legacy_tag_notation(l_tags),' ');
+    end if;
+    l_tags := REGEXP_REPLACE(l_tags, 
+                      '(\(|\)|\||\!|\&)?([^|&!-]+)(\(|\)|\||\!|\&)?', 
+                      q'[\1q'<\2>' member of tags\3]');    
+    --replace operands to XPath
+    l_tags := REGEXP_REPLACE(l_tags, '\|',' or ');
+    l_tags := REGEXP_REPLACE(l_tags , '\&',' and ');
+    l_tags := REGEXP_REPLACE(l_tags,q'[(\!)(q'<[^|&!-]+>')( member of tags)]','\2 not \3');
+    l_tags := '('||l_tags||')';
+    return l_tags;       
+  end;  
+  
+  /*
     Having a base set of suites we will do a further filter down if there are
     any tags defined.
-  */    
+  */      
   function get_tags_suites (
     a_suite_items ut_suite_cache_rows,
-    a_tags ut_varchar2_rows
+    a_tags varchar2
   ) return ut_suite_cache_rows is
-    l_suite_tags ut_suite_cache_rows := ut_suite_cache_rows();
-    l_include_tags    ut_varchar2_rows;
-    l_exclude_tags    ut_varchar2_rows;    
+    l_suite_tags      ut_suite_cache_rows := ut_suite_cache_rows();  
+    l_sql varchar2(32000);
+    l_tags varchar2(4000):= create_where_filter(a_tags);
   begin
-
-    select /*+ no_parallel */ column_value
-      bulk collect into l_include_tags
-      from table(a_tags)
-     where column_value not like '-%';
-
-    select /*+ no_parallel */ ltrim(column_value,'-')
-      bulk collect into l_exclude_tags
-      from table(a_tags)
-     where column_value like '-%';  
-  
-    with included_tags as (
-        select c.path as path
-          from table(a_suite_items) c
-         where c.tags multiset intersect l_include_tags is not empty or l_include_tags is empty
-       ),
-       excluded_tags as (
-        select c.path as path
-          from table(a_suite_items) c
-         where c.tags multiset intersect l_exclude_tags is not empty
-       )
-       select value(c) as obj
-       bulk collect into  l_suite_tags
-         from table(a_suite_items) c
-        where exists (
-          select 1 from included_tags t
-           where t.path||'.' like c.path || '.%' /*all ancestors and self*/
-              or c.path||'.' like t.path || '.%' /*all descendants and self*/
-          )
-        and not exists (
-          select 1 from excluded_tags t
-           where c.path||'.' like t.path || '.%' /*all descendants and self*/
-          );
-    return l_suite_tags;      
+    l_sql :=
+    q'[
+with 
+  suites_mv as (
+    select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags
+    from table(:suite_items) c
+  ),
+  suites_matching_expr as (
+    select c.id,c.path as path,c.self_type,c.object_owner,c.tags
+    from suites_mv c
+    where c.self_type in ('UT_SUITE','UT_CONTEXT')
+    and ]'||l_tags||q'[
+  ),
+  tests_matching_expr as (
+    select c.id,c.path as path,c.self_type,c.object_owner,c.tags
+    from suites_mv c where c.self_type in ('UT_TEST')
+    and ]'||l_tags||q'[
+  ),  
+  tests_with_tags_inherited_from_suite as (
+   select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
+   from suites_mv c join suites_matching_expr t 
+     on (c.path||'.' like t.path || '.%' /*all descendants and self*/ and c.object_owner = t.object_owner)
+  ),
+  tests_with_tags_promoted_to_suites as (
+    select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
+    from suites_mv c join tests_matching_expr t 
+      on (t.path||'.' like c.path || '.%' /*all ancestors and self*/ and c.object_owner = t.object_owner)
+  )
+  select obj from suites_mv c,
+    (select id,row_number() over (partition by id order by id) r_num from
+      (select id
+      from tests_with_tags_promoted_to_suites tst
+      where ]'||l_tags||q'[        
+      union all
+      select id from tests_with_tags_inherited_from_suite tst
+      where ]'||l_tags||q'[   
+      )
+    ) t where c.id = t.id and r_num = 1 ]';
+    
+    execute immediate l_sql bulk collect into  l_suite_tags using a_suite_items;   
+    return l_suite_tags;        
   end;
   
   /*
@@ -323,17 +389,17 @@ create or replace package body ut_suite_cache_manager is
   function get_cached_suite_rows(
     a_schema_paths     ut_path_items,
     a_random_seed      positive := null,
-    a_tags             ut_varchar2_rows := null
+    a_tags             varchar2 := null
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
     l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
     l_schema_paths    ut_path_items;
-    l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
+    l_tags            varchar2(4000) := a_tags;
   begin     
 
     l_schema_paths := a_schema_paths;
     l_suite_items := get_suite_items(a_schema_paths);
-    if l_tags.count > 0 then
+    if length(l_tags) > 0 then
       l_suite_items := get_tags_suites(l_suite_items,l_tags);
     end if;
     

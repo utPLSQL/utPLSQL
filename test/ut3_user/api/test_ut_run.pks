@@ -202,6 +202,9 @@ create or replace package test_ut_run is
     --%test(Execute tests by passing two tags)
     procedure two_test_run_by_two_tags;
 
+    --%test(Execute tests by passing two tags - Legacy notation)
+    procedure two_test_run_by_two_tags_leg;
+
     --%test(Execute suite and all of its children)
     procedure suite_with_children_tag;
 
@@ -235,14 +238,26 @@ create or replace package test_ut_run is
     --%test(Runs tests from given paths with paths list and a tag)
     procedure tag_run_func_path_list;
 
+    --%test(Runs tests from given paths with paths list and a tag - Legacy Notation)
+    procedure tag_run_func_path_list_leg;
+
     --%test(Runs tests from given paths with paths list and include/exclude tags)
     procedure tag_inc_exc_run_func_path_list;
+
+    --%test(Runs tests from given paths with paths list and include/exclude tags - Legacy Notation)
+    procedure tag_inc_exc_run_fun_pth_lst_lg;
 
     --%test(Runs tests from given path and excludes specific tags)
     procedure tag_exclude_run_func_path_list;
 
+    --%test(Runs tests from given path and excludes specific tags - Legacy Notation)
+    procedure tag_exclude_run_fun_pth_lst_lg;
+
     --%test(Runs tests from given tags and exclude tags)
     procedure tag_include_exclude_run_func;
+
+    --%test(Runs tests from given tags and exclude tags - Legacy Notation)
+    procedure tag_include_exclude_run_fun_lg;
 
   --%endcontext
 

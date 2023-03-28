@@ -352,7 +352,7 @@ create or replace package body ut_suite_manager is
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null,
+    a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
   ) return t_cached_suites_cursor is
     l_unfiltered_rows  ut_suite_cache_rows;
@@ -451,7 +451,7 @@ create or replace package body ut_suite_manager is
     a_schema_paths   ut_path_items,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
-    a_tags           ut_varchar2_rows := null
+    a_tags           varchar2 := null
   ) is
   begin
     reconstruct_from_cache(
@@ -528,7 +528,7 @@ create or replace package body ut_suite_manager is
     a_paths       ut_varchar2_list,
     a_suites      out nocopy ut_suite_items,
     a_random_seed positive   := null,
-    a_tags        ut_varchar2_rows := ut_varchar2_rows()
+    a_tags        varchar2 := null
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_schema_names       ut_varchar2_rows;
