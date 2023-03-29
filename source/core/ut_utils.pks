@@ -476,6 +476,11 @@ create or replace package ut_utils authid definer is
   * Return value of interval in plain english
   */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
-  
+
+  /*
+  * Return number 1 or 0 if the list of tags is valid expression
+  */   
+  function valid_tag_expression(a_tags in varchar2) return number;
+
 end ut_utils;
 /
