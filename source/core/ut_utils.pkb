@@ -1018,7 +1018,7 @@ create or replace package body ut_utils is
       l_right_side := regexp_replace(l_tags,l_left_side_regex,'\2');
       
       --If left side is null that means that we used left side operator without 
-      -- left and right e.g. &test
+      -- left and right e.g. |test
       if l_left_side is null then 
         l_result := 0;
       else

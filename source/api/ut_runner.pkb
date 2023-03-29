@@ -95,13 +95,10 @@ create or replace package body ut_runner is
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
 
-    --TODO:Verify tag tag expression is valid
-    /*
-    if regexp_like(l_tags,'[&|]{2,}|[!-]{2,}|[!-][&|]|[^-&|!,]+[-!]|[-!|&][)]')
-      or (regexp_count(l_tags,'\(') <> regexp_count(l_tags,'\)')) then
+    if ut_utils.valid_tag_expression(l_tags) = 0 then
       raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression');
     end if;
-    */
+
     if a_random_test_order_seed is not null then
       l_random_test_order_seed  := a_random_test_order_seed;
     elsif a_random_test_order then
