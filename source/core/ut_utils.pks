@@ -477,7 +477,5 @@ create or replace package ut_utils authid definer is
   */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
   
-  function valid_tag_expression(a_tags in varchar2) return number;
-  
 end ut_utils;
 /

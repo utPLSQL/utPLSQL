@@ -988,68 +988,7 @@ create or replace package body ut_utils is
 
     return l_result;
   end;
- 
-  function valid_tag_expression(a_tags in varchar2) return number is
-    t_left_side ut_varchar2_list := ut_varchar2_list('|','&',',');
-    t_right_side  ut_varchar2_list := ut_varchar2_list('!','-');
-    l_left_side_expression varchar2(100) := '[|&,]';
-    l_left_side_regex varchar(400) := '([^|&,]*)[|&,](.*)';    
-    l_left_side varchar2(4000);
-    
-    l_rigth_side_expression varchar2(100) := '[!-]';    
-    l_right_side_regex varchar(400) := '([!-])([^!-].*)';
-    l_right_side varchar2(4000);
-    
-    l_tags varchar2(4000) := a_tags;
-    l_result number :=1;
-  begin
-    --Validate that we have closed up all brackets
-    if regexp_count(l_tags,'\(') <> regexp_count(l_tags,'\)') then
-      l_result := 0;
-    end if;
-    
-    --Remove brackets as we dont evaluate expression only validate.
-    l_tags := replace(replace(l_tags,'('),')');
-    
-    --Check if there are any left side operators for first in order from left to right
-    if regexp_count(l_tags,l_left_side_expression) > 0 then
-      --Extract left part of operator and remaining of string to right
-      l_left_side := regexp_replace(l_tags,l_left_side_regex,'\1');
-      l_right_side := regexp_replace(l_tags,l_left_side_regex,'\2');
-      
-      --If left side is null that means that we used left side operator without 
-      -- left and right e.g. &test
-      if l_left_side is null then 
-        l_result := 0;
-      else
-      --Extract right side from left side expression if there is any !-
-      --Remove first negation tag to see if there is double negation
-        l_left_side := regexp_replace(l_left_side,l_right_side_regex,'\2');
-      end if;
-      
-      
-      --check that on right side there is no extra negation   
-      if regexp_count(l_left_side,l_rigth_side_expression) > 0 then
-        l_result := 0;
-      end if;
-      
-      --Now process right side of string
-      if l_right_side is not null then
-        l_result := least(l_result,valid_tag_expression(l_right_side));
-      else
-        l_result := 0;
-      end if;
-    else
-      --We just process single tag.
-      l_left_side := l_tags;
-      l_left_side := regexp_replace(l_left_side,l_right_side_regex,'\2'); 
-      if regexp_count(l_left_side,l_rigth_side_expression) > 0 then
-        l_result := 0;
-      end if; 
-    end if;
-    
-    return l_result;
-  end;
+
 
 end ut_utils;
 /
