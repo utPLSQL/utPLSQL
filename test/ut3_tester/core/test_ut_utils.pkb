@@ -489,5 +489,32 @@ end;
     ut.expect(l_expected).to_equal(l_actual);
   end;   
   
+  procedure valid_tag_expressions is
+  begin
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1|tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1&tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('!tag1'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1|!tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1&!tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('!tag1|!tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('!tag1&!tag2'));   
+
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1,tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('-tag1'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1,-tag2'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('-tag1,-tag2'));
+      
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('(!tag1|!tag2)|tag3'));
+    ut.expect(1).to_equal(ut3_develop.ut_utils.valid_tag_expression('(!tag1&!tag2)|(tag3&tag4)'));
+
+    ut.expect(0).to_equal(ut3_develop.ut_utils.valid_tag_expression('tag1|'));
+    ut.expect(0).to_equal(ut3_develop.ut_utils.valid_tag_expression('&!tag2'));
+    ut.expect(0).to_equal(ut3_develop.ut_utils.valid_tag_expression('!!tag1|!tag2'));
+    ut.expect(0).to_equal(ut3_develop.ut_utils.valid_tag_expression('!tag1&!tag2|'));
+    ut.expect(0).to_equal(ut3_develop.ut_utils.valid_tag_expression('((!tag1|!tag2)|tag3'));
+
+  end;
+
 end test_ut_utils;
 /

@@ -154,6 +154,8 @@ create or replace package test_ut_utils is
    --%test(returns text representation of interval year to month for custom interval)  
   procedure int_conv_ym_date;   
   
+   --%test(Test to validate different type of expressions passed as tags)  
+  procedure valid_tag_expressions;     
   
   --%endcontext
 
