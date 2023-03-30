@@ -75,14 +75,16 @@ create or replace type body ut_output_table_buffer is
 
   overriding member procedure lines_to_dbms_output(self in ut_output_table_buffer, a_initial_timeout number := null, a_timeout_sec number := null) is
     l_data      sys_refcursor;
-    l_text      varchar2(32767);
-    l_item_type varchar2(32767);
+    l_text      ut_varchar2_rows;
+    l_item_type ut_varchar2_rows;
   begin
     l_data := self.get_lines_cursor(a_initial_timeout, a_timeout_sec);
     loop
-      fetch l_data into l_text, l_item_type;
+      fetch l_data bulk collect into l_text, l_item_type limit 10000;
+      for idx in 1 .. l_text.count loop
+        dbms_output.put_line(l_text(idx));
+      end loop;
       exit when l_data%notfound;
-      dbms_output.put_line(l_text);
     end loop;
     close l_data;
   end;

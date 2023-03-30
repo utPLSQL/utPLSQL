@@ -323,6 +323,8 @@ drop type ut_output_table_buffer force;
 
 drop type ut_output_clob_table_buffer force;
 
+drop type ut_output_bulk_buffer force;
+
 drop type ut_output_buffer_base force;
 
 drop table ut_output_buffer_tmp purge;

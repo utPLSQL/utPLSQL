@@ -120,6 +120,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'
 @@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tps'
 @@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tpb'
+@@install_component.sql 'core/output_buffers/ut_output_bulk_buffer.tps'
+@@install_component.sql 'core/output_buffers/ut_output_bulk_buffer.tpb'
 
 @@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
