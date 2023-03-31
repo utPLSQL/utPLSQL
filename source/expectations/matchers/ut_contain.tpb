@@ -47,6 +47,7 @@ create or replace type body ut_contain as
 
   overriding member function run_matcher_negated(self in out nocopy ut_contain, a_actual ut_data_value) return boolean is
   begin
+    self.negated();
     return run_matcher(a_actual);
   end;
 

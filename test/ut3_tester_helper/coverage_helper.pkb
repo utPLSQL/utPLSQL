@@ -489,16 +489,30 @@ create or replace package body coverage_helper is
     l_coverage_id raw(32) := sys_guid();
   begin
     l_plsql_block := q'[
+    declare
+      x dbms_output.chararr;
+      i integer := 100000;
     begin
+/*
+      execute immediate 'alter session set statistics_level=all';
+      dbms_hprof.start_profiling(
+        location => 'PLSHPROF_DIR'
+        , filename => 'profiler_utPLSQL_run_]'||rawtohex(l_coverage_id)||q'[.txt'
+      );
+*/
       ut3_develop.ut_runner.coverage_start(']'||rawtohex(l_coverage_id)||q'[');
       ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => true);
       --gather coverage on the command executed
       begin {a_run_command}; end;
+      dbms_output.get_lines(x,i);
       ut3_develop.ut_coverage.set_develop_mode(a_develop_mode => false);
       ut3_develop.ut_runner.coverage_stop();
       --get the actual results of the command gathering the coverage
       insert into test_results select rownum as id, x.* from table( {a_run_command} ) x;
       commit;
+/*
+      dbms_hprof.stop_profiling;
+*/
     end;]';
     l_plsql_block := replace(l_plsql_block,'{a_run_command}',a_run_command);
     l_result_clob := run_code_as_job( l_plsql_block );

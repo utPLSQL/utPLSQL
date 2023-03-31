@@ -18,7 +18,7 @@ create or replace type body ut_xunit_reporter is
 
   constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_bulk_buffer());
     return;
   end;
 

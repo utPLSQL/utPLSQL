@@ -686,7 +686,7 @@ create or replace type body ut_expectation as
   
   member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor) is
   begin
-    self.not_to( ut_contain(a_expected).negated() );
+    self.not_to( ut_contain(a_expected));
   end;
 
   member procedure to_contain(self in ut_expectation, a_expected anydata) is
@@ -696,7 +696,7 @@ create or replace type body ut_expectation as
   
   member procedure not_to_contain(self in ut_expectation, a_expected anydata) is
   begin
-    self.not_to( ut_contain(a_expected).negated() );
+    self.not_to( ut_contain(a_expected));
   end;
   
   member function to_be_within(a_dist number) return ut_be_within is

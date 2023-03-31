@@ -376,24 +376,42 @@ create or replace package test_expectations_cursor is
   --%test( Cursor not to contains data from another cursor)   
   procedure cursor_not_to_contain;
   
+  --%test( Cursor not_to[contain] data from another cursor)   
+  procedure cursor_not_to_contain2;
+
   --%test( Cursor fail not to contains data from another cursor)
   procedure cursor_not_to_contain_fail;
-  
+
+   --%test( Cursor fail not_to[contain] data from another cursor)
+  procedure cursor_not_to_contain_fail2;
+
   --%test( Cursor not contains data from another cursor with joinby clause)
   procedure cursor_not_to_contain_joinby;  
   
+  --%test( Cursor not_to[contain] data from another cursor with joinby clause)
+  procedure cursor_not_to_contain_joinby2;  
+
   --%test(Cursor not contains data with of columns to include and join by value)
   procedure not_cont_join_incl_cols_as_lst;
   
+  --%test(Cursor not_to[contain] data with of columns to include and join by value)
+  procedure not_con_join_incl_cols_as_lst2;
+
   --%test(Cursor not contains data with of columns to exclude and join by value)
   procedure not_cont_join_excl_cols_as_lst; 
+
+  --%test(Cursor not_to[contain] data with of columns to exclude and join by value)
+  procedure not_con_join_excl_cols_as_lst2; 
 
   --%test(Cursor to contain duplicates)
   procedure to_contain_duplicates;
   
   --%test(Cursor to contain duplicates fail)
   procedure to_contain_duplicates_fail;
-    
+
+  --%test(Cursor using not_to[contain] fails #1245)
+  procedure to_not_contain_fails_1245; 
+
   --%test(Display a message with a uer defined type with only type name not structure on equal)
   procedure udt_messg_format_eq; 
  

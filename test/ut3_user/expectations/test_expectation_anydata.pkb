@@ -957,6 +957,23 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
   
+   procedure collection_not_to_contain is
+    l_actual           ut3_tester_helper.test_dummy_object_list;
+    l_expected         ut3_tester_helper.test_dummy_object_list;
+  begin
+    --Arrange
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something2 '||rownum, rownum+100)
+      bulk collect into l_actual
+      from dual connect by level <=4;
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3_develop.ut.expect(anydata.convertCollection(l_actual)).not_to_contain(anydata.convertCollection(l_expected));
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
+  end;  
+
   procedure object_to_contain is
   begin
   --Arrange
@@ -967,7 +984,7 @@ Rows: [ 60 differences, showing first 20 ]
     ut3_develop.ut.expect(g_test_actual).to_contain(g_test_expected);
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
-   
+ 
   procedure arr_empty_eq_arr_empty_unord is
   begin
    --Arrange

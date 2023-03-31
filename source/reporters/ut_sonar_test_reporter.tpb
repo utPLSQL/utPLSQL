@@ -20,7 +20,7 @@ create or replace type body ut_sonar_test_reporter is
     self in out nocopy ut_sonar_test_reporter
   ) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_bulk_buffer());
     return;
   end;
 
