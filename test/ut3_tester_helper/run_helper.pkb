@@ -343,9 +343,100 @@ create or replace package body run_helper is
         end;
     end test_package_3;
     ]';
+
+    execute immediate q'[create or replace package test_tag_pkg_1 is
+      --%suite
+      --%tags(suite1,release_3_1_13,development,complex,end_to_end)
+      --%suitepath(suite1)
+      --%rollback(manual)
+
+      --%test(Test1 from test_tag_pkg_1)
+      --%tags(test1,development,fast)
+      procedure test1;
+
+      --%test(Test2 from test_tag_pkg_1)
+      --%tags(test2,production,slow,patch_3_1_13)
+      procedure test2;
+
+    end test_tag_pkg_1;
+    ]';
+
+    execute immediate q'[create or replace package body test_tag_pkg_1 is
+      procedure test1 is
+        begin
+          dbms_output.put_line('test_tag_pkg_1.test1 executed');
+        end;
+      procedure test2 is
+        begin
+          dbms_output.put_line('test_tag_pkg_1.test2 executed');
+        end;
+    end test_tag_pkg_1;
+    ]';
+
+    execute immediate q'[create or replace package test_tag_pkg_2 is
+      --%suite
+      --%tags(suite2,release_3_1_12,development,simple)
+      --%suitepath(suite1.suite2)
+      --%rollback(manual)
+
+      --%test(Test3 from test_tag_pkg_2)
+      --%tags(test3,development,fast)
+      procedure test3;
+
+      --%test(Test4 from test_tag_pkg_1)
+      --%tags(test4,production,slow)
+      procedure test4;
+
+    end test_tag_pkg_2;
+    ]';   
+
+    execute immediate q'[create or replace package body test_tag_pkg_2 is
+      procedure test3 is
+        begin
+          dbms_output.put_line('test_tag_pkg_2.test3 executed');
+        end;
+      procedure test4 is
+        begin
+          dbms_output.put_line('test_tag_pkg_2.test4 executed');
+        end;
+    end test_tag_pkg_2;
+    ]';
+
+    execute immediate q'[create or replace package test_tag_pkg_3 is
+      --%suite
+      --%tags(suite3,release_3_1_13,production,simple,end_to_end)
+      --%suitepath(suite3)
+      --%rollback(manual)
+
+      --%test(Test5 from test_tag_pkg_3)
+      --%tags(test5,release_3_1_13,production,patch_3_1_13)
+      procedure test5;
+
+      --%test(Test6 from test_tag_pkg_3)
+      --%tags(test6,development,patch_3_1_14)
+      procedure test6;
+
+    end test_tag_pkg_3;
+    ]';        
+
+    execute immediate q'[create or replace package body test_tag_pkg_3 is
+      procedure test5 is
+        begin
+          dbms_output.put_line('test_tag_pkg_3.test5 executed');
+        end;
+      procedure test6 is
+        begin
+          dbms_output.put_line('test_tag_pkg_3.test6 executed');
+        end;
+    end test_tag_pkg_3;
+    ]';
+
     execute immediate q'[grant execute on test_package_1 to public]';
     execute immediate q'[grant execute on test_package_2 to public]';
     execute immediate q'[grant execute on test_package_3 to public]';
+    execute immediate q'[grant execute on test_tag_pkg_1 to public]';
+    execute immediate q'[grant execute on test_tag_pkg_2 to public]';
+    execute immediate q'[grant execute on test_tag_pkg_3 to public]';    
   end;
 
   procedure drop_ut3_user_tests is
@@ -354,6 +445,9 @@ create or replace package body run_helper is
     execute immediate q'[drop package test_package_1]';
     execute immediate q'[drop package test_package_2]';
     execute immediate q'[drop package test_package_3]';
+    execute immediate q'[drop package test_tag_pkg_1]';
+    execute immediate q'[drop package test_tag_pkg_2]';
+    execute immediate q'[drop package test_tag_pkg_3]';    
   end;
  
    procedure create_test_suite is

@@ -259,6 +259,9 @@ create or replace package test_ut_run is
     --%test(Runs tests from given tags and exclude tags - Legacy Notation)
     procedure tag_include_exclude_run_fun_lg;
 
+    --%test(Runs tests suing complex expressions)
+    procedure tag_complex_expressions;
+
   --%endcontext
 
   --%context(ut3_info context)

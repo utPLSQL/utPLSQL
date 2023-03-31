@@ -273,9 +273,9 @@ create or replace package body ut_suite_cache_manager is
                       '(\(|\)|\||\!|\&)?([^|&!-()]+)(\(|\)|\||\!|\&)?', 
                       q'[\1q'<\2>' member of tags\3]');    
     --replace operands to XPath
-    l_tags := REGEXP_REPLACE(l_tags, '\|',' or ');
-    l_tags := REGEXP_REPLACE(l_tags , '\&',' and ');
-    l_tags := REGEXP_REPLACE(l_tags,q'[(\!)(q'<[^|&!-]+>')( member of tags)]','\2 not \3');
+    l_tags := REPLACE(l_tags, '|',' or ');
+    l_tags := REPLACE(l_tags , '&',' and ');
+    l_tags := REGEXP_REPLACE(l_tags,q'[(\!)(q'<[^|&!]+?>')( member of tags)]','\2 not \3');
     l_tags := '('||l_tags||')';
     return l_tags;       
   end;  
