@@ -1223,16 +1223,44 @@ procedure tag_exclude_run_fun_pth_lst_lg is
 
     l_results := ut3_tester_helper.run_helper.run(a_tags => 'release_3_1_13&(patch_3_1_13&!slow)');
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );  
-  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test6%executed%' );
+
     l_results := ut3_tester_helper.run_helper.run(a_tags => '(simple&end_to_end)|(development&fast)');
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_1.test1 executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_2.test3 executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );    
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test6 executed%' );  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );
 
     l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&end_to_end)');
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test6%executed%' );
 
+  end;
+
+  procedure invalid_tag_expression is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!!development&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');  
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&end_to_end|)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');    
   end;
 
   procedure set_application_info is

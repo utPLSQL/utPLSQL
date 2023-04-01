@@ -262,6 +262,10 @@ create or replace package test_ut_run is
     --%test(Runs tests suing complex expressions)
     procedure tag_complex_expressions;
 
+    --%test(Testing invalid tag expression)
+    --%throws(-20219)
+    procedure invalid_tag_expression;
+
   --%endcontext
 
   --%context(ut3_info context)
