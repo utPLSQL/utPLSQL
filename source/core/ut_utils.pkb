@@ -990,15 +990,21 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  /*
+    Purpose of this function is to break down the tag expressions
+    We can separate operators on left and rigth side.
+    Left ones are AND and OR as they require an operator on left side to 
+    be valid. Right side is NOT.
+    In each iteration we breakdown string into parts
+
+  */  
   function valid_tag_expression(a_tags in varchar2) return number is
-    t_left_side ut_varchar2_list := ut_varchar2_list('|','&',',');
-    t_right_side  ut_varchar2_list := ut_varchar2_list('!','-');
     l_left_side_expression varchar2(100) := '[|&,]';
-    l_left_side_regex varchar(400) := '([^|&,]*)[|&,](.*)';    
+    l_left_side_regex varchar2(400) := '([^|&,]*)[|&,](.*)';    
     l_left_side varchar2(4000);
     
     l_rigth_side_expression varchar2(100) := '[!-]';    
-    l_right_side_regex varchar(400) := '([!-])([^!-].*)';
+    l_right_side_regex varchar2(400) := '([!-])([^!-].*)';
     l_right_side varchar2(4000);
     
     l_tags varchar2(4000) := a_tags;

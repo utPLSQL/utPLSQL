@@ -227,11 +227,10 @@ create or replace package body ut_suite_cache_manager is
     - = NOT
     we will perform a replace of that characters into
     new notation.
-    || = OR
-    && = AND
-    ^  = NOT
+    | = OR
+    & = AND
+    !  = NOT
   */
-  --TODO: How do we prevent when old notation reach 4k an new will be longer?
   function replace_legacy_tag_notation(a_tags varchar2
   ) return varchar2 is
     l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
@@ -331,8 +330,11 @@ with
       )
     ) t where c.id = t.id and r_num = 1 ]';
     
-    execute immediate l_sql bulk collect into  l_suite_tags using a_suite_items;   
-    return l_suite_tags;        
+    execute immediate l_sql bulk collect into  l_suite_tags using a_suite_items;
+    return l_suite_tags;
+  exception when others then
+    --If the dynamic SQL fails we will fall gracefully with meaningfull message
+    raise_application_error(ut_utils.gc_invalid_tag_expression, 'Tag expression, causing error. If expression is correct please report error.');    
   end;
   
   /*
