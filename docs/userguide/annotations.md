@@ -1662,8 +1662,6 @@ end ut_sample_test;
 
 Tag expressions are boolean expressions with the operators !, & and |. In addition, ( and ) can be used to adjust for operator precedence.
 
-Two special expressions are supported, any() and none(), which select all tests with any tags at all, and all tests without any tags, respectively. These special expressions may be combined with other expressions just like normal tags.
-
 | Operator | Meaning |
 | -------- | --------|
 | !        | not     |
