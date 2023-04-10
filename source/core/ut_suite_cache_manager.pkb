@@ -268,7 +268,7 @@ create or replace package body ut_suite_cache_manager is
     if instr(l_tags,',') > 0 or instr(l_tags,'-') > 0 then
       l_tags := replace(replace_legacy_tag_notation(l_tags),' ');
     end if;
-    l_tags := ut_utils.convert_postfix_to_infix(ut_utils.shunt_logical_expression(l_tags));
+    l_tags := ut_utils.conv_postfix_to_infix_sql(ut_utils.shunt_logical_expression(l_tags));
     l_tags := REPLACE(l_tags, '|',' or ');
     l_tags := REPLACE(l_tags ,'&',' and ');
     l_tags := REPLACE(l_tags ,'!','not');
