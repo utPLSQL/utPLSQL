@@ -267,6 +267,8 @@ end;
 
 drop package ut_utils;
 
+drop type ut_stack force;
+
 drop sequence ut_savepoint_seq;
 
 drop type ut_documentation_reporter force;
