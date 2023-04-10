@@ -1001,144 +1001,6 @@ create or replace package body ut_utils is
   end;
 
   /*
-    Purpose of this function is to break down the tag expressions
-    We can separate operators on left and rigth side.
-    Left ones are AND and OR as they require an operator on left side to 
-    be valid. Right side is NOT.
-    In each iteration we breakdown string into parts
-
-  */  
-  function valid_tag_expression(a_tags in varchar2) return number is
-    l_left_side_expression varchar2(10) := '[|&,]';
-    l_left_side_regex varchar2(50) := '([^|&,]*)[|&,](.*)';    
-    l_left_side varchar2(4000);
-    
-    l_rigth_side_expression varchar2(10) := '[!-]';    
-    l_right_side_regex varchar2(50) := '([!-])([^!-].*)';
-    l_right_side varchar2(4000);
-    
-    l_tags varchar2(4000) := a_tags;
-    l_result number :=1;
-  begin
-    --Validate that we have closed up all brackets
-    if regexp_count(l_tags,'\(') <> regexp_count(l_tags,'\)') then
-      l_result := 0;
-    end if;
-    
-    --Remove brackets as we dont evaluate expression only validate.
-    l_tags := replace(replace(l_tags,'('),')');
-    
-    --Check if there are any left side operators for first in order from left to right
-    if regexp_count(l_tags,l_left_side_expression) > 0 then
-      --Extract left part of operator and remaining of string to right
-      l_left_side := regexp_replace(l_tags,l_left_side_regex,'\1');
-      l_right_side := regexp_replace(l_tags,l_left_side_regex,'\2');
-      
-      --If left side is null that means that we used left side operator without 
-      -- left and right e.g. |test
-      if l_left_side is null then 
-        l_result := 0;
-      else
-      --Extract right side from left side expression if there is any !-
-      --Remove first negation tag to see if there is double negation
-        l_left_side := regexp_replace(l_left_side,l_right_side_regex,'\2');
-      end if;
-      
-      
-      --check that on right side there is no extra negation   
-      if regexp_count(l_left_side,l_rigth_side_expression) > 0 then
-        l_result := 0;
-      end if;
-      
-      --Now process right side of string
-      if l_right_side is not null then
-        l_result := least(l_result,valid_tag_expression(l_right_side));
-      else
-        l_result := 0;
-      end if;
-    else
-      --We just process single tag.
-      l_left_side := l_tags;
-      l_left_side := regexp_replace(l_left_side,l_right_side_regex,'\2'); 
-      if regexp_count(l_left_side,l_rigth_side_expression) > 0 then
-        l_result := 0;
-      end if; 
-    end if;
-    
-    return l_result;
-  end;
-
-  procedure build_tag_expression_filter(a_tags in varchar2,a_expression_tab in out t_expression_tab,a_parent_id varchar2 default null) is
-    l_left_side_expression varchar2(10) := '[|&,]';
-    l_left_side_regex varchar2(50) := '([^|&,]*)([|&,])(.*)';    
-    l_left_side varchar2(4000);
-    
-    l_rigth_side_expression varchar2(10) := '[!-]';    
-    l_right_side_regex varchar2(50) := '([!-])([^!-].*)';
-    l_right_side varchar2(4000);
-    
-    l_tags varchar2(4000) := a_tags;
-    l_result number :=1;
-    l_expression_rec  t_expression_rec;
-    
-  begin
-      if a_expression_tab is null then 
-        a_expression_tab := t_expression_tab();
-      end if;
-      
-      l_expression_rec.id := sys_guid();
-      l_expression_rec.parent_id := a_parent_id;
-      
-      if instr(substr(l_tags,1,1),'(',1,1) + instr(substr(l_tags,-1,1),')',-1,1) = 2 then
-
-        if regexp_count(l_tags,l_right_side_regex) = 1 then
-          l_expression_rec.negated :=1;
-          l_tags := trim (leading '!' from l_tags);
-        end if;
-
-        l_expression_rec.left_bracket := 1;
-        l_tags := trim(leading '(' from l_tags);
-        l_expression_rec.right_bracket := 1;
-        l_tags := trim(trailing ')' from l_tags);        
-      end if;
-      
-      
-    --Check if there are any left side operators for first in order from left to right
-    if regexp_count(l_tags,l_left_side_expression) > 0 then
-      --Extract left part of operator and remaining of string to right
-      
-      --if there are bracketc extract it and record it
-      
-      l_left_side := regexp_replace(l_tags,l_left_side_regex,'\1');
-      l_expression_rec.log_operator := regexp_replace(l_tags,l_left_side_regex,'\2');
-      l_right_side := regexp_replace(l_tags,l_left_side_regex,'\3');
-      a_expression_tab.extend;
-      a_expression_tab(a_expression_tab.last) := l_expression_rec;
-      
-      build_tag_expression_filter(l_left_side,a_expression_tab,l_expression_rec.id);
-      build_tag_expression_filter(l_right_side,a_expression_tab,l_expression_rec.id);
-
-    else
-      if instr(substr(l_tags,1,1),'(',1,1) + instr(substr(l_tags,-1,1),')',-1,1) = 2 then
-
-        if regexp_count(l_tags,l_right_side_regex) = 1 then
-          l_expression_rec.negated :=1;
-          l_tags := trim (leading '!' from l_tags);
-        end if;
-
-        l_expression_rec.left_bracket := 1;
-        l_tags := trim(leading '(' from l_tags);
-        l_expression_rec.right_bracket := 1;
-        l_tags := trim(trailing ')' from l_tags);        
-      end if;
-      l_expression_rec.expression := l_tags;
-      a_expression_tab.extend;
-      a_expression_tab(a_expression_tab.last) := l_expression_rec;
-    end if;
-    
-  end;
-  
-  /*
     https://stackoverflow.com/questions/29634992/shunting-yard-validate-expression
   */
   function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list is
@@ -1251,9 +1113,9 @@ create or replace package body ut_utils is
     end loop;
     
     return l_infix_stack.pop;
-  end;
+  end convert_postfix_to_infix;
 
-  function convert_postfix_to_infix_where_sql(a_postfix_exp in ut_varchar2_list) 
+  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list) 
     return varchar2 is
     l_infix_stack ut_stack := ut_stack();
     l_right_side varchar2(32767);
@@ -1285,7 +1147,7 @@ create or replace package body ut_utils is
     end loop;
     
     return l_infix_stack.pop;
-  end;
+  end conv_postfix_to_infix_sql;
 
 begin
     --Define operator precedence
