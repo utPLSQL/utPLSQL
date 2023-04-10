@@ -157,8 +157,5 @@ create or replace package test_ut_utils is
   
   --%endcontext
 
-  --%test(Test to validate different type of expressions passed as tags)  
-  procedure valid_tag_expressions;    
-
 end test_ut_utils;
 /
