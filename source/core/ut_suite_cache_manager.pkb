@@ -234,11 +234,11 @@ create or replace package body ut_suite_cache_manager is
   function replace_legacy_tag_notation(a_tags varchar2
   ) return varchar2 is
     l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
-    l_tags_include varchar2(2000);
-    l_tags_exclude varchar2(2000);
+    l_tags_include varchar2(4000);
+    l_tags_exclude varchar2(4000);
     l_return_tag varchar2(4000);
   begin
-    select listagg( t.column_value,' | ')
+    select listagg( t.column_value,'|')
       within group( order by column_value) 
     into l_tags_include
     from table(l_tags) t
@@ -268,15 +268,14 @@ create or replace package body ut_suite_cache_manager is
     if instr(l_tags,',') > 0 or instr(l_tags,'-') > 0 then
       l_tags := replace(replace_legacy_tag_notation(l_tags),' ');
     end if;
-    l_tags := REGEXP_REPLACE(l_tags, 
-                      '(\(|\)|\||\!|\&)?([^|&!-()]+)(\(|\)|\||\!|\&)?', 
-                      q'[\1q'<\2>' member of tags\3]');    
-    --replace operands to XPath
+    l_tags := ut_utils.convert_postfix_to_infix_where_sql(ut_utils.shunt_logical_expression(l_tags));
     l_tags := REPLACE(l_tags, '|',' or ');
-    l_tags := REPLACE(l_tags , '&',' and ');
-    l_tags := REGEXP_REPLACE(l_tags,q'[(\!)(q'<[^|&!]+?>')( member of tags)]','\2 not \3');
-    l_tags := '('||l_tags||')';
-    return l_tags;       
+    l_tags := REPLACE(l_tags ,'&',' and ');
+    l_tags := REPLACE(l_tags ,'!','not');
+    return l_tags; 
+  exception 
+    when ut_utils.ex_invalid_tag_expression then
+    raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression');    
   end;  
   
   /*

@@ -24,6 +24,16 @@ create or replace package body ut_utils is
   gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
 
+  /**
+  * Constants use in postfix and infix transformations
+  */
+  gc_operators constant ut_varchar2_list := ut_varchar2_list('|','&','!');  
+  gc_unary_operator constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
+  gc_binary_operator constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
+    
+  type t_precedence_table is table of number index by varchar2(1);    
+  g_precedence t_precedence_table; 
+  
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
     return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
@@ -999,12 +1009,12 @@ create or replace package body ut_utils is
 
   */  
   function valid_tag_expression(a_tags in varchar2) return number is
-    l_left_side_expression varchar2(100) := '[|&,]';
-    l_left_side_regex varchar2(400) := '([^|&,]*)[|&,](.*)';    
+    l_left_side_expression varchar2(10) := '[|&,]';
+    l_left_side_regex varchar2(50) := '([^|&,]*)[|&,](.*)';    
     l_left_side varchar2(4000);
     
-    l_rigth_side_expression varchar2(100) := '[!-]';    
-    l_right_side_regex varchar2(400) := '([!-])([^!-].*)';
+    l_rigth_side_expression varchar2(10) := '[!-]';    
+    l_right_side_regex varchar2(50) := '([!-])([^!-].*)';
     l_right_side varchar2(4000);
     
     l_tags varchar2(4000) := a_tags;
@@ -1058,5 +1068,232 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  procedure build_tag_expression_filter(a_tags in varchar2,a_expression_tab in out t_expression_tab,a_parent_id varchar2 default null) is
+    l_left_side_expression varchar2(10) := '[|&,]';
+    l_left_side_regex varchar2(50) := '([^|&,]*)([|&,])(.*)';    
+    l_left_side varchar2(4000);
+    
+    l_rigth_side_expression varchar2(10) := '[!-]';    
+    l_right_side_regex varchar2(50) := '([!-])([^!-].*)';
+    l_right_side varchar2(4000);
+    
+    l_tags varchar2(4000) := a_tags;
+    l_result number :=1;
+    l_expression_rec  t_expression_rec;
+    
+  begin
+      if a_expression_tab is null then 
+        a_expression_tab := t_expression_tab();
+      end if;
+      
+      l_expression_rec.id := sys_guid();
+      l_expression_rec.parent_id := a_parent_id;
+      
+      if instr(substr(l_tags,1,1),'(',1,1) + instr(substr(l_tags,-1,1),')',-1,1) = 2 then
+
+        if regexp_count(l_tags,l_right_side_regex) = 1 then
+          l_expression_rec.negated :=1;
+          l_tags := trim (leading '!' from l_tags);
+        end if;
+
+        l_expression_rec.left_bracket := 1;
+        l_tags := trim(leading '(' from l_tags);
+        l_expression_rec.right_bracket := 1;
+        l_tags := trim(trailing ')' from l_tags);        
+      end if;
+      
+      
+    --Check if there are any left side operators for first in order from left to right
+    if regexp_count(l_tags,l_left_side_expression) > 0 then
+      --Extract left part of operator and remaining of string to right
+      
+      --if there are bracketc extract it and record it
+      
+      l_left_side := regexp_replace(l_tags,l_left_side_regex,'\1');
+      l_expression_rec.log_operator := regexp_replace(l_tags,l_left_side_regex,'\2');
+      l_right_side := regexp_replace(l_tags,l_left_side_regex,'\3');
+      a_expression_tab.extend;
+      a_expression_tab(a_expression_tab.last) := l_expression_rec;
+      
+      build_tag_expression_filter(l_left_side,a_expression_tab,l_expression_rec.id);
+      build_tag_expression_filter(l_right_side,a_expression_tab,l_expression_rec.id);
+
+    else
+      if instr(substr(l_tags,1,1),'(',1,1) + instr(substr(l_tags,-1,1),')',-1,1) = 2 then
+
+        if regexp_count(l_tags,l_right_side_regex) = 1 then
+          l_expression_rec.negated :=1;
+          l_tags := trim (leading '!' from l_tags);
+        end if;
+
+        l_expression_rec.left_bracket := 1;
+        l_tags := trim(leading '(' from l_tags);
+        l_expression_rec.right_bracket := 1;
+        l_tags := trim(trailing ')' from l_tags);        
+      end if;
+      l_expression_rec.expression := l_tags;
+      a_expression_tab.extend;
+      a_expression_tab(a_expression_tab.last) := l_expression_rec;
+    end if;
+    
+  end;
+  
+  /*
+    https://stackoverflow.com/questions/29634992/shunting-yard-validate-expression
+  */
+  function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list is
+    l_tags varchar2(32767) := a_tags;
+    l_operator_stack ut_stack := ut_stack();
+    l_input_tokens ut_varchar2_list := ut_varchar2_list();
+    l_rnp_tokens ut_varchar2_list := ut_varchar2_list();
+    l_token varchar2(32767);
+    l_expect_operand boolean := true;
+    l_expect_operator boolean := false;
+  begin    
+    --Tokenize a string into operators and tags
+    select regexp_substr(l_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
+    bulk collect into l_input_tokens
+    from dual connect by regexp_substr (l_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
+    
+    --Exuecute modified shunting algorithm
+    for token in 1..l_input_tokens.count loop
+      l_token := l_input_tokens(token);
+      if (l_token member of gc_operators and l_token member of gc_binary_operator) then
+        if not(l_expect_operator) then 
+          raise ex_invalid_tag_expression;
+        end if;
+        while l_operator_stack.top > 0 and (g_precedence(l_operator_stack.peek) > g_precedence(l_token))  loop
+          l_rnp_tokens.extend;
+          l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
+        end loop;
+        l_operator_stack.push(l_input_tokens(token));
+        l_expect_operand := true;
+        l_expect_operator:= false;
+      elsif (l_token member of gc_operators and l_token member of gc_unary_operator) then  
+        if not(l_expect_operand) then 
+          raise ex_invalid_tag_expression;
+        end if;        
+        l_operator_stack.push(l_input_tokens(token));
+        l_expect_operand := true;
+        l_expect_operator:= false;   
+      elsif l_token = '(' then
+        if not(l_expect_operand) then 
+          raise ex_invalid_tag_expression;
+        end if;        
+        l_operator_stack.push(l_input_tokens(token));
+        l_expect_operand := true;
+        l_expect_operator:= false;      
+      elsif l_token = ')' then
+        if not(l_expect_operator) then 
+          raise ex_invalid_tag_expression;
+        end if;        
+        while l_operator_stack.peek <> '(' loop
+          l_rnp_tokens.extend;
+          l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
+        end loop;
+        l_operator_stack.pop; --Pop the open bracket and discard it
+        l_expect_operand := false;
+        l_expect_operator:= true;           
+      else
+        if not(l_expect_operand) then 
+          raise ex_invalid_tag_expression;
+        end if;
+        l_rnp_tokens.extend;
+        l_rnp_tokens(l_rnp_tokens.last) :=l_token;
+        l_expect_operator := true;
+        l_expect_operand := false;
+      end if;
+      
+    end loop;
+    
+    while l_operator_stack.top > 0 loop
+        if l_operator_stack.peek in ('(',')') then 
+          raise ex_invalid_tag_expression;
+        end if;         
+        l_rnp_tokens.extend;
+        l_rnp_tokens(l_rnp_tokens.last):=l_operator_stack.pop;         
+    end loop;
+  
+    return l_rnp_tokens;
+  end shunt_logical_expression;
+  
+  procedure shunt_logical_expression(a_tags in varchar2) is
+    a_postfix ut_varchar2_list;
+  begin
+     a_postfix := ut_utils.shunt_logical_expression(a_tags);
+  end shunt_logical_expression;
+  
+  function convert_postfix_to_infix(a_postfix_exp in ut_varchar2_list) 
+    return varchar2 is
+    l_infix_stack ut_stack := ut_stack();
+    l_right_side varchar2(32767);
+    l_left_side varchar2(32767);
+    l_infix_exp varchar2(32767);
+  begin
+    for i in 1..a_postfix_exp.count loop
+      --If token is operand but also single tag
+      if a_postfix_exp(i) not member of gc_operators then --its operand
+        l_infix_stack.push(a_postfix_exp(i));
+      --If token is unary operator not   
+      elsif a_postfix_exp(i) member of gc_unary_operator then
+        l_right_side := l_infix_stack.pop;
+        l_infix_exp := '('||a_postfix_exp(i)||l_right_side||')';
+        l_infix_stack.push(l_infix_exp);
+      --If token is binary operator  
+      elsif  a_postfix_exp(i) member of gc_binary_operator then
+        l_right_side := l_infix_stack.pop;
+        l_left_side := l_infix_stack.pop;
+        l_infix_exp := '('||l_left_side||a_postfix_exp(i)||l_right_side||')';
+        l_infix_stack.push(l_infix_exp);
+      else
+        null;
+      end if;
+    end loop;
+    
+    return l_infix_stack.pop;
+  end;
+
+  function convert_postfix_to_infix_where_sql(a_postfix_exp in ut_varchar2_list) 
+    return varchar2 is
+    l_infix_stack ut_stack := ut_stack();
+    l_right_side varchar2(32767);
+    l_left_side varchar2(32767);
+    l_infix_exp varchar2(32767);
+    l_member_token varchar2(20) := ' member of tags';
+  begin
+    for i in 1..a_postfix_exp.count loop
+      --If token is operand but also single tag
+      if regexp_count(a_postfix_exp(i),'[!()|&]') = 0 then
+        l_infix_stack.push(q'[']'||a_postfix_exp(i)||q'[']'||l_member_token);
+      --If token is operand but containing other expressions
+      elsif a_postfix_exp(i) not member of gc_operators then
+        l_infix_stack.push(a_postfix_exp(i));
+      --If token is unary operator not  
+      elsif a_postfix_exp(i) member of gc_unary_operator then
+        l_right_side := l_infix_stack.pop;
+        l_infix_exp := a_postfix_exp(i)||'('||l_right_side||')';
+        l_infix_stack.push(l_infix_exp);
+      --If token is binary operator  
+      elsif a_postfix_exp(i) member of gc_binary_operator then
+        l_right_side := l_infix_stack.pop;
+        l_left_side := l_infix_stack.pop;
+        l_infix_exp := '('||l_left_side||a_postfix_exp(i)||l_right_side||')';
+        l_infix_stack.push(l_infix_exp);
+      else
+        null;
+      end if;
+    end loop;
+    
+    return l_infix_stack.pop;
+  end;
+
+begin
+    --Define operator precedence
+    g_precedence('!'):=4;
+    g_precedence('&'):=3;
+    g_precedence('|'):=2;
+    g_precedence(')'):=1;
+    g_precedence('('):=1;
+  
 end ut_utils;
 /

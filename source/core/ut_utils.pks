@@ -482,5 +482,30 @@ create or replace package ut_utils authid definer is
   */   
   function valid_tag_expression(a_tags in varchar2) return number;
 
+  /*
+  * Return number 1 or 0 if the list of tags is valid expression
+  */   
+  procedure build_tag_expression_filter(a_tags in varchar2,a_expression_tab in out t_expression_tab,a_parent_id varchar2 default null);
+  
+  /*
+  * Function that uses Dijkstra algorithm to parse mathematical and logical expression
+  * and return a list of elements in Reverse Polish Notation ( postfix )
+  * As part of execution it will validate expression.
+  */
+  function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list;
+
+  procedure shunt_logical_expression(a_tags in varchar2);
+
+  /*
+  * Function that converts postfix notation into infix
+  */
+  function convert_postfix_to_infix(a_postfix_exp in ut_varchar2_list) return varchar2;
+
+  /*
+  * Function that converts postfix notation into infix and creating a string of sql filter 
+  * that checking a tags collections for tags according to posted logic.
+  */  
+  function convert_postfix_to_infix_where_sql(a_postfix_exp in ut_varchar2_list) return varchar2;  
+  
 end ut_utils;
 /
