@@ -23,4 +23,4 @@ create or replace type ut_stack as object (
   member procedure pop(self in out nocopy ut_stack,a_cnt in integer default 1),
   member function pop(self in out nocopy ut_stack) return varchar2
 )
-
+/
