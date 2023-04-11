@@ -507,7 +507,7 @@ end;
     ut.expect(l_postfix_string).to_equal('ab|cd&|');        
   end;
 
-  procedure test_conversion_from_rpn_to_infix is
+  procedure test_conv_from_rpn_to_infix is
     l_postfix_rpn ut3_develop.ut_varchar2_list;
     l_infix_string varchar2(4000);
   begin
