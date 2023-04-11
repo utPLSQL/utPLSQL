@@ -476,6 +476,11 @@ create or replace package ut_utils authid definer is
   * Return value of interval in plain english
   */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
+  
+  /*
+  * Return table of tokens character by character
+  */   
+  function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list;
 
   /*
   * Function that uses Dijkstra algorithm to parse mathematical and logical expression
@@ -483,8 +488,6 @@ create or replace package ut_utils authid definer is
   * As part of execution it will validate expression.
   */
   function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list;
-
-  procedure shunt_logical_expression(a_tags in varchar2);
 
   /*
   * Function that converts postfix notation into infix

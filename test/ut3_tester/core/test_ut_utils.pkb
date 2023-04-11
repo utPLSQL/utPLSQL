@@ -504,7 +504,11 @@ end;
 
     l_postfix := ut3_develop.ut_utils.shunt_logical_expression('(a|b)|c&d');
     l_postfix_string := ut3_develop.ut_utils.table_to_clob(l_postfix,'');
-    ut.expect(l_postfix_string).to_equal('ab|cd&|');        
+    ut.expect(l_postfix_string).to_equal('ab|cd&|');     
+
+    l_postfix := ut3_develop.ut_utils.shunt_logical_expression('!a|b');
+    l_postfix_string := ut3_develop.ut_utils.table_to_clob(l_postfix,'');
+    ut.expect(l_postfix_string).to_equal('a!b|');         
   end;
 
   procedure test_conv_from_rpn_to_infix is
@@ -521,7 +525,28 @@ end;
 
     l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','|','c','d','&','|');
     l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal('((a|b)|(c&d))');        
+    ut.expect(l_infix_string).to_equal('((a|b)|(c&d))');  
+
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','!','|');
+    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal('(a|(!b))');          
+  end;
+
+  procedure conv_from_rpn_to_sql_filter is
+    l_postfix_rpn ut3_develop.ut_varchar2_list;
+    l_infix_string varchar2(4000);
+  begin
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('A');
+    l_infix_string := ut3_develop.ut_utils.conv_postfix_to_infix_sql(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal(q'['A' member of tags]');
+    
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('A','B','|');
+    l_infix_string := ut3_develop.ut_utils.conv_postfix_to_infix_sql(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal(q'[('A' member of tags|'B' member of tags)]');
+
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','!','|');
+    l_infix_string := ut3_develop.ut_utils.conv_postfix_to_infix_sql(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal(q'[('a' member of tags|!('b' member of tags))]');  
   end;
 
 end test_ut_utils;

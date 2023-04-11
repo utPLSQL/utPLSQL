@@ -1000,24 +1000,30 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list is
+    l_tags_tokens ut_varchar2_list := ut_varchar2_list();  
+  begin
+    --Tokenize a string into operators and tags
+    select regexp_substr(a_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
+    bulk collect into l_tags_tokens
+    from dual connect by regexp_substr (a_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
+    
+    return l_tags_tokens;
+  end;
+
   /*
     https://stackoverflow.com/questions/29634992/shunting-yard-validate-expression
   */
   function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list is
     l_tags varchar2(32767) := a_tags;
     l_operator_stack ut_stack := ut_stack();
-    l_input_tokens ut_varchar2_list := ut_varchar2_list();
+    l_input_tokens ut_varchar2_list := tokenize_tags_string(a_tags);
     l_rnp_tokens ut_varchar2_list := ut_varchar2_list();
     l_token varchar2(32767);
     l_expect_operand boolean := true;
     l_expect_operator boolean := false;
     l_idx pls_integer;
   begin    
-    --Tokenize a string into operators and tags
-    select regexp_substr(l_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
-    bulk collect into l_input_tokens
-    from dual connect by regexp_substr (l_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
-    
     l_idx := l_input_tokens.first;
     --Exuecute modified shunting algorithm
     WHILE (l_idx is not null) loop
@@ -1071,7 +1077,7 @@ create or replace package body ut_utils is
       l_idx := l_input_tokens.next(l_idx);
     end loop;
     
-    while l_operator_stack.top > 0 loop
+    while l_operator_stack.peek is not null loop
         if l_operator_stack.peek in ('(',')') then 
           raise ex_invalid_tag_expression;
         end if;         
@@ -1080,12 +1086,6 @@ create or replace package body ut_utils is
     end loop;
   
     return l_rnp_tokens;
-  end shunt_logical_expression;
-  
-  procedure shunt_logical_expression(a_tags in varchar2) is
-    a_postfix ut_varchar2_list;
-  begin
-     a_postfix := ut_utils.shunt_logical_expression(a_tags);
   end shunt_logical_expression;
   
   function convert_postfix_to_infix(a_postfix_exp in ut_varchar2_list) 
@@ -1112,8 +1112,6 @@ create or replace package body ut_utils is
         l_left_side := l_infix_stack.pop;
         l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
-      else
-        null;
       end if;
       l_idx := a_postfix_exp.next(l_idx);
     end loop;
@@ -1149,8 +1147,6 @@ create or replace package body ut_utils is
         l_left_side := l_infix_stack.pop;
         l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
-      else
-        null;
       end if;
       l_idx := a_postfix_exp.next(l_idx);
     end loop;

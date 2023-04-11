@@ -1260,7 +1260,20 @@ procedure tag_exclude_run_fun_pth_lst_lg is
 
     l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&end_to_end|)');
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
-    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');   
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&!!end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');  
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(&development&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%'); 
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(development|end_to_end))');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');     
+
   end;
 
   procedure set_application_info is

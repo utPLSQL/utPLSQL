@@ -163,5 +163,8 @@ create or replace package test_ut_utils is
   --%test( Test conversion of expression from Reverse Polish Notation into infix)
   procedure test_conv_from_rpn_to_infix;
 
+  --%test( Test conversion of expression from Reverse Polish Notation into custom where filter for SQL)
+  procedure conv_from_rpn_to_sql_filter;  
+
 end test_ut_utils;
 /
