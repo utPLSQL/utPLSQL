@@ -489,5 +489,40 @@ end;
     ut.expect(l_expected).to_equal(l_actual);
   end;   
 
+
+  procedure test_conversion_to_rpn is
+    l_postfix ut3_develop.ut_varchar2_list;
+    l_postfix_string varchar2(4000);
+  begin
+    l_postfix := ut3_develop.ut_utils.shunt_logical_expression('A');
+    l_postfix_string := ut3_develop.ut_utils.table_to_clob(l_postfix,'');
+    ut.expect(l_postfix_string).to_equal('A');
+
+    l_postfix := ut3_develop.ut_utils.shunt_logical_expression('A|B');
+    l_postfix_string := ut3_develop.ut_utils.table_to_clob(l_postfix,'');
+    ut.expect(l_postfix_string).to_equal('AB|');
+
+    l_postfix := ut3_develop.ut_utils.shunt_logical_expression('(a|b)|c&d');
+    l_postfix_string := ut3_develop.ut_utils.table_to_clob(l_postfix,'');
+    ut.expect(l_postfix_string).to_equal('ab|cd&|');        
+  end;
+
+  procedure test_conversion_from_rpn_to_infix is
+    l_postfix_rpn ut3_develop.ut_varchar2_list;
+    l_infix_string varchar2(4000);
+  begin
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('A');
+    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal('A');
+    
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('A','B','|');
+    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal('(A|B)');
+
+    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','|','c','d','&','|');
+    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
+    ut.expect(l_infix_string).to_equal('((a|b)|(c&d))');        
+  end;
+
 end test_ut_utils;
 /

@@ -156,6 +156,12 @@ create or replace package test_ut_utils is
   
   
   --%endcontext
+  
+  --%test( Test conversion of expression into Reverse Polish Notation)
+  procedure test_conversion_to_rpn;
+
+  --%test( Test conversion of expression from Reverse Polish Notation into infix)
+  procedure test_conversion_from_rpn_to_infix;
 
 end test_ut_utils;
 /

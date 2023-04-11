@@ -1011,15 +1011,17 @@ create or replace package body ut_utils is
     l_token varchar2(32767);
     l_expect_operand boolean := true;
     l_expect_operator boolean := false;
+    l_idx pls_integer;
   begin    
     --Tokenize a string into operators and tags
     select regexp_substr(l_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
     bulk collect into l_input_tokens
     from dual connect by regexp_substr (l_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
     
+    l_idx := l_input_tokens.first;
     --Exuecute modified shunting algorithm
-    for token in 1..l_input_tokens.count loop
-      l_token := l_input_tokens(token);
+    WHILE (l_idx is not null) loop
+      l_token := l_input_tokens(l_idx);
       if (l_token member of gc_operators and l_token member of gc_binary_operator) then
         if not(l_expect_operator) then 
           raise ex_invalid_tag_expression;
@@ -1028,21 +1030,21 @@ create or replace package body ut_utils is
           l_rnp_tokens.extend;
           l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
         end loop;
-        l_operator_stack.push(l_input_tokens(token));
+        l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;
       elsif (l_token member of gc_operators and l_token member of gc_unary_operator) then  
         if not(l_expect_operand) then 
           raise ex_invalid_tag_expression;
         end if;        
-        l_operator_stack.push(l_input_tokens(token));
+        l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;   
       elsif l_token = '(' then
         if not(l_expect_operand) then 
           raise ex_invalid_tag_expression;
         end if;        
-        l_operator_stack.push(l_input_tokens(token));
+        l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;      
       elsif l_token = ')' then
@@ -1066,6 +1068,7 @@ create or replace package body ut_utils is
         l_expect_operand := false;
       end if;
       
+      l_idx := l_input_tokens.next(l_idx);
     end loop;
     
     while l_operator_stack.top > 0 loop
@@ -1091,25 +1094,28 @@ create or replace package body ut_utils is
     l_right_side varchar2(32767);
     l_left_side varchar2(32767);
     l_infix_exp varchar2(32767);
+    l_idx pls_integer;
   begin
-    for i in 1..a_postfix_exp.count loop
+    l_idx := a_postfix_exp.first;
+    while (l_idx is not null) loop
       --If token is operand but also single tag
-      if a_postfix_exp(i) not member of gc_operators then --its operand
-        l_infix_stack.push(a_postfix_exp(i));
+      if a_postfix_exp(l_idx) not member of gc_operators then --its operand
+        l_infix_stack.push(a_postfix_exp(l_idx));
       --If token is unary operator not   
-      elsif a_postfix_exp(i) member of gc_unary_operator then
+      elsif a_postfix_exp(l_idx) member of gc_unary_operator then
         l_right_side := l_infix_stack.pop;
-        l_infix_exp := '('||a_postfix_exp(i)||l_right_side||')';
+        l_infix_exp := '('||a_postfix_exp(l_idx)||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
       --If token is binary operator  
-      elsif  a_postfix_exp(i) member of gc_binary_operator then
+      elsif  a_postfix_exp(l_idx) member of gc_binary_operator then
         l_right_side := l_infix_stack.pop;
         l_left_side := l_infix_stack.pop;
-        l_infix_exp := '('||l_left_side||a_postfix_exp(i)||l_right_side||')';
+        l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
       else
         null;
       end if;
+      l_idx := a_postfix_exp.next(l_idx);
     end loop;
     
     return l_infix_stack.pop;
@@ -1122,28 +1128,31 @@ create or replace package body ut_utils is
     l_left_side varchar2(32767);
     l_infix_exp varchar2(32767);
     l_member_token varchar2(20) := ' member of tags';
+    l_idx pls_integer;
   begin
-    for i in 1..a_postfix_exp.count loop
+    l_idx := a_postfix_exp.first;
+    while ( l_idx is not null) loop
       --If token is operand but also single tag
-      if regexp_count(a_postfix_exp(i),'[!()|&]') = 0 then
-        l_infix_stack.push(q'[']'||a_postfix_exp(i)||q'[']'||l_member_token);
+      if regexp_count(a_postfix_exp(l_idx),'[!()|&]') = 0 then
+        l_infix_stack.push(q'[']'||a_postfix_exp(l_idx)||q'[']'||l_member_token);
       --If token is operand but containing other expressions
-      elsif a_postfix_exp(i) not member of gc_operators then
-        l_infix_stack.push(a_postfix_exp(i));
+      elsif a_postfix_exp(l_idx) not member of gc_operators then
+        l_infix_stack.push(a_postfix_exp(l_idx));
       --If token is unary operator not  
-      elsif a_postfix_exp(i) member of gc_unary_operator then
+      elsif a_postfix_exp(l_idx) member of gc_unary_operator then
         l_right_side := l_infix_stack.pop;
-        l_infix_exp := a_postfix_exp(i)||'('||l_right_side||')';
+        l_infix_exp := a_postfix_exp(l_idx)||'('||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
       --If token is binary operator  
-      elsif a_postfix_exp(i) member of gc_binary_operator then
+      elsif a_postfix_exp(l_idx) member of gc_binary_operator then
         l_right_side := l_infix_stack.pop;
         l_left_side := l_infix_stack.pop;
-        l_infix_exp := '('||l_left_side||a_postfix_exp(i)||l_right_side||')';
+        l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
       else
         null;
       end if;
+      l_idx := a_postfix_exp.next(l_idx);
     end loop;
     
     return l_infix_stack.pop;
