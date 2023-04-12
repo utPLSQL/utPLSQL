@@ -1684,7 +1684,7 @@ Execution of the test is done by using the parameter `a_tags` with tag expressio
 
 
 ```sql linenums="1"
-select * from table(ut.run(a_tags => 'fast||!complex'));
+select * from table(ut.run(a_tags => 'fast|!complex'));
 ```
 The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api` because a suite meet expression condition.
 
