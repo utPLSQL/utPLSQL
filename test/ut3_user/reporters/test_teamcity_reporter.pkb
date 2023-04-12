@@ -77,8 +77,8 @@ create or replace package body test_teamcity_reporter as
 <!beforeeach!>
 <!erroring test!>
 <!aftereach!>
-%##teamcity[testStdErr timestamp='%' name='ut3_user.test_reporters.erroring_test' out='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n']
-%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06502: PL/SQL: numeric or value error: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n' message='Error occured' name='ut3_user.test_reporters.erroring_test']
+%##teamcity[testStdErr timestamp='%' name='ut3_user.test_reporters.erroring_test' out='Test exception:|nORA-06502: PL/SQL: %: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n']
+%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06502: PL/SQL: %: character to number conversion error|nORA-06512: at "UT3_USER.TEST_REPORTERS", line %|nORA-06512: at %|n' message='Error occured' name='ut3_user.test_reporters.erroring_test']
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.test_reporters.erroring_test']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.test_reporters.disabled_test']
 %##teamcity[testIgnored timestamp='%' name='ut3_user.test_reporters.disabled_test']
