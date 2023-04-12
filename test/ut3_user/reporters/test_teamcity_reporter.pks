@@ -15,6 +15,9 @@ create or replace package test_teamcity_reporter as
   --%test(Trims output so it fits into 4000 chars)
   procedure trims_long_output;
 
+  --%test(Reports failures on multiple expectations)
+  procedure report_mutiple_expectations;
+
   --%afterall
   procedure remove_test_package;
 

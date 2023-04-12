@@ -31,12 +31,26 @@ create or replace package body test_teamcity_reporter as
       end;
     end;]';
 
+      execute immediate q'[create or replace package check_multiple_failures is
+      --%suite
+
+      --%test
+      procedure multi_failure;
+    end;]';
+      execute immediate q'[create or replace package body check_multiple_failures is
+      procedure multi_failure is
+      begin
+        ut3_develop.ut.expect(1).to_be_null;
+        ut3_develop.ut.expect(2).to_equal(1);
+        ut3_develop.ut.expect('Bad').to_equal('Good');
+      end;
+    end;]';
+
     end;
 
 
   procedure report_produces_expected_out is
     l_output_data       ut3_develop.ut_varchar2_list;
-    l_output            clob;
     l_expected          varchar2(32767);
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='org']
@@ -84,7 +98,6 @@ create or replace package body test_teamcity_reporter as
 
   procedure escape_special_chars is
     l_output_data       ut3_develop.ut_varchar2_list;
-    l_output            clob;
     l_expected          varchar2(32767);
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='A suite with |'quote|'']
@@ -103,7 +116,6 @@ create or replace package body test_teamcity_reporter as
 
   procedure trims_long_output is
     l_output_data       ut3_develop.ut_varchar2_list;
-    l_output            clob;
     l_expected          varchar2(32767);
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='check_trims_long_output']
@@ -120,11 +132,32 @@ create or replace package body test_teamcity_reporter as
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end;
 
+  procedure report_mutiple_expectations is
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='check_multiple_failures']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.check_multiple_failures.multi_failure']
+%##teamcity[testFailed timestamp='%' details='Actual: 1 (number) was expected to be null' name='ut3_user.check_multiple_failures.multi_failure']
+%##teamcity[testFailed timestamp='%' details='Actual: 2 (number) was expected to equal: 1 (number)' name='ut3_user.check_multiple_failures.multi_failure']
+%##teamcity[testFailed timestamp='%' details='Actual: |'Bad|' (varchar2) was expected to equal: |'Good|' (varchar2)' name='ut3_user.check_multiple_failures.multi_failure']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.check_multiple_failures.multi_failure']
+%##teamcity[testSuiteFinished timestamp='%' name='check_multiple_failures']}';
+    --act
+    select *
+        bulk collect into l_output_data
+    from table(ut3_develop.ut.run('check_multiple_failures',ut3_develop.ut_teamcity_reporter()));
+
+    --assert
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+  end;
+
   procedure remove_test_package is
     pragma autonomous_transaction;
     begin
       execute immediate 'drop package check_escape_special_chars';
       execute immediate 'drop package check_trims_long_output';
+      execute immediate 'drop package check_multiple_failures';
     end;
 
 end;
