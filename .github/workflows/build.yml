@@ -58,6 +58,11 @@ jobs:
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim"
             oracle-base: '/opt/oracle'
+          - id: 7
+            db_version_name: '23free'
+            oracle-sid: 'FREEPDB1'
+            oracle-version: "gvenzl/oracle-free:23-slim"
+            oracle-base: '/opt/oracle'
 
     services:
       html_checker:
