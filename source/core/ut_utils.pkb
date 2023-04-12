@@ -1015,7 +1015,6 @@ create or replace package body ut_utils is
     https://stackoverflow.com/questions/29634992/shunting-yard-validate-expression
   */
   function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list is
-    l_tags varchar2(32767) := a_tags;
     l_operator_stack ut_stack := ut_stack();
     l_input_tokens ut_varchar2_list := tokenize_tags_string(a_tags);
     l_rnp_tokens ut_varchar2_list := ut_varchar2_list();
