@@ -220,121 +220,7 @@ create or replace package body ut_suite_cache_manager is
         and c.name = nvl(upper(sp.procedure_name),c.name)))) where r_num =1;        
     return l_suite_items;
   end;
-  
-  /*
-    To support a legact tag notation 
-    , = OR
-    - = NOT
-    we will perform a replace of that characters into
-    new notation.
-    | = OR
-    & = AND
-    !  = NOT
-  */
-  function replace_legacy_tag_notation(a_tags varchar2
-  ) return varchar2 is
-    l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
-    l_tags_include varchar2(4000);
-    l_tags_exclude varchar2(4000);
-    l_return_tag varchar2(4000);
-  begin
-    if instr(a_tags,',') > 0 or instr(a_tags,'-') > 0 then 
-
-      select '('||listagg( t.column_value,'|')
-        within group( order by column_value)||')' 
-      into l_tags_include
-      from table(l_tags) t
-      where t.column_value not like '-%';
       
-      select '('||listagg( replace(t.column_value,'-','!'),' & ')
-        within group( order by column_value)||')'
-      into l_tags_exclude
-      from table(l_tags) t
-      where t.column_value like '-%';   
-      
-
-      l_return_tag:=
-        case 
-          when l_tags_include <> '()' and l_tags_exclude <> '()'
-            then l_tags_include || ' & ' || l_tags_exclude
-          when l_tags_include <> '()'
-            then l_tags_include
-          when l_tags_exclude <> '()'
-            then l_tags_exclude 
-        end;
-    else 
-      l_return_tag := a_tags;
-    end if;      
-    return l_return_tag;
-  end;
-    
-  function create_where_filter(a_tags varchar2
-  ) return varchar2 is
-    l_tags varchar2(4000);
-  begin
-    l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
-    l_tags := ut_utils.conv_postfix_to_infix_sql(ut_utils.shunt_logical_expression(l_tags));
-    l_tags := replace(l_tags, '|',' or ');
-    l_tags := replace(l_tags ,'&',' and ');
-    l_tags := replace(l_tags ,'!','not');
-    return l_tags;    
-  end;  
-  
-  /*
-    Having a base set of suites we will do a further filter down if there are
-    any tags defined.
-  */      
-  function get_tags_suites (
-    a_suite_items ut_suite_cache_rows,
-    a_tags varchar2
-  ) return ut_suite_cache_rows is
-    l_suite_tags      ut_suite_cache_rows := ut_suite_cache_rows();  
-    l_sql varchar2(32000);
-    l_tags varchar2(4000):= create_where_filter(a_tags);
-  begin
-    l_sql :=
-    q'[
-with 
-  suites_mv as (
-    select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags
-    from table(:suite_items) c
-  ),
-  suites_matching_expr as (
-    select c.id,c.path as path,c.self_type,c.object_owner,c.tags
-    from suites_mv c
-    where c.self_type in ('UT_SUITE','UT_CONTEXT')
-    and ]'||l_tags||q'[
-  ),
-  tests_matching_expr as (
-    select c.id,c.path as path,c.self_type,c.object_owner,c.tags
-    from suites_mv c where c.self_type in ('UT_TEST')
-    and ]'||l_tags||q'[
-  ),  
-  tests_with_tags_inh_from_suite as (
-   select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
-   from suites_mv c join suites_matching_expr t 
-     on (c.path||'.' like t.path || '.%' /*all descendants and self*/ and c.object_owner = t.object_owner)
-  ),
-  tests_with_tags_prom_to_suite as (
-    select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
-    from suites_mv c join tests_matching_expr t 
-      on (t.path||'.' like c.path || '.%' /*all ancestors and self*/ and c.object_owner = t.object_owner)
-  )
-  select obj from suites_mv c,
-    (select id,row_number() over (partition by id order by id) r_num from
-      (select id
-      from tests_with_tags_prom_to_suite tst
-      where ]'||l_tags||q'[        
-      union all
-      select id from tests_with_tags_inh_from_suite tst
-      where ]'||l_tags||q'[   
-      )
-    ) t where c.id = t.id and r_num = 1 ]';
-    
-    execute immediate l_sql bulk collect into  l_suite_tags using a_suite_items;
-    return l_suite_tags;  
-  end;
-  
   /*
     We will sort a suites in hierarchical structure.
     Sorting from bottom to top so when we consolidate
@@ -387,30 +273,29 @@ with
   end;
   
   function get_cached_suite_rows(
-    a_schema_paths     ut_path_items,
-    a_random_seed      positive := null,
-    a_tags             varchar2 := null
+    a_suites_filtered ut_suite_cache_rows 
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
-    l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
-    l_schema_paths    ut_path_items;
-    l_tags            varchar2(4000) := a_tags;
   begin     
 
-    l_schema_paths := a_schema_paths;
-    l_suite_items := get_suite_items(a_schema_paths);
-    if length(l_tags) > 0 then
-      l_suite_items := get_tags_suites(l_suite_items,l_tags);
-    end if;
-    
-    open c_get_bulk_cache_suite(l_suite_items);
+    open c_get_bulk_cache_suite(a_suites_filtered);
     fetch c_get_bulk_cache_suite bulk collect into l_results;
     close c_get_bulk_cache_suite;
       
     return l_results;
   end;
     
-  
+  function get_cached_suites(
+    a_schema_paths     ut_path_items,
+    a_random_seed      positive := null 
+  ) return ut_suite_cache_rows is
+    l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
+    l_schema_paths    ut_path_items;  
+  begin
+    l_schema_paths := a_schema_paths;
+    l_suite_items := get_suite_items(a_schema_paths);
+    return l_suite_items;
+  end;
 
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
@@ -558,7 +443,7 @@ with
     a_schema_paths     ut_path_items
   ) return ut_suite_cache_rows is
   begin
-    return get_cached_suite_rows( a_schema_paths );
+    return get_cached_suite_rows(get_cached_suites( a_schema_paths ));
   end;
 
   function get_suite_items_info(

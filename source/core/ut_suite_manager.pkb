@@ -355,17 +355,18 @@ create or replace package body ut_suite_manager is
     a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
   ) return t_cached_suites_cursor is
-    l_unfiltered_rows  ut_suite_cache_rows;
-    l_filtered_rows    ut_suite_cache_rows;
-    l_result           t_cached_suites_cursor;
+    l_unfiltered_rows    ut_suite_cache_rows;
+    l_tag_filter_applied ut_suite_cache_rows;
+    l_filtered_rows      ut_suite_cache_rows;
+    l_result             t_cached_suites_cursor;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
+    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suites(
       a_schema_paths,
-      a_random_seed,
-      a_tags
+      a_random_seed
     );
 
-    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows,a_skip_all_objects);
+    l_tag_filter_applied := ut_suite_tag_filter.apply(l_unfiltered_rows,a_tags);
+    l_filtered_rows := get_filtered_cursor(ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied),a_skip_all_objects);
     reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
 
     ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);

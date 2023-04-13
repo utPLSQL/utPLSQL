@@ -55,11 +55,14 @@ create or replace package ut_suite_cache_manager authid definer is
   * Not to be used publicly. Used internally for building suites at runtime.
   */
   function get_cached_suite_rows(
-    a_schema_paths     ut_path_items,
-    a_random_seed      positive := null,
-    a_tags             varchar2 := null
+    a_suites_filtered ut_suite_cache_rows 
   ) return ut_suite_cache_rows;
-  
+
+  function get_cached_suites(
+    a_schema_paths     ut_path_items,
+    a_random_seed      positive := null
+  ) return ut_suite_cache_rows;
+
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
   
   /*

@@ -155,6 +155,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/ut_suite_cache_seq.sql'
 @@install_component.sql 'core/ut_suite_cache.sql'
 
+@@install_component.sql 'core/ut_suite_tag_filter.pks'
+@@install_component.sql 'core/ut_suite_tag_filter.pkb'
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'
