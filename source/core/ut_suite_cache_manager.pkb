@@ -238,44 +238,46 @@ create or replace package body ut_suite_cache_manager is
     l_tags_exclude varchar2(4000);
     l_return_tag varchar2(4000);
   begin
-    select listagg( t.column_value,'|')
-      within group( order by column_value) 
-    into l_tags_include
-    from table(l_tags) t
-    where t.column_value not like '-%';
-    
-    select listagg( replace(t.column_value,'-','!'),' & ')
-      within group( order by column_value) 
-    into l_tags_exclude
-    from table(l_tags) t
-    where t.column_value like '-%';   
-    
-    l_return_tag:= 
-    case when l_tags_include is not null then 
-      '('||l_tags_include||')' else null end  ||
-    case when l_tags_include is not null and l_tags_exclude is not null then
-    ' & ' else null end ||
-    case when l_tags_exclude is not null then 
-    '('||l_tags_exclude||')' else null end;
+    if instr(a_tags,',') > 0 or instr(a_tags,'-') > 0 then 
+
+      select '('||listagg( t.column_value,'|')
+        within group( order by column_value)||')' 
+      into l_tags_include
+      from table(l_tags) t
+      where t.column_value not like '-%';
       
+      select '('||listagg( replace(t.column_value,'-','!'),' & ')
+        within group( order by column_value)||')'
+      into l_tags_exclude
+      from table(l_tags) t
+      where t.column_value like '-%';   
+      
+
+      l_return_tag:=
+        case 
+          when l_tags_include <> '()' and l_tags_exclude <> '()'
+            then l_tags_include || ' & ' || l_tags_exclude
+          when l_tags_include <> '()'
+            then l_tags_include
+          when l_tags_exclude <> '()'
+            then l_tags_exclude 
+        end;
+    else 
+      l_return_tag := a_tags;
+    end if;      
     return l_return_tag;
   end;
     
   function create_where_filter(a_tags varchar2
   ) return varchar2 is
-    l_tags varchar2(4000):= replace(a_tags,' ');
+    l_tags varchar2(4000);
   begin
-    if instr(l_tags,',') > 0 or instr(l_tags,'-') > 0 then
-      l_tags := replace(replace_legacy_tag_notation(l_tags),' ');
-    end if;
+    l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
     l_tags := ut_utils.conv_postfix_to_infix_sql(ut_utils.shunt_logical_expression(l_tags));
-    l_tags := REPLACE(l_tags, '|',' or ');
-    l_tags := REPLACE(l_tags ,'&',' and ');
-    l_tags := REPLACE(l_tags ,'!','not');
-    return l_tags; 
-  exception 
-    when ut_utils.ex_invalid_tag_expression then
-    raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression');    
+    l_tags := replace(l_tags, '|',' or ');
+    l_tags := replace(l_tags ,'&',' and ');
+    l_tags := replace(l_tags ,'!','not');
+    return l_tags;    
   end;  
   
   /*

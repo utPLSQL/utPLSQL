@@ -28,8 +28,8 @@ create or replace package body ut_utils is
   * Constants use in postfix and infix transformations
   */
   gc_operators constant ut_varchar2_list := ut_varchar2_list('|','&','!');  
-  gc_unary_operator constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
-  gc_binary_operator constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
+  gc_unary_operators constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
+  gc_binary_operators constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
     
   type t_precedence_table is table of number index by varchar2(1);    
   g_precedence t_precedence_table; 
@@ -1027,9 +1027,9 @@ create or replace package body ut_utils is
     --Exuecute modified shunting algorithm
     WHILE (l_idx is not null) loop
       l_token := l_input_tokens(l_idx);
-      if (l_token member of gc_operators and l_token member of gc_binary_operator) then
+      if (l_token member of gc_operators and l_token member of gc_binary_operators) then
         if not(l_expect_operator) then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;
         while l_operator_stack.top > 0 and (g_precedence(l_operator_stack.peek) > g_precedence(l_token))  loop
           l_rnp_tokens.extend;
@@ -1038,23 +1038,23 @@ create or replace package body ut_utils is
         l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;
-      elsif (l_token member of gc_operators and l_token member of gc_unary_operator) then  
+      elsif (l_token member of gc_operators and l_token member of gc_unary_operators) then  
         if not(l_expect_operand) then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;        
         l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;   
       elsif l_token = '(' then
         if not(l_expect_operand) then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;        
         l_operator_stack.push(l_input_tokens(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;      
       elsif l_token = ')' then
         if not(l_expect_operator) then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;        
         while l_operator_stack.peek <> '(' loop
           l_rnp_tokens.extend;
@@ -1065,7 +1065,7 @@ create or replace package body ut_utils is
         l_expect_operator:= true;           
       else
         if not(l_expect_operand) then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;
         l_rnp_tokens.extend;
         l_rnp_tokens(l_rnp_tokens.last) :=l_token;
@@ -1078,7 +1078,7 @@ create or replace package body ut_utils is
     
     while l_operator_stack.peek is not null loop
         if l_operator_stack.peek in ('(',')') then 
-          raise ex_invalid_tag_expression;
+          raise_application_error(gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;         
         l_rnp_tokens.extend;
         l_rnp_tokens(l_rnp_tokens.last):=l_operator_stack.pop;         
@@ -1087,37 +1087,6 @@ create or replace package body ut_utils is
     return l_rnp_tokens;
   end shunt_logical_expression;
   
-  function convert_postfix_to_infix(a_postfix_exp in ut_varchar2_list) 
-    return varchar2 is
-    l_infix_stack ut_stack := ut_stack();
-    l_right_side varchar2(32767);
-    l_left_side varchar2(32767);
-    l_infix_exp varchar2(32767);
-    l_idx pls_integer;
-  begin
-    l_idx := a_postfix_exp.first;
-    while (l_idx is not null) loop
-      --If token is operand but also single tag
-      if a_postfix_exp(l_idx) not member of gc_operators then --its operand
-        l_infix_stack.push(a_postfix_exp(l_idx));
-      --If token is unary operator not   
-      elsif a_postfix_exp(l_idx) member of gc_unary_operator then
-        l_right_side := l_infix_stack.pop;
-        l_infix_exp := '('||a_postfix_exp(l_idx)||l_right_side||')';
-        l_infix_stack.push(l_infix_exp);
-      --If token is binary operator  
-      elsif  a_postfix_exp(l_idx) member of gc_binary_operator then
-        l_right_side := l_infix_stack.pop;
-        l_left_side := l_infix_stack.pop;
-        l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
-        l_infix_stack.push(l_infix_exp);
-      end if;
-      l_idx := a_postfix_exp.next(l_idx);
-    end loop;
-    
-    return l_infix_stack.pop;
-  end convert_postfix_to_infix;
-
   function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list) 
     return varchar2 is
     l_infix_stack ut_stack := ut_stack();
@@ -1136,12 +1105,12 @@ create or replace package body ut_utils is
       elsif a_postfix_exp(l_idx) not member of gc_operators then
         l_infix_stack.push(a_postfix_exp(l_idx));
       --If token is unary operator not  
-      elsif a_postfix_exp(l_idx) member of gc_unary_operator then
+      elsif a_postfix_exp(l_idx) member of gc_unary_operators then
         l_right_side := l_infix_stack.pop;
         l_infix_exp := a_postfix_exp(l_idx)||'('||l_right_side||')';
         l_infix_stack.push(l_infix_exp);
       --If token is binary operator  
-      elsif a_postfix_exp(l_idx) member of gc_binary_operator then
+      elsif a_postfix_exp(l_idx) member of gc_binary_operators then
         l_right_side := l_infix_stack.pop;
         l_left_side := l_infix_stack.pop;
         l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';

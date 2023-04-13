@@ -511,27 +511,6 @@ end;
     ut.expect(l_postfix_string).to_equal('a!b|');         
   end;
 
-  procedure test_conv_from_rpn_to_infix is
-    l_postfix_rpn ut3_develop.ut_varchar2_list;
-    l_infix_string varchar2(4000);
-  begin
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('A');
-    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal('A');
-    
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('A','B','|');
-    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal('(A|B)');
-
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','|','c','d','&','|');
-    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal('((a|b)|(c&d))');  
-
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','!','|');
-    l_infix_string := ut3_develop.ut_utils.convert_postfix_to_infix(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal('(a|(!b))');          
-  end;
-
   procedure conv_from_rpn_to_sql_filter is
     l_postfix_rpn ut3_develop.ut_varchar2_list;
     l_infix_string varchar2(4000);

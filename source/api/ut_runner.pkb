@@ -78,9 +78,7 @@ create or replace package body ut_runner is
     l_run                     ut_run;
     l_coverage_schema_names   ut_varchar2_rows;
     l_paths                   ut_varchar2_list;
-    l_random_test_order_seed  positive;
-    l_tags                    varchar2(4000) := a_tags;
-    
+    l_random_test_order_seed  positive;    
   begin
     ut_event_manager.initialize();
     if a_reporters is not empty then
@@ -135,10 +133,10 @@ create or replace package body ut_runner is
         a_test_file_mappings => set(a_test_file_mappings),
         a_client_character_set => a_client_character_set,
         a_random_test_order_seed => l_random_test_order_seed,
-        a_run_tags => l_tags
+        a_run_tags => a_tags
       );
 
-      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, l_tags);
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, a_tags);
       if a_force_manual_rollback then
         l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;

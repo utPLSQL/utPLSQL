@@ -490,11 +490,6 @@ create or replace package ut_utils authid definer is
   function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list;
 
   /*
-  * Function that converts postfix notation into infix
-  */
-  function convert_postfix_to_infix(a_postfix_exp in ut_varchar2_list) return varchar2;
-
-  /*
   * Function that converts postfix notation into infix and creating a string of sql filter 
   * that checking a tags collections for tags according to posted logic.
   */  
