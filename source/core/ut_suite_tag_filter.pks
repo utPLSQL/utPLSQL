@@ -31,7 +31,7 @@ create or replace package ut_suite_tag_filter authid definer is
   * and return a list of elements in Reverse Polish Notation ( postfix )
   * As part of execution it will validate expression.
   */
-  function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list;
+  function shunt_logical_expression(a_tags in ut_varchar2_list) return ut_varchar2_list;
 
   /*
   * Function that converts postfix notation into infix and creating a string of sql filter 

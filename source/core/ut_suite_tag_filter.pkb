@@ -87,19 +87,18 @@ create or replace package body ut_suite_tag_filter is
   /*
     https://stackoverflow.com/questions/29634992/shunting-yard-validate-expression
   */
-  function shunt_logical_expression(a_tags in varchar2) return ut_varchar2_list is
+  function shunt_logical_expression(a_tags in ut_varchar2_list) return ut_varchar2_list is
     l_operator_stack ut_stack := ut_stack();
-    l_input_tokens ut_varchar2_list := tokenize_tags_string(a_tags);
     l_rnp_tokens ut_varchar2_list := ut_varchar2_list();
     l_token varchar2(32767);
     l_expect_operand boolean := true;
     l_expect_operator boolean := false;
     l_idx pls_integer;
   begin    
-    l_idx := l_input_tokens.first;
+    l_idx := a_tags.first;
     --Exuecute modified shunting algorithm
     WHILE (l_idx is not null) loop
-      l_token := l_input_tokens(l_idx);
+      l_token := a_tags(l_idx);
       if (l_token member of gc_operators and l_token member of gc_binary_operators) then
         if not(l_expect_operator) then 
           raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
@@ -108,21 +107,21 @@ create or replace package body ut_suite_tag_filter is
           l_rnp_tokens.extend;
           l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
         end loop;
-        l_operator_stack.push(l_input_tokens(l_idx));
+        l_operator_stack.push(a_tags(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;
       elsif (l_token member of gc_operators and l_token member of gc_unary_operators) then  
         if not(l_expect_operand) then 
           raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;        
-        l_operator_stack.push(l_input_tokens(l_idx));
+        l_operator_stack.push(a_tags(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;   
       elsif l_token = '(' then
         if not(l_expect_operand) then 
           raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
         end if;        
-        l_operator_stack.push(l_input_tokens(l_idx));
+        l_operator_stack.push(a_tags(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;      
       elsif l_token = ')' then
@@ -146,7 +145,7 @@ create or replace package body ut_suite_tag_filter is
         l_expect_operand := false;
       end if;
       
-      l_idx := l_input_tokens.next(l_idx);
+      l_idx := a_tags.next(l_idx);
     end loop;
     
     while l_operator_stack.peek is not null loop
@@ -198,9 +197,10 @@ create or replace package body ut_suite_tag_filter is
   function create_where_filter(a_tags varchar2
   ) return varchar2 is
     l_tags varchar2(4000);
+    l_tokenized_tags ut_varchar2_list;
   begin
     l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
-    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(l_tags));
+    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)));
     l_tags := replace(l_tags, '|',' or ');
     l_tags := replace(l_tags ,'&',' and ');
     l_tags := replace(l_tags ,'!','not');

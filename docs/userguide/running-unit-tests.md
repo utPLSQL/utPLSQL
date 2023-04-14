@@ -319,22 +319,84 @@ select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 30
 
 In addition to the path, you can filter the tests to be run by specifying tags. Tags are defined in the test / context / suite with the `--%tags`-annotation ([Read more](annotations.md#tags)).  
 Multiple tags are separated by comma. 
-The framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run.
+
+
+### Tag Expressions
+
+Tag expressions are boolean expressions with the operators !, & and |. In addition, ( and ) can be used to adjust for operator precedence.
+
+| Operator | Meaning |
+| -------- | --------|
+| !        | not     |
+| &        | and     |
+| \|        | or      |
+
+If you are tagging your tests across multiple dimensions, tag expressions help you to select which tests to execute. When tagging by test type (e.g., micro, integration, end-to-end) and feature (e.g., product, catalog, shipping), the following tag expressions can be useful.
+
+
+| Tag Expression | Selection |
+| -------- | --------|
+| product        | all tests for product     |
+| catalog \| shipping        | all tests for catalog plus all tests for shipping     |
+| catalog & shipping       | all tests for the intersection between catalog and shipping     |
+| product & !end-to-end | all tests for product, but not the end-to-end tests |
+| (micro \| integration) & (product \| shipping) | all micro or integration tests for product or shipping |
+
+
+Execution of the test is done by using the parameter `a_tags` with tag expressions
+
 
 ```sql linenums="1"
-begin
-  ut.run('hr.test_apply_bonus', a_tags => 'test1,test2');
-end;
+select * from table(ut.run(a_tags => 'fast|!complex'));
 ```
-```sql linenums="1"
-select * from table(ut.run('hr.test_apply_bonus', a_tags => 'suite1'))
-```
-
-You can also exclude specific tags by adding a `-` (dash) in front of the tag
+The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api` because a suite meet expression condition.
 
 ```sql linenums="1"
-select * from table(ut.run('hr.test_apply_bonus', a_tags => '-suite1'))
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
 ```
+The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'complex'));
+```
+The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'fast'));
+```
+The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
+
+### Excluding tests/suites by tags
+
+It is possible to exclude parts of test suites with tags.
+In order to do so, prefix the tag name to exclude with a `!` (exclamation) sign when invoking the test run which is equivalent of `-` (dash) in legacy notation.
+Examples (based on above sample test suite)
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&!complex'));
+```
+
+which is equivalent of legacy calling:
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'api,fast,-complex'));
+```
+
+or 
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&(!complex&!test1)'));
+```
+
+which is equivalent of legacy calling:
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'api,fast,-complex,-test1'));
+```
+
+The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
+Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
+
 
 ## Keeping uncommitted data after test-run
 

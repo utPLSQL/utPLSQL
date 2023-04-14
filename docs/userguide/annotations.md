@@ -1616,7 +1616,7 @@ or
 
 Tags are defined as a comma separated list within the `--%tags` annotation. 
 
-When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent, unless they are excluded by tag expression.
+When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent, unless they are excluded explicitly at runtime with a negated tag expression.
 Parent suite tests are not executed, but a suitepath hierarchy is kept.
 
 Sample test suite package with tags.
@@ -1657,52 +1657,6 @@ create or replace package body ut_sample_test is
 end ut_sample_test;
 /
 ```
-
-#### Tag Expressions
-
-Tag expressions are boolean expressions with the operators !, & and |. In addition, ( and ) can be used to adjust for operator precedence.
-
-| Operator | Meaning |
-| -------- | --------|
-| !        | not     |
-| &        | and     |
-| \|        | or      |
-
-If you are tagging your tests across multiple dimensions, tag expressions help you to select which tests to execute. When tagging by test type (e.g., micro, integration, end-to-end) and feature (e.g., product, catalog, shipping), the following tag expressions can be useful.
-
-
-| Tag Expression | Selection |
-| -------- | --------|
-| product        | all tests for product     |
-| catalog \| shipping        | all tests for catalog plus all tests for shipping     |
-| catalog & shipping       | all tests for the intersection between catalog and shipping     |
-| product & !end-to-end | all tests for product, but not the end-to-end tests |
-| (micro \| integration) & (product \| shipping) | all micro or integration tests for product or shipping |
-
-
-Execution of the test is done by using the parameter `a_tags` with tag expressions
-
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'fast|!complex'));
-```
-The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api` because a suite meet expression condition.
-
-```sql linenums="1"
-select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
-```
-The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'complex'));
-```
-The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'fast'));
-```
-The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
-
 #### Tag naming convention
 
 Tags must follow the below naming convention:
@@ -1715,43 +1669,9 @@ Tags must follow the below naming convention:
   - vertical bar (|)
   - exclamation point (!)
 - tag cannot be null or blank
-- tag cannot contain whitespace
 - tag cannot start with a dash, e.g. `-some-stuff` is **not** a valid tag
 - tag cannot contain spaces, e.g. `test of batch`. To create a multi-word tag use underscores or dashes, e.g. `test_of_batch`, `test-of-batch`
 - leading and trailing spaces are ignored in tag name, e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
-
-
-#### Excluding tests/suites by tags
-
-It is possible to exclude parts of test suites with tags.
-In order to do so, prefix the tag name to exclude with a `!` (exclamation) sign when invoking the test run which is equivalent of `-` (dash) in legacy notation.
-Examples (based on above sample test suite)
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => '(api|fast)&!complex'));
-```
-
-which is equivalent of legacy calling:
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'api,fast,-complex'));
-```
-
-or 
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => '(api|fast)&(!complex&!test1)'));
-```
-
-which is equivalent of legacy calling:
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'api,fast,-complex,-test1'));
-```
-
-The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
-Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
-
 
 
 ### Suitepath
