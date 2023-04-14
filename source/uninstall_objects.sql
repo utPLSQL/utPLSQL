@@ -95,6 +95,8 @@ drop package ut_suite_manager;
 
 drop package ut_suite_builder;
 
+drop package ut_suite_tag_filter;
+
 drop package ut_suite_cache_manager;
 
 drop table ut_suite_cache purge;
