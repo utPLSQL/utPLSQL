@@ -37,8 +37,15 @@ create or replace package ut_suite_tag_filter authid definer is
   * Function that converts postfix notation into infix and creating a string of sql filter 
   * that checking a tags collections for tags according to posted logic.
   */  
-  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list) return varchar2;  
+  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list,a_tags_column_name in varchar2)
+    return varchar2;  
   
+  /*
+  * Generates a part where clause sql 
+  */  
+  function create_where_filter(a_tags varchar2) 
+    return varchar2;
+
   function apply(
     a_unfiltered_rows  ut_suite_cache_rows,
     a_tags             varchar2 := null

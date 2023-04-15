@@ -22,7 +22,9 @@ create or replace package body ut_suite_tag_filter is
   gc_operators constant ut_varchar2_list := ut_varchar2_list('|','&','!');  
   gc_unary_operators constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
   gc_binary_operators constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
-    
+  gc_tags_column_name constant varchar2(250) := 'tags';  
+  gc_exception_msg constant varchar2(200) := 'Invalid tag expression';
+
   type t_precedence_table is table of number index by varchar2(1);    
   g_precedence t_precedence_table; 
 
@@ -101,7 +103,7 @@ create or replace package body ut_suite_tag_filter is
       l_token := a_tags(l_idx);
       if (l_token member of gc_operators and l_token member of gc_binary_operators) then
         if not(l_expect_operator) then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;
         while l_operator_stack.top > 0 and (g_precedence(l_operator_stack.peek) > g_precedence(l_token))  loop
           l_rnp_tokens.extend;
@@ -112,21 +114,21 @@ create or replace package body ut_suite_tag_filter is
         l_expect_operator:= false;
       elsif (l_token member of gc_operators and l_token member of gc_unary_operators) then  
         if not(l_expect_operand) then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;        
         l_operator_stack.push(a_tags(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;   
       elsif l_token = '(' then
         if not(l_expect_operand) then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;        
         l_operator_stack.push(a_tags(l_idx));
         l_expect_operand := true;
         l_expect_operator:= false;      
       elsif l_token = ')' then
         if not(l_expect_operator) then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;        
         while l_operator_stack.peek <> '(' loop
           l_rnp_tokens.extend;
@@ -137,7 +139,7 @@ create or replace package body ut_suite_tag_filter is
         l_expect_operator:= true;           
       else
         if not(l_expect_operand) then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;
         l_rnp_tokens.extend;
         l_rnp_tokens(l_rnp_tokens.last) :=l_token;
@@ -150,7 +152,7 @@ create or replace package body ut_suite_tag_filter is
     
     while l_operator_stack.peek is not null loop
         if l_operator_stack.peek in ('(',')') then 
-          raise_application_error(ut_utils.gc_invalid_tag_expression, 'Invalid Tag expression'); 
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg); 
         end if;         
         l_rnp_tokens.extend;
         l_rnp_tokens(l_rnp_tokens.last):=l_operator_stack.pop;         
@@ -159,13 +161,13 @@ create or replace package body ut_suite_tag_filter is
     return l_rnp_tokens;
   end shunt_logical_expression;
   
-  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list) 
+  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list,a_tags_column_name in varchar2) 
     return varchar2 is
     l_infix_stack ut_stack := ut_stack();
     l_right_side varchar2(32767);
     l_left_side varchar2(32767);
     l_infix_exp varchar2(32767);
-    l_member_token varchar2(20) := ' member of tags';
+    l_member_token varchar2(20) := ' member of '||a_tags_column_name;
     l_idx pls_integer;
   begin
     l_idx := a_postfix_exp.first;
@@ -173,9 +175,6 @@ create or replace package body ut_suite_tag_filter is
       --If token is operand but also single tag
       if regexp_count(a_postfix_exp(l_idx),'[!()|&]') = 0 then
         l_infix_stack.push(q'[']'||a_postfix_exp(l_idx)||q'[']'||l_member_token);
-      --If token is operand but containing other expressions
-      elsif a_postfix_exp(l_idx) not member of gc_operators then
-        l_infix_stack.push(a_postfix_exp(l_idx));
       --If token is unary operator not  
       elsif a_postfix_exp(l_idx) member of gc_unary_operators then
         l_right_side := l_infix_stack.pop;
@@ -197,10 +196,9 @@ create or replace package body ut_suite_tag_filter is
   function create_where_filter(a_tags varchar2
   ) return varchar2 is
     l_tags varchar2(4000);
-    l_tokenized_tags ut_varchar2_list;
   begin
     l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
-    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)));
+    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)),gc_tags_column_name);
     l_tags := replace(l_tags, '|',' or ');
     l_tags := replace(l_tags ,'&',' and ');
     l_tags := replace(l_tags ,'!','not');
@@ -224,7 +222,7 @@ create or replace package body ut_suite_tag_filter is
     q'[
 with 
   suites_mv as (
-    select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags
+    select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags as ]'||gc_tags_column_name||q'[ 
     from table(:suite_items) c
   ),
   suites_matching_expr as (
@@ -234,17 +232,17 @@ with
     and ]'||l_tags||q'[
   ),
   tests_matching_expr as (
-    select c.id,c.path as path,c.self_type,c.object_owner,c.tags
-    from suites_mv c where c.self_type in ('UT_TEST')
+    select c.id,c.path as path,c.self_type,c.object_owner,c.tags as ]'||gc_tags_column_name||q'[ 
+      from suites_mv c where c.self_type in ('UT_TEST')
     and ]'||l_tags||q'[
   ),  
   tests_with_tags_inh_from_suite as (
-   select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
+   select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags as ]'||gc_tags_column_name||q'[ ,c.object_owner
    from suites_mv c join suites_matching_expr t 
      on (c.path||'.' like t.path || '.%' /*all descendants and self*/ and c.object_owner = t.object_owner)
   ),
   tests_with_tags_prom_to_suite as (
-    select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags tags,c.object_owner
+    select c.id,c.self_type,c.path,c.tags multiset union distinct t.tags as ]'||gc_tags_column_name||q'[ ,c.object_owner
     from suites_mv c join tests_matching_expr t 
       on (t.path||'.' like c.path || '.%' /*all ancestors and self*/ and c.object_owner = t.object_owner)
   )

@@ -62,21 +62,20 @@ create or replace package body test_ut_suite_tag_filter is
     ut.fail('Expected exception but nothing was raised');
   end;
 
-  procedure conv_from_rpn_to_sql_filter is
-    l_postfix_rpn ut3_develop.ut_varchar2_list;
-    l_infix_string varchar2(4000);
+  procedure conv_from_tag_to_sql_filter is
+    l_sql_filter varchar2(4000);
   begin
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('A');
-    l_infix_string := ut3_develop.ut_suite_tag_filter.conv_postfix_to_infix_sql(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal(q'['A' member of tags]');
+    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1');
+    ut.expect(l_sql_filter).to_equal(q'['test1' member of tags]');
     
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('A','B','|');
-    l_infix_string := ut3_develop.ut_suite_tag_filter.conv_postfix_to_infix_sql(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal(q'[('A' member of tags|'B' member of tags)]');
+    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1|test2');
+    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags or 'test2' member of tags)]');
 
-    l_postfix_rpn := ut3_develop.ut_varchar2_list('a','b','!','|');
-    l_infix_string := ut3_develop.ut_suite_tag_filter.conv_postfix_to_infix_sql(l_postfix_rpn);
-    ut.expect(l_infix_string).to_equal(q'[('a' member of tags|!('b' member of tags))]');  
+    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1|!test2');
+    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags or not('test2' member of tags))]');  
+
+    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1&!test2');
+    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags and not('test2' member of tags))]');  
   end;
 
 end test_ut_suite_tag_filter;

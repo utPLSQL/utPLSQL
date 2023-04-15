@@ -26,8 +26,8 @@ create or replace package test_ut_suite_tag_filter is
 
   --%endcontext
 
-  --%test( Test conversion of expression from Reverse Polish Notation into custom where filter for SQL)
-  procedure conv_from_rpn_to_sql_filter;  
+  --%test( Test conversion of expression from tag into custom where filter for SQL)
+  procedure conv_from_tag_to_sql_filter;  
 
 end test_ut_suite_tag_filter;
 /
