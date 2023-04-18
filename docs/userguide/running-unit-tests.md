@@ -323,7 +323,7 @@ Multiple tags are separated by comma.
 
 ### Tag Expressions
 
-Tag expressions are boolean expressions with the operators !, & and |. In addition, ( and ) can be used to adjust for operator precedence.
+Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
 
 | Operator | Meaning |
 | -------- | --------|
@@ -338,18 +338,76 @@ If you are tagging your tests across multiple dimensions, tag expressions help y
 | -------- | --------|
 | product        | all tests for product     |
 | catalog \| shipping        | all tests for catalog plus all tests for shipping     |
-| catalog & shipping       | all tests for the intersection between catalog and shipping     |
-| product & !end-to-end | all tests for product, but not the end-to-end tests |
+| catalog & shipping       | all tests that are tagged with both `catalog` and `shipping` tags      |
+| product & !end-to-end | all tests tagged `product`, except the tests tagged `end-to-end` |
 | (micro \| integration) & (product \| shipping) | all micro or integration tests for product or shipping |
 
 
-Execution of the test is done by using the parameter `a_tags` with tag expressions
+Taking the last expression above `(micro | integration) & (product | shipping)`
 
+| --%tags	|included in run |
+| -------- | --------|
+| micro	| no |
+| integration |	no |
+| micro	| no | 
+| product	| no |
+| shipping	| no |
+| micro	| no |
+| micro, integration | no |
+| product, shipping	| no |
+| micro, product	| yes |
+| micro, shipping	| yes |
+| integration, product |	yes |
+| integration, shipping |	yes |
+| integration, micro, shipping |	yes |
+| integration, micro, product |	yes |
+| integration, shipping ,product |	yes |
+| micro, shipping ,product |	yes |
+| integration, micro, shipping ,product |	yes |
+
+
+### Sample execution of test with tags.
+
+Execution of the test with tag expressions is done using the parameter `a_tags`.
+Given a test package `ut_sample_test` defined below 
 
 ```sql linenums="1"
-select * from table(ut.run(a_tags => 'fast|!complex'));
+create or replace package ut_sample_test is
+
+   --%suite(Sample Test Suite)
+   --%tags(api)
+
+   --%test(Compare Ref Cursors)
+   --%tags(complex,fast)
+   procedure ut_refcursors1;
+
+   --%test(Run equality test)
+   --%tags(simple,fast)
+   procedure ut_test;
+   
+end ut_sample_test;
+/
+
+create or replace package body ut_sample_test is
+
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
+
+      ut.expect(v_actual).to_equal(v_expected);
+   end;
+   
+   procedure ut_test is
+   begin
+       ut.expect(1).to_equal(0);
+   end;
+   
+end ut_sample_test;
+/
 ```
-The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api` because a suite meet expression condition.
 
 ```sql linenums="1"
 select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
@@ -357,9 +415,9 @@ select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
 The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
 
 ```sql linenums="1"
-select * from table(ut.run(a_tags => 'complex'));
+select * from table(ut.run(a_tags => 'fast&complex'));
 ```
-The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
+The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex` and `fast`
 
 ```sql linenums="1"
 select * from table(ut.run(a_tags => 'fast'));
@@ -376,25 +434,13 @@ Examples (based on above sample test suite)
 select * from table(ut.run(a_tags => '(api|fast)&!complex'));
 ```
 
-which is equivalent of legacy calling:
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'api,fast,-complex'));
-```
-
 or 
 
 ```sql linenums="1"
-select * from table(ut.run(a_tags => '(api|fast)&(!complex&!test1)'));
+select * from table(ut.run(a_tags => '(api|fast)&!complex&!test1'));
 ```
 
-which is equivalent of legacy calling:
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'api,fast,-complex,-test1'));
-```
-
-The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
+The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex` and except those suites/contexts/tests that are marked as `test1`. 
 Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
 
 

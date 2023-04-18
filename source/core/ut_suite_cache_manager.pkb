@@ -285,18 +285,6 @@ create or replace package body ut_suite_cache_manager is
     return l_results;
   end;
     
-  function get_cached_suites(
-    a_schema_paths     ut_path_items,
-    a_random_seed      positive := null 
-  ) return ut_suite_cache_rows is
-    l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
-    l_schema_paths    ut_path_items;  
-  begin
-    l_schema_paths := a_schema_paths;
-    l_suite_items := get_suite_items(a_schema_paths);
-    return l_suite_items;
-  end;
-
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
   begin
@@ -443,7 +431,7 @@ create or replace package body ut_suite_cache_manager is
     a_schema_paths     ut_path_items
   ) return ut_suite_cache_rows is
   begin
-    return get_cached_suite_rows(get_cached_suites( a_schema_paths ));
+    return get_cached_suite_rows(get_suite_items(a_schema_paths));
   end;
 
   function get_suite_items_info(

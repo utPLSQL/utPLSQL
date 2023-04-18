@@ -1617,46 +1617,8 @@ or
 Tags are defined as a comma separated list within the `--%tags` annotation. 
 
 When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent, unless they are excluded explicitly at runtime with a negated tag expression.
-Parent suite tests are not executed, but a suitepath hierarchy is kept.
+See [running unit tests](running-unit-tests.md) for more information on using tags to filter test suites that are to be executed.
 
-Sample test suite package with tags.
-```sql linenums="1"
-create or replace package ut_sample_test is
-
-   --%suite(Sample Test Suite)
-   --%tags(api)
-
-   --%test(Compare Ref Cursors)
-   --%tags(complex,fast)
-   procedure ut_refcursors1;
-
-   --%test(Run equality test)
-   --%tags(simple,fast)
-   procedure ut_test;
-   
-end ut_sample_test;
-/
-
-create or replace package body ut_sample_test is
-
-   procedure ut_refcursors1 is
-      v_actual   sys_refcursor;
-      v_expected sys_refcursor;
-   begin
-    open v_expected for select 1 as test from dual;
-    open v_actual   for select 2 as test from dual;
-
-      ut.expect(v_actual).to_equal(v_expected);
-   end;
-   
-   procedure ut_test is
-   begin
-       ut.expect(1).to_equal(0);
-   end;
-   
-end ut_sample_test;
-/
-```
 #### Tag naming convention
 
 Tags must follow the below naming convention:

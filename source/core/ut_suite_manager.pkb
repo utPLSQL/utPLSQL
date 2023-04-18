@@ -360,10 +360,7 @@ create or replace package body ut_suite_manager is
     l_filtered_rows      ut_suite_cache_rows;
     l_result             t_cached_suites_cursor;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suites(
-      a_schema_paths,
-      a_random_seed
-    );
+    l_unfiltered_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths);
 
     l_tag_filter_applied := ut_suite_tag_filter.apply(l_unfiltered_rows,a_tags);
     l_filtered_rows := get_filtered_cursor(ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied),a_skip_all_objects);
