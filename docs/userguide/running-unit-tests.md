@@ -440,7 +440,13 @@ or
 select * from table(ut.run(a_tags => '(api|fast)&!complex&!test1'));
 ```
 
-The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex` and except those suites/contexts/tests that are marked as `test1`. 
+which is equivalent of exclusion on whole expression
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&!(complex|test1)'));
+``` 
+
+The above calls  will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex` and except those suites/contexts/tests that are marked as `test1`. 
 Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
 
 
