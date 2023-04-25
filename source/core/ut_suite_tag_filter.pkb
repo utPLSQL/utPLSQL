@@ -22,9 +22,10 @@ create or replace package body ut_suite_tag_filter is
   gc_operators constant ut_varchar2_list := ut_varchar2_list('|','&','!');  
   gc_unary_operators constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
   gc_binary_operators constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
+  gc_reserved_tag_words constant ut_varchar2_list := ut_varchar2_list('none','any');
   gc_tags_column_name constant varchar2(250) := 'tags';  
   gc_exception_msg constant varchar2(200) := 'Invalid tag expression';
-
+  
   type t_precedence_table is table of number index by varchar2(1);    
   g_precedence t_precedence_table; 
 
@@ -172,8 +173,17 @@ create or replace package body ut_suite_tag_filter is
   begin
     l_idx := a_postfix_exp.first;
     while ( l_idx is not null) loop
+      --If the token we got is a none or any keyword
+      if a_postfix_exp(l_idx) member of gc_reserved_tag_words then
+        
+        l_infix_stack.push( 
+          case 
+            when a_postfix_exp(l_idx) = 'none' then '('||a_tags_column_name||' is empty or '||a_tags_column_name||' is null)'
+          else a_tags_column_name||' is not empty'
+          end
+          );
       --If token is operand but also single tag
-      if regexp_count(a_postfix_exp(l_idx),'[!()|&]') = 0 then
+      elsif regexp_count(a_postfix_exp(l_idx),'[!()|&]') = 0 then
         l_infix_stack.push(q'[']'||a_postfix_exp(l_idx)||q'[']'||l_member_token);
       --If token is unary operator not  
       elsif a_postfix_exp(l_idx) member of gc_unary_operators then
@@ -256,7 +266,6 @@ with
       where ]'||l_tags||q'[   
       )
     ) t where c.id = t.id and r_num = 1 ]';
-    
     execute immediate l_sql bulk collect into  l_suite_tags using a_suite_items;
     return l_suite_tags;  
   end;

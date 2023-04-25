@@ -431,12 +431,162 @@ create or replace package body run_helper is
     end test_tag_pkg_3;
     ]';
 
+        execute immediate q'[create or replace package suite1_level1_pkg is
+        
+      --%suite(suite1_level1)
+      --%suitepath(any_none)
+      --%rollback(manual)
+
+      --%test(Test 1 from Suite1 on level 1)
+      --%tags(suite1,level1,test1,test1_level1)
+      procedure test1_level1;
+
+      --%test(Test 2 from Suite1 on level 1)
+      procedure test2_level1;
+
+    end suite1_level1_pkg;
+    ]';        
+
+    execute immediate q'[create or replace package body suite1_level1_pkg is
+      procedure test1_level1 is
+        begin
+          dbms_output.put_line('suite1_level1_pkg.test1_level1 executed');
+        end;
+      procedure test2_level1 is
+        begin
+          dbms_output.put_line('suite1_level1_pkg.test2_level1 executed');
+        end;
+    end suite1_level1_pkg;
+    ]';
+
+        execute immediate q'[create or replace package suite1_1_level2_pkg is
+        
+      --%suite(suite1_1_level2)
+      --%suitepath(any_none.suite1_level1)
+      --%rollback(manual)
+
+      --%test(Test 1 from Suite1_2 on level 2)
+      --%tags(level2,test1,test1_level2)
+      procedure suite1_1_test1_level2;
+
+      --%test(Test 2 from Suite1_2 on level 2)
+      procedure suite1_1_test2_level2;
+
+    end suite1_1_level2_pkg;
+    ]';        
+
+    execute immediate q'[create or replace package body suite1_1_level2_pkg is
+      procedure suite1_1_test1_level2 is
+        begin
+          dbms_output.put_line('suite1_1_level2_pkg.suite1_1_test1_level2 executed');
+        end;
+      procedure suite1_1_test2_level2 is
+        begin
+          dbms_output.put_line('suite1_1_level2_pkg.suite1_1_test2_level2 executed');
+        end;
+    end suite1_1_level2_pkg;
+    ]';    
+
+        execute immediate q'[create or replace package suite1_2_level2_pkg is
+        
+      --%suite(suite1_2_level2)
+      --%tags(level2,suite1_2,suites)
+      --%suitepath(any_none.suite1_level1)
+      --%rollback(manual)
+
+      --%test(Test 1 from Suite1_2 on level 2)
+      procedure suite1_2_test1_level2;
+
+      --%test(Test 2 from Suite1_2 on level 2)
+      --%tags(level2,test2,test2_level2)
+      procedure suite1_2_test2_level1;
+
+    end suite1_2_level2_pkg;
+    ]';        
+
+    execute immediate q'[create or replace package body suite1_2_level2_pkg is
+      procedure suite1_2_test1_level2 is
+        begin
+          dbms_output.put_line('suite1_2_level2_pkg.suite1_2_test1_level2 executed');
+        end;
+      procedure suite1_2_test2_level1 is
+        begin
+          dbms_output.put_line('suite1_2_level2_pkg.suite1_2_test2_level1 executed');
+        end;
+    end suite1_2_level2_pkg;
+    ]'; 
+
+        execute immediate q'[create or replace package suite2_level1_pkg is
+        
+      --%suite(suite2_level1)
+      --%tags(level1,suite2,suites)
+      --%suitepath(any_none)
+      --%rollback(manual)
+
+      --%test(Test 1 from Suite1 on level 1)
+      --%tags(suite2,level1,test1,test1_level1)
+      procedure test1_level1;
+
+      --%test(Test 2 from Suite1 on level 1)
+      procedure test2_level1;
+
+    end suite2_level1_pkg;
+    ]';        
+
+    execute immediate q'[create or replace package body suite2_level1_pkg is
+      procedure test1_level1 is
+        begin
+          dbms_output.put_line('suite2_level1_pkg.test1_level1 executed');
+        end;
+      procedure test2_level1 is
+        begin
+          dbms_output.put_line('suite2_level1_pkg.test2_level1 executed');
+        end;
+    end suite2_level1_pkg;
+    ]';    
+
+    execute immediate q'[create or replace package suite2_2_level2_pkg is
+        
+      --%suite(suite2_2_level2)
+      --%tags(level2,suite2_2,suites)
+      --%suitepath(any_none.suite2_level1)
+      --%rollback(manual)
+
+      --%test(Test 1 from Suite2_2 on level 2)
+      procedure suite2_2_test1_level2;
+
+      --%test(Test 2 from Suite2_2 on level 2)
+      --%tags(level2,test2,test2_level2)
+      procedure suite2_2_test2_level2;
+
+    end suite2_2_level2_pkg;
+    ]';        
+
+    execute immediate q'[create or replace package body suite2_2_level2_pkg is
+      procedure suite2_2_test1_level2 is
+        begin
+          dbms_output.put_line('suite2_2_level2_pkg.suite2_2_test1_level2 executed');
+        end;
+      procedure suite2_2_test2_level2 is
+        begin
+          dbms_output.put_line('suite2_2_level2_pkg.suite2_2_test2_level2 executed');
+        end;
+    end suite2_2_level2_pkg;
+    ]'; 
+
+
     execute immediate q'[grant execute on test_package_1 to public]';
     execute immediate q'[grant execute on test_package_2 to public]';
     execute immediate q'[grant execute on test_package_3 to public]';
     execute immediate q'[grant execute on test_tag_pkg_1 to public]';
     execute immediate q'[grant execute on test_tag_pkg_2 to public]';
-    execute immediate q'[grant execute on test_tag_pkg_3 to public]';    
+    execute immediate q'[grant execute on test_tag_pkg_3 to public]';  
+
+    execute immediate q'[grant execute on suite1_level1_pkg to public]';
+    execute immediate q'[grant execute on suite1_1_level2_pkg to public]';
+    execute immediate q'[grant execute on suite1_2_level2_pkg to public]';  
+    execute immediate q'[grant execute on suite2_level1_pkg to public]';
+    execute immediate q'[grant execute on suite2_2_level2_pkg to public]';    
   end;
 
   procedure drop_ut3_user_tests is
@@ -447,7 +597,13 @@ create or replace package body run_helper is
     execute immediate q'[drop package test_package_3]';
     execute immediate q'[drop package test_tag_pkg_1]';
     execute immediate q'[drop package test_tag_pkg_2]';
-    execute immediate q'[drop package test_tag_pkg_3]';    
+    execute immediate q'[drop package test_tag_pkg_3]';  
+
+    execute immediate q'[drop package suite2_2_level2_pkg]';
+    execute immediate q'[drop package suite2_level1_pkg]';
+    execute immediate q'[drop package suite1_2_level2_pkg]';
+    execute immediate q'[drop package suite1_level1_pkg]';
+    execute immediate q'[drop package suite1_1_level2_pkg]';       
   end;
  
    procedure create_test_suite is

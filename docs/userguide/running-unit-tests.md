@@ -325,6 +325,8 @@ Multiple tags are separated by comma.
 
 Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
 
+Two special expressions are supported, `any` and `none`, which select all tests with any tags at all, and all tests without any tags, respectively. These special expressions may be combined with other expressions just like normal tags. When using `none` be aware that if the suite is tagged it will exclude any tests and children belonging to that suite.
+
 | Operator | Meaning |
 | -------- | --------|
 | !        | not     |
@@ -449,6 +451,79 @@ select * from table(ut.run(a_tags => '(api|fast)&!(complex|test1)'));
 The above calls  will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex` and except those suites/contexts/tests that are marked as `test1`. 
 Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
 
+
+### Sample execution with `any` and `none`
+
+Given a sample test package:
+
+```sql linenums="1"
+create or replace package ut_sample_test is
+
+   --%suite(Sample Test Suite)
+
+   --%test(Compare Ref Cursors)
+   --%tags(complex,fast)
+   procedure ut_refcursors1;
+
+   --%test(Run equality test)
+   --%tags(simple,fast)
+   procedure ut_test;
+ 
+   --%test(Run equality test no tag)   
+   procedure ut_test_no_tag;
+   
+end ut_sample_test;
+/
+
+create or replace package body ut_sample_test is
+
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
+
+      ut.expect(v_actual).to_equal(v_expected);
+   end;
+   
+   procedure ut_test is
+   begin
+       ut.expect(1).to_equal(0);
+   end;
+
+   procedure ut_test_no_tag is
+   begin
+       ut.expect(1).to_equal(0);
+   end;   
+   
+end ut_sample_test;
+/
+```
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'none'));
+```
+
+The above call will execute tests `ut_test_no_tag`
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'any'));
+```
+
+The above call will execute tests `ut_test` and `ut_refcursors1`
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'none|simple'));
+```
+
+The above call will execute tests `ut_test_no_tag` and `ut_test` 
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'none|!simple'));
+```
+
+The above call will execute tests `ut_test_no_tag` and `ut_refcursors1` 
 
 ## Keeping uncommitted data after test-run
 
