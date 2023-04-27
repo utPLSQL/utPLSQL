@@ -1634,7 +1634,7 @@ Tags must follow the below naming convention:
 - tag cannot start with a dash, e.g. `-some-stuff` is **not** a valid tag
 - tag cannot contain spaces, e.g. `test of batch`. To create a multi-word tag use underscores or dashes, e.g. `test_of_batch`, `test-of-batch`
 - leading and trailing spaces are ignored in tag name, e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
-- tag cannot be one of two reserved words : `none` and `any`, any tags with that will not be considered.
+- tag cannot be one of two reserved words: `none` and `any`. `none` and `any` as a tag will be treated as no tag
 
 
 ### Suitepath

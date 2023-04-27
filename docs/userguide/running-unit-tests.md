@@ -325,7 +325,13 @@ Multiple tags are separated by comma.
 
 Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
 
-Two special expressions are supported, `any` and `none`, which select all tests with any tags at all, and all tests without any tags, respectively. These special expressions may be combined with other expressions just like normal tags. When using `none` be aware that if the suite is tagged it will exclude any tests and suites below.
+Two reserved keywords, `any` and `none`, can be used when creating a tag expression to run tests.
+- `any` keyword represents tests and suites with any tags
+- `none` keyword represents tests and suites without tags
+
+These keywords may be combined with other expressions just like normal tags.
+
+**Note:** When specifying `none`, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.
 
 | Operator | Meaning |
 | -------- | --------|
