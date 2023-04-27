@@ -331,7 +331,8 @@ Two reserved keywords, `any` and `none`, can be used when creating a tag express
 
 These keywords may be combined with other expressions just like normal tags.
 
-**Note:** When specifying `none`, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.
+!!! note
+    When specifying `none`, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.
 
 | Operator | Meaning |
 | -------- | --------|
