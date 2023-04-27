@@ -16,7 +16,10 @@ create or replace package test_teamcity_reporter as
   procedure trims_long_output;
 
   --%test(Reports failures on multiple expectations)
-  procedure report_mutiple_expectations;
+  procedure report_multiple_expectations;
+
+  --%test(Reports failures on multiple expectations)
+  procedure report_multiple_expect_on_err;
 
   --%afterall
   procedure remove_test_package;

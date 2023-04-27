@@ -90,11 +90,10 @@ as
 
   procedure erroring_test
   is
-    l_variable integer;
+    l_integer_variable integer;
   begin
     dbms_output.put_line('<!erroring test!>');
-    l_variable := 'a string';
-    ut3_develop.ut.expect(l_variable).to_equal(1);
+    l_integer_variable := 'a string';
   end;
 
   procedure disabled_test

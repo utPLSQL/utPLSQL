@@ -36,6 +36,9 @@ create or replace package body test_teamcity_reporter as
 
       --%test
       procedure multi_failure;
+
+      --%test
+      procedure multi_failure_on_error;
     end;]';
       execute immediate q'[create or replace package body check_multiple_failures is
       procedure multi_failure is
@@ -43,6 +46,14 @@ create or replace package body test_teamcity_reporter as
         ut3_develop.ut.expect(1).to_be_null;
         ut3_develop.ut.expect(2).to_equal(1);
         ut3_develop.ut.expect('Bad').to_equal('Good');
+      end;
+      procedure multi_failure_on_error is
+        l_integer_variable integer;
+      begin
+        ut3_develop.ut.expect(1).to_be_null;
+        ut3_develop.ut.expect(2).to_equal(1);
+        ut3_develop.ut.expect('Bad').to_equal('Good');
+        l_integer_variable := 'a string';
       end;
     end;]';
 
@@ -132,7 +143,7 @@ create or replace package body test_teamcity_reporter as
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end;
 
-  procedure report_mutiple_expectations is
+  procedure report_multiple_expectations is
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
@@ -146,7 +157,29 @@ create or replace package body test_teamcity_reporter as
     --act
     select *
         bulk collect into l_output_data
-    from table(ut3_develop.ut.run('check_multiple_failures',ut3_develop.ut_teamcity_reporter()));
+    from table(ut3_develop.ut.run('check_multiple_failures.multi_failure',ut3_develop.ut_teamcity_reporter()));
+
+    --assert
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+  end;
+
+  procedure report_multiple_expect_on_err is
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='check_multiple_failures']
+%##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testStdErr timestamp='%' name='ut3_user.check_multiple_failures.multi_failure_on_error' out='Test exception:|nORA-06502: PL/SQL: %: character to number conversion error|nORA-06512: at "UT3_USER.CHECK_MULTIPLE_FAILURES", line %|nORA-06512: at %|n']
+%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06502: PL/SQL: %: character to number conversion error|nORA-06512: at "UT3_USER.CHECK_MULTIPLE_FAILURES", line %|nORA-06512: at %|n' message='Error occured' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testFailed timestamp='%' details='Actual: 1 (number) was expected to be null' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testFailed timestamp='%' details='Actual: 2 (number) was expected to equal: 1 (number)' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testFailed timestamp='%' details='Actual: |'Bad|' (varchar2) was expected to equal: |'Good|' (varchar2)' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testFinished timestamp='%' duration='%' name='ut3_user.check_multiple_failures.multi_failure_on_error']
+%##teamcity[testSuiteFinished timestamp='%' name='check_multiple_failures']}';
+    --act
+    select *
+        bulk collect into l_output_data
+    from table(ut3_develop.ut.run('check_multiple_failures.multi_failure_on_error',ut3_develop.ut_teamcity_reporter()));
 
     --assert
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
