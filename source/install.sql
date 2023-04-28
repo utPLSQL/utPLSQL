@@ -50,6 +50,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/types/ut_key_value_pairs.tps'
 @@install_component.sql 'core/types/ut_reporter_info.tps'
 @@install_component.sql 'core/types/ut_reporters_info.tps'
+@@install_component.sql 'core/types/ut_stack.tps'
+@@install_component.sql 'core/types/ut_stack.tpb'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
 @@install_component.sql 'core/ut_savepoint_seq.sql'
@@ -153,6 +155,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/ut_suite_cache_seq.sql'
 @@install_component.sql 'core/ut_suite_cache.sql'
 
+@@install_component.sql 'core/ut_suite_tag_filter.pks'
+@@install_component.sql 'core/ut_suite_tag_filter.pkb'
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'

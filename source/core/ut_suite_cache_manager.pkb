@@ -220,55 +220,7 @@ create or replace package body ut_suite_cache_manager is
         and c.name = nvl(upper(sp.procedure_name),c.name)))) where r_num =1;        
     return l_suite_items;
   end;
-  
-  /*
-    Having a base set of suites we will do a further filter down if there are
-    any tags defined.
-  */    
-  function get_tags_suites (
-    a_suite_items ut_suite_cache_rows,
-    a_tags ut_varchar2_rows
-  ) return ut_suite_cache_rows is
-    l_suite_tags ut_suite_cache_rows := ut_suite_cache_rows();
-    l_include_tags    ut_varchar2_rows;
-    l_exclude_tags    ut_varchar2_rows;    
-  begin
-
-    select /*+ no_parallel */ column_value
-      bulk collect into l_include_tags
-      from table(a_tags)
-     where column_value not like '-%';
-
-    select /*+ no_parallel */ ltrim(column_value,'-')
-      bulk collect into l_exclude_tags
-      from table(a_tags)
-     where column_value like '-%';  
-  
-    with included_tags as (
-        select c.path as path
-          from table(a_suite_items) c
-         where c.tags multiset intersect l_include_tags is not empty or l_include_tags is empty
-       ),
-       excluded_tags as (
-        select c.path as path
-          from table(a_suite_items) c
-         where c.tags multiset intersect l_exclude_tags is not empty
-       )
-       select value(c) as obj
-       bulk collect into  l_suite_tags
-         from table(a_suite_items) c
-        where exists (
-          select 1 from included_tags t
-           where t.path||'.' like c.path || '.%' /*all ancestors and self*/
-              or c.path||'.' like t.path || '.%' /*all descendants and self*/
-          )
-        and not exists (
-          select 1 from excluded_tags t
-           where c.path||'.' like t.path || '.%' /*all descendants and self*/
-          );
-    return l_suite_tags;      
-  end;
-  
+      
   /*
     We will sort a suites in hierarchical structure.
     Sorting from bottom to top so when we consolidate
@@ -321,31 +273,18 @@ create or replace package body ut_suite_cache_manager is
   end;
   
   function get_cached_suite_rows(
-    a_schema_paths     ut_path_items,
-    a_random_seed      positive := null,
-    a_tags             ut_varchar2_rows := null
+    a_suites_filtered ut_suite_cache_rows 
   ) return ut_suite_cache_rows is
     l_results         ut_suite_cache_rows := ut_suite_cache_rows();
-    l_suite_items     ut_suite_cache_rows := ut_suite_cache_rows();
-    l_schema_paths    ut_path_items;
-    l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
   begin     
 
-    l_schema_paths := a_schema_paths;
-    l_suite_items := get_suite_items(a_schema_paths);
-    if l_tags.count > 0 then
-      l_suite_items := get_tags_suites(l_suite_items,l_tags);
-    end if;
-    
-    open c_get_bulk_cache_suite(l_suite_items);
+    open c_get_bulk_cache_suite(a_suites_filtered);
     fetch c_get_bulk_cache_suite bulk collect into l_results;
     close c_get_bulk_cache_suite;
       
     return l_results;
   end;
     
-  
-
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
   begin
@@ -492,7 +431,7 @@ create or replace package body ut_suite_cache_manager is
     a_schema_paths     ut_path_items
   ) return ut_suite_cache_rows is
   begin
-    return get_cached_suite_rows( a_schema_paths );
+    return get_cached_suite_rows(get_suite_items(a_schema_paths));
   end;
 
   function get_suite_items_info(

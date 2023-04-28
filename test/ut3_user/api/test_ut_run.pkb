@@ -948,7 +948,7 @@ Failures:%
   procedure two_test_run_by_two_tags is
     l_results clob;
   begin
-    ut3_tester_helper.run_helper.run(a_tags => 'subtest1,subtest2');
+    ut3_tester_helper.run_helper.run(a_tags => 'subtest1|subtest2');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -958,7 +958,21 @@ Failures:%
     ut.expect( l_results ).not_to_be_like( '%test_package_3%' ); 
     ut.expect( l_results ).not_to_be_like( '%test_package_3%' );  
   end;
-  
+
+  procedure two_test_run_by_two_tags_leg is
+    l_results clob;
+  begin
+    ut3_tester_helper.run_helper.run(a_tags => 'subtest1,subtest2');
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_package_1%' );
+    ut.expect( l_results ).to_be_like( '%test_package_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_1.test2%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_2.test2%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' );  
+  end; 
+
   procedure suite_with_children_tag  is
     l_results clob;
   begin
@@ -1079,6 +1093,20 @@ Failures:%
   procedure tag_run_func_path_list is
     l_results   ut3_develop.ut_varchar2_list;
   begin
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1|suite2test1');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
+  end;
+
+  procedure tag_run_func_path_list_leg is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
     l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
@@ -1093,6 +1121,18 @@ Failures:%
   procedure tag_inc_exc_run_func_path_list is
     l_results   ut3_develop.ut_varchar2_list;
   begin
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => '(suite1test1|suite2test1)&!suite2');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
+  end;
+
+  procedure tag_inc_exc_run_fun_pth_lst_lg is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
     l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1,-suite2');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
@@ -1103,6 +1143,22 @@ Failures:%
   end;
 
   procedure tag_exclude_run_func_path_list is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests,:tests2'),a_tags => '!suite1test2&!suite2test1&!test1suite3');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_3%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_3.test2%executed%' );
+  end;
+
+procedure tag_exclude_run_fun_pth_lst_lg is
     l_results   ut3_develop.ut_varchar2_list;
   begin
     l_results := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests,:tests2'),a_tags => '-suite1test2,-suite2test1,-test1suite3');
@@ -1121,6 +1177,20 @@ Failures:%
   procedure tag_include_exclude_run_func is
     l_results   ut3_develop.ut_varchar2_list;
   begin
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(suite1)&(!suite1test2&!suite2test1&!test1suite3)');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2.test2%executed%' );
+  end;
+
+  procedure tag_include_exclude_run_fun_lg is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
     l_results := ut3_tester_helper.run_helper.run(a_tags => 'suite1,-suite1test2,-suite2test1,-test1suite3');
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
@@ -1130,6 +1200,105 @@ Failures:%
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test1%executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2.test2%executed%' );
+  end;
+
+  procedure tag_complex_expressions is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'release_3_1_13&(fast|simple)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test6 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test1%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'release_3_1_13&(!patch_3_1_13&!patch_3_1_14)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_1.test1 executed%' );   
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' ); 
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test5%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test6%executed%' );
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'release_3_1_13&(patch_3_1_13&!slow)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test6%executed%' );
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(simple&end_to_end)|(development&fast)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_1.test1 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_2.test3 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test6 executed%' );  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_tag_pkg_3.test5 executed%' );     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test3%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test4%executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3.test6%executed%' );
+    
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'any');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite2_level1_pkg.test1_level1 executed%' );     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite2_level1_pkg.test2_level1 executed%' );   
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_level1_pkg.test1_level1 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite2_2_level2_pkg.suite2_2_test1_level2 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite2_2_level2_pkg.suite2_2_test2_level2 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_2_level2_pkg.suite1_2_test1_level2 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_2_level2_pkg.suite1_2_test2_level1 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_1_level2_pkg.suite1_1_test1_level2 executed%' );   
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_level1_pkg.test2_level1 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_1_level2_pkg.suite1_1_test2_level2 executed%' );   
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'none');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_level1_pkg.test2_level1 executed%' );     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%suite1_1_level2_pkg.suite1_1_test2_level2 executed%' );   
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite2_level1_pkg.test1_level1 executed%' );     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite2_level1_pkg.test2_level1 executed%' );   
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_level1_pkg.test1_level1 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite2_2_level2_pkg.suite2_2_test1_level2 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite2_2_level2_pkg.suite2_2_test2_level2 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_2_level2_pkg.suite1_2_test1_level2 executed%' );    
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_2_level2_pkg.suite1_2_test2_level1 executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%suite1_1_level2_pkg.suite1_1_test1_level2 executed%' );
+
+
+  end;
+
+  procedure invalid_tag_expression is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development!&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');  
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&end_to_end|)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');   
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(!development&!!end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');  
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(&development&end_to_end)');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%'); 
+
+    l_results := ut3_tester_helper.run_helper.run(a_tags => '(development|end_to_end))');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');     
+
   end;
 
   procedure set_application_info is

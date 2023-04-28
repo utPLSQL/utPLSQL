@@ -319,22 +319,218 @@ select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 30
 
 In addition to the path, you can filter the tests to be run by specifying tags. Tags are defined in the test / context / suite with the `--%tags`-annotation ([Read more](annotations.md#tags)).  
 Multiple tags are separated by comma. 
-The framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run.
+
+
+### Tag Expressions
+
+Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
+
+Two reserved keywords, `any` and `none`, can be used when creating a tag expression to run tests.
+- `any` keyword represents tests and suites with any tags
+- `none` keyword represents tests and suites without tags
+
+These keywords may be combined with other expressions just like normal tags.
+
+!!! note
+    When specifying `none`, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.
+
+| Operator | Meaning |
+| -------- | --------|
+| !        | not     |
+| &        | and     |
+| \|        | or      |
+
+If you are tagging your tests across multiple dimensions, tag expressions help you to select which tests to execute. When tagging by test type (e.g., micro, integration, end-to-end) and feature (e.g., product, catalog, shipping), the following tag expressions can be useful.
+
+
+| Tag Expression | Selection |
+| -------- | --------|
+| product        | all tests for product     |
+| catalog \| shipping        | all tests for catalog plus all tests for shipping     |
+| catalog & shipping       | all tests that are tagged with both `catalog` and `shipping` tags      |
+| product & !end-to-end | all tests tagged `product`, except the tests tagged `end-to-end` |
+| (micro \| integration) & (product \| shipping) | all micro or integration tests for product or shipping |
+
+
+Taking the last expression above `(micro | integration) & (product | shipping)`
+
+| --%tags	|included in run |
+| -------- | --------|
+| micro	| no |
+| integration |	no |
+| micro	| no | 
+| product	| no |
+| shipping	| no |
+| micro	| no |
+| micro, integration | no |
+| product, shipping	| no |
+| micro, product	| yes |
+| micro, shipping	| yes |
+| integration, product |	yes |
+| integration, shipping |	yes |
+| integration, micro, shipping |	yes |
+| integration, micro, product |	yes |
+| integration, shipping ,product |	yes |
+| micro, shipping ,product |	yes |
+| integration, micro, shipping ,product |	yes |
+
+
+### Sample execution of test with tags.
+
+Execution of the test with tag expressions is done using the parameter `a_tags`.
+Given a test package `ut_sample_test` defined below 
 
 ```sql linenums="1"
-begin
-  ut.run('hr.test_apply_bonus', a_tags => 'test1,test2');
-end;
-```
-```sql linenums="1"
-select * from table(ut.run('hr.test_apply_bonus', a_tags => 'suite1'))
+create or replace package ut_sample_test is
+
+   --%suite(Sample Test Suite)
+   --%tags(api)
+
+   --%test(Compare Ref Cursors)
+   --%tags(complex,fast)
+   procedure ut_refcursors1;
+
+   --%test(Run equality test)
+   --%tags(simple,fast)
+   procedure ut_test;
+   
+end ut_sample_test;
+/
+
+create or replace package body ut_sample_test is
+
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
+
+      ut.expect(v_actual).to_equal(v_expected);
+   end;
+   
+   procedure ut_test is
+   begin
+       ut.expect(1).to_equal(0);
+   end;
+   
+end ut_sample_test;
+/
 ```
 
-You can also exclude specific tags by adding a `-` (dash) in front of the tag
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
+```
+The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
 
 ```sql linenums="1"
-select * from table(ut.run('hr.test_apply_bonus', a_tags => '-suite1'))
+select * from table(ut.run(a_tags => 'fast&complex'));
 ```
+The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex` and `fast`
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'fast'));
+```
+The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
+
+### Excluding tests/suites by tags
+
+It is possible to exclude parts of test suites with tags.
+In order to do so, prefix the tag name to exclude with a `!` (exclamation) sign when invoking the test run which is equivalent of `-` (dash) in legacy notation.
+Examples (based on above sample test suite)
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&!complex'));
+```
+
+or 
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&!complex&!test1'));
+```
+
+which is equivalent of exclusion on whole expression
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => '(api|fast)&!(complex|test1)'));
+``` 
+
+The above calls  will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex` and except those suites/contexts/tests that are marked as `test1`. 
+Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
+
+
+### Sample execution with `any` and `none`
+
+Given a sample test package:
+
+```sql linenums="1"
+create or replace package ut_sample_test is
+
+   --%suite(Sample Test Suite)
+
+   --%test(Compare Ref Cursors)
+   --%tags(complex,fast)
+   procedure ut_refcursors1;
+
+   --%test(Run equality test)
+   --%tags(simple,fast)
+   procedure ut_test;
+ 
+   --%test(Run equality test no tag)   
+   procedure ut_test_no_tag;
+   
+end ut_sample_test;
+/
+
+create or replace package body ut_sample_test is
+
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
+
+      ut.expect(v_actual).to_equal(v_expected);
+   end;
+   
+   procedure ut_test is
+   begin
+       ut.expect(1).to_equal(0);
+   end;
+
+   procedure ut_test_no_tag is
+   begin
+       ut.expect(1).to_equal(0);
+   end;   
+   
+end ut_sample_test;
+/
+```
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'none'));
+```
+
+The above call will execute tests `ut_test_no_tag`
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'any'));
+```
+
+The above call will execute tests `ut_test` and `ut_refcursors1`
+
+```sql linenums="1"
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'none|simple'));
+```
+
+The above call will execute tests `ut_test_no_tag` and `ut_test` 
+
+```sql linenums="1"
+select * from table(ut.run(a_tags => 'none|!simple'));
+```
+
+The above call will execute tests `ut_test_no_tag` and `ut_refcursors1` 
 
 ## Keeping uncommitted data after test-run
 

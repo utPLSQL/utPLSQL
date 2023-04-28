@@ -352,20 +352,18 @@ create or replace package body ut_suite_manager is
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null,
+    a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
   ) return t_cached_suites_cursor is
-    l_unfiltered_rows  ut_suite_cache_rows;
-    l_filtered_rows    ut_suite_cache_rows;
-    l_result           t_cached_suites_cursor;
+    l_unfiltered_rows    ut_suite_cache_rows;
+    l_tag_filter_applied ut_suite_cache_rows;
+    l_filtered_rows      ut_suite_cache_rows;
+    l_result             t_cached_suites_cursor;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_rows(
-      a_schema_paths,
-      a_random_seed,
-      a_tags
-    );
+    l_unfiltered_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths);
 
-    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows,a_skip_all_objects);
+    l_tag_filter_applied := ut_suite_tag_filter.apply(l_unfiltered_rows,a_tags);
+    l_filtered_rows := get_filtered_cursor(ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied),a_skip_all_objects);
     reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
 
     ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
@@ -451,7 +449,7 @@ create or replace package body ut_suite_manager is
     a_schema_paths   ut_path_items,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
-    a_tags           ut_varchar2_rows := null
+    a_tags           varchar2 := null
   ) is
   begin
     reconstruct_from_cache(
@@ -528,7 +526,7 @@ create or replace package body ut_suite_manager is
     a_paths       ut_varchar2_list,
     a_suites      out nocopy ut_suite_items,
     a_random_seed positive   := null,
-    a_tags        ut_varchar2_rows := ut_varchar2_rows()
+    a_tags        varchar2 := null
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_schema_names       ut_varchar2_rows;

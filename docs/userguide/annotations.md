@@ -1616,93 +1616,25 @@ or
 
 Tags are defined as a comma separated list within the `--%tags` annotation. 
 
-When executing a test run with tag filter applied, the framework will find all tests associated with the given tags and execute them. 
-The framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run. 
-
-When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent. Parent suite tests are not executed, but a suitepath hierarchy is kept.
-
-
-Sample test suite package with tags.
-```sql linenums="1"
-create or replace package ut_sample_test is
-
-   --%suite(Sample Test Suite)
-   --%tags(api)
-
-   --%test(Compare Ref Cursors)
-   --%tags(complex,fast)
-   procedure ut_refcursors1;
-
-   --%test(Run equality test)
-   --%tags(simple,fast)
-   procedure ut_test;
-   
-end ut_sample_test;
-/
-
-create or replace package body ut_sample_test is
-
-   procedure ut_refcursors1 is
-      v_actual   sys_refcursor;
-      v_expected sys_refcursor;
-   begin
-    open v_expected for select 1 as test from dual;
-    open v_actual   for select 2 as test from dual;
-
-      ut.expect(v_actual).to_equal(v_expected);
-   end;
-   
-   procedure ut_test is
-   begin
-       ut.expect(1).to_equal(0);
-   end;
-   
-end ut_sample_test;
-/
-```
-
-Execution of the test is done by using the parameter `a_tags`
-
-```sql linenums="1"
-select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
-```
-The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'complex'));
-```
-The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'fast'));
-```
-The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
+When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent, unless they are excluded explicitly at runtime with a negated tag expression.
+See [running unit tests](running-unit-tests.md) for more information on using tags to filter test suites that are to be executed.
 
 #### Tag naming convention
 
 Tags must follow the below naming convention:
 
 - tag is case sensitive
-- tag can contain special characters like `$#/\?-!` etc.
-- tag cannot be an empty string
+- tag must not contain any of the following reserved characters:
+  - comma (,)
+  - left or right parenthesis ((, ))
+  - ampersand (&)
+  - vertical bar (|)
+  - exclamation point (!)
+- tag cannot be null or blank
 - tag cannot start with a dash, e.g. `-some-stuff` is **not** a valid tag
 - tag cannot contain spaces, e.g. `test of batch`. To create a multi-word tag use underscores or dashes, e.g. `test_of_batch`, `test-of-batch`
 - leading and trailing spaces are ignored in tag name, e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
-
-
-#### Excluding tests/suites by tags
-
-It is possible to exclude parts of test suites with tags.
-In order to do so, prefix the tag name to exclude with a `-` (dash) sign when invoking the test run.
-
-Examples (based on above sample test suite)
-
-```sql linenums="1"
-select * from table(ut.run(a_tags => 'api,fast,-complex'));
-```
-The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
-Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
-
+- tag cannot be one of two reserved words: `none` and `any`. `none` and `any` as a tag will be treated as no tag
 
 
 ### Suitepath

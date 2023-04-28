@@ -24,7 +24,7 @@ create or replace type body ut_run as
     a_test_file_mappings     ut_file_mappings := null,
     a_client_character_set   varchar2 := null,
     a_random_test_order_seed positive := null,
-    a_run_tags               ut_varchar2_rows := null
+    a_run_tags               varchar2 := null
   ) return self as result is
   begin
     self.run_paths := a_run_paths;

@@ -24,6 +24,7 @@ create or replace package body ut_utils is
   gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
 
+  
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
     return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
@@ -989,7 +990,5 @@ create or replace package body ut_utils is
 
     return l_result;
   end;
-
-
 end ut_utils;
 /

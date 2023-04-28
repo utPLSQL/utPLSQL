@@ -488,6 +488,6 @@ end;
   begin
     ut.expect(l_expected).to_equal(l_actual);
   end;   
-  
+
 end test_ut_utils;
 /
