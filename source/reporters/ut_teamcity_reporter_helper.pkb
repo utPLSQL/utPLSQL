@@ -73,8 +73,6 @@ create or replace package body ut_teamcity_reporter_helper is
                                            'true'
                                           when false then
                                            'false'
-                                          else
-                                           null
                                         end;
     l_props('flowId') := a_flow_id;
     return message('testStarted', l_props);

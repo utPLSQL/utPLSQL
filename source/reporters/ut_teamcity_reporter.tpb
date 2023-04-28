@@ -108,23 +108,28 @@ create or replace type body ut_teamcity_reporter is
           ut_teamcity_reporter_helper.test_failed(
             a_test_name => l_test_full_name,
             a_msg       => 'Error occured',
-            a_details   =>
-              trim(l_std_err_msg)
-                || case when a_test.failed_expectations is not null
-                      and a_test.failed_expectations.count>0
-                   then a_test.failed_expectations(1).message end
+            a_details   => trim(l_std_err_msg)
           )
         );
+        for i in 1 .. a_test.failed_expectations.count loop
+            ut_utils.append_to_list(
+              l_results,
+              ut_teamcity_reporter_helper.test_failed(
+                a_test_name => l_test_full_name,
+                a_msg       => a_test.failed_expectations(i).description,
+                a_details   => a_test.failed_expectations(i).message )
+            );
+        end loop;
       elsif a_test.failed_expectations is not null and a_test.failed_expectations.count > 0 then
-        -- Teamcity supports only a single failure message
-
-        ut_utils.append_to_list(
-          l_results,
-          ut_teamcity_reporter_helper.test_failed(
-            a_test_name => l_test_full_name,
-            a_msg       => a_test.failed_expectations(a_test.failed_expectations.first).description,
-            a_details   => a_test.failed_expectations(a_test.failed_expectations.first).message )
-        );
+        for i in 1 .. a_test.failed_expectations.count loop
+            ut_utils.append_to_list(
+              l_results,
+              ut_teamcity_reporter_helper.test_failed(
+                a_test_name => l_test_full_name,
+                a_msg       => a_test.failed_expectations(i).description,
+                a_details   => a_test.failed_expectations(i).message )
+            );
+        end loop;
       elsif a_test.result = ut_utils.gc_failure then
         ut_utils.append_to_list(
           l_results,
