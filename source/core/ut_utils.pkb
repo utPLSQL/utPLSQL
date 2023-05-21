@@ -19,9 +19,9 @@ create or replace package body ut_utils is
   /**
   * Constants regex used to validate XML name
   */
-  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
-  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
-  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
+  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_[:alpha:]]';
+  gc_invalid_xml_char        constant varchar2(50)  := '[^_[:alnum:]\.-]';
+  gc_full_valid_xml_name     constant varchar2(50)  := '^([[:alpha:]])([_[:alnum:]\.-])*$';
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
 
   

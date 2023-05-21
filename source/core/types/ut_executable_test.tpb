@@ -159,7 +159,7 @@ create or replace type body ut_executable_test as
       if self.error_stack is null then
         l_fail_message := 'Expected one of exceptions ('||l_expected_error_codes||') but nothing was raised.';
       else
-        l_actual_error_no := regexp_substr(self.error_stack, '^[a-zA-Z]{3}(-[0-9]+)', subexpression=>1);
+        l_actual_error_no := regexp_substr(self.error_stack, '^[[:alpha:]]{3}(-[0-9]+)', subexpression=>1);
         if not l_actual_error_no member of a_expected_error_codes or l_actual_error_no is null then
           l_fail_message := 'Actual: '||l_actual_error_no||' was expected to ';
           if cardinality(a_expected_error_codes) > 1 then
