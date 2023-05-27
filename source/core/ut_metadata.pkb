@@ -304,7 +304,7 @@ create or replace package body ut_metadata as
   begin
     l_result := regexp_substr(
       a_full_object_name,
-      '^([A-Za-z0-9$#_]+|".*?")\.([A-Za-z0-9$#_]+|".*?")', subexpression => 2
+      '^([[:alnum:]$#_]+|".*?")\.([[:alnum:]$#_]+|".*?")', subexpression => 2
       );
     if not l_result like '"%"' then
       l_result := upper(l_result);

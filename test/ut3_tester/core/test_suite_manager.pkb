@@ -2217,5 +2217,22 @@ end;]';
     end loop;
   end;
 
+  --%test(Path validation does not fail on Estonian NLS_SORT - fix #1252)
+  procedure path_validate_nls_sort is
+    l_schema_names   ut3_develop.ut_varchar2_rows;
+  begin
+    --Arrange
+    execute immediate q'[alter session set nls_sort='estonian']';
+    --Act
+    l_schema_names := ut3_develop.ut_suite_manager.get_schema_names(ut3_develop.ut_varchar2_list('ut3'));
+    --Asseert
+    ut.expect(sqlcode).to_equal(0);
+  end;
+
+
+  procedure reset_nls_sort is
+  begin
+    execute immediate q'[alter session set nls_sort='binary']';
+  end;
 end test_suite_manager;
 /

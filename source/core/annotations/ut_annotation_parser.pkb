@@ -25,7 +25,7 @@ create or replace package body ut_annotation_parser as
   gc_annot_comment_pattern       constant varchar2(30) := '^( |'||chr(09)||')*-- *('||gc_annotation_qualifier||'.*?)$'; -- chr(09) is a tab character
   gc_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   gc_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
-  gc_regexp_identifier           constant varchar2(50) := '[a-zA-Z][a-zA-Z0-9#_$]*';
+  gc_regexp_identifier           constant varchar2(50) := '[[:alpha:]][[:alnum:]$#_]*';
   gc_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            gc_regexp_identifier || ')';
   gc_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || gc_regexp_identifier || '[ '||chr(9)||']*(\(.*?\)\s*?$)?';
