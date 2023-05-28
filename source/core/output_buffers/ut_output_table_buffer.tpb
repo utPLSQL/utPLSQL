@@ -26,7 +26,7 @@ create or replace type body ut_output_table_buffer is
     pragma autonomous_transaction;
   begin
     if a_text is not null or a_item_type is not null then
-      if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
+      if lengthb(a_text) > ut_utils.gc_max_storage_varchar2_len then
         self.send_lines(
           ut_utils.convert_collection(
             ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len)
@@ -34,9 +34,8 @@ create or replace type body ut_output_table_buffer is
           a_item_type
           );
       else
-        self.last_write_message_id := self.last_write_message_id + 1;
         insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-        values (self.output_id, self.last_write_message_id, a_text, a_item_type);
+        values (self.output_id, ut_output_buffer_tmp_seq.nextval, a_text, a_item_type);
       end if;
       commit;
     end if;
@@ -46,10 +45,9 @@ create or replace type body ut_output_table_buffer is
     pragma autonomous_transaction;
   begin
     insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-    select /*+ no_parallel */ self.output_id, self.last_write_message_id + rownum, t.column_value, a_item_type
+    select /*+ no_parallel */ self.output_id, ut_output_buffer_tmp_seq.nextval, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
-    self.last_write_message_id := self.last_write_message_id + SQL%rowcount;
     commit;
   end;
 
@@ -57,7 +55,7 @@ create or replace type body ut_output_table_buffer is
     pragma autonomous_transaction;
   begin
     if a_text is not null and a_text != empty_clob() or a_item_type is not null then
-      if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
+      if ut_utils.lengthb_clob(a_text) > ut_utils.gc_max_storage_varchar2_len then
         self.send_lines(
           ut_utils.convert_collection(
             ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len)
@@ -65,9 +63,8 @@ create or replace type body ut_output_table_buffer is
           a_item_type
           );
       else
-        self.last_write_message_id := self.last_write_message_id + 1;
         insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-        values (self.output_id, self.last_write_message_id, a_text, a_item_type);
+        values (self.output_id, ut_output_buffer_tmp_seq.nextval, a_text, a_item_type);
       end if;
       commit;
     end if;
@@ -99,7 +96,6 @@ create or replace type body ut_output_table_buffer is
     l_buffer_texts          ut_varchar2_rows;
     l_buffer_item_types     ut_varchar2_rows;
     l_finished_flags        ut_integer_list;
-    l_last_read_message_id  integer;
     l_already_waited_sec    number(10,2) := 0;
     l_finished              boolean := false;
     l_sleep_time            number(2,1);
@@ -108,7 +104,6 @@ create or replace type body ut_output_table_buffer is
     l_producer_finished     boolean := false;
 
   procedure get_data_from_buffer_table(
-    a_last_read_message_id in out nocopy integer,
     a_buffer_texts         out nocopy ut_varchar2_rows,
     a_buffer_item_types    out nocopy ut_varchar2_rows,
     a_finished_flags       out nocopy ut_integer_list
@@ -116,17 +111,15 @@ create or replace type body ut_output_table_buffer is
     lc_bulk_limit           constant integer     := 20000;
     pragma autonomous_transaction;
   begin
-    a_last_read_message_id := coalesce(a_last_read_message_id,0);
     delete /*+ no_parallel */ from (
                   select /*+ no_parallel */ *
-                    from ut_output_buffer_tmp o
-                   where o.output_id = self.output_id
-                     and o.message_id <= a_last_read_message_id + lc_bulk_limit
-                   order by o.message_id
+                    from ut_output_buffer_tmp a
+                   where a.output_id = self.output_id
+                     and a.message_id <= (select min(message_id) from ut_output_buffer_tmp o where o.output_id = self.output_id) + lc_bulk_limit
+                   order by a.message_id
                 ) d
     returning d.text, d.item_type, d.is_finished
     bulk collect into a_buffer_texts, a_buffer_item_types, a_finished_flags;
-    a_last_read_message_id := a_last_read_message_id + a_finished_flags.count;
     commit;
   end;
   begin
@@ -134,7 +127,7 @@ create or replace type body ut_output_table_buffer is
 
       l_sleep_time := case when l_already_waited_sec >= 1 then 0.5 else 0.1 end;
       l_lock_status := self.get_lock_status();
-      get_data_from_buffer_table( l_last_read_message_id, l_buffer_texts, l_buffer_item_types, l_finished_flags );
+      get_data_from_buffer_table( l_buffer_texts, l_buffer_item_types, l_finished_flags );
 
       if l_buffer_texts.count > 0 then
         l_already_waited_sec := 0;

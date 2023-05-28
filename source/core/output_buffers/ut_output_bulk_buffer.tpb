@@ -34,9 +34,8 @@ create or replace type body ut_output_bulk_buffer is
           a_item_type
           );
       else
-        self.last_write_message_id := self.last_write_message_id + 1;
         insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-        values (self.output_id, self.last_write_message_id, a_text, a_item_type);
+        values (self.output_id, ut_output_buffer_tmp_seq.nextval, a_text, a_item_type);
       end if;
       commit;
     end if;
@@ -46,10 +45,9 @@ create or replace type body ut_output_bulk_buffer is
     pragma autonomous_transaction;
   begin
     insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-    select /*+ no_parallel */ self.output_id, self.last_write_message_id + rownum, t.column_value, a_item_type
+    select /*+ no_parallel */ self.output_id, ut_output_buffer_tmp_seq.nextval, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
-    self.last_write_message_id := self.last_write_message_id + sql%rowcount;
     commit;
   end;
 
@@ -65,9 +63,8 @@ create or replace type body ut_output_bulk_buffer is
           a_item_type
           );
       else
-        self.last_write_message_id := self.last_write_message_id + 1;
         insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-        values (self.output_id, self.last_write_message_id, a_text, a_item_type);
+        values (self.output_id, ut_output_buffer_tmp_seq.nextval, a_text, a_item_type);
       end if;
       commit;
     end if;

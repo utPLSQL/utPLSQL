@@ -45,3 +45,5 @@ begin
   end;
 end;
 /
+
+create sequence ut_output_clob_buffer_tmp_seq cache 20;

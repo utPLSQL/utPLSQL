@@ -152,10 +152,15 @@ create or replace package test_ut_utils is
   procedure int_conv_ym_month; 
     
    --%test(returns text representation of interval year to month for custom interval)  
-  procedure int_conv_ym_date;   
-  
-  
+  procedure int_conv_ym_date;
+
   --%endcontext
-  
+
+  --%test(convert_collection does not fail on multibyte strings - Issue #1245 )
+  procedure convert_collection_multibyte;
+
+  --%test(lengthb returns length of a CLOB in bytes )
+  procedure lengthb_gives_length_in_bytes;
+
 end test_ut_utils;
 /

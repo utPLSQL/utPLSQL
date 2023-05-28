@@ -30,3 +30,4 @@ create table ut_output_buffer_tmp(
 ) organization index nologging initrans 100
   overflow nologging initrans 100;
 
+create sequence ut_output_buffer_tmp_seq cache 20;

@@ -476,6 +476,11 @@ create or replace package ut_utils authid definer is
   * Return value of interval in plain english
   */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
+
+  /*
+  * Return length of CLOB in bytes. Null for NULL
+  */
+  function lengthb_clob( a_clob clob) return integer;
   
 end ut_utils;
 /
