@@ -56,8 +56,8 @@ create or replace package body test_output_buffer is
   
   
   procedure test_doesnt_send_on_null_elem is
-    l_cur    sys_refcursor;
-    l_result integer;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_buffer ut3_develop.ut_output_buffer_base := ut3_develop.ut_output_table_buffer();
     l_message_id varchar2(255);
     l_text varchar2(4000);
@@ -67,9 +67,12 @@ create or replace package body test_output_buffer is
     l_buffer.send_lines(ut3_develop.ut_varchar2_rows(null));
     l_buffer.send_lines(ut3_develop.ut_varchar2_rows('test'));
 
-    select message_id, text into l_message_id, l_text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
-    ut.expect(l_message_id).to_equal('1');
-    ut.expect(l_text).to_equal('test');
+    open l_actual for
+       select text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
+    open l_expected for
+       select 'test' as text from dual;
+
+    ut.expect(l_actual).to_equal(l_expected);
   end;  
   
   procedure test_send_line is
@@ -157,5 +160,41 @@ create or replace package body test_output_buffer is
     test_purge(ut3_develop.ut_output_clob_table_buffer());
   end;
 
-end test_output_buffer;
+  procedure text_buffer_send_multibyte is
+    l_input       varchar2(32767);
+    l_max_len     integer := ut3_develop.ut_utils.gc_max_storage_varchar2_len;
+    l_buffer      ut3_develop.ut_output_buffer_base := ut3_develop.ut_output_table_buffer();
+    l_text        varchar2(4000);
+  begin
+    --Arrange
+    ut3_tester_helper.run_helper.delete_buffer();
+    l_input := rpad( '❤', l_max_len, 'a' );
+    ut.expect( lengthb( l_input ) ).to_be_greater_than(l_max_len);
+
+    --Act
+    l_buffer.send_line(l_input);
+    --Assert
+    select text into l_text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
+    ut.expect(lengthb(l_text)).to_be_less_or_equal(l_max_len);
+  end;
+
+  procedure text_buffer_send_clob_multib is
+    l_input       clob;
+    l_max_len     integer := ut3_develop.ut_utils.gc_max_storage_varchar2_len;
+    l_buffer      ut3_develop.ut_output_buffer_base := ut3_develop.ut_output_table_buffer();
+    l_text        varchar2(4000);
+  begin
+    --Arrange
+    ut3_tester_helper.run_helper.delete_buffer();
+    l_input := rpad( '❤', l_max_len, 'a' );
+    ut.expect( ut3_develop.ut_utils.lengthb_clob( l_input ) ).to_be_greater_than(l_max_len);
+
+    --Act
+    l_buffer.send_clob(l_input);
+    --Assert
+    select  text into l_text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
+    ut.expect(lengthb(l_text)).to_be_less_or_equal(l_max_len);
+  end;
+
+    end test_output_buffer;
 /

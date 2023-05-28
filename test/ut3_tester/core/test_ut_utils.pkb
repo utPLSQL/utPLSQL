@@ -489,5 +489,23 @@ end;
     ut.expect(l_expected).to_equal(l_actual);
   end;   
 
+  procedure convert_collection_multibyte is
+    l_input ut3_develop.ut_varchar2_list;
+    l_max_len integer := ut3_develop.ut_utils.gc_max_storage_varchar2_len;
+  begin
+    --Arrange
+    l_input := ut3_develop.ut_varchar2_list( rpad( '❤', l_max_len, 'a' ) );
+    ut.expect( lengthb( l_input( 1 ) ) ).to_be_greater_than(l_max_len);
+
+    --Act
+    ut.expect( lengthb( ut3_develop.ut_utils.convert_collection(l_input)(1) ) ).to_be_less_or_equal(l_max_len);
+  end;
+
+  procedure lengthb_gives_length_in_bytes is
+    l_clob clob;
+  begin
+    l_clob := '❤';
+    ut.expect(ut3_develop.ut_utils.lengthb_clob(l_clob)).to_be_greater_than(1);
+  end;
 end test_ut_utils;
 /

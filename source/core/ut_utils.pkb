@@ -92,8 +92,8 @@ create or replace package body ut_utils is
     a_max_output_len in number := gc_max_output_string_length
   ) return varchar2 is
     l_result                  varchar2(32767);
-    c_length                  constant integer := coalesce( length( a_value ), 0 );
-    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_length                  constant integer := coalesce( lengthb( a_value ), 0 );
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( lengthb( a_quote_char ) * 2, 0 );
     c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if c_length = 0 then
@@ -112,8 +112,8 @@ create or replace package body ut_utils is
     a_max_output_len in number := gc_max_output_string_length
   ) return varchar2 is
     l_result                  varchar2(32767);
-    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
-    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_length                  constant integer := coalesce(ut_utils.lengthb_clob(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( lengthb( a_quote_char ) * 2, 0 );
     c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
@@ -135,7 +135,7 @@ create or replace package body ut_utils is
   ) return varchar2 is
     l_result                  varchar2(32767);
     c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
-    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( lengthb( a_quote_char ) * 2, 0 );
     c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
@@ -412,7 +412,7 @@ create or replace package body ut_utils is
       if a_list is null then
         a_list := ut_varchar2_rows();
       end if;
-      if length(a_item) > gc_max_storage_varchar2_len then
+      if lengthb(a_item) > gc_max_storage_varchar2_len then
         append_to_list(
           a_list,
           ut_utils.convert_collection(
@@ -468,7 +468,7 @@ create or replace package body ut_utils is
       l_result := ut_varchar2_rows();
       for i in 1 .. a_collection.count loop
         l_result.extend();
-        l_result(i) := substr(a_collection(i),1,gc_max_storage_varchar2_len);
+        l_result(i) := substrb(a_collection(i),1,gc_max_storage_varchar2_len);
       end loop;
     end if;
     return l_result;
@@ -990,5 +990,39 @@ create or replace package body ut_utils is
 
     return l_result;
   end;
+
+
+  /*
+  * Inspired by
+  *   https://stackoverflow.com/a/48782891
+  */
+  function lengthb_clob( a_clob clob) return integer is
+    l_blob     blob;
+    l_desc_offset PLS_INTEGER := 1;
+    l_src_offset  PLS_INTEGER := 1;
+    l_lang        PLS_INTEGER := 0;
+    l_warning     PLS_INTEGER := 0;
+    l_result      integer;
+  begin
+    if a_clob = empty_clob() then
+      l_result := 0;
+    elsif a_clob is not null then
+      dbms_lob.createtemporary(l_blob,true);
+      dbms_lob.converttoblob
+          ( l_blob
+          , a_clob
+          , dbms_lob.getlength(a_clob)
+          , l_desc_offset
+          , l_src_offset
+          , dbms_lob.default_csid
+          , l_lang
+          , l_warning
+          );
+      l_result := length(l_blob);
+      dbms_lob.freetemporary(l_blob);
+    end if;
+    return l_result;
+  end;
+
 end ut_utils;
 /
