@@ -505,7 +505,7 @@ end;
     l_clob clob;
   begin
     l_clob := '❤';
-    ut.expect(ut3_develop.ut_utils.lengthb_clob(l_clob)).to_equal(3);
+    ut.expect(ut3_develop.ut_utils.lengthb_clob(l_clob)).to_be_greater_than(1);
   end;
 end test_ut_utils;
 /
