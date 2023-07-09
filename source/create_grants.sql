@@ -123,6 +123,7 @@ grant execute on &&ut3_owner..ut_console_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
 grant execute on &&ut3_owner..ut_output_table_buffer to &ut3_user;
 grant execute on &&ut3_owner..ut_output_clob_table_buffer to &ut3_user;
+grant execute on &&ut3_owner..ut_output_bulk_buffer to &ut3_user;
 
 --needed internally for selecting from annotation objects within packages that use invoker rights
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;
