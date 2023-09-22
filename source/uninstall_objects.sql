@@ -333,7 +333,11 @@ drop type ut_output_buffer_base force;
 
 drop table ut_output_buffer_tmp purge;
 
+drop sequence ut_output_buffer_tmp_seq;
+
 drop table ut_output_clob_buffer_tmp purge;
+
+drop sequence ut_output_clob_buffer_tmp_seq;
 
 drop table ut_output_buffer_info_tmp purge;
 

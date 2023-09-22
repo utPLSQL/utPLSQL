@@ -159,17 +159,17 @@ create or replace package body ut_expectation_processor as
     -- when 11g and 12c reports only package name
     function cut_header_and_expectations( a_stack varchar2 ) return varchar2 is
     begin
-      return regexp_substr( a_stack, '(.*\.(UT_EQUAL|UT_BE_WITHIN[A-Z0-9#_$]*|UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);
+      return regexp_substr( a_stack, '(.*\.(UT_EQUAL|UT_BE_WITHIN[[:alnum:]$#_]*|UT_EXPECTATION[[:alnum:]$#_]*|UT|UTASSERT2?)(\.[[:alnum:]$#_]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);
     end;
     function cut_address_columns( a_stack varchar2 ) return varchar2 is
     begin
-      return regexp_replace( a_stack, '^(0x)?[0-9a-f]+\s+', '', 1, 0, 'mi' );
+      return regexp_replace( a_stack, '^(0x)?[[:digit:]abcdef]+\s+', '', 1, 0, 'mi' );
     end;
     function cut_framework_stack( a_stack varchar2 ) return varchar2 is
     begin
       return regexp_replace(
         a_stack,
-        '[0-9]+\s+anonymous\s+block\s+[0-9]+\s+package\s+body\s+sys\.dbms_sql(\.execute)?\s+[0-9]+\s+[0-9_$#a-z ]+\.ut_executable.*',
+        '[0-9]+\s+anonymous\s+block\s+[0-9]+\s+package\s+body\s+sys\.dbms_sql(\.execute)?\s+[0-9]+\s+[[:alnum:]_$# ]+\.ut_executable.*',
         '',
         1, 1, 'mni'
         );
@@ -178,7 +178,7 @@ create or replace package body ut_expectation_processor as
     begin
       return regexp_replace(
         a_stack,
-        '([0-9]+)\s+(.* )?((anonymous block)|(([0-9_$#a-z]+\.[0-9_$#a-z]+(\.([0-9_$#a-z])+)?)))',
+        '([0-9]+)\s+(.* )?((anonymous block)|(([[:alnum:]$#_]+\.[[:alnum:]$#_]+(\.([[:alnum:]$#_])+)?)))',
         'at "\3", line \1', 1, 0, 'i'
         );
     end;
@@ -190,8 +190,8 @@ create or replace package body ut_expectation_processor as
     l_caller_stack_line    := regexp_substr(l_call_stack,'^(.*)');
     if l_caller_stack_line like '%.%' then
       l_line_no          := to_number( regexp_substr( l_caller_stack_line, ', line (\d+)', subexpression => 1 ) );
-      l_owner            := regexp_substr( l_caller_stack_line, 'at "([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?)", line (\d+)', subexpression => 1 );
-      l_object_name      := regexp_substr( l_caller_stack_line, 'at "([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?)", line (\d+)', subexpression => 3 );
+      l_owner            := regexp_substr( l_caller_stack_line, 'at "([[:alnum:]$#_]+)\.(([[:alnum:]$#_]+)(\.([[:alnum:]$#_]+))?)", line (\d+)', subexpression => 1 );
+      l_object_name      := regexp_substr( l_caller_stack_line, 'at "([[:alnum:]$#_]+)\.(([[:alnum:]$#_]+)(\.([[:alnum:]$#_]+))?)", line (\d+)', subexpression => 3 );
       l_result :=
         l_caller_stack_line || ' ' || rtrim(ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no),chr(10))
         || replace( l_call_stack, l_caller_stack_line );

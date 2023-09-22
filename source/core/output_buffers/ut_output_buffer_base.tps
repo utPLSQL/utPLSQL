@@ -19,7 +19,6 @@ create or replace type ut_output_buffer_base force authid definer as object(
   output_id                 raw(32),
   is_closed                 number(1,0),
   start_date                date,
-  last_write_message_id     number(38,0),
   lock_handle               varchar2(30  byte),
   self_type                 varchar2(250 byte),
   member procedure init(self in out nocopy ut_output_buffer_base, a_output_id raw := null, a_self_type varchar2 := null),

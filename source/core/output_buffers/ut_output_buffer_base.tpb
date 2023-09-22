@@ -24,7 +24,6 @@ create or replace type body ut_output_buffer_base is
     self.self_type := coalesce(a_self_type,self.self_type);
     self.output_id := coalesce(a_output_id, self.output_id, sys_guid());
     self.start_date := coalesce(self.start_date, sysdate);
-    self.last_write_message_id := 0;
     select /*+ no_parallel */ count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
     if ( l_exists > 0 ) then
       update  /*+ no_parallel */ ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;

@@ -88,7 +88,7 @@ create or replace package body ut_suite_cache_manager is
   end;
 
   function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
-    c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_\*]+))?(\.([A-Za-z0-9$#_\*]+))?$';
+    c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
     l_path_item          ut_path_item;
     i                    pls_integer;
@@ -157,7 +157,7 @@ create or replace package body ut_suite_cache_manager is
         from schema_paths sp left outer join ut_suite_cache c on
         ( c.object_owner = upper(sp.schema_name) 
         --and c.path like replace(sp.suite_path,'*','%'))
-        and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[A-Za-z0-9$#_]*')))
+        and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[[:alnum:]$#_]*')))
         where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
       ),
       straigth_suite_paths as (

@@ -237,5 +237,15 @@ create or replace package test_suite_manager is
 
   --%endcontext
 
+  --%context(paths validation)
+
+  --%test(Path validation does not fail on Estonian NLS_SORT - fix #1252)
+  --%aftertest(reset_nls_sort)
+  procedure path_validate_nls_sort;
+
+  procedure reset_nls_sort;
+
+  --%endcontext
+
 end test_suite_manager;
 /

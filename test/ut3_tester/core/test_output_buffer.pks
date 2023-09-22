@@ -47,5 +47,11 @@ create or replace package test_output_buffer is
   --%test(Purges clob buffer data older than one day and leaves the rest)
   procedure test_purge_clob_buffer;
 
+  --%test(Successfully sends multibyte long line into text buffer)
+  procedure text_buffer_send_multibyte;
+
+  --%test(Successfully sends multibyte long clob line into text buffer)
+  procedure text_buffer_send_clob_multib;
+
 end test_output_buffer;
 /

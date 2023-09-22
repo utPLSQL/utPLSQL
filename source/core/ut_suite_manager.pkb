@@ -32,7 +32,7 @@ create or replace package body ut_suite_manager is
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
         if l_path is null or not (
-          regexp_like(l_path, '^[A-Za-z0-9$#_\*]+(\.[A-Za-z0-9$#_\*]+){0,2}$') or regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:[A-Za-z0-9$#_\*]+(\.[A-Za-z0-9$#_\*]+)*$')) then
+          regexp_like(l_path, '^[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+){0,2}$') or regexp_like(l_path, '^([[:alnum:]$#_]+)?:[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+)*$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -61,9 +61,9 @@ create or replace package body ut_suite_manager is
 
     for i in 1 .. a_paths.count loop
       --if path is suite-path
-      if regexp_like(a_paths(i), '^([A-Za-z0-9$#_]+)?:') then
+      if regexp_like(a_paths(i), '^([[:alnum:]$#_]+)?:') then
       --get schema name / path
-        l_schema := regexp_substr(a_paths(i), '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
+        l_schema := regexp_substr(a_paths(i), '^([[:alnum:]$#_]+)?:',subexpression => 1);
         -- transform ":path1[.path2]" to "schema:path1[.path2]"
         if l_schema is not null then
           l_schema := sys.dbms_assert.schema_name(upper(l_schema));
@@ -78,7 +78,7 @@ create or replace package body ut_suite_manager is
         -- Object name or procedure is allowed to have filter char
         -- However this is not allowed on schema
         begin
-          l_object := regexp_substr(a_paths(i), '^[A-Za-z0-9$#_\*]+');
+          l_object := regexp_substr(a_paths(i), '^[[:alnum:]$#_\*]+');
           l_schema := sys.dbms_assert.schema_name(upper(l_object));
         exception
           when sys.dbms_assert.invalid_schema_name then

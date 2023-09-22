@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.14.4167-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.14.4182-develop';
     
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -476,6 +476,11 @@ create or replace package ut_utils authid definer is
   * Return value of interval in plain english
   */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
+
+  /*
+  * Return length of CLOB in bytes. Null for NULL
+  */
+  function lengthb_clob( a_clob clob) return integer;
   
 end ut_utils;
 /

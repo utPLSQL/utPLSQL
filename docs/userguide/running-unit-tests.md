@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.14.4167--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.14.4182--develop-blue.svg)
 
 utPLSQL framework provides two main entry points to run unit tests from within the database: 
 
@@ -118,16 +118,17 @@ begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus','cust'));
 end;
 ```
-Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_ (passing individual items to be executed as elements of the ut_varchar2_list table type).
+
 
 ```sql linenums="1"
 set serveroutput on
 begin
-  ut.run(ut_varchar2_list('hr.test_apply_bonus,cust)');
+  ut.run(ut_varchar2_list('hr.test_apply_bonus,cust'));
 end;
 ```
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_ (passing all items as a comma-separated-list of values into a single element of the ut_varchar2_list table type).
 
-Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
 ```sql linenums="1"
 set serveroutput on
@@ -136,7 +137,7 @@ begin
 end;
 ```
 
-Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_ (no explicit ut_varchar2_list table type).
 
 Using a list of items to execute allows you to execute a fine-grained set of tests.
 
