@@ -97,18 +97,22 @@ create or replace type body ut_tfs_junit_reporter is
       l_tests       ut_varchar2_list;
     begin      
       for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of(ut_logical_suite) then
-          print_suite_results(treat(a_suite.items(i) as ut_logical_suite), a_suite_id, a_nested_tests);   
+        if a_suite.items(i) is of(ut_suite_context) then
+          print_suite_results(treat(a_suite.items(i) as ut_suite_context), a_suite_id, a_nested_tests);   
+        elsif a_suite.items(i) is of(ut_suite) then
+          print_suite_results(treat(a_suite.items(i) as ut_suite), a_suite_id, a_nested_tests);   
+        elsif a_suite.items(i) is of(ut_logical_suite) then
+          print_suite_results(treat(a_suite.items(i) as ut_logical_suite), a_suite_id, a_nested_tests);            
         end if;
       end loop;     
       --Due to fact tha TFS and junit5 accepts only flat structure we have to report in suite level only.
-      if a_suite.self_type ='UT_SUITE_CONTEXT' then
+      if a_suite is of(ut_suite_context) then
          for i in 1 .. a_suite.items.count loop
            if a_suite.items(i) is of(ut_test) then
              ut_utils.append_to_list( a_nested_tests,(add_test_results(treat(a_suite.items(i) as ut_test))));
            end if;
          end loop;
-      elsif a_suite.self_type ='UT_SUITE' then
+      elsif a_suite is of(ut_suite) then
          for i in 1 .. a_suite.items.count loop
            if a_suite.items(i) is of(ut_test) then
              ut_utils.append_to_list( a_nested_tests,(add_test_results(treat(a_suite.items(i) as ut_test))));
