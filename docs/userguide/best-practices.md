@@ -15,9 +15,9 @@ The following are best practices we at utPLSQL have learned about PL/SQL and Uni
  - Tests should not mimic / duplicate the logic of tested code
  - Tests should contain zero logic (or as close to zero as possible)
  - The 3A rule:
-   - Arrange (setup inputs/data/environment for the tested code)
-   - Act (execute code under test)
-   - Assert (validate the outcomes of the execution)
+    - Arrange (setup inputs/data/environment for the tested code)
+    - Act (execute code under test)
+    - Assert (validate the outcomes of the execution)
  - Each tested procedure/function/trigger (code block) should have more than one test
  - Each test should check only one behavior (one requirement) of the code block under test
  - Tests should be maintained as thoroughly as production code
