@@ -51,11 +51,12 @@ create or replace type body ut_tfs_junit_reporter is
       return regexp_substr(a_path_with_name, '(.*)\.' ||a_name||'$',subexpression=>1);
     end;
 
-    procedure print_test_results(a_test ut_test) is
+    function add_test_results(a_test ut_test) return ut_varchar2_rows is
       l_results ut_varchar2_rows := ut_varchar2_rows();
     begin
-      self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || 
+      ut_utils.append_to_list( l_results,'<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || 
                       get_common_testcase_attributes(a_test) || '>');
+      
       /*
       According to specs :
       - A failure is a test which the code has explicitly failed by using the mechanisms for that purpose. 
@@ -83,56 +84,79 @@ create or replace type body ut_tfs_junit_reporter is
 
       ut_utils.append_to_list( l_results, '</testcase>');
 
-      self.print_text_lines(l_results);
+      return l_results;
     end;
 
-    procedure print_suite_results(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
+    procedure print_suite_results(a_suite ut_logical_suite, a_suite_id in out nocopy integer, a_nested_tests in out nocopy ut_varchar2_rows) is
       l_tests_count integer := a_suite.results_count.disabled_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_results     ut_varchar2_rows := ut_varchar2_rows();
       l_suite       ut_suite;
       l_outputs     clob;
       l_errors      ut_varchar2_list;
-    begin
-      
+      l_tests       ut_varchar2_list;
+    begin      
       for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of(ut_logical_suite) then
-          print_suite_results(treat(a_suite.items(i) as ut_logical_suite), a_suite_id);
+        if a_suite.items(i) is of(ut_suite_context) then
+          print_suite_results(treat(a_suite.items(i) as ut_suite_context), a_suite_id, a_nested_tests);   
+        elsif a_suite.items(i) is of(ut_suite) then
+          print_suite_results(treat(a_suite.items(i) as ut_suite), a_suite_id, a_nested_tests);   
+        elsif a_suite.items(i) is of(ut_logical_suite) then
+          print_suite_results(treat(a_suite.items(i) as ut_logical_suite), a_suite_id, a_nested_tests);            
         end if;
       end loop;     
-     
-      if a_suite is of(ut_suite) then
-         a_suite_id := a_suite_id + 1;
-         self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
-                        dbms_xmlgen.convert(a_suite.path) || '" ' || get_common_suite_attributes(a_suite) || '>');
-         self.print_text('<properties/>');
+      --Due to fact tha TFS and junit5 accepts only flat structure we have to report in suite level only.
+      if a_suite is of(ut_suite_context) then
          for i in 1 .. a_suite.items.count loop
            if a_suite.items(i) is of(ut_test) then
-             print_test_results(treat(a_suite.items(i) as ut_test));
+             ut_utils.append_to_list( a_nested_tests,(add_test_results(treat(a_suite.items(i) as ut_test))));
            end if;
          end loop;
-         l_suite := treat(a_suite as ut_suite);
-         l_outputs := l_suite.get_serveroutputs();
-         if l_outputs is not null and l_outputs != empty_clob() then
-           ut_utils.append_to_list( l_results, '<system-out>');
-           ut_utils.append_to_list( l_results, ut_utils.to_cdata( l_suite.get_serveroutputs() ) );
-           ut_utils.append_to_list( l_results, '</system-out>');
-         else
-           ut_utils.append_to_list( l_results, '<system-out/>');
-         end if;
-
-         l_errors := l_suite.get_error_stack_traces();
-         if l_errors is not empty then
-           ut_utils.append_to_list( l_results, '<system-err>');
-           ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( l_errors ) ) );
-           ut_utils.append_to_list( l_results, '</system-err>');
-         else
-           ut_utils.append_to_list( l_results, '<system-err/>');
-         end if;
-         ut_utils.append_to_list( l_results, '</testsuite>');
-
-         self.print_text_lines(l_results);
+      elsif a_suite is of(ut_suite) then
+         for i in 1 .. a_suite.items.count loop
+           if a_suite.items(i) is of(ut_test) then
+             ut_utils.append_to_list( a_nested_tests,(add_test_results(treat(a_suite.items(i) as ut_test))));
+           end if;
+         end loop; 
+           --TFS doesnt report on empty test suites, however all we want to make sure is that we dont pring parents suites
+           -- showing test count but not tests.
+           if (a_nested_tests.count > 0 and l_tests_count > 0) or (a_nested_tests.count = 0 and l_tests_count = 0)  then
+           a_suite_id := a_suite_id + 1;
+           ut_utils.append_to_list( l_results,'<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
+                          dbms_xmlgen.convert(a_suite.path) || '" ' || get_common_suite_attributes(a_suite) || '>');
+           ut_utils.append_to_list( l_results,'<properties/>');
+           ut_utils.append_to_list(l_results,a_nested_tests);
+           l_suite := treat(a_suite as ut_suite);
+           l_outputs := l_suite.get_serveroutputs();
+           if l_outputs is not null and l_outputs != empty_clob() then
+             ut_utils.append_to_list( l_results, '<system-out>');
+             ut_utils.append_to_list( l_results, ut_utils.to_cdata( l_suite.get_serveroutputs() ) );
+             ut_utils.append_to_list( l_results, '</system-out>');
+           else
+             ut_utils.append_to_list( l_results, '<system-out/>');
+           end if;
+  
+           l_errors := l_suite.get_error_stack_traces();
+           if l_errors is not empty then
+             ut_utils.append_to_list( l_results, '<system-err>');
+             ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( l_errors ) ) );
+             ut_utils.append_to_list( l_results, '</system-err>');
+           else
+             ut_utils.append_to_list( l_results, '<system-err/>');
+           end if;
+           ut_utils.append_to_list( l_results, '</testsuite>');
+  
+           self.print_text_lines(l_results);
+           --We have resolved a context and we now reset value.
+           a_nested_tests := ut_varchar2_rows();
+        end if;
       end if;
+    end;
+    
+    procedure get_suite_results(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
+      l_nested_tests ut_varchar2_rows:= ut_varchar2_rows();
+    begin
+      print_suite_results(a_suite, l_suite_id,l_nested_tests);
     end;
       
   begin
@@ -140,7 +164,7 @@ create or replace type body ut_tfs_junit_reporter is
     self.print_text(ut_utils.get_xml_header(a_run.client_character_set));
     self.print_text('<testsuites>');
     for i in 1 .. a_run.items.count loop
-      print_suite_results(treat(a_run.items(i) as ut_logical_suite), l_suite_id);
+      get_suite_results(treat(a_run.items(i) as ut_logical_suite), l_suite_id);
     end loop;
     self.print_text('</testsuites>');
   end;

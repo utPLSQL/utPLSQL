@@ -30,6 +30,15 @@ create or replace package test_tfs_junit_reporter as
   --%test(Includes XML header with encoding when encoding provided)
   procedure check_encoding_included;
 
+  --%test(Reports only testsuites where there are any testcases, all tests are in context)
+  procedure reports_only_test_in_ctx;
+
+  --%test(Reports only testsuites where there are any testcases, all tests are outside context)
+  procedure reports_only_test_out_ctx;
+
+  --%test(Reports only testsuites where there are any testcases, one test in ctx one test outside)
+  procedure reports_only_test_inout_ctx;
+
   --%afterall
   procedure remove_test_package;
 end;
