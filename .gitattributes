@@ -6,6 +6,8 @@ test                      export-ignore
 .gitignore                export-ignore
 .gitmodules               export-ignore
 mkdocs.yml                export-ignore
+BUILD_NO                  export-ignore
+mkdocs_offline.yml        export-ignore
 sonar-project.properties  export-ignore
 ^docs/**                  linguist-documentation
 *.pkb                     linguist-language=PLSQL
