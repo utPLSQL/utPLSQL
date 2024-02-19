@@ -88,7 +88,7 @@ jobs:
           --health-cmd healthcheck.sh
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: c-py/action-dotenv-to-setenv@v2
@@ -183,7 +183,7 @@ jobs:
         run:  bash .github/scripts/validate_report_files.sh
 
       - name: Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: ./cobertura.xml
