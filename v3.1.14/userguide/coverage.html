@@ -1,0 +1,2171 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL">
+      
+      
+      
+        <link rel="canonical" href="http://utPLSQL.org/v3.1.14/userguide/coverage.html">
+      
+      
+        <link rel="prev" href="reporters.html">
+      
+      
+        <link rel="next" href="exception-reporting.html">
+      
+      
+      <link rel="icon" href="../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.10">
+    
+    
+      
+        <title>Code coverage - utPLSQL-framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e359304.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#security-model" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="utPLSQL-framework" class="md-header__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            utPLSQL-framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Code coverage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../index.html" class="md-tabs__link">
+          
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="reporters.html" class="md-tabs__link">
+          
+  
+  Reporting
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../about/project-details.html" class="md-tabs__link">
+          
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="utPLSQL-framework" class="md-nav__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    utPLSQL-framework
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="install.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting-started.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="annotations.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Annotations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="expectations.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Expectations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="advanced_data_comparison.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced data comparison
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running-unit-tests.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Running unit tests
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="querying_suites.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Querying for test suites
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="best-practices.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Testing best practices
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="upgrade.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Upgrade utPLSQL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Reporting
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Reporting
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reporters.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using reporters
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Code coverage
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="coverage.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Code coverage
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#security-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manually-running-unit-tests-with-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manually running unit tests with coverage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manually running unit tests with coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oracle-122-extended-coverage-with-profiler-and-block-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Oracle 12.2 extended coverage with profiler and block coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coverage-reporting-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coverage reporting options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schema-based-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Schema based Coverage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Schema based Coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-coverage-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting coverage schema(s)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-objects-in-coverage-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtering objects in coverage reports
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-based-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project based Coverage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project based Coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-mapping-using-default-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      File mapping using default parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-custom-regular-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using custom regular expressions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicitly-specifying-object-owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      Explicitly specifying object owner
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-mapping-of-object-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom mapping of object types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#object-file-mapping-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Object-file mapping rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-mapping-from-sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      File mapping from SQL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reporting-coverage-outside-utplsql-and-in-parallel-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporting coverage outside utPLSQL and in parallel sessions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="exception-reporting.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Error handling and reporting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/project-details.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Details
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/license.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/support.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Support
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/authors.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  <h1>Code coverage</h1>
+
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.14.4197-blue.svg" /></p>
+<p>utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting uses package DBMS_PROFILER (and DBMS_PLSQL_CODE_COVERAGE on Oracle database version 12.2 and above) provided with Oracle database.
+Code coverage is gathered for the following source types:</p>
+<ul>
+<li>package bodies</li>
+<li>type bodies</li>
+<li>triggers</li>
+<li>procedures</li>
+<li>functions</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The package and type specifications are excluded from code coverage analysis. 
+This limitation is introduced to avoid false-negatives.
+Typically package specifications contain no executable code. 
+The only exception is initialization of global constants and variables in package specification.
+Since most package specifications are not executable at all, there is no information available 
+on the number of lines covered and those would be reported as 0% covered, which is not desirable.</p>
+</div>
+<p>To obtain information about code coverage for unit tests, run utPLSQL with one of built-in code coverage reporters.
+The following code coverage reporters are supplied with utPLSQL:</p>
+<ul>
+<li><code>ut_coverage_html_reporter</code> - generates a HTML coverage report providing summary and detailed information on code coverage. The HTML reporter is based on the open-source <a href="https://github.com/colszowka/simplecov-html">simplecov-html</a> reporter for Ruby. It includes source code of the code that was covered (if the code is accessible for test user)  </li>
+<li><code>ut_coveralls_reporter</code> - generates a <a href="https://coveralls.zendesk.com/hc/en-us/articles/201774865-API-Introduction">Coveralls compatible JSON</a> coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like <a href="https://coveralls.io">Coveralls</a></li>
+<li><code>ut_coverage_sonar_reporter</code>  - generates a <a href="https://docs.sonarqube.org/latest/analysis/generic-test/">Sonar Compatible XML</a> coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by services like <a href="https://www.sonarqube.org/">SonarQube</a> and <a href="https://about.sonarcloud.io/">SonarCloud</a></li>
+<li><code>ut_coverage_cobertura_reporter</code>  - generates a basic Cobertura coverage (http://cobertura.sourceforge.net/xml/coverage-04.dtd) report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by services like TFS and Jenkins. Check this link for an example of XML generated by Java: https://raw.githubusercontent.com/jenkinsci/cobertura-plugin/master/src/test/resources/hudson/plugins/cobertura/coverage-with-data.xml</li>
+</ul>
+<h2 id="security-model">Security model<a class="headerlink" href="#security-model" title="Permanent link">&para;</a></h2>
+<p>utPLSQL code coverage uses DBMS_PROFILER to gather information about the execution of code under test and therefore follows the <a href="https://docs.oracle.com/database/121/ARPLS/d_profil.htm#ARPLS67465">DBMS_PROFILER's Security Model</a>.
+In order to be able to gather coverage information, the user executing unit tests needs to be either:</p>
+<ul>
+<li>The owner of the code that is being tested</li>
+<li>Have the following privileges to be able to gather coverage on code owned by other users:<ul>
+<li><code>create any procedure</code> system privilege</li>
+<li><code>execute</code> privilege on the code that is being tested (not only the unit tests) or <code>execute any procedure</code> system privilege</li>
+</ul>
+</li>
+</ul>
+<p>If you have <code>execute</code> privilege on the code that is being tested, but do not have <code>create any procedure</code> system privilege, then the code that is being tested will be reported as not covered (coverage = 0%).
+If you have <code>execute</code> privilege only on the unit tests, but do not have <code>execute</code> privilege on the code that is being tested, the code will not be reported by coverage - as if it did not exist in the database.
+If the code that is being tested is compiled as NATIVE, the code coverage will not be reported as well.</p>
+<h2 id="manually-running-unit-tests-with-coverage">Manually running unit tests with coverage<a class="headerlink" href="#manually-running-unit-tests-with-coverage" title="Permanent link">&para;</a></h2>
+<p>Using the code coverage functionality is as easy as using any other <a href="reporters.html">reporter</a> for the utPLSQL test-run. Run your tests from your preferred SQL tool and save the reporter results to a file.
+All you need to do, is pass the constructor of the reporter to the <code>ut.run</code> procedure call.</p>
+<p>Example:
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="k">begin</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_coverage_html_reporter</span><span class="p">());</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="o">/</span>
+</code></pre></div></td></tr></table></div>
+The above command executes all unit tests in the <strong>current schema</strong>, gathers information about code coverage for all sources in that schema and outputs the HTML report as text into DBMS_OUTPUT.
+The <code>ut_coverage_html_reporter</code> will produce an interactive HTML report. You can see a sample of code coverage for the utPLSQL project <a href="https://utplsql.github.io/utPLSQL-coverage-html/">here</a></p>
+<p>The report provides summary information with a list of source code that should be covered.</p>
+<p><img alt="Coverage Summary page" src="../images/coverage_html_summary.png" /></p>
+<p>The report allow you to navigate to each source file and inspect line by line coverage.</p>
+<p><img alt="Coverage Details page" src="../images/coverage_html_details.png" /></p>
+<h3 id="oracle-122-extended-coverage-with-profiler-and-block-coverage">Oracle 12.2 extended coverage with profiler and block coverage<a class="headerlink" href="#oracle-122-extended-coverage-with-profiler-and-block-coverage" title="Permanent link">&para;</a></h3>
+<p>Using data collected from profiler and block coverage running parallel we are able to enrich information about coverage.
+For every line recorded by the profiler if we have a partially covered same line in block coverage we will display that information
+presenting line as partially covered, displaying number of block and how many blocks have been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.</p>
+<p>utPLSQL installation automatically creates tables needed by <code>dbms_plsql_code_coverage</code> on databases in versions above 12c Release 1.
+Due to security model of <code>dbms_plsql_code_coverage</code> package, utPLSQL grants access to those tables and creates synonyms for those tables.
+The access and synonyms will be public when using the headless installation. This approach avoids complexity of forcing every user of utPLSQL framework to create tables on their own.    </p>
+<p>Sample output:</p>
+<p><img alt="Package Coverage Summary" src="../images/extended_coverage_html_summary.png" /></p>
+<p><img alt="Line Coverage Details" src="../images/extended_coverage_html_line.png" /></p>
+<h3 id="coverage-reporting-options">Coverage reporting options<a class="headerlink" href="#coverage-reporting-options" title="Permanent link">&para;</a></h3>
+<p>There are two distinct ways to gather code coverage:
+- Coverage on database schema(s)
+- Coverage on project files</p>
+<p>Those two options are mutually exclusive and cannot be mixed.
+By default, when using one of coverage reporters, coverage is gathered on schema(s). 
+The database schema(s) containing the tests that were executed during the run will be reported on by coverage reporter.</p>
+<p>The parameters used to execute tests determine if utPLSQL will be using one approach or the other.
+If parameter <code>a_source_file_mappings</code> or <code>a_source_files</code> is provided, then coverage is gathered on project files provided, otherwise coverage is gathered on schemas.  </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Regardless of the options provided, all unit test packages are excluded from the coverage report. Coverage reports provide information only about the <strong>tested</strong> code.</p>
+</div>
+<p>The default behavior of coverage reporting can be altered using invocation parameters.</p>
+<h3 id="schema-based-coverage">Schema based Coverage<a class="headerlink" href="#schema-based-coverage" title="Permanent link">&para;</a></h3>
+<p>To gather coverage for all objects in the <strong>current schema</strong> execute tests with coverage report as argument.
+This is the default reporting option and therefore additional coverage options don't need to be provided. </p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_coverage_html_reporter</span><span class="p">());</span>
+</code></pre></div></td></tr></table></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When no filters are used, the size of the coverage report will depend two factors:<br>
+    - the type of report (does the report include source code or not)<br>
+    - the amount of source code in the database schema<br>
+Keep in mind that for schemas containing a lot of code, it can take quite some time to produce the coverage report.</p>
+</div>
+<h4 id="setting-coverage-schemas">Setting coverage schema(s)<a class="headerlink" href="#setting-coverage-schemas" title="Permanent link">&para;</a></h4>
+<p>By default, coverage is gathered on the schema(s) derived from suite paths provided to execute tests.
+This is a valid approach as long as your test packages and tested code share the same schema.</p>
+<p>So when you run:
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">());</span>
+</code></pre></div></td></tr></table></div>
+Coverage will be gathered on both <code>user_1</code> and <code>user_2</code> objects.</p>
+<p>If your tests live in a different schema from the tested code you may override the default behavior by providing an explicit list of coverage schema names.</p>
+<p>In the example below, coverage will still be gathered for <code>user_1</code> and <code>user_2</code> objects, even thought we run the tests located in schema <code>unit_test_schema</code></p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">begin</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;unit_test_schema&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="n">a_coverage_schemes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">)</span><span class="w"> </span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="filtering-objects-in-coverage-reports">Filtering objects in coverage reports<a class="headerlink" href="#filtering-objects-in-coverage-reports" title="Permanent link">&para;</a></h4>
+<p>Multiple parameters can be used to define the scope of coverage report.</p>
+<ul>
+<li><code>a_source_file_mappings ( ut_file_mappings )</code> - map of filenames to database objects. It is used for file-based coverage - see below.</li>
+<li><code>a_include_schema_expr  (    varchar(4000) )</code> - string of regex expression of schemas to be included in the coverage report. Case-insensitive. </li>
+<li><code>a_include_object_expr  (    varchar(4000) )</code> - string of regex expression of objects ( without schema name ) to be included in the coverage report. Case-insensitive.</li>
+<li><code>a_exclude_schema_expr  (    varchar(4000) )</code> - string of regex expression of schemas to be excluded from the coverage report. Case-insensitive.</li>
+<li><code>a_exclude_object_expr  (    varchar(4000) )</code> - string of regex expression of objects ( without schema name ) to be excluded from the coverage report. Case-insensitive. </li>
+<li><code>a_coverage_schemes     ( ut_varchar2_list )</code> - List of database schema names to gather coverage on.</li>
+<li><code>a_include_objects      ( ut_varchar2_list )</code> - list of <code>[object_owner.]object_name</code> to be included in the coverage report.</li>
+<li><code>a_exclude_objects      ( ut_varchar2_list )</code> - list of <code>[object_owner.]object_name</code> to be excluded from the coverage report.</li>
+</ul>
+<p>You may specify both <em>include</em> and <em>exclude</em> options to gain more control over what needs to be included / excluded from the coverage report.</p>
+<div class="admonition warning">
+<p class="admonition-title">Important note</p>
+<p>The order of priority is for evaluation of include/exclude filter parameters is as follows.<br>
+- if <code>a_source_file_mappings</code> is defined then all include/exclude parameters are ignored (see section below for usage of <code>a_source_file_mappings</code> parameter )<br>
+- else if <code>a_include_schema_expr</code> or <code>a_include_object_expr</code> parameter is specified then parameters <code>a_coverage_schemes</code> and <code>a_include_objects</code> are ignored<br>
+- else if <code>a_include_objects</code> is specified then the coverage is gathered only on specified database objects.<br> 
+  - if <code>a_coverage_schemes</code> is specified then those schemas are used for objects in <code>a_include_objects</code> without schema name<br>  <br />
+  - if <code>a_coverage_schemes</code> is not specified then schema from paths (<code>a_paths</code>) parameter are used for objects in <code>a_include_objects</code> without schema name<br>  <br />
+- else if, only the <code>a_coverage_schemes</code> is specified then the coverage is gathered only on specified database schemas<br>
+- else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure<br>
+- else if no paths were specified, the coverage is gathered on current schema of the session running the tests</p>
+</div>
+<p>The exclude parameters are not mutually-exclusive and can be mixed together. All of exclude parameters are always applied.  </p>
+<p>Example: Limiting coverage by schema regex.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">begin</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="n">a_include_schema_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;^ut3_develop&#39;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all schemas that match regular expression <code>^ut3_develop</code></p>
+<p>Example: Limiting coverage by schema regex with parameter <code>a_include_objects</code> ignored. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">begin</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="n">a_include_schema_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;^ut3_develop&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;ut3_tester_helper.regex_dummy_cov&#39;</span><span class="w"> </span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all schemas that match regular expression <code>^ut3_develop</code>.</p>
+<p>Example: Limiting coverage by object regex. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">begin</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="n">a_include_object_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;regex123&#39;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all objects that name match regular expression <code>regex123</code>.</p>
+<p>Example: Limiting coverage by object regex with parameter <code>a_include_objects</code> ignored. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">begin</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="n">a_include_object_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;utl&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;user_2.utils_package&#39;</span><span class="w"> </span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all objects that name match regular expression <code>utl</code>.</p>
+<p>Example: Limiting coverage by excluding schema with regex. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">begin</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="n">a_exclude_schema_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;er_1$&#39;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for objects in all schema except schemas that are matching regular expression <code>er_1$</code></p>
+<p>Example: Limiting coverage by excluding schema with regex and excluding specific object. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">begin</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="n">a_exclude_schema_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;er_1$&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_exclude_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;user_2.utils_package&#39;</span><span class="w"> </span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for objects in all schemas except schemas that are matching regular expression <code>er_1$</code>
+Will also exclude object <code>user_2.utils_package</code> from coverage report</p>
+<p>Example: Limiting coverage by excluding objects with regex. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class="normal"><a href="#__codelineno-10-2">2</a></span>
+<span class="normal"><a href="#__codelineno-10-3">3</a></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span>
+<span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">begin</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">    </span><span class="n">a_exclude_object_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;utl&#39;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all objects that name is not matching regular expression <code>utl</code>.</p>
+<p>Example: Limiting coverage by excluding objects with regex with parameter <code>a_exclude_objects</code> ignored. 
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
+<span class="normal"><a href="#__codelineno-11-2">2</a></span>
+<span class="normal"><a href="#__codelineno-11-3">3</a></span>
+<span class="normal"><a href="#__codelineno-11-4">4</a></span>
+<span class="normal"><a href="#__codelineno-11-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">begin</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="n">a_exclude_object_expr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;utl&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_exclude_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;user_2.utils_package&#39;</span><span class="w"> </span><span class="p">)</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Will result in showing coverage for all objects that name is not matching regular expression <code>utl</code>.
+Will also exclude object <code>user_2.utils_package</code> from coverage report</p>
+<p>Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span>
+<span class="normal"><a href="#__codelineno-12-4">4</a></span>
+<span class="normal"><a href="#__codelineno-12-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">begin</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="n">a_include_objects</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;award_bonus&#39;</span><span class="p">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Executes all tests in schemas: <code>user_1</code> and <code>user_2</code>. Coverage will only be reported on objects <code>user_1.award_bonus</code>, <code>user_2.award_bonus</code></p>
+<p>Example: Limiting coverage by object name, for tested code located in different schemas than the unit tests.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span>
+<span class="normal"><a href="#__codelineno-13-6">6</a></span>
+<span class="normal"><a href="#__codelineno-13-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">begin</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="s1">&#39;unit_test_schema&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">     </span><span class="n">a_coverage_schemes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1&#39;</span><span class="p">,</span><span class="s1">&#39;user_2&#39;</span><span class="p">),</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">     </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;betwnstr&#39;</span><span class="p">)</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Executes all tests in schema <code>unit_test_schema</code>. Coverage will only be reported on objects <code>user_1.award_bonus</code>, <code>user_2.award_bonus</code>, <code>user_1.betwnstr</code>, <code>user_2.betwnstr</code>.
+Objects that do not exist in the database but were specified in <code>a_include_objects</code> will be ignored.</p>
+<p>Example: Limiting coverage by object owner and name.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span>
+<span class="normal"><a href="#__codelineno-14-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">begin</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="s1">&#39;unit_test_schema&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">     </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;user_1.award_bonus&#39;</span><span class="p">,</span><span class="s1">&#39;user_2.betwnstr&#39;</span><span class="p">)</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Executes all tests in schema <code>unit_test_schema</code>. Coverage will only be reported on objects <code>user_1.award_bonus</code>, <code>user_2.betwnstr</code></p>
+<p>The <code>a_exclude_objects</code> can be used in the same way as <code>a_include_objects</code>.</p>
+<p>Example: Excluding objects from coverage report by providing a list of object owner/name to be excluded.
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span>
+<span class="normal"><a href="#__codelineno-15-2">2</a></span>
+<span class="normal"><a href="#__codelineno-15-3">3</a></span>
+<span class="normal"><a href="#__codelineno-15-4">4</a></span>
+<span class="normal"><a href="#__codelineno-15-5">5</a></span>
+<span class="normal"><a href="#__codelineno-15-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">begin</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="s1">&#39;unit_test_schema.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span>
+<a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="n">a_exclude_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;ut3_user.betwnstr&#39;</span><span class="p">)</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+Executes test <code>test_award_bonus</code> in schema <code>unit_test_schema</code>. Coverage will be reported on all objects in schema <code>ut3_user</code> except the <code>betwnstr</code> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Filtering using <code>a_include_objects</code> and <code>a_exclude_objects</code> is only applicable when gathering coverage for a schema. Those filters are not applied when reporting coverage on project files.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running coverage on schema objects, all source code of package bodies, functions, procedures, type bodies and triggers that were not executed will be reported as having 0% code coverage and all source code lines will show as uncovered.
+This is different from the behavior when gathering coverage on project files.</p>
+</div>
+<h3 id="project-based-coverage">Project based Coverage<a class="headerlink" href="#project-based-coverage" title="Permanent link">&para;</a></h3>
+<p>utPLSQL provides reporters that produce reports consumable by external tools like <code>Sonar</code>/<code>SonarCloud</code> &amp; <code>Coveralls</code>.</p>
+<p>Services like Sonar, Coveralls and others perform analysis based on source code in project files.
+They are abstracted from database, schema names, packages, procedures and functions, and operate on a more generic concept of project source code.</p>
+<p>To be able to effectively use reporters dedicated for those tools, utPLSQL provides functionality for mapping database object names to project files.</p>
+<p>There are a few significant differences when running coverage on project files compared to running coverage on schema(s).</p>
+<ul>
+<li>Coverage is only reported on objects that were successfully mapped to project files.</li>
+<li>Project files (database objects) that were not executed at all are not reported as fully uncovered. It is up to the consumer (Sonar/Coveralls) to determine if project file should be considered as 0% coverage or just ignored.</li>
+</ul>
+<p>In order to successfully use coverage on project files, those files must be mapped to database objects.</p>
+<p>Though you can gather project based code coverage directly using <code>exec ut.run(...)</code>, it is highly recommended to use <a href="https://github.com/utPLSQL/utPLSQL-cli">utPLSQL-cli</a> command line client.</p>
+<p>The examples below are using utPLSQL-cli to execute tests and gather coverage information.</p>
+<h4 id="file-mapping-using-default-parameters">File mapping using default parameters<a class="headerlink" href="#file-mapping-using-default-parameters" title="Permanent link">&para;</a></h4>
+<p>The example below illustrates a directory structure supported by the default parameters of utPLSQL.
+The structure represents a multi-schema project with file names indicating object owner.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>C:
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  \my_project
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    \sources
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>      \hotel.add_rooms_content.prc
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>      \hotel.remove_rooms_by_name.prc
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>      \hotel.rooms.tbl
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>      \hr.award_bonus.prc
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>      \hr.betwnstr.fnc
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>      \hr.employees_test.tbl
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    \tests
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>      \hotel.test_add_room_content.pkb
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>      \hotel.test_add_room_content.pks
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>      \hotel.test_remove_rooms_by_name.pkb
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>      \hotel.test_remove_rooms_by_name.pks
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>      \hr.test_award_bonus.pkb
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>      \hr.test_award_bonus.pks
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>      \hr.test_betwnstr.pkb
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>      \hr.test_betwnstr.pks
+</code></pre></div></p>
+<p>By default, utPLSQL will convert file paths into database objects using the following regular expression <code>/(((\w|[$#])+)\.)?((\w|[$#])+)\.(\w{3})$</code></p>
+<ul>
+<li>object owner (if it is present) is identified by the expression in the second set of  brackets</li>
+<li>object name is identified by the expression in the fourth set of brackets</li>
+<li>object type is identified by the expression in the sixth set of brackets</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>utPLSQL will replace any '\' with '/' for the purpose of mapping files to objects. The paths shown in the results will remain (contain '\' where it was present).
+This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    </p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Below examples assume that you have downloaded latest version of <a href="https://github.com/utPLSQL/utPLSQL-cli/releases">utPLSQL-cli</a> 
+and extracted it into your projects root directory
+and that you run the utPLSQL-cli from that directory.    </p>
+</div>
+<p>Windows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">utPLSQL-cli</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">utplsql</span> <span class="n">run</span> <span class="n">test_runner</span><span class="p">/</span><span class="n">pass</span><span class="nv">@db_host</span><span class="p">:</span><span class="n">db_port</span><span class="p">/</span><span class="n">db_service_name</span> <span class="p">^</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a> <span class="n">-p</span><span class="p">=</span><span class="n">hr</span><span class="p">,</span><span class="n">hotel</span> <span class="p">^</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a> <span class="n">-source_path</span><span class="p">=</span><span class="n">sources</span> <span class="p">^</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a> <span class="n">-test_path</span><span class="p">=</span><span class="n">tests</span> <span class="p">^</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_coverage_html_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">coverage</span><span class="p">.</span><span class="n">html</span> <span class="p">^</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_sonar_test_reporter</span>    <span class="n">-o</span><span class="p">=</span><span class="n">test_results</span><span class="p">.</span><span class="n">xml</span>
+</code></pre></div></p>
+<p>Bash:<br />
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>utPLSQL-cli/bin/utplsql<span class="w"> </span>run<span class="w"> </span>test_runner/pass@db_host:db_port/db_service_name<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w"> </span>-p<span class="o">=</span>hr,hotel<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w"> </span>-source_path<span class="o">=</span>sources<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w"> </span>-test_path<span class="o">=</span>tests<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w"> </span>-f<span class="o">=</span>ut_coverage_html_reporter<span class="w"> </span>-o<span class="o">=</span>coverage.html<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w"> </span>-f<span class="o">=</span>ut_sonar_test_reporter<span class="w">    </span>-o<span class="o">=</span>test_results.xml
+</code></pre></div></p>
+<p>The above commands will:</p>
+<ul>
+<li>connect as user <code>test_runner</code></li>
+<li>run all utPLSQL v3 tests for users <code>hr</code>, <code>hotel</code></li>
+<li>map database code to project files in <code>sources</code> directory and save code coverage results into <code>coverage.html</code></li>
+<li>map test packages to project files in <code>tests</code> directory and save test results into <code>test_results.xml</code> </li>
+</ul>
+<p>To better understand the default regular expression used, have a look <a href="https://regex101.com/r/4qP6Aj/3">here</a>.</p>
+<p>Tested code is mapped to files in <code>coverage.html</code></p>
+<p><img alt="coverage.html" src="../images/example_1_coverage_mapping.png" /></p>
+<p>Unit test code is mapped to files in <code>test_results.xml</code></p>
+<p><img alt="coverage.html" src="../images/example_1_test_mapping.png" /></p>
+<h4 id="using-custom-regular-expressions">Using custom regular expressions<a class="headerlink" href="#using-custom-regular-expressions" title="Permanent link">&para;</a></h4>
+<p>If your project directory structure is different, you can use additional configuration parameters to tell utPLSQL how the project files are to be mapped into database objects.  </p>
+<p>Example: Using custom regular expressions on a multi-schema project with separate directories for each object owner.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>C:
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>  \my_project
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    \sources
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>      \hotel
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>        \add_rooms_content.prc
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        \remove_rooms_by_name.prc
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        \rooms.tbl
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>      \hr
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        \award_bonus.prc
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        \betwnstr.fnc
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        \employees_test.tbl
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    \tests
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>      \hotel
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>        \test_add_room_content.pkb
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>        \test_add_room_content.pks
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>        \test_remove_rooms_by_name.pkb
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>        \test_remove_rooms_by_name.pks
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>      \hr
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>        \test_award_bonus.pkb
+<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a>        \test_award_bonus.pks
+<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a>        \test_betwnstr.pkb
+<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>        \test_betwnstr.pks
+</code></pre></div></p>
+<p>The command below will gather coverage and map files to database objects using custom regular expression.
+Note that the owner/name/type subexpressions don't need to be explicitly specified if they are same as default values ( 2/3/4 ).
+In the below example, they were specified explicitly only for <code>source_path</code>, <code>test_path</code> doesn't have subexpressions specified and so they are default (2/3/4).</p>
+<p>Windows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">utPLSQL-cli</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">utplsql</span> <span class="n">run</span> <span class="n">test_runner</span><span class="p">/</span><span class="n">pass</span><span class="nv">@db_url</span> <span class="p">^</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a> <span class="n">-p</span><span class="p">=</span><span class="n">hr</span><span class="p">,</span><span class="n">hotel</span> <span class="p">^</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a> <span class="n">-source_path</span><span class="p">=</span><span class="n">sources</span> <span class="p">^</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a> <span class="n">-regex_expression</span><span class="p">=</span><span class="s2">&quot;/((\w+)/)?(\w+)\.(\w{3})$&quot;</span> <span class="p">^</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a> <span class="n">-owner_subexpression</span><span class="p">=</span><span class="n">2</span> <span class="p">^</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a> <span class="n">-name_subexpression</span><span class="p">=</span><span class="n">3</span> <span class="p">^</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a> <span class="n">-type_subexpression</span><span class="p">=</span><span class="n">4</span> <span class="p">^</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a> <span class="n">-test_path</span><span class="p">=</span><span class="n">tests</span> <span class="n">-regex_expression</span><span class="p">=</span><span class="s2">&quot;/((\w+)/)?(\w+)\.(\w{3})$&quot;</span> <span class="p">^</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_coverage_html_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">coverage</span><span class="p">.</span><span class="n">html</span> <span class="p">^</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_sonar_test_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">test_results</span><span class="p">.</span><span class="n">xml</span> <span class="p">^</span>
+</code></pre></div></p>
+<p>Bash:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>utPLSQL-cli/bin/utplsql<span class="w"> </span>run<span class="w"> </span>test_runner/pass@db_url<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w"> </span>-source_path<span class="o">=</span>sources<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w"> </span>-regex_expression<span class="o">=</span><span class="s2">&quot;/((\w+)/)?(\w+)\.(\w{3})</span>$<span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w"> </span>-owner_subexpression<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w"> </span>-name_subexpression<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w"> </span>-type_subexpression<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w"> </span>-test_path<span class="o">=</span>tests<span class="w"> </span>-regex_expression<span class="o">=</span><span class="s2">&quot;/((\w+)/)?(\w+)\.(\w{3})</span>$<span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w"> </span>-owner_subexpression<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w"> </span>-name_subexpression<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w"> </span>-type_subexpression<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w"> </span>-f<span class="o">=</span>ut_coverage_html_reporter<span class="w"> </span>-o<span class="o">=</span>coverage.html<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w"> </span>-f<span class="o">=</span>ut_sonar_test_reporter<span class="w"> </span>-o<span class="o">=</span>test_results.xml
+</code></pre></div></p>
+<p>You can specify different mapping rules for source files and for test files - see <a href="https://github.com/utPLSQL/utPLSQL-cli">utPLSQL-cli readme</a> for details.</p>
+<p>To better understand the regular expression used, have a look <a href="https://regex101.com/r/0lk0rV/1/">here</a>.</p>
+<p>Tested code is mapped to files in <code>coverage.html</code></p>
+<p><img alt="coverage.html" src="../images/example_2_coverage_mapping.png" /></p>
+<p>Unit test code is mapped to files in <code>test_results.xml</code></p>
+<p><img alt="coverage.html" src="../images/example_2_test_mapping.png" /></p>
+<h4 id="explicitly-specifying-object-owner">Explicitly specifying object owner<a class="headerlink" href="#explicitly-specifying-object-owner" title="Permanent link">&para;</a></h4>
+<p>When dealing with projects that operate within a single schema the project structure probably doesn't indicate the owner.
+In such scenarios, you can explicitly specify the object owner for both tests and source code.</p>
+<p>Example: Single-schema project - no indication of object owner
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>C:
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  \my_project
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    \sources
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>      \betwnstr.fnc
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    \tests
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>      \test_betwnstr.pkb
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>      \test_betwnstr.pks
+</code></pre></div></p>
+<p>The command below will gather coverage and map files to database objects.
+For the database objects mapped to <code>souces</code> directory user <code>code_owner</code>  will be used.
+For the database objects mapped to <code>tests</code>  directory user <code>tests_owner</code> will be used. </p>
+<p>Windows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">utPLSQL-cli</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">utplsql</span> <span class="n">run</span> <span class="n">test_runner</span><span class="p">/</span><span class="n">pass</span><span class="nv">@db_url</span> <span class="p">^</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a> <span class="n">-p</span><span class="p">=</span><span class="n">tests_owner</span> <span class="p">^</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a> <span class="n">-source_path</span><span class="p">=</span><span class="n">sources</span> <span class="n">-owner</span><span class="p">=</span><span class="n">code_owner</span> <span class="p">^</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a> <span class="n">-test_path</span><span class="p">=</span><span class="n">tests</span>     <span class="n">-owner</span><span class="p">=</span><span class="n">tests_owner</span> <span class="p">^</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_coverage_html_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">coverage</span><span class="p">.</span><span class="n">html</span> <span class="p">^</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_sonar_test_reporter</span>    <span class="n">-o</span><span class="p">=</span><span class="n">test_results</span><span class="p">.</span><span class="n">xml</span>
+</code></pre></div></p>
+<p>Bash:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>utPLSQL-cli/bin/utplsql<span class="w"> </span>run<span class="w"> </span>test_runner/pass@db_url<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w"> </span>-p<span class="o">=</span>tests_owner<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w"> </span>-source_path<span class="o">=</span>sources<span class="w"> </span>-owner<span class="o">=</span>code_owner<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w"> </span>-test_path<span class="o">=</span>tests<span class="w">     </span>-owner<span class="o">=</span>tests_owner<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w"> </span>-f<span class="o">=</span>ut_coverage_html_reporter<span class="w"> </span>-o<span class="o">=</span>coverage.html<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w"> </span>-f<span class="o">=</span>ut_sonar_test_reporter<span class="w">    </span>-o<span class="o">=</span>test_results.xml
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the project folder structure does not provide any information about source code owner and test owner, you can specify the owner for tests and owner for code explicitly.
+Such project configuration supports only single-owner for source code and single owner for tests.  </p>
+</div>
+<p>Tested code is mapped to files in <code>coverage.html</code></p>
+<p><img alt="coverage.html" src="../images/example_3_coverage_mapping.png" /></p>
+<p>Unit test code is mapped to files in <code>test_results.xml</code></p>
+<p><img alt="coverage.html" src="../images/example_3_test_mapping.png" /></p>
+<h4 id="custom-mapping-of-object-types">Custom mapping of object types<a class="headerlink" href="#custom-mapping-of-object-types" title="Permanent link">&para;</a></h4>
+<p>By default, when mapping project files to database objects, utPLSQL will identify the object type by file extension.</p>
+<p>The table below represents the default mapping of file extensions to database object types.</p>
+<table>
+<thead>
+<tr>
+<th>file extension</th>
+<th>object type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tpb</td>
+<td>type body</td>
+</tr>
+<tr>
+<td>pkb</td>
+<td>package body</td>
+</tr>
+<tr>
+<td>bdy</td>
+<td>package body</td>
+</tr>
+<tr>
+<td>trg</td>
+<td>trigger</td>
+</tr>
+<tr>
+<td>fnc</td>
+<td>function</td>
+</tr>
+<tr>
+<td>prc</td>
+<td>procedure</td>
+</tr>
+</tbody>
+</table>
+<p>If your project naming convention differs and your file extensions do not match the above, or you simply name all of your files with <code>.sql</code> suffix, you can still use utPLSQL, but you need to provide custom mapping for object types.</p>
+<p>Example: Multi-schema project with separate directories for each object owner and object type
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>C:
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>  \my_project
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    \sources
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>      \hotel
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>        \functions
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        \packages
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>        \packages_bodies
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>        \procedures
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>          \add_rooms_content.sql
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>          \remove_rooms_by_name.sql
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>        \tables
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>          \rooms.sql
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>        \triggers
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>        \types
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a>        \type_bodies
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>      \hr
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>        \functions
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>          \betwnstr.sql
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a>        \packages
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a>        \package_bodies
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a>        \procedures
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a>          \award_bonus.sql
+<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a>        \tables
+<a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a>          \employees_test.sql
+<a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a>        \triggers
+<a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a>        \types
+<a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a>        \types_bodies
+<a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a>    \tests
+<a id="__codelineno-25-29" name="__codelineno-25-29" href="#__codelineno-25-29"></a>      \hotel
+<a id="__codelineno-25-30" name="__codelineno-25-30" href="#__codelineno-25-30"></a>        \packages
+<a id="__codelineno-25-31" name="__codelineno-25-31" href="#__codelineno-25-31"></a>          \test_add_room_content.sql
+<a id="__codelineno-25-32" name="__codelineno-25-32" href="#__codelineno-25-32"></a>          \test_remove_rooms_by_name.sql
+<a id="__codelineno-25-33" name="__codelineno-25-33" href="#__codelineno-25-33"></a>        \packages_bodies
+<a id="__codelineno-25-34" name="__codelineno-25-34" href="#__codelineno-25-34"></a>          \test_add_room_content.sql
+<a id="__codelineno-25-35" name="__codelineno-25-35" href="#__codelineno-25-35"></a>          \test_remove_rooms_by_name.sql
+<a id="__codelineno-25-36" name="__codelineno-25-36" href="#__codelineno-25-36"></a>      \hr
+<a id="__codelineno-25-37" name="__codelineno-25-37" href="#__codelineno-25-37"></a>        \packages
+<a id="__codelineno-25-38" name="__codelineno-25-38" href="#__codelineno-25-38"></a>          \test_award_bonus.sql
+<a id="__codelineno-25-39" name="__codelineno-25-39" href="#__codelineno-25-39"></a>          \test_betwnstr.sql
+<a id="__codelineno-25-40" name="__codelineno-25-40" href="#__codelineno-25-40"></a>        \packages_bodies
+<a id="__codelineno-25-41" name="__codelineno-25-41" href="#__codelineno-25-41"></a>          \test_award_bonus.sql
+<a id="__codelineno-25-42" name="__codelineno-25-42" href="#__codelineno-25-42"></a>          \test_betwnstr.sql
+</code></pre></div></p>
+<p>Windows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">utPLSQL-cli</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">utplsql</span> <span class="n">run</span> <span class="n">test_runner</span><span class="p">/</span><span class="n">pass</span><span class="nv">@db_url</span> <span class="p">^</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a> <span class="n">-p</span><span class="p">=</span><span class="n">hr</span><span class="p">,</span><span class="n">hotel</span> <span class="p">^</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a> <span class="n">-source_path</span><span class="p">=</span><span class="n">sources</span> <span class="p">^</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a> <span class="n">-regex_expression</span><span class="p">=</span><span class="s2">&quot;/(\w+)/(\w+)/(\w+)\..{3}$&quot;</span> <span class="p">^</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a> <span class="n">-type_mapping</span><span class="p">=</span><span class="s2">&quot;packages_bodies=PACKAGE BODY/types_bodies=TYPE BODY/triggers=TRIGGER/procedures=PROCEDURE/functions=FUNCTION&quot;</span> <span class="p">^</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a> <span class="n">-owner_subexpression</span><span class="p">=</span><span class="n">1</span> <span class="p">^</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a> <span class="n">-name_subexpression</span><span class="p">=</span><span class="n">3</span> <span class="p">^</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a> <span class="n">-type_subexpression</span><span class="p">=</span><span class="n">2</span> <span class="p">^</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a> <span class="n">-test_path</span><span class="p">=</span><span class="n">tests</span> <span class="n">-regex_expression</span><span class="p">=</span><span class="s2">&quot;/(\w+)/(\w+)/(\w+)\..{3}$&quot;</span> <span class="p">^</span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a> <span class="n">-type_mapping</span><span class="p">=</span><span class="s2">&quot;packages_bodies=PACKAGE BODY/types_bodies=TYPE BODY/triggers=TRIGGER/procedures=PROCEDURE/functions=FUNCTION&quot;</span> <span class="p">^</span>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a> <span class="n">-owner_subexpression</span><span class="p">=</span><span class="n">1</span> <span class="p">^</span>
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a> <span class="n">-name_subexpression</span><span class="p">=</span><span class="n">3</span> <span class="p">^</span>
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a> <span class="n">-type_subexpression</span><span class="p">=</span><span class="n">2</span> <span class="p">^</span>
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_coverage_html_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">coverage</span><span class="p">.</span><span class="n">html</span> <span class="p">^</span>
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a> <span class="o">-f</span><span class="p">=</span><span class="n">ut_sonar_test_reporter</span> <span class="n">-o</span><span class="p">=</span><span class="n">test_results</span><span class="p">.</span><span class="n">xml</span>
+</code></pre></div></p>
+<p>Bash:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>utPLSQL-cli/bin/utplsql<span class="w"> </span>run<span class="w"> </span>test_runner/pass@db_urll<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w"> </span>-p<span class="o">=</span>hr,hotel<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w"> </span>-source_path<span class="o">=</span>sources<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w"> </span>-regex_expression<span class="o">=</span><span class="s2">&quot;/(\w+)/(\w+)/(\w+)\..{3}</span>$<span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w"> </span>-type_mapping<span class="o">=</span><span class="s2">&quot;packages_bodies=PACKAGE BODY/types_bodies=TYPE BODY/triggers=TRIGGER/procedures=PROCEDURE/functions=FUNCTION&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w"> </span>-owner_subexpression<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w"> </span>-name_subexpression<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w"> </span>-type_subexpression<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="w"> </span>-test_path<span class="o">=</span>tests<span class="w"> </span>-regex_expression<span class="o">=</span><span class="s2">&quot;/(\w+)/(\w+)/(\w+)\..{3}</span>$<span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="w"> </span>-type_mapping<span class="o">=</span><span class="s2">&quot;body=PACKAGE BODY/type_body=TYPE BODY/trigger=TRIGGER&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w"> </span>-owner_subexpression<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w"> </span>-name_subexpression<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w"> </span>-type_subexpression<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="w"> </span>-f<span class="o">=</span>ut_coverage_html_reporter<span class="w"> </span>-o<span class="o">=</span>coverage.html<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w"> </span>-f<span class="o">=</span>ut_sonar_test_reporter<span class="w"> </span>-o<span class="o">=</span>test_results.xml
+</code></pre></div></p>
+<p>The parameter <code>type_mapping</code> accepts a list of a key-value pairs representing a mapping of regex subexpression to database object type.  </p>
+<p>To better understand the regular expression used, have a look <a href="https://regex101.com/r/Vd97v0/1">here</a>.</p>
+<p>Tested code is mapped to files in <code>coverage.html</code></p>
+<p><img alt="coverage.html" src="../images/example_4_coverage_mapping.png" /></p>
+<p>Unit test code is mapped to files in <code>test_results.xml</code></p>
+<p><img alt="coverage.html" src="../images/example_4_test_mapping.png" /></p>
+<h4 id="object-file-mapping-rules">Object-file mapping rules<a class="headerlink" href="#object-file-mapping-rules" title="Permanent link">&para;</a></h4>
+<p>In order to allow deterministic and accurate mapping of database source-code into project files, the project directory and file structure needs to meet certain criteria.</p>
+<ul>
+<li>Source code is kept separate from test code (separate directories)</li>
+<li>Each database (source-code) object is stored in an individual file. Package/type specification is kept separate from its body.</li>
+<li>File name (file path) contains the name of database object</li>
+<li>Each file-path clearly identifies object type (by file extension)</li>
+<li>Each file contains representation of database object "as is". No extra commands (like <code>set echo off</code> <code>ALTER SESSION SET PLSQL_CCFLAGS = 'debug:TRUE';</code>) or blank lines are present before <code>CREATE TYPE</code>,<code>CREATE TYPE</code> etc.</li>
+<li>When project is spanning across multiple database schemes, each file-path clearly and uniformly identifies object owner</li>
+</ul>
+<h4 id="file-mapping-from-sql">File mapping from SQL<a class="headerlink" href="#file-mapping-from-sql" title="Permanent link">&para;</a></h4>
+<p>The <code>ut.run</code> command provides interface to map project into database objects when executing tests.
+While it is much easier to perform mapping directly from command line, it is possible to achieve similar functionality from any SQL client.
+The main differences when using the <code>ut.run(...)</code> command, will be:</p>
+<ul>
+<li>you can only use single reporter and therefore will get only one report from test execution</li>
+<li>you need to provide fill list of project files rather than point to <code>sources</code> and <code>tests</code> directories</li>
+</ul>
+<p>Example project directory structure. 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>C:
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>  \my_project
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    \sources
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>      \hotel
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>        \functions
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>        \packages
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>        \packages_bodies
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>        \procedures
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>          \add_rooms_content.sql
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>          \remove_rooms_by_name.sql
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>        \tables
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>          \rooms.sql
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>        \triggers
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a>        \types
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a>        \type_bodies
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>      \hr
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a>        \functions
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a>          \betwnstr.sql
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a>        \packages
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a>        \package_bodies
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a>        \procedures
+<a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a>          \award_bonus.sql
+<a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a>        \tables
+<a id="__codelineno-28-24" name="__codelineno-28-24" href="#__codelineno-28-24"></a>          \employees_test.sql
+<a id="__codelineno-28-25" name="__codelineno-28-25" href="#__codelineno-28-25"></a>        \triggers
+<a id="__codelineno-28-26" name="__codelineno-28-26" href="#__codelineno-28-26"></a>        \types
+<a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a>        \types_bodies
+<a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a>    \tests
+<a id="__codelineno-28-29" name="__codelineno-28-29" href="#__codelineno-28-29"></a>      \hotel
+<a id="__codelineno-28-30" name="__codelineno-28-30" href="#__codelineno-28-30"></a>        \packages
+<a id="__codelineno-28-31" name="__codelineno-28-31" href="#__codelineno-28-31"></a>          \test_add_room_content.sql
+<a id="__codelineno-28-32" name="__codelineno-28-32" href="#__codelineno-28-32"></a>          \test_remove_rooms_by_name.sql
+<a id="__codelineno-28-33" name="__codelineno-28-33" href="#__codelineno-28-33"></a>        \packages_bodies
+<a id="__codelineno-28-34" name="__codelineno-28-34" href="#__codelineno-28-34"></a>          \test_add_room_content.sql
+<a id="__codelineno-28-35" name="__codelineno-28-35" href="#__codelineno-28-35"></a>          \test_remove_rooms_by_name.sql
+<a id="__codelineno-28-36" name="__codelineno-28-36" href="#__codelineno-28-36"></a>      \hr
+<a id="__codelineno-28-37" name="__codelineno-28-37" href="#__codelineno-28-37"></a>        \packages
+<a id="__codelineno-28-38" name="__codelineno-28-38" href="#__codelineno-28-38"></a>          \test_award_bonus.sql
+<a id="__codelineno-28-39" name="__codelineno-28-39" href="#__codelineno-28-39"></a>          \test_betwnstr.sql
+<a id="__codelineno-28-40" name="__codelineno-28-40" href="#__codelineno-28-40"></a>        \packages_bodies
+<a id="__codelineno-28-41" name="__codelineno-28-41" href="#__codelineno-28-41"></a>          \test_award_bonus.sql
+<a id="__codelineno-28-42" name="__codelineno-28-42" href="#__codelineno-28-42"></a>          \test_betwnstr.sql
+</code></pre></div></p>
+<p>To execute all tests and map database source code into source file names you could use the following command in any SQL client:        </p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-29-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-29-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-29-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-29-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-29-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-29-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-29-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-29-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-29-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-29-10">10</a></span>
+<span class="normal"><a href="#__codelineno-29-11">11</a></span>
+<span class="normal"><a href="#__codelineno-29-12">12</a></span>
+<span class="normal"><a href="#__codelineno-29-13">13</a></span>
+<span class="normal"><a href="#__codelineno-29-14">14</a></span>
+<span class="normal"><a href="#__codelineno-29-15">15</a></span>
+<span class="normal"><a href="#__codelineno-29-16">16</a></span>
+<span class="normal"><a href="#__codelineno-29-17">17</a></span>
+<span class="normal"><a href="#__codelineno-29-18">18</a></span>
+<span class="normal"><a href="#__codelineno-29-19">19</a></span>
+<span class="normal"><a href="#__codelineno-29-20">20</a></span>
+<span class="normal"><a href="#__codelineno-29-21">21</a></span>
+<span class="normal"><a href="#__codelineno-29-22">22</a></span>
+<span class="normal"><a href="#__codelineno-29-23">23</a></span>
+<span class="normal"><a href="#__codelineno-29-24">24</a></span>
+<span class="normal"><a href="#__codelineno-29-25">25</a></span>
+<span class="normal"><a href="#__codelineno-29-26">26</a></span>
+<span class="normal"><a href="#__codelineno-29-27">27</a></span>
+<span class="normal"><a href="#__codelineno-29-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="k">begin</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="w">    </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr&#39;</span><span class="p">,</span><span class="s1">&#39;hotel&#39;</span><span class="p">),</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="w">    </span><span class="n">a_source_file_mappings</span><span class="w"> </span><span class="o">=&gt;</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6"></a><span class="w">      </span><span class="n">ut_file_mapper</span><span class="p">.</span><span class="n">build_file_mappings</span><span class="p">(</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">        </span><span class="n">a_file_paths</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="w">          </span><span class="s1">&#39;sources\hotel\procedures\add_rooms_content.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9"></a><span class="w">          </span><span class="s1">&#39;sources\hotel\procedures\remove_rooms_by_name.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">          </span><span class="s1">&#39;sources\hotel\tables\rooms.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">          </span><span class="s1">&#39;sources\hr\functions\betwnstr.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-12" name="__codelineno-29-12"></a><span class="w">          </span><span class="s1">&#39;sources\hr\procedures\award_bonus.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-13" name="__codelineno-29-13"></a><span class="w">          </span><span class="s1">&#39;sources\hr\tables\employees_test.sql&#39;</span>
+<a id="__codelineno-29-14" name="__codelineno-29-14"></a><span class="w">          </span><span class="p">),</span>
+<a id="__codelineno-29-15" name="__codelineno-29-15"></a><span class="w">        </span><span class="n">a_regex_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;/(\w+)/(\w+)/(\w+)\..{3}$&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-16" name="__codelineno-29-16"></a><span class="w">        </span><span class="n">a_object_owner_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-29-17" name="__codelineno-29-17"></a><span class="w">        </span><span class="n">a_object_name_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-29-18" name="__codelineno-29-18"></a><span class="w">        </span><span class="n">a_object_type_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-29-19" name="__codelineno-29-19"></a><span class="w">        </span><span class="n">a_file_to_object_type_mapping</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_key_value_pairs</span><span class="p">(</span>
+<a id="__codelineno-29-20" name="__codelineno-29-20"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;packages_bodies&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PACKAGE BODY&#39;</span><span class="p">),</span>
+<a id="__codelineno-29-21" name="__codelineno-29-21"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;types_bodies&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TYPE BODY&#39;</span><span class="p">),</span>
+<a id="__codelineno-29-22" name="__codelineno-29-22"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;triggers&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TRIGGER&#39;</span><span class="p">),</span>
+<a id="__codelineno-29-23" name="__codelineno-29-23"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PROCEDURE&#39;</span><span class="p">),</span>
+<a id="__codelineno-29-24" name="__codelineno-29-24"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;FUNCTION&#39;</span><span class="p">)</span>
+<a id="__codelineno-29-25" name="__codelineno-29-25"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-29-26" name="__codelineno-29-26"></a><span class="w">      </span><span class="p">)</span>
+<a id="__codelineno-29-27" name="__codelineno-29-27"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-29-28" name="__codelineno-29-28"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+<p>To execute all tests and map database tests code into test file names you could use the following command in any SQL client:      <br />
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-30-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-30-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-30-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-30-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-30-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-30-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-30-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-30-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-30-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-30-10">10</a></span>
+<span class="normal"><a href="#__codelineno-30-11">11</a></span>
+<span class="normal"><a href="#__codelineno-30-12">12</a></span>
+<span class="normal"><a href="#__codelineno-30-13">13</a></span>
+<span class="normal"><a href="#__codelineno-30-14">14</a></span>
+<span class="normal"><a href="#__codelineno-30-15">15</a></span>
+<span class="normal"><a href="#__codelineno-30-16">16</a></span>
+<span class="normal"><a href="#__codelineno-30-17">17</a></span>
+<span class="normal"><a href="#__codelineno-30-18">18</a></span>
+<span class="normal"><a href="#__codelineno-30-19">19</a></span>
+<span class="normal"><a href="#__codelineno-30-20">20</a></span>
+<span class="normal"><a href="#__codelineno-30-21">21</a></span>
+<span class="normal"><a href="#__codelineno-30-22">22</a></span>
+<span class="normal"><a href="#__codelineno-30-23">23</a></span>
+<span class="normal"><a href="#__codelineno-30-24">24</a></span>
+<span class="normal"><a href="#__codelineno-30-25">25</a></span>
+<span class="normal"><a href="#__codelineno-30-26">26</a></span>
+<span class="normal"><a href="#__codelineno-30-27">27</a></span>
+<span class="normal"><a href="#__codelineno-30-28">28</a></span>
+<span class="normal"><a href="#__codelineno-30-29">29</a></span>
+<span class="normal"><a href="#__codelineno-30-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="k">begin</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3"></a><span class="w">    </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr&#39;</span><span class="p">,</span><span class="s1">&#39;hotel&#39;</span><span class="p">),</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4"></a><span class="w">    </span><span class="n">ut_sonar_test_reporter</span><span class="p">(),</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5"></a><span class="w">    </span><span class="n">a_test_file_mappings</span><span class="w"> </span><span class="o">=&gt;</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6"></a><span class="w">      </span><span class="n">ut_file_mapper</span><span class="p">.</span><span class="n">build_file_mappings</span><span class="p">(</span>
+<a id="__codelineno-30-7" name="__codelineno-30-7"></a><span class="w">        </span><span class="n">a_file_paths</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span>
+<a id="__codelineno-30-8" name="__codelineno-30-8"></a><span class="w">            </span><span class="s1">&#39;tests\hotel\packages\test_add_room_content.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-9" name="__codelineno-30-9"></a><span class="w">            </span><span class="s1">&#39;tests\hotel\packages\test_remove_rooms_by_name.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-10" name="__codelineno-30-10"></a><span class="w">            </span><span class="s1">&#39;tests\hotel\packages_bodies\test_add_room_content.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-11" name="__codelineno-30-11"></a><span class="w">            </span><span class="s1">&#39;tests\hotel\packages_bodies\test_remove_rooms_by_name.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-12" name="__codelineno-30-12"></a><span class="w">            </span><span class="s1">&#39;tests\hr\packages\test_award_bonus.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-13" name="__codelineno-30-13"></a><span class="w">            </span><span class="s1">&#39;tests\hr\packages\test_betwnstr.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-14" name="__codelineno-30-14"></a><span class="w">            </span><span class="s1">&#39;tests\hr\packages_bodies\test_award_bonus.sql&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-15" name="__codelineno-30-15"></a><span class="w">            </span><span class="s1">&#39;tests\hr\packages_bodies\test_betwnstr.sql&#39;</span>
+<a id="__codelineno-30-16" name="__codelineno-30-16"></a><span class="w">          </span><span class="p">),</span>
+<a id="__codelineno-30-17" name="__codelineno-30-17"></a><span class="w">        </span><span class="n">a_regex_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;/(\w+)/(\w+)/(\w+)\..{3}$&#39;</span><span class="p">,</span>
+<a id="__codelineno-30-18" name="__codelineno-30-18"></a><span class="w">        </span><span class="n">a_object_owner_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-30-19" name="__codelineno-30-19"></a><span class="w">        </span><span class="n">a_object_name_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-30-20" name="__codelineno-30-20"></a><span class="w">        </span><span class="n">a_object_type_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-30-21" name="__codelineno-30-21"></a><span class="w">        </span><span class="n">a_file_to_object_type_mapping</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_key_value_pairs</span><span class="p">(</span>
+<a id="__codelineno-30-22" name="__codelineno-30-22"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;packages_bodies&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PACKAGE BODY&#39;</span><span class="p">),</span>
+<a id="__codelineno-30-23" name="__codelineno-30-23"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;types_bodies&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TYPE BODY&#39;</span><span class="p">),</span>
+<a id="__codelineno-30-24" name="__codelineno-30-24"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;triggers&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TRIGGER&#39;</span><span class="p">),</span>
+<a id="__codelineno-30-25" name="__codelineno-30-25"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PROCEDURE&#39;</span><span class="p">),</span>
+<a id="__codelineno-30-26" name="__codelineno-30-26"></a><span class="w">          </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;FUNCTION&#39;</span><span class="p">)</span>
+<a id="__codelineno-30-27" name="__codelineno-30-27"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-30-28" name="__codelineno-30-28"></a><span class="w">      </span><span class="p">)</span>
+<a id="__codelineno-30-29" name="__codelineno-30-29"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-30-30" name="__codelineno-30-30"></a><span class="k">end</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="reporting-coverage-outside-utplsql-and-in-parallel-sessions">Reporting coverage outside utPLSQL and in parallel sessions<a class="headerlink" href="#reporting-coverage-outside-utplsql-and-in-parallel-sessions" title="Permanent link">&para;</a></h2>
+<p>utPSLQL allows fo standalone reporting code coverage across multiple database sessions. This functionality enables coverage reporting for external testing tools.</p>
+<p>Following API calls enable the  standalone coverage reporting.</p>
+<ul>
+<li><code>ut_runner.coverage_start( coverage_run_id );</code> - initiates code coverage within a session    </li>
+<li><code>ut_runner.coverage_stop();</code> - stops gathering of code coverage within a session</li>
+<li><code>.get_report( ... )</code> - coverage reporters function producing coverage report as pipelined data-set (to be used in SQL query) </li>
+<li><code>.get_report_cursor( ... )</code> - coverage reporters function producing coverage report as ref-cursor </li>
+</ul>
+<p>Example:
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-31-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-31-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-31-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-31-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-31-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-31-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-31-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-31-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-31-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-31-10">10</a></span>
+<span class="normal"><a href="#__codelineno-31-11">11</a></span>
+<span class="normal"><a href="#__codelineno-31-12">12</a></span>
+<span class="normal"><a href="#__codelineno-31-13">13</a></span>
+<span class="normal"><a href="#__codelineno-31-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="c1">--SESSION 1</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2"></a><span class="c1">-- gather coverage on code using specific coverage_run_id value</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3"></a><span class="k">declare</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4"></a><span class="w">  </span><span class="n">l_coverage_run_id</span><span class="w"> </span><span class="n">raw</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5"></a><span class="k">begin</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6"></a><span class="w">  </span><span class="n">l_coverage_run_id</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;A6AA5B7361251CE6E053020011ACA055&#39;</span><span class="p">;</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7"></a><span class="c1">--  l_coverage_run_id := sys_guid;</span>
+<a id="__codelineno-31-8" name="__codelineno-31-8"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">coverage_start</span><span class="p">(</span><span class="n">l_coverage_run_id</span><span class="p">);</span>
+<a id="__codelineno-31-9" name="__codelineno-31-9"></a>
+<a id="__codelineno-31-10" name="__codelineno-31-10"></a><span class="w">  </span><span class="c1">--The code to gather coverage on goes here   </span>
+<a id="__codelineno-31-11" name="__codelineno-31-11"></a>
+<a id="__codelineno-31-12" name="__codelineno-31-12"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">coverage_stop</span><span class="p">();</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-31-14" name="__codelineno-31-14"></a><span class="o">/</span>
+</code></pre></div></td></tr></table></div></p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-32-1">1</a></span>
+<span class="normal"><a href="#__codelineno-32-2">2</a></span>
+<span class="normal"><a href="#__codelineno-32-3">3</a></span>
+<span class="normal"><a href="#__codelineno-32-4">4</a></span>
+<span class="normal"><a href="#__codelineno-32-5">5</a></span>
+<span class="normal"><a href="#__codelineno-32-6">6</a></span>
+<span class="normal"><a href="#__codelineno-32-7">7</a></span>
+<span class="normal"><a href="#__codelineno-32-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1"></a><span class="c1">--SESSION 2</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2"></a><span class="c1">-- alternative approach</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3"></a><span class="c1">-- gather coverage on code using specific coverage_run_id value</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">coverage_start</span><span class="p">(</span><span class="s1">&#39;A6AA5B7361251CE6E053020011ACA055&#39;</span><span class="p">);</span><span class="w">  </span>
+<a id="__codelineno-32-5" name="__codelineno-32-5"></a>
+<a id="__codelineno-32-6" name="__codelineno-32-6"></a><span class="c1">--The code to gather coverage on goes here   </span>
+<a id="__codelineno-32-7" name="__codelineno-32-7"></a>
+<a id="__codelineno-32-8" name="__codelineno-32-8"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">coverage_stop</span><span class="p">();</span>
+</code></pre></div></td></tr></table></div>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-33-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-33-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-33-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-33-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-33-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-33-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-33-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-33-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-33-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-33-10">10</a></span>
+<span class="normal"><a href="#__codelineno-33-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1"></a><span class="c1">--SESSION 1 or SESSION2 2 or SESSION 3 </span>
+<a id="__codelineno-33-2" name="__codelineno-33-2"></a><span class="c1">-- run after calls in SESSION 1 &amp; 2 are finished</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3"></a><span class="c1">-- retrieve coverage report in HTML format coverage_run_id value</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">().</span><span class="n">get_report</span><span class="p">(</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7"></a><span class="w">      </span><span class="n">a_coverage_options</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_coverage_options</span><span class="p">(</span>
+<a id="__codelineno-33-8" name="__codelineno-33-8"></a><span class="w">        </span><span class="n">coverage_run_id</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;A6AA5B7361251CE6E053020011ACA055&#39;</span>
+<a id="__codelineno-33-9" name="__codelineno-33-9"></a><span class="w">      </span><span class="p">)</span>
+<a id="__codelineno-33-10" name="__codelineno-33-10"></a><span class="w">    </span><span class="p">)</span>
+<a id="__codelineno-33-11" name="__codelineno-33-11"></a><span class="w">  </span><span class="p">);</span><span class="w"> </span>
+</code></pre></div></td></tr></table></div>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-34-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-34-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-34-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-34-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-34-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-34-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-34-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-34-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-34-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-34-10">10</a></span>
+<span class="normal"><a href="#__codelineno-34-11">11</a></span>
+<span class="normal"><a href="#__codelineno-34-12">12</a></span>
+<span class="normal"><a href="#__codelineno-34-13">13</a></span>
+<span class="normal"><a href="#__codelineno-34-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1"></a><span class="c1">--SESSION 1 or SESSION2 2 or SESSION 3 </span>
+<a id="__codelineno-34-2" name="__codelineno-34-2"></a><span class="c1">-- run after calls in SESSION 1 &amp; 2 are finished</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3"></a><span class="k">declare</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4"></a><span class="w">  </span><span class="n">l_results_cursor</span><span class="w"> </span><span class="n">sys_refcursor</span><span class="p">;</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5"></a><span class="k">begin</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6"></a><span class="w">  </span><span class="n">l_results_cursor</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w">  </span><span class="n">ut_coverage_html_reporter</span><span class="p">().</span><span class="n">get_report_cursor</span><span class="p">(</span>
+<a id="__codelineno-34-7" name="__codelineno-34-7"></a><span class="w">      </span><span class="n">a_coverage_options</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_coverage_options</span><span class="p">(</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8"></a><span class="w">        </span><span class="n">coverage_run_id</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;A6AA5B7361251CE6E053020011ACA055&#39;</span>
+<a id="__codelineno-34-9" name="__codelineno-34-9"></a><span class="w">      </span><span class="p">)</span>
+<a id="__codelineno-34-10" name="__codelineno-34-10"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-34-11" name="__codelineno-34-11"></a><span class="w">  </span><span class="c1">--fetch and process the cursor results</span>
+<a id="__codelineno-34-12" name="__codelineno-34-12"></a><span class="w">  </span><span class="k">close</span><span class="w"> </span><span class="n">l_results_cursor</span><span class="p">;</span>
+<a id="__codelineno-34-13" name="__codelineno-34-13"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-34-14" name="__codelineno-34-14"></a><span class="o">/</span>
+</code></pre></div></td></tr></table></div>
+<p>Specification of parameters for <code>get_report</code> and <code>get_report_cursor</code>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-35-1">1</a></span>
+<span class="normal"><a href="#__codelineno-35-2">2</a></span>
+<span class="normal"><a href="#__codelineno-35-3">3</a></span>
+<span class="normal"><a href="#__codelineno-35-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1"></a><span class="k">function</span><span class="w"> </span><span class="n">get_report</span><span class="p">(</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2"></a><span class="w">   </span><span class="n">a_coverage_options</span><span class="w"> </span><span class="n">ut_coverage_options</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3"></a><span class="w">   </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="n">varchar2</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span>
+<a id="__codelineno-35-4" name="__codelineno-35-4"></a><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ut_varchar2_rows</span><span class="w"> </span><span class="n">pipelined</span>
+</code></pre></div></td></tr></table></div></p>
+<p><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-36-1">1</a></span>
+<span class="normal"><a href="#__codelineno-36-2">2</a></span>
+<span class="normal"><a href="#__codelineno-36-3">3</a></span>
+<span class="normal"><a href="#__codelineno-36-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1"></a><span class="k">function</span><span class="w"> </span><span class="n">get_report_cursor</span><span class="p">(</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2"></a><span class="w">   </span><span class="n">a_coverage_options</span><span class="w"> </span><span class="n">ut_coverage_options</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3"></a><span class="w">   </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="n">varchar2</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span>
+<a id="__codelineno-36-4" name="__codelineno-36-4"></a><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">sys_refcursor</span>
+</code></pre></div></td></tr></table></div>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-37-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-37-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-37-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-37-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-37-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-37-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-37-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-37-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-37-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-37-10">10</a></span>
+<span class="normal"><a href="#__codelineno-37-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1"></a><span class="n">ut_coverage_options</span><span class="p">(</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2"></a><span class="w">  </span><span class="n">coverage_run_id</span><span class="w">          </span><span class="n">raw</span><span class="p">,</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3"></a><span class="w">  </span><span class="n">schema_names</span><span class="w">             </span><span class="n">ut_varchar2_rows</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4"></a><span class="w">  </span><span class="n">exclude_objects</span><span class="w">          </span><span class="n">ut_varchar2_rows</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5"></a><span class="w">  </span><span class="n">include_objects</span><span class="w">          </span><span class="n">ut_varchar2_rows</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6"></a><span class="w">  </span><span class="n">file_mappings</span><span class="w">            </span><span class="n">ut_file_mappings</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7"></a><span class="w">  </span><span class="n">include_schema_expr</span><span class="w">      </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8"></a><span class="w">  </span><span class="n">include_object_expr</span><span class="w">      </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9"></a><span class="w">  </span><span class="n">exclude_schema_expr</span><span class="w">      </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10"></a><span class="w">  </span><span class="n">exclude_object_expr</span><span class="w">      </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">null</span>
+<a id="__codelineno-37-11" name="__codelineno-37-11"></a><span class="p">);</span>
+</code></pre></div></td></tr></table></div></p>
+<p>The <code>a_client_character_set</code> is used to provide character set to the report. Coverage reports in XML and HTML format include this information to assure that HMTL/XML encoding tag is aligned with encoding of the report produced.
+Use this parameter to provide encoding of your client application.   </p>
+<p>The <code>a_coverage_options</code> parameter is used to control the scope and formatting of data returned by report.</p>
+<p><code>ut_coverage_options</code> object accepts the following arguments</p>
+<ul>
+<li><code>coverage_run_id</code> - identifier of coverage run to generate report for - data-type <code>RAW(32)</code> </li>
+<li><code>schema_names</code> - optional - list of schema names to include in coverage report - data-type <code>UT_VARCHAR2_ROWS</code> </li>
+<li><code>exclude_objects</code> - optional - list of object names to exclude from report - data-type <code>UT_VARCHAR2_ROWS</code>   </li>
+<li><code>include_objects</code> - optional - list of object names to gather coverage on - data-type <code>UT_VARCHAR2_ROWS</code></li>
+<li><code>file_mappings</code> - optional - list of schema names to gather coverage on - data-type <code>UT_FILE_MAPPINGS</code></li>
+<li><code>include_schema_expr</code> - optional - regular expression to match against schema name to include in coverage - data-type <code>VARCHAR2(4000)</code></li>
+<li><code>include_object_expr</code> - optional - regular expression to match against object name to include in coverage - data-type <code>VARCHAR2(4000)</code></li>
+<li><code>exclude_schema_expr</code> - optional - regular expression to match against schema name to exclude in coverage - data-type <code>VARCHAR2(4000)</code></li>
+<li><code>exclude_object_expr</code> - optional - regular expression to match against object name to exclude in coverage - data-type <code>VARCHAR2(4000)</code></li>
+</ul>
+<p><code>coverage_run_id</code> parameter identifies a common coverage run. The valid value type for that parameter is RAW(32).
+It is recommended to use <code>sys_guid()</code> to generate a common, unique identifier for a specific coverage run.
+If the identifier is not unique, previous runs of coverage that used the same <code>coverage_run_id</code> will be aggregated to the resulting coverage report.    </p>
+<p>For details on the meaning of <code>schema_names</code>, <code>exclude_objects</code>, <code>include_objects</code>, <code>file_mappings</code> see sections above.
+Note that data-types of include/exclude/schema lists are different when calling <code>ut.run</code> vs. calling <code>get_report/get_report_cursor</code>.    </p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">February 19, 2024 21:41:43</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2Z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">February 26, 2017 02:13:22</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2016 - 2022 utPLSQL Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/utPLSQL" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww" target="_blank" rel="noopener" title="join.slack.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/utPLSQL" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:utPLSQL@utPLSQL.org" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l217.6 163.2c11.4 8.5 27 8.5 38.4 0l217.6-163.2c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48H48zM0 176v208c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V176L294.4 339.2a63.9 63.9 0 0 1-76.8 0L0 176z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+  
+    
+  
+
+
+
+  
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      
+    
+  </body>
+</html>
