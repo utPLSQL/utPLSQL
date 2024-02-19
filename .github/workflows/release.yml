@@ -25,7 +25,7 @@ jobs:
       - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
       
       - name: Set build version number env variables
-        run: .github/scripts/set_version_numbers_env.sh
+        run: .github/scripts/set_release_version_numbers_env.sh
 
       - name: Update project version & build number in source code and documentation
         run: .github/scripts/update_project_version.sh
