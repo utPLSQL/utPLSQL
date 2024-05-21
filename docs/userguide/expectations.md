@@ -52,7 +52,7 @@ Shortcut syntax, where matcher is directly part of expectation:
   ut.expect( a_actual ).not_to_{matcher};
   
   --example
-  ut.expect( 1 ).to_( be_null() );
+  ut.expect( 1 ).to_be_null();
 ```
 
 When using shortcut syntax you don't need to surround matcher with brackets. Shortcut syntax is provided for convenience.
