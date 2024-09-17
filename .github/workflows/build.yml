@@ -172,7 +172,7 @@ jobs:
       - name: Upload ORACLE_BASE/diag data Artifact
         id:  upload
         if: ${{ always() && steps.run-tests.outcome == 'failure'  }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: my-artifact$-${{matrix.db_version_name}}
           path: ${{github.workspace}}/database-diag
