@@ -35,7 +35,6 @@ Failures:
       Actual: 'number [1] ' (varchar2) was expected to equal: 'number [2] ' (varchar2)%
       at "UT3_USER.TEST_REPORTERS%", line 36 ut3_develop.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
 %
-%
   2) erroring_test
       ORA-06502: PL/SQL: %: character to number conversion error
       ORA-06512: at "UT3_USER.TEST_REPORTERS", line 44%
