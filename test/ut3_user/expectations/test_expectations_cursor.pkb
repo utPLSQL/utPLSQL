@@ -2950,5 +2950,47 @@ Rows: [ 2 differences ]
     );
   end;
 
+  procedure cursor_joinby_compare_issue_1293 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_expected for 
+      select 'FOO'  username, 12 from dual union all
+      select 'TEST' username, -600 user_id from dual
+      order by 1 desc;
+    open l_actual for 
+      select 'FOO'  username, 12 from dual union all
+      select 'TEST' username, -600 user_id from dual union all
+      -- DUPLICATE!!!
+      select 'TEST' username, -600 user_id from dual
+      order by 1 asc; 
+    --Act
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).join_by('USERNAME');
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;
+
+  procedure cursor_not_joinby_compare_issue_1293 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_expected for 
+      select 'FOO'  username, 12 from dual union all
+      select 'TEST' username, -600 user_id from dual
+      order by 1 desc;
+    open l_actual for 
+      select 'FOO'  username, 12 from dual union all
+      select 'TEST' username, -600 user_id from dual union all
+      -- DUPLICATE!!!
+      select 'TEST' username, -600 user_id from dual
+      order by 1 asc; 
+    --Act
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;
+
 end;
 /
