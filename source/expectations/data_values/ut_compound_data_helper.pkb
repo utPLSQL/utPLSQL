@@ -300,8 +300,8 @@ create or replace package body ut_compound_data_helper is
       ut_utils.append_to_clob(a_partition_stmt,' row_number() over (partition by '||l_partition_tmp||' order by '||l_partition_tmp||' ) ');
       
       if a_pk_table.count > 0 then   
-        -- If key defined do the join or these and where on diffrences
-        a_join_by_stmt := ut_utils.table_to_clob(l_join_by_list, ' and ');
+        -- If key defined do the join or these and where on diffrences as well as on duplicate number when rows are same.
+        a_join_by_stmt := ' e."UT3$_Dup#No" = a."UT3$_Dup#No" and '||ut_utils.table_to_clob(l_join_by_list, ' and ');
       elsif a_unordered then
         -- If no key defined do the join on all columns
         a_join_by_stmt := ' e."UT3$_Dup#No" = a."UT3$_Dup#No" and '||ut_utils.table_to_clob(l_equal_list, ' and ');
