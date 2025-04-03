@@ -2950,7 +2950,7 @@ Rows: [ 2 differences ]
     );
   end;
 
-  procedure cursor_joinby_compare_issue_1293 is
+  procedure cr_joinby_compare_issue_1293 is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
@@ -2971,7 +2971,7 @@ Rows: [ 2 differences ]
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
-  procedure cursor_not_joinby_compare_issue_1293 is
+  procedure cr_not_joinby_comp_issue_1293 is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin

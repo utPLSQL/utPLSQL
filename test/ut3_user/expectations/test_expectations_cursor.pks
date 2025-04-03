@@ -486,10 +486,10 @@ create or replace package test_expectations_cursor is
   procedure multiple_cursor_expectations;
 
   --%test( Compares cursors with duplicate rows using join by - Issue #1293 )
-  procedure cursor_joinby_compare_issue_1293;
+  procedure cr_joinby_compare_issue_1293;
 
   --%test( Compares cursors with duplicate rows - Issue #1293 )
-  procedure cursor_not_joinby_compare_issue_1293;
+  procedure cr_not_joinby_comp_issue_1293;
 
 end;
 /
