@@ -485,5 +485,11 @@ create or replace package test_expectations_cursor is
   --%test( Multiple failures reported correctly - Issue #998 )
   procedure multiple_cursor_expectations;
 
+  --%test( Compares cursors with duplicate rows using join by - Issue #1293 )
+  procedure cr_joinby_compare_issue_1293;
+
+  --%test( Compares cursors with duplicate rows - Issue #1293 )
+  procedure cr_not_joinby_comp_issue_1293;
+
 end;
 /
