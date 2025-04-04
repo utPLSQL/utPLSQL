@@ -139,24 +139,6 @@ create or replace package body ut_annotation_manager as
           where x.is_annotated = 'Y'
           order by x.name, x.line]'
       using a_objects_to_refresh;
-     raise_application_error(-20001,  q'[select /*+ no_parallel */ x.name, x.text
-          from (select /*+ cardinality( r ]'||l_card||q'[ )*/
-                       s.name, s.text, s.line,
-                       max(case when s.text like '%--%\%%' escape '\'
-                                 and regexp_like(s.text,'^\s*--\s*]'||l_allowed_annotations||q'[%')
-                           then 'Y' else 'N' end
-                          )
-                         over(partition by s.name) is_annotated
-                  from table(:a_objects_to_refresh) r
-                  join ]'||l_sources_view||q'[ s
-                    on s.name  = r.object_name
-                   and s.owner = r.object_owner
-                   and s.type  = r.object_type
-                 where s.owner = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
-                   and s.type  = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-               ) x
-          where x.is_annotated = 'Y'
-          order by x.name, x.line]');
     return l_result;
   end;
 
