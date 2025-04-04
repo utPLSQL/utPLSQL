@@ -20,6 +20,8 @@ create or replace package ut_annotation_manager authid current_user as
    * Builds annotations out of database source code by reading it from cache
    */
 
+  function get_annotations_list return ut_varchar2_list pipelined;
+
   /**
    * Gets annotations for all objects of a specified type for database schema.
    * Annotations that are stale or missing are parsed and placed in persistent cache.

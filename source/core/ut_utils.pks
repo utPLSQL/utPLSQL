@@ -24,6 +24,10 @@ create or replace package ut_utils authid definer is
   gc_version                 constant varchar2(50) := 'v3.1.14.4206-develop';
     
   subtype t_executable_type      is varchar2(30);
+  subtype t_annotation_name      is varchar2(4000);
+  gc_suite                       constant t_annotation_name := 'suite';
+  gc_suitepath                   constant t_annotation_name := 'suitepath';
+  gc_tags                        constant t_annotation_name := 'tags';
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
   gc_before_test                 constant t_executable_type := 'beforetest';
@@ -31,6 +35,37 @@ create or replace package ut_utils authid definer is
   gc_after_test                  constant t_executable_type := 'aftertest';
   gc_after_each                  constant t_executable_type := 'aftereach';
   gc_after_all                   constant t_executable_type := 'afterall';
+  gc_disabled_ann                constant t_annotation_name := 'disabled';
+  gc_displayname                 constant t_annotation_name := 'displayname';
+  gc_throws                      constant t_annotation_name := 'throws';
+  gc_rollback                    constant t_annotation_name := 'rollback';
+  gc_context                     constant t_annotation_name := 'context';
+  gc_name                        constant t_annotation_name := 'name';
+  gc_endcontext                  constant t_annotation_name := 'endcontext';
+
+  type tt_annotations is table of t_annotation_name;
+
+
+  gc_supported_annotations       constant tt_annotations
+    := tt_annotations(
+      gc_suite,
+      gc_suitepath,
+      gc_tags,
+      gc_before_all,
+      gc_before_each,
+      gc_before_test,
+      gc_test_execute,
+      gc_after_test,
+      gc_after_each,
+      gc_after_all,
+      gc_disabled_ann,
+      gc_displayname,
+      gc_throws,
+      gc_rollback,
+      gc_context,
+      gc_name ,
+      gc_endcontext
+  );
 
   /* Constants: Test Results */
   subtype t_test_result   is binary_integer range 0 .. 3;

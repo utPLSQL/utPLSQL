@@ -21,46 +21,27 @@ create or replace package body ut_suite_builder is
   subtype t_object_name         is varchar2(500);
   subtype t_annotation_position is binary_integer;
 
-  gc_suite                       constant t_annotation_name := 'suite';
-  gc_suitepath                   constant t_annotation_name := 'suitepath';
-  gc_tags                        constant t_annotation_name := 'tags';
+  gc_suite                       constant t_annotation_name := ut_utils.gc_suite;
+  gc_suitepath                   constant t_annotation_name := ut_utils.gc_suitepath;
+  gc_tags                        constant t_annotation_name := ut_utils.gc_tags;
   gc_test                        constant t_annotation_name := ut_utils.gc_test_execute;
-  gc_disabled                    constant t_annotation_name := 'disabled';
-  gc_displayname                 constant t_annotation_name := 'displayname';
+  gc_disabled                    constant t_annotation_name := ut_utils.gc_disabled_ann;
+  gc_displayname                 constant t_annotation_name := ut_utils.gc_displayname;
   gc_beforeall                   constant t_annotation_name := ut_utils.gc_before_all;
   gc_beforeeach                  constant t_annotation_name := ut_utils.gc_before_each;
   gc_beforetest                  constant t_annotation_name := ut_utils.gc_before_test;
   gc_afterall                    constant t_annotation_name := ut_utils.gc_after_all;
   gc_aftereach                   constant t_annotation_name := ut_utils.gc_after_each;
   gc_aftertest                   constant t_annotation_name := ut_utils.gc_after_test;
-  gc_throws                      constant t_annotation_name := 'throws';
-  gc_rollback                    constant t_annotation_name := 'rollback';
-  gc_context                     constant t_annotation_name := 'context';
-  gc_name                        constant t_annotation_name := 'name';
-  gc_endcontext                  constant t_annotation_name := 'endcontext';
+  gc_throws                      constant t_annotation_name := ut_utils.gc_throws;
+  gc_rollback                    constant t_annotation_name := ut_utils.gc_rollback;
+  gc_context                     constant t_annotation_name := ut_utils.gc_context;
+  gc_name                        constant t_annotation_name := ut_utils.gc_name;
+  gc_endcontext                  constant t_annotation_name := ut_utils.gc_endcontext;
 
-  type tt_annotations is table of t_annotation_name;
-
-  gc_supported_annotations       constant tt_annotations
-    := tt_annotations(
-      gc_suite,
-      gc_suitepath,
-      gc_tags,
-      gc_test,
-      gc_disabled,
-      gc_displayname,
-      gc_beforeall,
-      gc_beforeeach,
-      gc_beforetest,
-      gc_afterall,
-      gc_aftereach,
-      gc_aftertest,
-      gc_throws,
-      gc_rollback,
-      gc_context,
-      gc_name,
-      gc_endcontext
-  );
+  
+  gc_supported_annotations       constant ut_utils.tt_annotations
+    := ut_utils.gc_supported_annotations;
 
   type tt_executables is table of ut_executables index by t_annotation_position;
 
