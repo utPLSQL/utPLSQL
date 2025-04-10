@@ -99,8 +99,6 @@ create or replace package body ut_annotation_manager as
     return l_result;
   end;
 
-
-
   function get_sources_to_annotate(a_object_owner varchar2, a_object_type varchar2, a_objects_to_refresh ut_annotation_objs_cache_info) return sys_refcursor is
     l_result       sys_refcursor;
     l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
