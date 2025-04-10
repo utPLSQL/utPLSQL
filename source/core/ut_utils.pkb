@@ -1024,5 +1024,17 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function get_annotations_list_regex return varchar2 is
+    cursor c_get_annotation_regex is
+    select listagg(column_value,'|') within group (order by column_value) 
+    from table(gc_supported_annotations);
+    l_result varchar2(4000);
+  begin 
+    open c_get_annotation_regex;
+    fetch c_get_annotation_regex into l_result;
+    close c_get_annotation_regex;
+    return l_result;
+  end get_annotations_list_regex;
+
 end ut_utils;
 /

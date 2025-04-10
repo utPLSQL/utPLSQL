@@ -100,5 +100,8 @@ create or replace package test_annotation_manager is
 
   --%endcontext
 
+  --%test(Issue #1278 of marking object as annotated when it is not)
+  procedure issue_1278_correct_annotation;
+  
 end test_annotation_manager;
 /

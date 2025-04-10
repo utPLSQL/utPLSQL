@@ -58,9 +58,28 @@ create or replace package body test_annotation_manager is
       end;]');
   end;
 
+  procedure add_badly_annotated_pck is
+  begin
+    exec_autonomous(q'[
+      create or replace package badly_annot_pkg as
+        --%sparameter(no parameter)
+        --%returns(no return)
+        --%usage(no usage)
+        procedure some_dummy_test_procedure;
+      end;]');
+  end;
+
   procedure drop_dummy_test_package is
   begin
     exec_autonomous(q'[drop package dummy_test_package]');
+  exception
+    when others then
+      null;
+  end;
+
+  procedure drop_badly_ann_pkg is
+  begin
+    exec_autonomous(q'[drop package badly_annot_pkg]');
   exception
     when others then
       null;
@@ -461,6 +480,24 @@ create or replace package body test_annotation_manager is
     --Act & Assert
     assert_dummy_test_package(l_start_date);
   end;
+
+procedure issue_1278_correct_annotation is
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    add_badly_annotated_pck();
+    --Act
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    --Assert
+    open l_actual for
+    select *
+      from ut3_develop.ut_suite_cache_package
+     where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_name = 'BADLY_ANNOT_PKG';
+    
+    drop_badly_ann_pkg;
+    ut.expect(l_actual).to_be_empty;
+  end;
+
 
 end test_annotation_manager;
 /

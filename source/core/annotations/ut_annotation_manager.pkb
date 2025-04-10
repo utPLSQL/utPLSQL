@@ -99,32 +99,22 @@ create or replace package body ut_annotation_manager as
     return l_result;
   end;
 
-  function get_annotations_list return ut_varchar2_list pipelined is
-  begin 
-    for i in 1 .. ut_utils.gc_supported_annotations.count loop
-      pipe row( ut_utils.gc_supported_annotations(i) );
-    end loop;
-  end get_annotations_list;
+
 
   function get_sources_to_annotate(a_object_owner varchar2, a_object_type varchar2, a_objects_to_refresh ut_annotation_objs_cache_info) return sys_refcursor is
     l_result       sys_refcursor;
     l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
     l_card         natural;
-    l_allowed_annotations varchar2(32767) := 'suite';
+    l_allowed_annotations varchar2(32767) := ut_utils.get_annotations_list_regex;
   begin
     
-    select listagg(column_value,'|') within group (order by column_value) 
-    into l_allowed_annotations
-    from table(get_annotations_list);
-    
-
     l_card := ut_utils.scale_cardinality(cardinality(a_objects_to_refresh));
     open l_result for
       q'[select /*+ no_parallel */ x.name, x.text
           from (select /*+ cardinality( r ]'||l_card||q'[ )*/
                        s.name, s.text, s.line,
                        max(case when s.text like '%--%\%%' escape '\'
-                                 and regexp_like(s.text,'^\s*--\s*]'||l_allowed_annotations||q'[%')
+                                 and regexp_like(s.text,'^\s*--\s*%(]'||l_allowed_annotations||q'[)')
                            then 'Y' else 'N' end
                           )
                          over(partition by s.name) is_annotated

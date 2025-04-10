@@ -517,5 +517,6 @@ create or replace package ut_utils authid definer is
   */
   function lengthb_clob( a_clob clob) return integer;
   
+  function get_annotations_list_regex return varchar2;
 end ut_utils;
 /
