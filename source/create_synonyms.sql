@@ -119,6 +119,7 @@ create &action_type. synonym &ut3_user.ut_tfs_junit_reporter for &&ut3_owner..ut
 create &action_type. synonym &ut3_user.ut_documentation_reporter for &&ut3_owner..ut_documentation_reporter;
 create &action_type. synonym &ut3_user.ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 create &action_type. synonym &ut3_user.ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+create &action_type. synonym &ut3_user.ut_tap_reporter for &&ut3_owner..ut_tap_reporter;
 --reporters - coverage
 create &action_type. synonym &ut3_user.ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create &action_type. synonym &ut3_user.ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
