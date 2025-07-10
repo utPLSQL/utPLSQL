@@ -17,7 +17,7 @@ create or replace type body ut_tap_reporter is
 
   overriding member procedure after_calling_test(self in out nocopy ut_tap_reporter, a_test ut_test) as
     l_message varchar2(4000);
-    l_test_name varchar2(300) := coalesce(a_test.description, a_test.name);
+    l_test_name varchar2(4000) := coalesce(a_test.description, a_test.name);
 
     procedure print_failed_expectation(a_test ut_test) is
       l_lines  ut_varchar2_list;
@@ -74,7 +74,7 @@ create or replace type body ut_tap_reporter is
   end after_calling_before_all;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_tap_reporter, a_suite ut_logical_suite) as
-    l_suite_name varchar2(300) := coalesce(a_suite.description, a_suite.name);
+    l_suite_name varchar2(4000) := coalesce(a_suite.description, a_suite.name);
   begin
     lvl := lvl - 2;
     if lvl = 0 then
