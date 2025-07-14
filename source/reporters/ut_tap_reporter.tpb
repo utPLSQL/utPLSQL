@@ -69,9 +69,16 @@ create or replace type body ut_tap_reporter is
   overriding member procedure after_calling_before_all(self in out nocopy ut_tap_reporter, a_executable in ut_executable) is
   begin
     if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
-      self.print_clob(a_executable.serveroutput);
+      self.print_clob('# ' || a_executable.serveroutput);
     end if;
   end after_calling_before_all;
+
+  overriding member procedure after_calling_after_all(self in out nocopy ut_tap_reporter, a_executable in ut_executable) is
+  begin
+    if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
+      self.print_clob('# ' || a_executable.serveroutput);
+    end if;
+  end after_calling_after_all;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_tap_reporter, a_suite ut_logical_suite) as
     l_suite_name varchar2(4000) := coalesce(a_suite.description, a_suite.name);

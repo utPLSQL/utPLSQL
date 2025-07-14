@@ -43,6 +43,7 @@ set define off
 @@ut3_user/reporters/test_documentation_reporter.pks
 @@ut3_user/reporters/test_debug_reporter.pks
 @@ut3_user/reporters/test_realtime_reporter.pks
+@@ut3_user/reporters/test_tap_reporter.pks
 @@ut3_user/reporters/test_coverage.pks
 @@ut3_user/reporters/test_coverage/test_coverage_standalone.pks
 set define on
@@ -86,6 +87,7 @@ set define off
 @@ut3_user/reporters/test_documentation_reporter.pkb
 @@ut3_user/reporters/test_debug_reporter.pkb
 @@ut3_user/reporters/test_realtime_reporter.pkb
+@@ut3_user/reporters/test_tap_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_coverage_standalone.pkb
 set define on
 @@ut3_user/reporters/test_coverage/test_extended_coverage.pkb
