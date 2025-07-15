@@ -9,5 +9,8 @@ create or replace package test_tap_reporter as
   --%test(Simple failing test)
   procedure simple_failing_test;
 
+  --%test(Simple erroring test)
+  procedure simple_erroring_test;
+
 end test_tap_reporter;
 /
