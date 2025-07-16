@@ -85,7 +85,7 @@ create or replace type body ut_tap_reporter is
   begin
     lvl := lvl - 2;
     if lvl = 0 then
-      if a_suite.result = ut_utils.gc_success then
+      if a_suite.result = ut_utils.gc_success or a_suite.result = ut_utils.gc_disabled then
         self.print_text('ok - ' || l_suite_name);
       elsif a_suite.result > ut_utils.gc_success then
         self.print_text(ut_ansiconsole_helper.red('not ok') || ' - ' || l_suite_name);

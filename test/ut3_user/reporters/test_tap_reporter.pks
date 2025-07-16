@@ -12,5 +12,8 @@ create or replace package test_tap_reporter as
   --%test(Simple erroring test)
   procedure simple_erroring_test;
 
+  --%test(Skipped test)
+  procedure disabled_test;
+
 end test_tap_reporter;
 /
