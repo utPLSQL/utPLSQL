@@ -18,5 +18,8 @@ create or replace package test_tap_reporter as
   --%test(Skipped test without description)
   procedure disabled_test_no_description;
 
+  --%test(Multiple tests with different outcome)
+  procedure multiple_tests_different_outcome;
+
 end test_tap_reporter;
 /

@@ -70,5 +70,18 @@ create or replace package body test_tap_reporter as
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected);
   end disabled_test_no_description;
 
+
+  procedure multiple_tests_different_outcome as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[TAP version 14\s*1..1\s*# Subtest: org.*# Subtest: A suite for testing different outcomes from reporters\s{21}1..5\s{21}# <!beforeall!>\s{21}# Subtest: A description of some context\s{25}1..1\s{25}ok - passing_test\s{21}not ok - a test with failing assertion\s{23}---\s{23}message:.*not ok - a test raising unhandled exception\s{23}---\s{23}message: |.*ok - a disabled test # SKIP: Disabled for testing purpose.*ok - a disabled test with no reason # SKIP\s{21}# <!afterall!>\snot ok - org\s*]';
+
+    select *
+        bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_reporters',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected, 'n');
+  end multiple_tests_different_outcome;
 end test_tap_reporter;
 /
