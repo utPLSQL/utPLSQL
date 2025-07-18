@@ -56,5 +56,19 @@ create or replace package body test_tap_reporter as
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected);
   end disabled_test;
 
+
+  procedure disabled_test_no_description as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := gc_boilerplate_suitepath_expression || q'[\s*1..1\s*# <!beforeall!>\s*ok - a disabled test with no reason # SKIP\s*# <!afterall!>\s*ok - org\s*]';
+
+    select *
+        bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_reporters.disabled_test_no_reason',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected);
+  end disabled_test_no_description;
+
 end test_tap_reporter;
 /
