@@ -15,6 +15,15 @@ create or replace type body ut_tap_reporter is
     self.print_text('1..' || a_suite.items.count);
   end before_calling_suite;
 
+
+  overriding member procedure after_calling_before_test (self in out nocopy ut_tap_reporter, a_executable in ut_executable) as
+  begin
+    if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
+      self.print_clob('# ' || a_executable.serveroutput);
+    end if;
+  end after_calling_before_test;
+
+
   overriding member procedure after_calling_test(self in out nocopy ut_tap_reporter, a_test ut_test) as
     l_message varchar2(4000);
     l_test_name varchar2(4000) := coalesce(a_test.description, a_test.name);
