@@ -6,7 +6,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := gc_boilerplate_suitepath_expression || '\s*1..1\s*# <!beforeall!>\s*# Subtest: A description of some context\s*1..1\s*ok - passing_test\s*# <!afterall!>\s*ok - org\s*';
+    l_expected := gc_boilerplate_suitepath_expression || '\s{21}1..1\s{21}# <!beforeall!>\s{21}# Subtest: A description of some context\s{25}1..1\s{25}ok - passing_test\s{21}# <!afterall!>\sok - org\s*';
 
     select *
         bulk collect into l_output_data
@@ -19,7 +19,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := gc_boilerplate_suitepath_expression || q'[\s*1..1\s*# <!beforeall!>\s*not ok - a test with failing assertion\s*---\s*message: '"Fails as values are different"'\s*severity: fail\s*...\s*# <!afterall!>\s*not ok - org\s*]';
+    l_expected := gc_boilerplate_suitepath_expression || q'[\s{21}1..1\s{21}# <!beforeall!>\s{21}not ok - a test with failing assertion\s{23}---\s{23}message: '"Fails as values are different"'\s{23}severity: fail\s{23}...\s{21}# <!afterall!>\snot ok - org\s*]';
 
     select *
         bulk collect into l_output_data
@@ -33,7 +33,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := gc_boilerplate_suitepath_expression || q'[\s*1..1\s*# <!beforeall!>\s*not ok - a test raising unhandled exception\s*---\s*message: |\s*ORA-06502: .*\s*ORA-06512: .*\s*ORA-06512: .*\s*ORA-06512: at line [[:digit:]]+\s*severity: error\s*...\s*# <!afterall!>\s*not ok - org\s*]';
+    l_expected := gc_boilerplate_suitepath_expression || q'[\s{21}1..1\s{21}# <!beforeall!>\s{21}not ok - a test raising unhandled exception\s{23}---\s{23}message: |\s{25ORA-06502: .*\s{25}ORA-06512: .*\s{25}ORA-06512: .*\s{25}ORA-06512: at line [[:digit:]]+\s{23}severity: error\s{23}...\s{21}# <!afterall!>\snot ok - org\s*]';
 
     select *
         bulk collect into l_output_data
@@ -47,7 +47,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := gc_boilerplate_suitepath_expression || q'[\s*1..1\s*# <!beforeall!>\s*ok - a disabled test # SKIP: Disabled for testing purpose\s*# <!afterall!>\s*ok - org\s*]';
+    l_expected := gc_boilerplate_suitepath_expression || q'[\s{21}1..1\s{21}# <!beforeall!>\s{21}ok - a disabled test # SKIP: Disabled for testing purpose\s{21}# <!afterall!>\sok - org\s*]';
 
     select *
         bulk collect into l_output_data
@@ -61,7 +61,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := gc_boilerplate_suitepath_expression || q'[\s*1..1\s*# <!beforeall!>\s*ok - a disabled test with no reason # SKIP\s*# <!afterall!>\s*ok - org\s*]';
+    l_expected := gc_boilerplate_suitepath_expression || q'[\s{21}1..1\s{21}# <!beforeall!>\s{21}ok - a disabled test with no reason # SKIP\s{21}# <!afterall!>\sok - org\s*]';
 
     select *
         bulk collect into l_output_data
