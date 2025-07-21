@@ -8,20 +8,17 @@ create or replace type body ut_tap_reporter is
     return;
   end ut_tap_reporter;
 
+  member procedure print_comment(self in out nocopy ut_tap_reporter, a_comment clob) as
+  begin
+    self.print_clob(regexp_replace(a_comment, '^', '# ', 1, 0, 'm'));
+  end print_comment;
+
   overriding member procedure before_calling_suite(self in out nocopy ut_tap_reporter, a_suite ut_logical_suite) as
   begin
     self.print_text('# Subtest: ' || coalesce(a_suite.description, a_suite.name));
     lvl := lvl + 2;
     self.print_text('1..' || a_suite.items.count);
   end before_calling_suite;
-
-
-  overriding member procedure after_calling_before_test (self in out nocopy ut_tap_reporter, a_executable in ut_executable) as
-  begin
-    if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
-      self.print_clob('# ' || a_executable.serveroutput);
-    end if;
-  end after_calling_before_test;
 
 
   overriding member procedure after_calling_test(self in out nocopy ut_tap_reporter, a_test ut_test) as
@@ -72,6 +69,8 @@ create or replace type body ut_tap_reporter is
       self.print_text('...');
       self.lvl := self.lvl - 1;
     end if;
+
+    self.print_comment(a_test.get_serveroutputs);
     
   end after_calling_test;
 
