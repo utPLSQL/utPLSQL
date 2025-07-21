@@ -13,9 +13,14 @@ create or replace type body ut_tap_reporter is
     self.print_clob(regexp_replace(a_comment, '^', '# ', 1, 0, 'm'));
   end print_comment;
 
+  member function escape_special_chars(self in out nocopy ut_tap_reporter, a_string_to_escape clob) return clob as
+  begin
+    return regexp_replace(a_string_to_escape, '([\\#])', '\\\1');
+  end escape_special_chars;
+
   overriding member procedure before_calling_suite(self in out nocopy ut_tap_reporter, a_suite ut_logical_suite) as
   begin
-    self.print_text('# Subtest: ' || coalesce(a_suite.description, a_suite.name));
+    self.print_text('# Subtest: ' || self.escape_special_chars(coalesce(a_suite.description, a_suite.name)));
     lvl := lvl + 2;
     self.print_text('1..' || a_suite.items.count);
   end before_calling_suite;
@@ -94,9 +99,9 @@ create or replace type body ut_tap_reporter is
     lvl := lvl - 2;
     if lvl = 0 then
       if a_suite.result = ut_utils.gc_success or a_suite.result = ut_utils.gc_disabled then
-        self.print_text('ok - ' || l_suite_name);
+        self.print_text('ok - ' || self.escape_special_chars(l_suite_name));
       elsif a_suite.result > ut_utils.gc_success then
-        self.print_text(ut_ansiconsole_helper.red('not ok') || ' - ' || l_suite_name);
+        self.print_text(ut_ansiconsole_helper.red('not ok') || ' - ' || self.escape_special_chars(l_suite_name));
       end if;
 
       self.print_text(' ');
