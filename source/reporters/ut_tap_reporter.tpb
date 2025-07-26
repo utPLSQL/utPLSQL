@@ -57,7 +57,7 @@ create or replace type body ut_tap_reporter is
     if a_test.result = ut_utils.gc_disabled then
       self.print_text('ok - ' || l_test_name || ' # SKIP'|| 
         case when a_test.disabled_reason is not null
-          then ': '||a_test.disabled_reason
+          then ': '|| self.escape_special_chars(a_test.disabled_reason)
           else null
         end );
     elsif a_test.result = ut_utils.gc_success then

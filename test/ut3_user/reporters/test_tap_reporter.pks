@@ -30,6 +30,9 @@ create or replace package test_tap_reporter as
   --%test(Escape multiple special characters in test name)
   procedure escape_multiple_characters_test_name;
 
+  --%test(Disabled Test with special characters in disable reason)
+  procedure special_characters_in_deisabled_reason;
+
 
   --%afterall
   procedure drop_help_tests;
