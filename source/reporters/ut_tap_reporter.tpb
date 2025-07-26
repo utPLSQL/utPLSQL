@@ -28,7 +28,7 @@ create or replace type body ut_tap_reporter is
 
   overriding member procedure after_calling_test(self in out nocopy ut_tap_reporter, a_test ut_test) as
     l_message varchar2(4000);
-    l_test_name varchar2(4000) := coalesce(a_test.description, a_test.name);
+    l_test_name varchar2(4000) := self.escape_special_chars(coalesce(a_test.description, a_test.name));
 
     procedure print_failed_expectation(a_test ut_test) is
       l_lines  ut_varchar2_list;

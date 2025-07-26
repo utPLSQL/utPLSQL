@@ -137,6 +137,20 @@ create or replace package body test_tap_reporter as
   end escape_suite_name;
 
 
+  procedure escape_multiple_characters_test_name as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[%ok - Even more \\\\ and multiple \#\#\#%]';
+
+    select *
+      bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_tap_escaping.more_escaping',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+  end escape_multiple_characters_test_name;
+
+
   procedure drop_help_tests as
     pragma autonomous_transaction;
   begin

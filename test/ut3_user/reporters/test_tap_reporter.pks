@@ -27,6 +27,9 @@ create or replace package test_tap_reporter as
   --%test(Escape special characters in suite name)
   procedure escape_suite_name;
 
+  --%test(Escape multiple special characters in test name)
+  procedure escape_multiple_characters_test_name;
+
 
   --%afterall
   procedure drop_help_tests;
