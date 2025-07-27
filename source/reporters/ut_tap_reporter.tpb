@@ -10,7 +10,7 @@ create or replace type body ut_tap_reporter is
 
   member procedure print_comment(self in out nocopy ut_tap_reporter, a_comment clob) as
   begin
-    self.print_clob(regexp_replace(a_comment, '^', '# ', 1, 0, 'm'));
+    self.print_clob(regexp_replace(self.escape_special_chars(a_comment), '^', '# ', 1, 0, 'm'));
   end print_comment;
 
   member function escape_special_chars(self in out nocopy ut_tap_reporter, a_string_to_escape clob) return clob as

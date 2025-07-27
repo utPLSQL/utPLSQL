@@ -17,6 +17,9 @@ create or replace package body test_tap_reporter as
         --%test(Disabled test)
         --%disabled(With \ and # in skip reason)
         procedure not_skipping_escapes;
+
+        --%test(Escaped Comments)
+        procedure escaped_comments;
       end test_tap_escaping;
     ]';
 
@@ -34,6 +37,11 @@ create or replace package body test_tap_reporter as
           ut.expect(10).to_equal(1);
         end not_skipping_escapes;
 
+        procedure escaped_comments as
+        begin
+          dbms_output.put_line('This \ and # should be escaped, but this not!!!');
+          ut.expect(1).to_equal(1);
+        end escaped_comments;
       end test_tap_escaping;
     ]';
 
@@ -163,6 +171,20 @@ create or replace package body test_tap_reporter as
 
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end special_characters_in_deisabled_reason;
+
+
+  procedure special_characters_in_comment as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[%ok - Escaped Comments%# This \\ and \# should be escaped, but this not!!!%]';
+
+    select *
+      bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_tap_escaping.escaped_comments',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+  end special_characters_in_comment;
 
 
   procedure drop_help_tests as
