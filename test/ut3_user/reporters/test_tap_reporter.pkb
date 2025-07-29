@@ -39,7 +39,7 @@ create or replace package body test_tap_reporter as
 
         procedure escaped_comments as
         begin
-          dbms_output.put_line('This \ and # should be escaped, but this not!!!');
+          dbms_output.put_line('This \ and # should not be escaped, and this not as well!!!');
           ut.expect(1).to_equal(1);
         end escaped_comments;
       end test_tap_escaping;
@@ -177,7 +177,7 @@ create or replace package body test_tap_reporter as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
-    l_expected := q'[%ok - Escaped Comments%# This \\ and \# should be escaped, but this not!!!%]';
+    l_expected := q'[%ok - Escaped Comments%# This \ and # should not be escaped, and this not as well!!!%]';
 
     select *
       bulk collect into l_output_data

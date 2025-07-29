@@ -33,7 +33,7 @@ create or replace package test_tap_reporter as
   --%test(Disabled Test with special characters in disable reason)
   procedure special_characters_in_deisabled_reason;
 
-  --%test(Escape special characters in comment)
+  --%test(Don't escape special characters in comment)
   procedure special_characters_in_comment;
 
 
