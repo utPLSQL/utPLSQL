@@ -126,6 +126,16 @@ Details:
 utPLSQL comes with a set of build-in coverage reporters.
 [Code coverage](coverage.md) section describes in details how to use configure and use code coverage.
 
+## TAP Reporter
+
+The `ut_tap_reporter` produces output compatible with the [Test Anything Protocol](https://testanything.org) (Version 14). TAP output can be consumed by a TAP consumer that can aggregate results from testsuites across different programming languages while maintaining good readability for humans.
+
+![tap_output_no_color](../images/tap_reporter_no_color.png)
+
+If you use a compatible terminal, you can also have a colored result. Only top level `not ok`-results will be colored:
+
+![tap_colored_output](../images/tap_reporter_colored.png)
+
 ## Debug reporter
 
 The `ut_debug_reporter` provides a highly verbose output containing thorough details about framework and test execution.
