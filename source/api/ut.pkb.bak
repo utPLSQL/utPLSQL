@@ -428,8 +428,7 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr  ,
-      a_fail_on_errors
+      a_exclude_object_expr  
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
