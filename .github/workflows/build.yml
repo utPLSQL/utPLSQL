@@ -63,6 +63,10 @@ jobs:
           - 1521:1521
         options: >-
           --name oracle
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-cmd healthcheck.sh
 
     steps:
       - uses: actions/checkout@v4
