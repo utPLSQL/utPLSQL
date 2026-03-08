@@ -93,7 +93,7 @@ jobs:
 
       - name: Install utPLSQL-cli
         id: install-utplsql-cli
-        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/3.1.9/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
 
       - name: Install utPLSQL
         id: install-utplsql
