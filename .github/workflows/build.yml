@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Pull request number
+        description: Pull request number (optional)
         required: false
 
 concurrency: ${{github.ref}}
