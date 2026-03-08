@@ -6,10 +6,6 @@ on:
     branches: [ develop ]
 
   workflow_dispatch:
-    inputs:
-      pr_number:
-        description: Pull request number (optional)
-        required: false
 
 concurrency: ${{github.ref}}
 defaults:
@@ -224,7 +220,6 @@ jobs:
 
       - name: Push version update to repository
         id: push-version-number-update
-        if: ${{ github.event_name != 'pull_request' }}
         run: |
           git add sonar-project.properties VERSION BUILD_NO source/* docs/*
           git commit -m 'Updated project version after build [skip ci]'
