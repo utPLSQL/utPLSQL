@@ -23,6 +23,7 @@ jobs:
       CONNECTION_STR: ${{ format( '127.0.0.1:1521/{0}', matrix.oracle-sid ) }}
       ORACLE_PASSWORD: oracle
       DOCKER_VOLUME: ${{matrix.docker-volume}}
+      JAVA_TOOL_OPTIONS: '-Doracle:net:disableOob=true'   # needed as a workaround for 19c docker connectivity issues. See: https://github.com/gvenzl/oci-oracle-xe/issues/43
     strategy:
       fail-fast: false
       matrix:
