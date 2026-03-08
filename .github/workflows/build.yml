@@ -36,17 +36,9 @@ jobs:
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim"
           - id: 3
-            db_version_name: '23-slim'
-            oracle-sid: 'FREEPDB1'
-            oracle-version: "gvenzl/oracle-free:23-slim"
-          - id: 4
-            db_version_name: '23.26.0-slim'
+            db_version_name: '23-free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23.26.0-slim"
-          - id: 5
-            db_version_name: '23-regular'
-            oracle-sid: 'FREEPDB1'
-            oracle-version: "gvenzl/oracle-free:23"
 
     services:
       html_checker:
@@ -182,7 +174,7 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ always() && matrix.db_version_name == '21XE' }}
+        if: ${{ always() && matrix.db_version_name == '23-free' }}
         uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
