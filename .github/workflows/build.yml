@@ -116,6 +116,9 @@ jobs:
         id: install-utplsql-cli
         run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
 
+      - name: Wait for Oracle DB to be fully ready
+        run: sleep 30
+
       - name: Install utPLSQL
         id: install-utplsql
         run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
