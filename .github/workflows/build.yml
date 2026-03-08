@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
         volumes:
-          - ${{github.workspace}}:/utPLSQL        
+          - ${{github.workspace}}:/utPLSQL
         ports:
           - 1521:1521
         options: >-
