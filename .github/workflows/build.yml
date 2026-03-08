@@ -36,22 +36,11 @@ jobs:
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
-            oracle-version: "gvenzl/oracle-xe:21-slim-faststart"
-            oracle-base: '/opt/oracle'
+            oracle-version: "gvenzl/oracle-xe:21-slim"
           - id: 3
             db_version_name: '23free'
             oracle-sid: 'FREEPDB1'
-            oracle-version: "gvenzl/oracle-free:23-slim-faststart"
-            oracle-base: '/opt/oracle'
-# TODO - need to add healthcheck.sh into our containers
-
-    services:
-      html_checker:
-        image: ghcr.io/validator/validator:latest
-        options: >-
-          -p 8888:8888
-      oracle:
-        image: ${{matrix.oracle-version}}
+            oracle-version: "gvenzl/oracle-free:23-slim"
         env:
           ORACLE_PASSWORD: oracle
         credentials:
@@ -114,46 +103,46 @@ jobs:
       - name: Install utPLSQL-cli
         if: steps.cache-utplsql-cli.outputs.cache-hit != 'true'
         id: install-utplsql-cli
-        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+        run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/3.1.9/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
 
       - name: Install utPLSQL
         id: install-utplsql
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Check code style
         if: ${{ matrix.db_version_name == '21XE' }}
         id: check-coding-style
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint "$SQLCLI" ${DOCKER_ENV} ${ORACLE_VERSION} $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  "$SQLCLI" ${UT3_DEVELOP_SCHEMA}/${UT3_DEVELOP_SCHEMA_PASSWORD}@//${CONNECTION_STR} @/utPLSQL/development/utplsql_style_check.sql
 
       - name: Validate utPLSQL uninstall
         if: ${{ matrix.db_version_name == '21XE' }}
         id: validate-uninstall
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/uninstall_validate_utplsql.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/uninstall_validate_utplsql.sh
 
       - name: Reinstall utPLSQL
         if: ${{ matrix.db_version_name == '21XE' }}
         id: reinstall-utplsql
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Create test users
         id: create-test-users
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/create_test_users.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/create_test_users.sh
 
       - name: Install utPLSQL release
         id: install-utplsql-release
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install_utplsql_release.sh
 
       - name: Run Examples
         id: run-examples
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/run_examples.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/run_examples.sh
 
       - name: Install tests
         id: install-tests
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} test/install_tests.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  test/install_tests.sh
 
       - name: Run Tests
         id: run-tests
-        run: bash test/run_tests.sh
+        run: test/run_tests.sh
 
 #Start Needed to diagnose occasional failures of DB on test runs
       - name: Prepare diagnostic directory
