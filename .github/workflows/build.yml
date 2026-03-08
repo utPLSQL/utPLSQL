@@ -37,7 +37,7 @@ jobs:
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim-faststart"
           - id: 3
-            db_version_name: '23free'
+            db_version_name: '23-free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim-faststart"
     services:
@@ -116,17 +116,17 @@ jobs:
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Check code style
-        if: ${{ matrix.db_version_name == '21XE' }}
+        if: ${{ matrix.id == 1 }}
         id: check-coding-style
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  "$SQLCLI" ${UT3_DEVELOP_SCHEMA}/${UT3_DEVELOP_SCHEMA_PASSWORD}@//${CONNECTION_STR} @/utPLSQL/development/utplsql_style_check.sql
 
       - name: Validate utPLSQL uninstall
-        if: ${{ matrix.db_version_name == '21XE' }}
+        if: ${{ matrix.id == 1 }}
         id: validate-uninstall
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/uninstall_validate_utplsql.sh
 
       - name: Reinstall utPLSQL
-        if: ${{ matrix.db_version_name == '21XE' }}
+        if: ${{ matrix.id == 1 }}
         id: reinstall-utplsql
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
@@ -190,15 +190,15 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ always() && matrix.db_version_name == '21XE' }}
-        uses: SonarSource/sonarcloud-github-action@v5.0.0
+        if: ${{ always() && matrix.db_version_name == '23-free' }}
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.buildString=${{ format( '{0}.{1}', env.UTPLSQL_BUILD_VERSION, matrix.id ) }}
-            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//oracle:1521/{0}', env.ORACLE_SID ) }}
+            -Dsonar.plsql.jdbc.url=${{ format( 'jdbc:oracle:thin:@//localhost:1521/{0}', env.ORACLE_SID ) }}
             -Dsonar.plsql.jdbc.driver.path=${{ format( '{0}/ojdbc8.jar', env.OJDBC_HOME ) }}
 
   publish:
