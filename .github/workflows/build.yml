@@ -36,9 +36,17 @@ jobs:
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim"
           - id: 3
-            db_version_name: '23free'
+            db_version_name: '23-slim'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim"
+          - id: 4
+            db_version_name: '23.26.0-slim'
+            oracle-sid: 'FREEPDB1'
+            oracle-version: "gvenzl/oracle-free:23.26.0-slim"
+          - id: 5
+            db_version_name: '23-regular'
+            oracle-sid: 'FREEPDB1'
+            oracle-version: "gvenzl/oracle-free:23"
 
     services:
       html_checker:
@@ -132,7 +140,7 @@ jobs:
 
       - name: Run Tests
         id: run-tests
-        run: bash test/run_tests.sh
+        run: test/run_tests.sh
 
 #Start Needed to diagnose occasional failures of DB on test runs
       - name: Prepare diagnostic directory
