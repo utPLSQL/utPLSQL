@@ -32,7 +32,6 @@ jobs:
             db_version_name: '19se'
             oracle-sid: 'ORCLCDB'
             oracle-version: "utplsqlv3/oracledb:19c-se2-small"
-            oracle-base: '/opt/oracle'
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
@@ -41,20 +40,23 @@ jobs:
             db_version_name: '23free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim-faststart"
+    services:
+      html_checker:
+        image: ghcr.io/validator/validator:latest
+        options: >-
+          -p 8888:8888
+      oracle:
+        image: ${{matrix.oracle-version}}
         env:
           ORACLE_PASSWORD: oracle
         credentials:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-        volumes:
-          - ${{github.workspace}}:/utPLSQL
         ports:
           - 1521:1521
         options: >-
-          --name oracle
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+          --name oracle
           --health-cmd healthcheck.sh
 
     steps:
