@@ -14,15 +14,16 @@ jobs:
     name: Upload archives
     concurrency: upload
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: c-py/action-dotenv-to-setenv@v2
+      - uses: c-py/action-dotenv-to-setenv@v5
         with:
           env-file: .github/variables/.env
-      - uses: FranzDiebold/github-env-vars-action@v2 #https://github.com/marketplace/actions/github-environment-variables-action
+      - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
       
       - name: Set build version number env variables
         run: .github/scripts/set_version_numbers_env.sh
@@ -34,6 +35,12 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+
+      - name: Setup Python for docs
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
 
       - name: Build and publish documentation
         run: |
@@ -69,9 +76,10 @@ jobs:
     name: Post Workflow Status To Slack
     needs: [ upload_artifacts ]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Slack Workflow Notification
-        uses: Gamesight/slack-workflow-status@master
+        uses: Gamesight/slack-workflow-status@v1.3.0
         with:
           repo_token: ${{secrets.GITHUB_TOKEN}}
           slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
