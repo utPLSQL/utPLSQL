@@ -165,52 +165,53 @@ create or replace type body ut_reporter_base is
   end;
 
   overriding member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item) is
+    l_event_item ut_event_item := a_event_item;  -- ADD THIS LINE
   begin
     case a_event_name
       when ut_event_manager.gc_initialize
-      then self.on_initialize(treat(a_event_item as ut_run));
+      then self.on_initialize(treat(l_event_item as ut_run));
       when ut_event_manager.gc_before_run
-      then self.before_calling_run(treat(a_event_item as ut_run));
+      then self.before_calling_run(treat(l_event_item as ut_run));
       when ut_event_manager.gc_before_suite
-      then self.before_calling_suite(treat(a_event_item as ut_logical_suite));
+      then self.before_calling_suite(treat(l_event_item as ut_logical_suite));
       when ut_event_manager.gc_before_before_all
-      then self.before_calling_before_all(treat(a_event_item as ut_executable));
+      then self.before_calling_before_all(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_before_each
-      then self.before_calling_before_each(treat(a_event_item as ut_executable));
+      then self.before_calling_before_each(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_test
-      then self.before_calling_test(treat(a_event_item as ut_test));
+      then self.before_calling_test(treat(l_event_item as ut_test));
       when ut_event_manager.gc_before_before_test
-      then self.before_calling_before_test(treat(a_event_item as ut_executable));
+      then self.before_calling_before_test(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_test_execute
-      then self.before_calling_test_execute(treat(a_event_item as ut_executable));
+      then self.before_calling_test_execute(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_after_test
-      then self.before_calling_after_test(treat(a_event_item as ut_executable));
+      then self.before_calling_after_test(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_after_each
-      then self.before_calling_after_each(treat(a_event_item as ut_executable));
+      then self.before_calling_after_each(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_before_after_all
-      then self.before_calling_after_all(treat(a_event_item as ut_executable));
+      then self.before_calling_after_all(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_run
-      then self.after_calling_run(treat(a_event_item as ut_run));
+      then self.after_calling_run(treat(l_event_item as ut_run));
       when ut_event_manager.gc_after_suite
-      then self.after_calling_suite(treat(a_event_item as ut_logical_suite));
+      then self.after_calling_suite(treat(l_event_item as ut_logical_suite));
       when ut_event_manager.gc_after_before_all
-      then self.after_calling_before_all(treat(a_event_item as ut_executable));
+      then self.after_calling_before_all(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_before_each
-      then self.after_calling_before_each(treat(a_event_item as ut_executable));
+      then self.after_calling_before_each(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_test
-      then self.after_calling_test(treat(a_event_item as ut_test));
+      then self.after_calling_test(treat(l_event_item as ut_test));
       when ut_event_manager.gc_after_before_test
-      then self.after_calling_before_test(treat(a_event_item as ut_executable));
+      then self.after_calling_before_test(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_test_execute
-      then self.after_calling_test_execute(treat(a_event_item as ut_executable));
+      then self.after_calling_test_execute(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_after_test
-      then self.after_calling_after_test(treat(a_event_item as ut_executable));
+      then self.after_calling_after_test(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_after_each
-      then self.after_calling_after_each(treat(a_event_item as ut_executable));
+      then self.after_calling_after_each(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_after_after_all
-      then self.after_calling_after_all(treat(a_event_item as ut_executable));
+      then self.after_calling_after_all(treat(l_event_item as ut_executable));
       when ut_event_manager.gc_finalize
-      then self.on_finalize(treat(a_event_item as ut_run));
+      then self.on_finalize(treat(l_event_item as ut_run));
       else null;
     end case;
   end;
