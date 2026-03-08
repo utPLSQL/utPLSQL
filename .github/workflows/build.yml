@@ -224,6 +224,7 @@ jobs:
 
       - name: Push version update to repository
         id: push-version-number-update
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
           git add sonar-project.properties VERSION BUILD_NO source/* docs/*
           git commit -m 'Updated project version after build [skip ci]'
