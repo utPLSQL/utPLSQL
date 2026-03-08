@@ -97,39 +97,38 @@ jobs:
 
       - name: Install utPLSQL
         id: install-utplsql
-#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash .github/scripts/install.sh
 
       - name: Check code style
         if: ${{ matrix.id == 1 }}
         id: check-coding-style
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint "$SQLCLI" ${DOCKER_ENV} ${ORACLE_VERSION} $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash "$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR @development/utplsql_style_check.sql
 
       - name: Validate utPLSQL uninstall
         if: ${{ matrix.id == 1 }}
         id: validate-uninstall
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/uninstall_validate_utplsql.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash .github/scripts/uninstall_validate_utplsql.sh
 
       - name: Reinstall utPLSQL
         if: ${{ matrix.id == 1 }}
         id: reinstall-utplsql
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Create test users
         id: create-test-users
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/create_test_users.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/create_test_users.sh
 
       - name: Install utPLSQL release
         id: install-utplsql-release
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install_utplsql_release.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install_utplsql_release.sh
 
       - name: Run Examples
         id: run-examples
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/run_examples.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/run_examples.sh
 
       - name: Install tests
         id: install-tests
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} test/install_tests.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  test/install_tests.sh
 
       - name: Run Tests
         id: run-tests
