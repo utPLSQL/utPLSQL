@@ -31,17 +31,14 @@ jobs:
             db_version_name: '19se'
             oracle-sid: 'ORCLCDB'
             oracle-version: "utplsqlv3/oracledb:19c-se2-small"
-            oracle-base: '/opt/oracle'
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
             oracle-version: "gvenzl/oracle-xe:21-slim"
-            oracle-base: '/opt/oracle'
           - id: 3
             db_version_name: '23free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim"
-            oracle-base: '/opt/oracle'
 
     services:
       html_checker:
