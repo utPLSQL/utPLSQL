@@ -97,7 +97,8 @@ jobs:
 
       - name: Install utPLSQL
         id: install-utplsql
-        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+#        run: docker run --rm -v $(pwd):/utPLSQL -w /utPLSQL --network host --entrypoint bash ${DOCKER_ENV} ${ORACLE_VERSION} .github/scripts/install.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash .github/scripts/install.sh
 
       - name: Check code style
         if: ${{ matrix.id == 1 }}
