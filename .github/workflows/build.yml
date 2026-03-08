@@ -36,11 +36,11 @@ jobs:
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
-            oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-version: "gvenzl/oracle-xe:21-slim-faststart"
           - id: 3
             db_version_name: '23free'
             oracle-sid: 'FREEPDB1'
-            oracle-version: "gvenzl/oracle-free:23-slim"
+            oracle-version: "gvenzl/oracle-free:23-slim-faststart"
         env:
           ORACLE_PASSWORD: oracle
         credentials:
