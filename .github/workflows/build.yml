@@ -175,7 +175,7 @@ jobs:
         run:  bash .github/scripts/validate_report_files.sh
 
       - name: Codecov
-        uses: codecov/codecov-action@master
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: ./cobertura.xml
