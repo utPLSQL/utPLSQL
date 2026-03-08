@@ -97,17 +97,17 @@ jobs:
 
       - name: Install utPLSQL
         id: install-utplsql
-        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash .github/scripts/install.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Check code style
         if: ${{ matrix.id == 1 }}
         id: check-coding-style
-        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle "$SQLCLI" ${UT3_DEVELOP_SCHEMA}/${UT3_DEVELOP_SCHEMA_PASSWORD}@//${CONNECTION_STR} @/utPLSQL/development/utplsql_style_check.sql
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  "$SQLCLI" ${UT3_DEVELOP_SCHEMA}/${UT3_DEVELOP_SCHEMA_PASSWORD}@//${CONNECTION_STR} @/utPLSQL/development/utplsql_style_check.sql
 
       - name: Validate utPLSQL uninstall
         if: ${{ matrix.id == 1 }}
         id: validate-uninstall
-        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle bash .github/scripts/uninstall_validate_utplsql.sh
+        run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/uninstall_validate_utplsql.sh
 
       - name: Reinstall utPLSQL
         if: ${{ matrix.id == 1 }}
