@@ -178,7 +178,7 @@ jobs:
       - name: SonarCloud Scan
         id: sonar
         if: ${{ always() && matrix.db_version_name == '21XE' }}
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
