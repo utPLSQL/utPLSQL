@@ -36,12 +36,12 @@ jobs:
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
-            oracle-version: "gvenzl/oracle-xe:21-slim"
+            oracle-version: "gvenzl/oracle-xe:21-slim-faststart"
             oracle-base: '/opt/oracle'
           - id: 3
             db_version_name: '23free'
             oracle-sid: 'FREEPDB1'
-            oracle-version: "gvenzl/oracle-free:23-slim"
+            oracle-version: "gvenzl/oracle-free:23-slim-faststart"
             oracle-base: '/opt/oracle'
 # TODO - need to add healthcheck.sh into our containers
 
@@ -115,9 +115,6 @@ jobs:
         if: steps.cache-utplsql-cli.outputs.cache-hit != 'true'
         id: install-utplsql-cli
         run: curl -Lk -o utPLSQL-cli.zip "https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.1.8/utPLSQL-cli.zip" && unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-
-      - name: Wait for Oracle DB to be fully ready
-        run: sleep 30
 
       - name: Install utPLSQL
         id: install-utplsql
