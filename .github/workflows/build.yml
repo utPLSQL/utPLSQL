@@ -50,6 +50,10 @@ jobs:
         env:
           ORACLE_PASSWORD: oracle
         credentials:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        volumes:
+          - ${{github.workspace}}:/utPLSQL        
         ports:
           - 1521:1521
         options: >-
