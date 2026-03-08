@@ -16,4 +16,5 @@ sed -i -r "s/(sonar\.projectVersion=).*?/\1${UTPLSQL_VERSION}/" sonar-project.pr
 
 echo Update VERSION file
 echo ${UTPLSQL_VERSION} > VERSION
+echo ${UTPLSQL_BUILD_NO} > BUILD_NO
 

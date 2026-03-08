@@ -57,7 +57,7 @@ To get started with development, follow the below steps.
 
 _If you're using Windows, run the shell scripts using `GIT bash` - Windows-based bash command line._
 
-**Caution**: If you are using jetBrains DataGrip, don't use the ingegrated console to run the shell scripts (not even with GIT bash configured). It might disconnect from oracle randomly during script-run.
+**Caution**: If you are using jetBrains DataGrip, don't use the integrated console to run the shell scripts (not even with GIT bash configured). It might disconnect from oracle randomly during script-run.
 
 ### Clone your fork of utPLSQL git repository
 
@@ -94,13 +94,13 @@ export ORACLE_PWD=oracle # Adjust your local SYS password
 
 The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
 ```bash
-development/refresh_sources.sh
+./development/refresh_sources.sh
 ```
 
 ### Setup local database for utPLSQL development
 
 ```bash
-development/install.sh
+./development/install.sh
 ```
 
 ### That's it
@@ -135,9 +135,9 @@ Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, 
 
 utPLSQL v3 unit tests are located in the `test` directory
 
-Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all of the tests are executing successfully in your local environment.
+Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all the tests are executing successfully in your local environment.
 
-Every new functionality needs to be documented by unit tests that cover both happy-path scenarios as well as edge-cases and exception paths.
+Every new functionality needs to be documented by unit tests that cover happy-path scenarios as well as edge-cases and exception paths.
 
 > **Important notice:**
 > We do our best to keep utPLSQL covered with unit tests.
@@ -145,8 +145,8 @@ Every new functionality needs to be documented by unit tests that cover both hap
 
 To run a full suite of unit tests execute:
 ```bash
-development/env.sh
-test/install_and_run_tests.sh
+. ./development/env.sh
+./test/install_and_run_tests.sh
 ```
 
 You can review the results of tests as well as see information about code coverage in `./coverage.html` file.
@@ -189,18 +189,17 @@ docker build --force-rm --no-cache --squash -t oracle/db-prebuilt .
 
 Travis will use your Docker Hub credentials to pull the private images, and the following secure environment variables must be defined.
 
-Variable | Description
----------|------------
-**DOCKER_USER**<br />**DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._
+| Variable                                 | Description                                                                                   |
+|------------------------------------------|-----------------------------------------------------------------------------------------------|
+| **DOCKER_USER**<br />**DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._ |
 
 ### SQLCL
 
 Our build configuration uses SQLCL to run the scripts, and you need to configure a few additional secure environment variables. After the first build, the downloaded file will be cached.
 
-Variable | Description
----------|------------
-**ORACLE_OTN_USER<br />ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._
-
+| Variable                                     | Description                                                             |
+|----------------------------------------------|-------------------------------------------------------------------------|
+| **ORACLE_OTN_USER<br />ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._ |
 
 ## New to GIT
 

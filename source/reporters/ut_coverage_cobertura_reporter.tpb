@@ -29,11 +29,19 @@ create or replace type body ut_coverage_cobertura_reporter is
     l_report_lines  ut_varchar2_list;
     l_coverage_data ut_coverage.t_coverage;
     
-    function get_lines_xml(a_unit_coverage ut_coverage.t_unit_coverage) return clob is
+    function get_line_rate(a_lines_covered in integer, a_lines_hit in integer) return varchar2 is
+    begin
+      return to_char(round((case a_lines_covered when 0 then 0 else a_lines_covered/a_lines_hit end), 17), rpad('FM0.0',20,'9') , 'NLS_NUMERIC_CHARACTERS=''. ''');
+    end;
+    
+    procedure get_lines_xml(a_unit_coverage ut_coverage.t_unit_coverage, 
+      a_lines_result in out nocopy clob, a_lines_hits out number, a_lines_total out number) is
       l_file_part    varchar2(32767);
       l_result       clob;
       l_line_no      binary_integer;
       l_pct          integer;
+      l_lines_hits   integer := 0;
+      l_lines_total  integer := 0;
     begin
       dbms_lob.createtemporary(l_result, true);
       l_line_no := a_unit_coverage.lines.first;
@@ -41,11 +49,14 @@ create or replace type body ut_coverage_cobertura_reporter is
         for i in 1 .. a_unit_coverage.total_lines loop
           ut_utils.append_to_clob(l_result, '<line number="'||i||'" hits="0" branch="false"/>'||chr(10));
         end loop;
+        l_lines_hits:=0;
+        l_lines_total:= a_unit_coverage.total_lines;
       else
         while l_line_no is not null loop
           if a_unit_coverage.lines(l_line_no).executions = 0 then
             l_file_part := '<line number="'||l_line_no||'" hits="0" branch="false"/>'||chr(10);
           else
+            l_lines_hits:= l_lines_hits+1;
             l_file_part := '<line number="'||l_line_no||'" hits="'||a_unit_coverage.lines(l_line_no).executions||'"';
             if a_unit_coverage.lines(l_line_no).covered_blocks < a_unit_coverage.lines(l_line_no).no_blocks then
               l_file_part := l_file_part || ' branch="true"';
@@ -59,16 +70,21 @@ create or replace type body ut_coverage_cobertura_reporter is
           end if;
           ut_utils.append_to_clob(l_result, l_file_part);
           l_line_no := a_unit_coverage.lines.next(l_line_no);
+          l_lines_total := l_lines_total + 1;
         end loop;
       end if;
-      return l_result;
+      a_lines_result := l_result;
+      a_lines_hits :=l_lines_hits;
+      a_lines_total := l_lines_total;
     end;
     
     function get_coverage_xml(
       a_coverage_data ut_coverage.t_coverage,
       a_run ut_run
     ) return ut_varchar2_rows is
+      
       l_file_part       varchar2(32767);
+      l_lines_xml       clob;
       l_result          ut_varchar2_rows := ut_varchar2_rows();
       l_unit            ut_coverage.t_object_name;
       l_obj_name        ut_coverage.t_object_name;
@@ -83,6 +99,8 @@ create or replace type body ut_coverage_cobertura_reporter is
       c_lines_footer    constant varchar2(30) := '</lines>';
       l_epoch           varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
       l_lines_valid     integer := a_coverage_data.covered_lines + a_coverage_data.uncovered_lines;
+      l_line_hits       integer;
+      l_line_total      integer;
       begin
    
       ut_utils.append_to_list( l_result, ut_utils.get_xml_header(a_run.client_character_set) );
@@ -92,7 +110,7 @@ create or replace type body ut_coverage_cobertura_reporter is
       ut_utils.append_to_list(
         l_result,
         '<coverage line-rate="'
-          ||to_char(round((case l_lines_valid when 0 then 0 else a_coverage_data.covered_lines/(l_lines_valid) end), 17), rpad('FM0.0',20,'9') , 'NLS_NUMERIC_CHARACTERS=''. ''')
+          ||get_line_rate(a_coverage_data.covered_lines,l_lines_valid)
           ||'" branch-rate="0.0" lines-covered="'
           ||a_coverage_data.covered_lines||'" lines-valid="'
           ||to_char(l_lines_valid)
@@ -116,9 +134,12 @@ create or replace type body ut_coverage_cobertura_reporter is
                  
       while l_unit is not null loop
         l_obj_name := a_coverage_data.objects(l_unit).name;
+        dbms_lob.createtemporary(l_lines_xml, true);
+        get_lines_xml(a_coverage_data.objects(l_unit),l_lines_xml,l_line_hits,l_line_total);
+        
         ut_utils.append_to_list(
           l_result,
-          '<package name="'||dbms_xmlgen.convert(l_obj_name)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'
+          '<package name="'||dbms_xmlgen.convert(l_obj_name)||'" line-rate="'||get_line_rate(l_line_hits,l_line_total)||'" branch-rate="0.0" complexity="0.0">'
         );
 
         ut_utils.append_to_list(
@@ -129,13 +150,13 @@ create or replace type body ut_coverage_cobertura_reporter is
         ut_utils.append_to_list(
           l_result,
           '<class name="'||dbms_xmlgen.convert(l_obj_name)||'" filename="'
-            ||dbms_xmlgen.convert(l_unit)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'
+            ||dbms_xmlgen.convert(l_unit)||'" line-rate="'||get_line_rate(l_line_hits,l_line_total)||'" branch-rate="0.0" complexity="0.0">'
         );
         
         ut_utils.append_to_list(l_result, '<lines>');
-
-        ut_utils.append_to_list( l_result, get_lines_xml(a_coverage_data.objects(l_unit)) );
-
+        ut_utils.append_to_list( l_result,l_lines_xml);
+        dbms_lob.freetemporary(l_lines_xml);
+       
         ut_utils.append_to_list(l_result, c_lines_footer);
         ut_utils.append_to_list(l_result, c_class_footer);
         ut_utils.append_to_list(l_result, c_classes_footer);

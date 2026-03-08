@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.14.4182--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.14.4206--develop-blue.svg)
 
 utPLSQL provides several reporting formats. The sections below describe most of them. 
 
@@ -174,6 +174,16 @@ In principle, it has to be a subtype of `ut_reporter_base`. However, if the repo
 If you need to produce a colored text output from the custom reporter, then you can build it basing on `ut_console_reporter_base` (a subtype of `ut_output_reporter_base`). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like `ut_documentation_reporter` or `ut_junit_reporter`, and override just some of the functionality.
 
 It is recommended to create the reporter type in the schema where utPLSQL is installed (by default it is the `UT3` schema). Note that before running the utPLSQL uninstall scripts, all custom reporters should be dropped (cf. [the installation documentation](install.md)). In particular, when upgrading to a newer version of utPLSQL, one has to drop the custom reporters and recreate them after the upgrade.
+
+!!! note
+    Please make sure that grants have been added and synonyms created for the custom reporter in order for reporter to be accessible the same way as other reporters.
+    Assuming that reporter with name `customer_reporter` was created in schema `UT3`
+```sql
+    grant execute on ut3.custom_reporter to public;  
+    create or replace public synonym custom_reporter for ut3.custom_reporter;
+```
+
+
 
 !!! note
     It is possible, but cumbersome, to use another schema for storing the custom reporters. This requires to create a synonym for the base reporter type in the schema that is going to own the custom reporter, and to provide appropriate grants both to the owner of the custom reporter and to the user running the reporter. After upgrading or reinstalling utPLSQL, the extra privileges need to be recreated. This approach is not recommended.
