@@ -6,6 +6,10 @@ on:
     branches: [ develop ]
 
   workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number
+        required: false
 
 concurrency: ${{github.ref}}
 defaults:
