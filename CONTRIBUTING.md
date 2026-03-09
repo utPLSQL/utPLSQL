@@ -40,7 +40,7 @@ Changes are welcome from all members of the Community.
 # Configuring local environment
 
 Your local environment can be of any flavor (Unix/Linux/Windows/Mac).
-At minimum you need to have Oracle database 11.2 XE accessible for the project and SYS account access to install and develop utPLSQL.
+At minimum, you need to have Oracle database 19c accessible for the project and SYS account access to install and develop utPLSQL.
 
 We use four different database accounts (users) for development process.
 * `ut3` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.
@@ -57,7 +57,7 @@ To get started with development, follow the below steps.
 
 _If you're using Windows, run the shell scripts using `GIT bash` - Windows-based bash command line._
 
-**Caution**: If you are using jetBrains DataGrip, don't use the ingegrated console to run the shell scripts (not even with GIT bash configured). It might disconnect from oracle randomly during script-run.
+**Caution**: If you are using jetBrains DataGrip, don't use the integrated console to run the shell scripts (not even with GIT bash configured). It might disconnect from oracle randomly during script-run.
 
 ### Clone your fork of utPLSQL git repository
 
@@ -94,13 +94,13 @@ export ORACLE_PWD=oracle # Adjust your local SYS password
 
 The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
 ```bash
-development/refresh_sources.sh
+./development/refresh_sources.sh
 ```
 
 ### Setup local database for utPLSQL development
 
 ```bash
-development/install.sh
+./development/install.sh
 ```
 
 ### That's it
@@ -135,9 +135,9 @@ Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, 
 
 utPLSQL v3 unit tests are located in the `test` directory
 
-Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all of the tests are executing successfully in your local environment.
+Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all the tests are executing successfully in your local environment.
 
-Every new functionality needs to be documented by unit tests that cover both happy-path scenarios as well as edge-cases and exception paths.
+Every new functionality needs to be documented by unit tests that cover happy-path scenarios as well as edge-cases and exception paths.
 
 > **Important notice:**
 > We do our best to keep utPLSQL covered with unit tests.
@@ -145,8 +145,8 @@ Every new functionality needs to be documented by unit tests that cover both hap
 
 To run a full suite of unit tests execute:
 ```bash
-development/env.sh
-test/install_and_run_tests.sh
+. ./development/env.sh
+./test/install_and_run_tests.sh
 ```
 
 You can review the results of tests as well as see information about code coverage in `./coverage.html` file.
@@ -162,45 +162,20 @@ Dependencies to `ut_util` are not shown as most of modules are depending on it.
 
 ## Build Environment
 
-We are using private docker images to test utPLSQL for our Travis CI builds. The following versions of Oracle Database are being used.
+We are using a combination of private and publicly available docker images to test utPLSQL. The following versions of Oracle Database are used for testing:
 
-* 11g XE R2
-* 12c SE R1
-* 12c SE R2
-* 18c SE
+* 19c-Standard Edition (private image)
+* 21-free
+* 23-free
 
-These images are based on the slimmed versions [official dockerfiles released by Oracle](https://github.com/utPLSQL/docker-scripts), but due to licensing restrictions, we can't make the images public.
+The Free varsions are publicly available and you can set up your local development environment to use one of from [here](https://github.com/gvenzl/oci-oracle-free)
+
+These [private image]((https://github.com/utPLSQL/docker-scripts) is a slimmed version of [the official Oracle database dockerfiles](https://github.com/oracle/docker-images/tree/master/OracleDatabase) . Due to licensing restrictions, the image cannot be public.
+
 You can build your own and use it locally, or push to a private docker repository.
-
 The build steps are simple if you already have some experience using Docker. You can find detailed information about how to build your own image with a running database in: [example of creating an image with pre-built DB](https://github.com/oracle/docker-images/blob/master/OracleDatabase/samples/prebuiltdb/README.md)
 
-> You can find more info about the official Oracle images on the [Oracle Database on Docker](https://github.com/oracle/docker-images/tree/master/OracleDatabase) GitHub page.
-
-> If you are new to Docker, you can start by reading the [Getting Started With Docker](https://docs.docker.com/engine/getstarted/) docs.
-
-### Docker Build Notes
-
-* You need to comment out the VOLUME line. This step is required, because volumes are not saved when using `docker commit` command.
-* When the build process is complete, you will run the container to install the database. Once everything is set up and you see the message "DATABASE IS READY!", you may change the password and stop the running container. After the container is stopped, you can safely commit the container.
-* You can use the --squash experimental docker tag to reduce the image size. Example:
-```
-docker build --force-rm --no-cache --squash -t oracle/db-prebuilt .
-```
-
-Travis will use your Docker Hub credentials to pull the private images, and the following secure environment variables must be defined.
-
-Variable | Description
----------|------------
-**DOCKER_USER**<br />**DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._
-
-### SQLCL
-
-Our build configuration uses SQLCL to run the scripts, and you need to configure a few additional secure environment variables. After the first build, the downloaded file will be cached.
-
-Variable | Description
----------|------------
-**ORACLE_OTN_USER<br />ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._
-
+> If you are new to Docker, you can start by reading the [Getting Started With Docker](https://docs.docker.com/get-started/) docs.
 
 ## New to GIT
 
