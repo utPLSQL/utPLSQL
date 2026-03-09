@@ -137,6 +137,8 @@ create or replace package body ut_annotation_parser as
     l_source           clob := a_source;
   begin
     l_comment_pos := 1;
+    dbms_lob.createtemporary(l_source, true);
+    dbms_lob.createtemporary(a_source, true);
     loop
 
       l_comment_pos := regexp_instr(srcstr     => a_source
