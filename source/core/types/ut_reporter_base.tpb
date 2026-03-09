@@ -165,7 +165,8 @@ create or replace type body ut_reporter_base is
   end;
 
   overriding member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item) is
-    l_event_item ut_event_item := a_event_item;  -- ADD THIS LINE
+    /* Resolves issue with ORA-21779 being thrown see issue: 1309 -> ( https://github.com/utPLSQL/utPLSQL/issues/1309#issuecomment-4020289898 ) */
+    l_event_item ut_event_item := a_event_item;
   begin
     case a_event_name
       when ut_event_manager.gc_initialize
