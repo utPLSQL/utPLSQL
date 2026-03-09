@@ -74,15 +74,12 @@ create or replace package body ut_annotation_parser as
     l_loop_index       binary_integer := 1;
     l_annotation_index binary_integer;
   begin
-    -- loop while there are unprocessed comment blocks
-    while 0 != nvl(regexp_instr(srcstr        => a_source
-                               ,pattern       => gc_comment_replacer_regex_ptrn
-                               ,occurrence    => l_loop_index
-                               ,subexpression => 1)
-                  ,0) loop
 
+    -- loop while there are unprocessed comment blocks
+    loop
       -- define index of the comment block and get it's content from cache
       l_annotation_index := regexp_substr( a_source ,gc_comment_replacer_regex_ptrn ,1 ,l_loop_index ,subexpression => 1);
+      exit when l_annotation_index is null;
       add_annotation( a_annotations, l_annotation_index, a_comments( l_annotation_index ), a_subobject_name );
       l_loop_index := l_loop_index + 1;
     end loop;
@@ -98,20 +95,13 @@ create or replace package body ut_annotation_parser as
     -- loop through procedures and functions of the package and get all the comment blocks just before it's declaration
     l_annot_proc_ind := 1;
     loop
-      --find annotated procedure index
-      l_annot_proc_ind := regexp_instr(srcstr     => a_source
-                                      ,pattern    => gc_annotation_block_pattern
-                                      ,occurrence => 1
-                                      ,modifier   => 'i'
-                                      ,position   => l_annot_proc_ind);
-      exit when l_annot_proc_ind = 0;
-
       --get the annotations with procedure name
       l_annot_proc_block := regexp_substr(srcstr     => a_source
                                          ,pattern    => gc_annotation_block_pattern
                                          ,position   => l_annot_proc_ind
                                          ,occurrence => 1
                                          ,modifier   => 'i');
+      exit when l_annot_proc_block is null;
 
       --extract the annotations
       l_proc_comments := trim(regexp_substr(srcstr        => l_annot_proc_block
