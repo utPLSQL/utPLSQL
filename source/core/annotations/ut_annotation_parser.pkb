@@ -134,10 +134,10 @@ create or replace package body ut_annotation_parser as
   function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
     l_comments         tt_comment_list;
     l_comment_pos      binary_integer;
+    l_comment_end_pos  binary_integer;
     l_comment_line     binary_integer;
     l_comment_replacer varchar2(50);
     l_comment_text     varchar2(32767);
-    l_comment_match    varchar2(32767);
     l_result           clob;
     l_copy_pos         binary_integer := 1;
     l_source_length    binary_integer;
@@ -167,11 +167,12 @@ create or replace package body ut_annotation_parser as
                                           ,position      => l_comment_pos
                                           ,modifier      => 'm'
                                           ,subexpression => 2));
-      l_comment_match := regexp_substr(srcstr     => a_source
-                                      ,pattern    => gc_annot_comment_pattern
-                                      ,occurrence => 1
-                                      ,position   => l_comment_pos
-                                      ,modifier   => 'm');
+      l_comment_end_pos := regexp_instr(srcstr        => a_source
+                                       ,pattern       => gc_annot_comment_pattern
+                                       ,occurrence    => 1
+                                       ,return_option => 1
+                                       ,position      => l_comment_pos
+                                       ,modifier      => 'm');
       l_comments(l_comment_line) := l_comment_text;
 
       l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comment_line);
@@ -192,7 +193,7 @@ create or replace package body ut_annotation_parser as
 
       ut_utils.append_to_clob(l_result, l_comment_replacer);
 
-      l_copy_pos := l_comment_pos + length(l_comment_match);
+      l_copy_pos := l_comment_end_pos;
       l_comment_pos := l_copy_pos;
 
     end loop;
