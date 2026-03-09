@@ -168,13 +168,14 @@ create or replace package body ut_annotation_parser as
                                    ,position   => l_comment_pos
                                    ,occurrence => 1
                                    ,modifier   => 'm');
-      dbms_lob.freetemporary(a_source);
+      --dbms_lob.freetemporary(a_source);
       a_source := l_source;
-      dbms_lob.freetemporary(l_source);
+      --dbms_lob.freetemporary(l_source);
       l_comment_pos := l_comment_pos + length(l_comment_replacer);
 
     end loop;
-
+    dbms_lob.freetemporary(l_source);
+    dbms_lob.freetemporary(a_source);
     ut_utils.debug_log(a_source);
     return l_comments;
   end extract_and_replace_comments;
