@@ -160,7 +160,7 @@ create or replace package body ut_annotation_parser as
       -- position index is shifted by 1 because gc_annot_comment_pattern contains ^ as first sign
       -- but after instr index already points to the char on that line
       l_comment_pos := greatest(l_comment_pos - 1, 1);
-      while l_next_newline > 0 and l_next_newline < l_comment_pos loop
+      while l_next_newline > 0 and l_next_newline <= l_comment_pos loop
         l_comment_line := l_comment_line + 1;
         l_next_newline := dbms_lob.instr(a_source, chr(10), l_next_newline + 1, 1);
       end loop;
