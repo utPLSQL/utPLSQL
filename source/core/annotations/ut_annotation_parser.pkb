@@ -95,13 +95,21 @@ create or replace package body ut_annotation_parser as
     -- loop through procedures and functions of the package and get all the comment blocks just before it's declaration
     l_annot_proc_ind := 1;
     loop
+      --find annotated procedure index
+      l_annot_proc_ind := regexp_instr(srcstr     => a_source
+                                      ,pattern    => gc_annotation_block_pattern
+                                      ,occurrence => 1
+                                      ,modifier   => 'i'
+                                      ,position   => l_annot_proc_ind);
+      exit when l_annot_proc_ind = 0;
+
       --get the annotations with procedure name
       l_annot_proc_block := regexp_substr(srcstr     => a_source
                                          ,pattern    => gc_annotation_block_pattern
                                          ,position   => l_annot_proc_ind
                                          ,occurrence => 1
                                          ,modifier   => 'i');
-      exit when l_annot_proc_block is null;
+                                         
 
       --extract the annotations
       l_proc_comments := trim(regexp_substr(srcstr        => l_annot_proc_block
