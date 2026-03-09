@@ -167,12 +167,7 @@ create or replace package body ut_annotation_parser as
                                           ,position      => l_comment_pos
                                           ,modifier      => 'm'
                                           ,subexpression => 2));
-      l_comment_end_pos := regexp_instr(srcstr        => a_source
-                                       ,pattern       => gc_annot_comment_pattern
-                                       ,occurrence    => 1
-                                       ,return_option => 1
-                                       ,position      => l_comment_pos
-                                       ,modifier      => 'm');
+      l_comment_end_pos := regexp_instr(a_source, gc_annot_comment_pattern, l_comment_pos, 1, 1, 'm');
       l_comments(l_comment_line) := l_comment_text;
 
       l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comment_line);
