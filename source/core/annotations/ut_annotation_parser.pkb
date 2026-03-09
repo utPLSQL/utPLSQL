@@ -136,9 +136,17 @@ create or replace package body ut_annotation_parser as
     l_comment_pos      binary_integer;
     l_comment_line     binary_integer;
     l_comment_replacer varchar2(50);
-    l_source           clob := a_source;
+    l_comment_text     varchar2(32767);
+    l_comment_match    varchar2(32767);
+    l_result           clob;
+    l_copy_pos         binary_integer := 1;
+    l_next_newline     binary_integer := 0;
+    l_source_length    binary_integer;
   begin
     l_comment_pos := 1;
+    l_comment_line := 1;
+    l_source_length := coalesce(dbms_lob.getlength(a_source), 0);
+    l_next_newline := dbms_lob.instr(a_source, chr(10), 1, 1);
     loop
 
       l_comment_pos := regexp_instr(srcstr     => a_source
@@ -151,29 +159,63 @@ create or replace package body ut_annotation_parser as
 
       -- position index is shifted by 1 because gc_annot_comment_pattern contains ^ as first sign
       -- but after instr index already points to the char on that line
-      l_comment_pos := l_comment_pos-1;
-      l_comment_line := length(substr(a_source,1,l_comment_pos))-length(replace(substr(a_source,1,l_comment_pos),chr(10)))+1;
-      l_comments(l_comment_line) := trim(regexp_substr(srcstr        => a_source
-                                                            ,pattern       => gc_annot_comment_pattern
-                                                            ,occurrence    => 1
-                                                            ,position      => l_comment_pos
-                                                            ,modifier      => 'm'
-                                                            ,subexpression => 2));
+      l_comment_pos := greatest(l_comment_pos - 1, 1);
+      while l_next_newline > 0 and l_next_newline < l_comment_pos loop
+        l_comment_line := l_comment_line + 1;
+        l_next_newline := dbms_lob.instr(a_source, chr(10), l_next_newline + 1, 1);
+      end loop;
+
+      l_comment_text := trim(regexp_substr(srcstr        => a_source
+                                          ,pattern       => gc_annot_comment_pattern
+                                          ,occurrence    => 1
+                                          ,position      => l_comment_pos
+                                          ,modifier      => 'm'
+                                          ,subexpression => 2));
+      l_comment_match := regexp_substr(srcstr     => a_source
+                                      ,pattern    => gc_annot_comment_pattern
+                                      ,occurrence => 1
+                                      ,position   => l_comment_pos
+                                      ,modifier   => 'm');
+      l_comments(l_comment_line) := l_comment_text;
 
       l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comment_line);
 
-      l_source    := regexp_replace(srcstr     => a_source
-                                   ,pattern    => gc_annot_comment_pattern
-                                   ,replacestr => l_comment_replacer
-                                   ,position   => l_comment_pos
-                                   ,occurrence => 1
-                                   ,modifier   => 'm');
-      dbms_lob.freetemporary(a_source);
-      a_source := l_source;
-      dbms_lob.freetemporary(l_source);
-      l_comment_pos := l_comment_pos + length(l_comment_replacer);
+      if l_result is null then
+        dbms_lob.createtemporary(l_result, true);
+      end if;
+
+      if l_comment_pos > l_copy_pos then
+        dbms_lob.copy(
+          dest_lob    => l_result,
+          src_lob     => a_source,
+          amount      => l_comment_pos - l_copy_pos,
+          dest_offset => dbms_lob.getlength(l_result) + 1,
+          src_offset  => l_copy_pos
+        );
+      end if;
+
+      ut_utils.append_to_clob(l_result, l_comment_replacer);
+
+      l_copy_pos := l_comment_pos + length(l_comment_match);
+      l_comment_pos := l_copy_pos;
 
     end loop;
+
+    if l_result is not null then
+      if l_copy_pos <= l_source_length then
+        dbms_lob.copy(
+          dest_lob    => l_result,
+          src_lob     => a_source,
+          amount      => l_source_length - l_copy_pos + 1,
+          dest_offset => dbms_lob.getlength(l_result) + 1,
+          src_offset  => l_copy_pos
+        );
+      end if;
+      if dbms_lob.istemporary(a_source) = 1 then
+        dbms_lob.freetemporary(a_source);
+      end if;
+      a_source := l_result;
+    end if;
 
     ut_utils.debug_log(a_source);
     return l_comments;
