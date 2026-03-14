@@ -683,6 +683,7 @@ create or replace package body ut_utils is
     end if;
 
     -- Fast pre-scan: check if any /* exists at all if not, nothing to do — return source as-is
+    <<prescan>>
     for i in 1 .. a_source.count loop
       if instr(a_source(i), '/*') > 0 then
         l_has_ml_comment := true;
@@ -697,20 +698,21 @@ create or replace package body ut_utils is
     <<process_lines>>
     for i in 1 .. a_source.count loop
       l_line := a_source(i);
-      -- Fast path: currently inside a multi-line comment
+
+      -- Fast path: currently inside a multi-line comment, look only for closing */
       if l_in_ml_comment then
         l_ml_end := instr(l_line, '*/');
         if l_ml_end > 0 then
           l_in_ml_comment := false;
           l_line := substr(l_line, l_ml_end + 2);
-          -- fall through to normal scan of remainder
+          -- fall through to normal scan of remainder of line, in case there are more /* comments on the same line
         else
           l_result(i) := '';
           continue process_lines;
         end if;
       end if;
 
-      -- Fast path: no special tokens on this line at all
+      -- Fast path: no special tokens on this line at all, just copy it to result and move on
       if instr(l_line, '/') = 0
         and instr(l_line, '-') = 0
         and instr(l_line, '''') = 0
@@ -719,7 +721,7 @@ create or replace package body ut_utils is
         continue process_lines;
       end if;
 
-      -- Normal scan: consume one token at a time, advance l_remaining
+      -- Normal scan: consume one token at a time, advance l_remaining until end of line
       l_remaining := l_line;
       l_line      := null;
 
@@ -730,23 +732,23 @@ create or replace package body ut_utils is
         l_ml_start      := instr(l_remaining, '/*');
         l_comment_start := instr(l_remaining, '--');
         l_text_start    := instr(l_remaining, '''');
-        -- only search for q' if ' was found — q' always contains '
+        -- only search for q' if ' was found — q' always contains ' and would be misidentified otherwise
         l_eq_text_start := case when l_text_start > 0
                             then instr(l_remaining, 'q''')
                             else 0
                           end;
 
-        -- count how many tokens are present
+        -- count how many tokens are present to decide if we can skip LEAST/GREATEST and just use the one that is present
         l_token_count := sign(l_ml_start) + sign(l_comment_start)
                       + sign(l_text_start) + sign(l_eq_text_start);
 
-        -- no special tokens left — consume remainder and stop
+        -- no special tokens left — consume remainder and stop scanning this line
         if l_token_count = 0 then
           l_line := l_line || l_remaining;
           exit scan_line;
         end if;
 
-        -- only one token present — skip LEAST, use GREATEST to find it
+        -- only one token present — skip LEAST, use GREATEST to find it since 0 means not present and any positive value is a valid position
         if l_token_count = 1 then
           l_pos := greatest(l_ml_start, l_comment_start, l_text_start, l_eq_text_start);
         else
@@ -777,7 +779,7 @@ create or replace package body ut_utils is
             exit scan_line;
           end if;
 
-        -- Multi-line comment: skip it, continue scanning remainder of line after comment end
+        -- Multi-line comment start: skip it, look for end of comment, continue scanning line after it
         elsif l_pos = l_ml_start
               and (l_comment_start = 0 or l_ml_start < l_comment_start)
               and (l_text_start    = 0 or l_ml_start < l_text_start)
@@ -792,7 +794,7 @@ create or replace package body ut_utils is
             exit scan_line;
           end if;
 
-        -- Single-line comment: keep it, stop scanning this line
+        -- Single-line comment: keep it, stop scanning this line since everything after -- is comment anyway
         elsif l_pos = l_comment_start
               and (l_ml_start      = 0 or l_comment_start < l_ml_start)
               and (l_text_start    = 0 or l_comment_start < l_text_start)
@@ -801,7 +803,7 @@ create or replace package body ut_utils is
           l_line := l_line || l_remaining;
           exit scan_line;
 
-        -- Regular string literal: keep it, continue scanning remainder of line after closing quote
+        -- Regular string literal start: keep it, scan forward for closing quote, handle '' escaped quotes properly by skipping them and keep scanning
         else
           -- scan forward continuously to handle '' escaped quotes
           l_end := l_text_start + 1;
@@ -832,7 +834,6 @@ create or replace package body ut_utils is
 
     return l_result;
   end replace_multiline_comments;
-
 
   function replace_multiline_comments(a_source clob) return clob is
     l_result                  clob;
