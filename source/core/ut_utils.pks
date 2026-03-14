@@ -405,6 +405,9 @@ create or replace package ut_utils authid definer is
   /**
   * Replaces multi-line comments in given source-code with empty lines
   */
+  function replace_multiline_comments(a_source dbms_preprocessor.source_lines_t)
+  return dbms_preprocessor.source_lines_t;
+  
   function replace_multiline_comments(a_source clob) return clob;
 
    /**

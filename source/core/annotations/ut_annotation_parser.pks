@@ -40,5 +40,7 @@ create or replace package ut_annotation_parser authid current_user as
    */
   function parse_object_annotations(a_source clob) return ut_annotations;
 
+  function parse_object_annotations(a_source dbms_preprocessor.source_lines_t) return ut_annotations;
+
 end;
 /

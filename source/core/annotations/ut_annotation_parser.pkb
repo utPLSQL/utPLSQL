@@ -129,6 +129,78 @@ create or replace package body ut_annotation_parser as
     end loop;
   end add_procedure_annotations;
 
+  procedure add_procedure_annotations(
+    a_annotations in out nocopy ut_annotations,
+    a_source      in            dbms_preprocessor.source_lines_t,
+    a_comments    in out nocopy tt_comment_list
+  ) is
+    l_proc_comments  varchar2(32767);
+    l_proc_name      varchar2(250);
+    l_line           varchar2(32767);
+    l_in_comment_block boolean := false;
+    l_i              binary_integer;
+  begin
+    l_i := 1;
+    while l_i <= a_source.count loop
+      l_line := a_source(l_i);
+
+      -- -----------------------------------------------------------------
+      -- Comment placeholder line: start/continue accumulating a block
+      -- -----------------------------------------------------------------
+      if instr(l_line, '{COMMENT#') > 0 then
+        if l_in_comment_block then
+          l_proc_comments := l_proc_comments || l_line || chr(10);
+        else
+          l_in_comment_block := true;
+          l_proc_comments    := l_line || chr(10);
+        end if;
+        l_i := l_i + 1;
+
+      -- -----------------------------------------------------------------
+      -- Whitespace-only line: allowed between comment block and proc decl
+      -- -----------------------------------------------------------------
+      elsif l_in_comment_block and trim(replace(l_line, chr(9))) is null then
+        l_i := l_i + 1;
+
+      -- -----------------------------------------------------------------
+      -- procedure/function declaration following a comment block
+      -- -----------------------------------------------------------------
+      elsif l_in_comment_block
+            and regexp_like(l_line, '^\s*(procedure|function)\s+', 'i')
+      then
+        -- extract just the identifier name (subexpression 2)
+        l_proc_name := trim(regexp_substr(l_line
+                                        ,pattern       => '^\s*(procedure|function)\s+('||gc_regexp_identifier||')'
+                                        ,modifier      => 'i'
+                                        ,subexpression => 2));
+
+        -- pass accumulated comment placeholders + proc name to add_annotations
+        add_annotations(a_annotations, l_proc_comments, a_comments, l_proc_name);
+
+        -- reset comment block state
+        l_in_comment_block := false;
+        l_proc_comments    := null;
+
+        -- advance past proc header to the terminating ';'
+        -- the header may span multiple lines e.g. with multi-line parameter lists
+        while l_i <= a_source.count loop
+          exit when instr(a_source(l_i), ';') > 0;
+          l_i := l_i + 1;
+        end loop;
+        l_i := l_i + 1;  -- step past the ';' line itself
+
+      -- -----------------------------------------------------------------
+      -- Any other line: reset comment block accumulator
+      -- -----------------------------------------------------------------
+      else
+        l_in_comment_block := false;
+        l_proc_comments    := null;
+        l_i := l_i + 1;
+      end if;
+
+    end loop;
+  end add_procedure_annotations;
+
   function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
     l_comments         tt_comment_list;
     l_comment_pos      binary_integer;
@@ -175,13 +247,87 @@ create or replace package body ut_annotation_parser as
 
     end loop;
 
-    ut_utils.debug_log(a_source);
+    return l_comments;
+  end extract_and_replace_comments;
+
+  function extract_and_replace_comments(
+    a_source in out nocopy dbms_preprocessor.source_lines_t
+  ) return tt_comment_list is
+    l_comments        tt_comment_list;
+    l_line            varchar2(32767);
+    l_comment_pos     binary_integer;
+    l_comment_replacer varchar2(50);
+  begin
+    for i in 1 .. a_source.count loop
+      l_line := a_source(i);
+
+      -- fast path: skip lines that can't possibly match
+      -- must contain '--' and '%' to be an annotation comment
+      if instr(l_line, '--') = 0 or instr(l_line, gc_annotation_qualifier) = 0 then
+        continue;
+      end if;
+
+      -- find '--' on the line
+      l_comment_pos := instr(l_line, '--');
+
+      -- verify everything before '--' is only spaces/tabs (matches ^ *( |\t)*--)
+      if trim(replace(substr(l_line, 1, l_comment_pos - 1), chr(9))) is not null then
+        continue;
+      end if;
+
+      -- skip '--' and any spaces after it, then check for annotation qualifier '%'
+      l_comment_pos := l_comment_pos + 2;
+      -- skip optional spaces between -- and %
+      while l_comment_pos <= length(l_line)
+        and substr(l_line, l_comment_pos, 1) = ' '
+      loop
+        l_comment_pos := l_comment_pos + 1;
+      end loop;
+
+      -- must start with annotation qualifier at this position
+      if substr(l_line, l_comment_pos, 1) != gc_annotation_qualifier then
+        continue;
+      end if;
+
+      -- extract annotation text (from % to end of line, trimmed)
+      l_comments(i) := trim(substr(l_line, l_comment_pos));
+
+      -- replace line with placeholder, preserving line number in token
+      l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', i);
+      a_source(i) := l_comment_replacer;
+
+    end loop;
+
     return l_comments;
   end extract_and_replace_comments;
 
   ------------------------------------------------------------
   --public definitions
   ------------------------------------------------------------
+  function parse_object_annotations(a_source dbms_preprocessor.source_lines_t) return ut_annotations is
+    l_source           dbms_preprocessor.source_lines_t := a_source;
+    l_comments         tt_comment_list;
+    l_annotations      ut_annotations := ut_annotations();
+    l_result           ut_annotations;
+    l_comment_index    positive;
+  begin
+    l_source := ut_utils.replace_multiline_comments(l_source);
+    l_comments := extract_and_replace_comments(l_source);
+    add_procedure_annotations(l_annotations, l_source, l_comments);
+    delete_processed_comments(l_comments, l_annotations);
+
+    --at this point, only the comments not related to procedures are left, so we process them all as top-level
+    l_comment_index := l_comments.first;
+    while l_comment_index is not null loop
+      add_annotation( l_annotations, l_comment_index, l_comments( l_comment_index ) );
+      l_comment_index := l_comments.next(l_comment_index);
+    end loop;
+
+    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
+
+    return l_result;
+
+  end parse_object_annotations;
 
   function parse_object_annotations(a_source clob) return ut_annotations is
     l_source           clob := a_source;
@@ -217,7 +363,7 @@ create or replace package body ut_annotation_parser as
 
   function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t, a_object_type varchar2) return ut_annotations is
     l_processed_lines dbms_preprocessor.source_lines_t;
-    l_source          clob;
+    l_source          dbms_preprocessor.source_lines_t;
     l_annotations     ut_annotations := ut_annotations();
     ex_package_is_wrapped exception;
     pragma exception_init(ex_package_is_wrapped, -24241);
@@ -235,11 +381,10 @@ create or replace package body ut_annotation_parser as
         end if;
         --convert to clob
         for i in 1..l_processed_lines.count loop
-          ut_utils.append_to_clob(l_source, replace(l_processed_lines(i), chr(13)||chr(10), chr(10)));
+          l_source(i) := replace(l_processed_lines(i), chr(13)||chr(10), chr(10));
         end loop;
         --parse annotations
         l_annotations := parse_object_annotations(l_source);
-        dbms_lob.freetemporary(l_source);
       exception
         when ex_package_is_wrapped or source_text_is_empty then
           null;
