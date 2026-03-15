@@ -725,9 +725,9 @@ create or replace package body ut_utils is
       <<scan_line>>
       loop
         exit when l_remaining is null or l_remaining = '';
-        l_ml_start      := instr(l_remaining, '/*');
+        l_ml_start := instr(l_remaining, '/*');
         l_comment_start := instr(l_remaining, '--');
-        l_text_start    := instr(l_remaining, '''');
+        l_text_start := instr(l_remaining, '''');
         -- q' always puts ' at l_text_start; just check the char immediately before it
         l_eq_text_start := case
           when l_text_start > 1 and substr(l_remaining, l_text_start - 1, 1) = 'q'
@@ -736,9 +736,9 @@ create or replace package body ut_utils is
         end;
         -- Sentinel gc_max_plsql_source_len means "not present"; 32767 is beyond any VARCHAR2 position
         l_pos := least(
-          case when l_ml_start      > 0 then l_ml_start      else gc_max_plsql_source_len end,
+          case when l_ml_start > 0 then l_ml_start else gc_max_plsql_source_len end,
           case when l_comment_start > 0 then l_comment_start else gc_max_plsql_source_len end,
-          case when l_text_start    > 0 then l_text_start    else gc_max_plsql_source_len end,
+          case when l_text_start > 0 then l_text_start else gc_max_plsql_source_len end,
           case when l_eq_text_start > 0 then l_eq_text_start else gc_max_plsql_source_len end
         );
 
@@ -747,7 +747,7 @@ create or replace package body ut_utils is
           exit scan_line;
         end if;
 
-        l_line      := l_line || substr(l_remaining, 1, l_pos - 1);
+        l_line := l_line || substr(l_remaining, 1, l_pos - 1);
         l_remaining := substr(l_remaining, l_pos);
         -- l_remaining now starts exactly at the token; all branch offsets below are relative to 1
         if l_pos = l_eq_text_start then
@@ -755,7 +755,7 @@ create or replace package body ut_utils is
           l_eq_end_char := translate(substr(l_remaining, 3, 1), gc_open_chars, gc_close_chars);
           l_end := instr(l_remaining, l_eq_end_char || '''', 4);
           if l_end > 0 then
-            l_line      := l_line || substr(l_remaining, 1, l_end + 1);
+            l_line := l_line || substr(l_remaining, 1, l_end + 1);
             l_remaining := substr(l_remaining, l_end + 2);
           else
             l_line := l_line || l_remaining;
@@ -792,7 +792,7 @@ create or replace package body ut_utils is
           end loop;
 
           if l_end > 0 then
-            l_line      := l_line || substr(l_remaining, 1, l_end);
+            l_line := l_line || substr(l_remaining, 1, l_end);
             l_remaining := substr(l_remaining, l_end + 1);
           else
             l_line := l_line || l_remaining;
