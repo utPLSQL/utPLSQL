@@ -1,0 +1,90 @@
+title: "[Release] v"
+labels: ["release-planning"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Release planning discussion
+        Use this template to discuss the scope of an upcoming release:
+        what goes in, what gets deferred, and what the acceptance criteria are.
+
+        **Maintainers:** pin this discussion and link it from the corresponding GitHub Milestone.
+
+  - type: input
+    id: version
+    attributes:
+      label: Target version
+      placeholder: "e.g. 3.2.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: release_type
+    attributes:
+      label: Release type
+      options:
+        - Major (breaking changes)
+        - Minor (new features, backward-compatible)
+        - Patch (bug fixes only)
+    validations:
+      required: true
+
+  - type: textarea
+    id: goals
+    attributes:
+      label: Release goals
+      description: What are the 2–4 key things this release should achieve?
+      placeholder: |
+        1. 
+        2. 
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope_in
+    attributes:
+      label: In scope (proposed issues / PRs)
+      description: |
+        Link the GitHub Issues and PRs targeted for this release.
+        Use the format: `- [ ] #123 — short description`
+      placeholder: |
+        - [ ] #123 — ...
+        - [ ] #456 — ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope_out
+    attributes:
+      label: Out of scope / explicitly deferred
+      description: Issues that were considered but will not be included — and why.
+    validations:
+      required: false
+
+  - type: input
+    id: target_date
+    attributes:
+      label: Target release date (approximate)
+      placeholder: "e.g. 2025-Q2"
+    validations:
+      required: false
+
+  - type: textarea
+    id: oracle_matrix
+    attributes:
+      label: Oracle version test matrix
+      description: Which Oracle versions must pass CI before this release ships?
+      placeholder: |
+        - [ ] Oracle 19c
+        - [ ] Oracle 21c
+        - [ ] Oracle 23ai
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+    validations:
+      required: false

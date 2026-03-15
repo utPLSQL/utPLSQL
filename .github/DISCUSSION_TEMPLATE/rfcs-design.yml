@@ -1,0 +1,88 @@
+title: "[RFC] "
+labels: ["rfc", "design"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Request for Comments — design proposal
+        Use this template to propose a new feature, a change to existing behaviour, or a significant refactoring.
+        Once there is consensus and a clear scope, a maintainer will convert this discussion into one or more GitHub Issues.
+
+        **Before posting:** search existing RFCs and open issues to avoid duplicates.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence — what are you proposing?
+      placeholder: "Add support for ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What problem does this solve? Who is affected and how often?
+      placeholder: |
+        Currently, when ... it is not possible to ...
+        This forces users to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the solution in as much detail as you have. Pseudo-code, SQL, or PL/SQL snippets are welcome.
+      placeholder: |
+        ```sql
+        -- example of the proposed API
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you look at? Why did you rule them out?
+    validations:
+      required: false
+
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking-change impact
+      description: |
+        Does this change affect existing annotations, package APIs, or test output formats?
+        List affected public symbols (ut_runner, ut, annotations, reporters …).
+    validations:
+      required: false
+
+  - type: dropdown
+    id: oracle_versions
+    attributes:
+      label: Oracle version relevance
+      description: Which Oracle versions does this apply to?
+      multiple: true
+      options:
+        - All supported versions
+        - Oracle 11g
+        - Oracle 12c
+        - Oracle 18c
+        - Oracle 19c
+        - Oracle 21c
+        - Oracle 23c / 23ai
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing discussions and issues for duplicates
+          required: true
+        - label: I am willing to help implement or review this feature
+          required: false

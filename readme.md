@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![Download statistics](https://img.shields.io/github/downloads/utPLSQL/utPLSQL/total.svg)](http://gra.caldis.me/?url=https://github.com/utPLSQL/utPLSQL)
-[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww)
+[![GitHub Discussions](https://img.shields.io/github/discussions/utPLSQL/utPLSQL)](https://github.com/utPLSQL/utPLSQL/discussions)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
@@ -161,8 +161,7 @@ Finished in .036027 seconds
 We welcome new developers to join our community and contribute to the utPLSQL project.
 If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 The best place to start is to read the documentation and get familiar with the existing code base.
-A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
-To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww).
+[Github discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to go if you want to talk with team members.
 
 
 ----------
@@ -182,8 +181,6 @@ __Project Directories__
 * tests - Tests for utPLSQL framework
 
 ----------
-
-If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [slack chat rooms](https://utplsql.slack.com/). Use [invite link](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww) to join the chat.  
 
 
 # Version 2 to Version 3 Comparison

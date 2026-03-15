@@ -20,7 +20,7 @@ Many thanks to all the [contributors](https://github.com/utPLSQL/utPLSQL/graphs/
 
 ### Special thanks to prior major contributors
 
-- Steven Feuerstein - Original Author
+- Steven Feuerstein - Original Author of utPLSQL v1 and v2
 - Chris Rimmer
 - Patrick Barel
 - Paul Walker
