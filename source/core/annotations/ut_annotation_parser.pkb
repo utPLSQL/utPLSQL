@@ -143,20 +143,16 @@ create or replace package body ut_annotation_parser as
     l_i := 1;
     while l_i <= a_source.count loop
       l_line := a_source(l_i);
-
-      -- -----------------------------------------------------------------
       -- Comment placeholder line: start/continue accumulating a block
-      -- -----------------------------------------------------------------
-      if instr(l_line, '{COMMENT#') > 0 then
+      if instr(l_line, chr(123) ||'COMMENT#') > 0 then
         if l_in_comment_block then
           l_proc_comments := l_proc_comments || l_line || chr(10);
         else
           l_in_comment_block := true;
-          l_proc_comments    := l_line || chr(10);
+          l_proc_comments := l_line || chr(10);
         end if;
         l_i := l_i + 1;
 
-      -- -----------------------------------------------------------------
       -- Whitespace-only line: allowed between comment block and proc decl
       -- -----------------------------------------------------------------
       elsif l_in_comment_block and trim(replace(l_line, chr(9))) is null then
