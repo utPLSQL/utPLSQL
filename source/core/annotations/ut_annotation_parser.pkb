@@ -160,7 +160,7 @@ create or replace package body ut_annotation_parser as
             and regexp_like(l_line, '^\s*(procedure|function)\s+', 'i')
       then
         -- extract just the identifier name (subexpression 2)
-        l_proc_name := trim(regexp_substr(l_line
+        l_proc_name := trim(regexp_substr(srcstr       =>l_line
                                         ,pattern       => '^\s*(procedure|function)\s+('||gc_regexp_identifier||')'
                                         ,modifier      => 'i'
                                         ,subexpression => 2));
@@ -310,7 +310,7 @@ create or replace package body ut_annotation_parser as
       l_comment_index := l_comments.next(l_comment_index);
     end loop;
 
-    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
+    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position asc;
 
     return l_result;
 
