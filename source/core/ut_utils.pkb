@@ -769,6 +769,10 @@ create or replace package body ut_utils is
             l_remaining := substr(l_remaining, l_ml_end + 2);
           else
             l_in_ml_comment := true;
+            -- preserve trailing newline if present — it belongs to this line, not the comment
+            if substr(l_remaining, -1) = chr(10) then
+              l_line := l_line || chr(10);
+            end if;            
             exit scan_line;
           end if;
 
