@@ -20,7 +20,7 @@ create or replace package test_annotation_parser is
   --%test(Ignores content of multi-line comments)
   procedure ignore_annotations_in_comments;
 
-  --%test(Ignores wrapped package and does not raise exception)
+  -- %test(ignore wrapped package source)
   procedure ignore_wrapped_package;
 
   --%test(Parses package level annotations with annotation params containing brackets)
@@ -32,7 +32,7 @@ create or replace package test_annotation_parser is
   -- %test(Parses source-code with Windows-style newline)
   procedure test_windows_newline;
 
-  -- %test(Parses annotations with very long object names)
+  -- %test(parse annotations with very long procedure name)
   procedure test_annot_very_long_name;
 
   -- %test(Parses upper case annotations)
