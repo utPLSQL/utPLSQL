@@ -4,6 +4,8 @@ set -ev
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
+export NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+
 time utPLSQL-cli/bin/utplsql run UT3_TESTER_HELPER/ut3@//${CONNECTION_STR} -D \
 -source_path=source -owner=ut3_develop \
 -p='ut3_tester,ut3_user' \
