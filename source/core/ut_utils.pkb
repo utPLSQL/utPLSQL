@@ -23,8 +23,8 @@ create or replace package body ut_utils is
   gc_invalid_xml_char        constant varchar2(50)  := '[^_[:alnum:]\.-]';
   gc_full_valid_xml_name     constant varchar2(50)  := '^([[:alpha:]])([_[:alnum:]\.-])*$';
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
-  gc_open_chars  constant varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{(
-  gc_close_chars constant varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})>     
+  gc_open_chars  constant varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{( this has very specific purpose to not confuse lexer in IDE
+  gc_close_chars constant varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})> this has very specific purpose to not confuse lexer in IDE
   gc_max_plsql_source_len constant integer := 32767;
 
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is

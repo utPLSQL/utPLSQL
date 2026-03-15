@@ -73,7 +73,16 @@ create or replace package test_annotation_parser is
   procedure test_windows_newline_lines;
   --%test(parse annotations with very long procedure name using source lines overload)
   procedure test_annot_very_long_name_lines;
-
+  --%test(Procedure header spanning multiple lines is handled correctly)
+  procedure test_multiline_proc_header_lines;
+  --%test(Non-comment line between annotation and procedure resets association)
+  procedure test_non_comment_line_resets_block_lines;
+  --%test(Comment with non-whitespace before dashes is not treated as annotation)
+  procedure test_annotation_not_at_line_start_ignored_lines;
+  --%test(Spaces between dashes and annotation qualifier are skipped correctly)
+  procedure test_space_between_dashes_and_qualifier_lines;
+  --%test(Percent sign not immediately after dashes is not treated as annotation)
+  procedure test_percent_not_after_dashes_ignored_lines;
 
 end test_annotation_parser;
 /

@@ -72,16 +72,17 @@ create or replace package body ut_annotation_parser as
     a_subobject_name varchar2 := null
   ) is
     l_loop_index       binary_integer := 1;
-    l_annotation_index binary_integer;
+    l_annotation_index binary_integer := 1;
   begin
 
     -- loop while there are unprocessed comment blocks
-    loop
+    while l_annotation_index is not null loop
       -- define index of the comment block and get it's content from cache
       l_annotation_index := regexp_substr( a_source ,gc_comment_replacer_regex_ptrn ,1 ,l_loop_index ,subexpression => 1);
-      exit when l_annotation_index is null;
-      add_annotation( a_annotations, l_annotation_index, a_comments( l_annotation_index ), a_subobject_name );
-      l_loop_index := l_loop_index + 1;
+      if l_annotation_index is not null then
+        add_annotation( a_annotations, l_annotation_index, a_comments( l_annotation_index ), a_subobject_name );
+        l_loop_index := l_loop_index + 1;
+      end if;
     end loop;
 
   end add_annotations;
@@ -343,7 +344,7 @@ create or replace package body ut_annotation_parser as
 
     dbms_lob.freetemporary(l_source);
 
-    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
+    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position asc;
 
     return l_result;
   end parse_object_annotations;

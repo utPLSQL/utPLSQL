@@ -919,5 +919,150 @@ procedure test_windows_newline_lines
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
+  procedure test_multiline_proc_header_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- procedure header spans multiple lines before terminating ;
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'                        || chr(10),
+      '    -- %suite'                             || chr(10),
+      ''                                          || chr(10),
+      '    --%test'                               || chr(10),
+      '    procedure foo('                        || chr(10),
+      '      a_param1 varchar2'                   || chr(10),
+      '     ,a_param2 number default null'        || chr(10),
+      '    );'                                    || chr(10),
+      '  END;'                                    || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 4, 'test', null, 'foo' )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+  procedure test_non_comment_line_resets_block_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- a non-comment non-proc line between annotation and procedure breaks the association
+    -- %test becomes a floating top-level annotation with no subobject
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'             || chr(10),
+      '    -- %suite'                  || chr(10),
+      ''                               || chr(10),
+      '    --%test'                    || chr(10),
+      '    pragma serially_reusable;'  || chr(10),  -- resets accumulator
+      '    procedure foo;'             || chr(10),
+      '  END;'                         || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    -- %test is NOT associated with foo — accumulator was reset by pragma line
+    -- it surfaces as a top-level annotation with no subobject_name
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 4, 'test', null, null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+  procedure test_annotation_not_at_line_start_ignored_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- % appears in line but comment is not at start of line — should be ignored
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'                    || chr(10),
+      '    -- %suite'                         || chr(10),
+      '    x := ''value%with%percent'';'      || chr(10),  -- % present but -- not at line start
+      '    procedure foo;'                    || chr(10),
+      '  END;'                                || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+ procedure test_space_between_dashes_and_qualifier_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- spaces between -- and % are skipped and annotation is still recognised
+    -- annotations are not adjacent to a procedure so they are top-level
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'              || chr(10),
+      '    --   %suite'                 || chr(10),  -- multiple spaces between -- and %
+      '    --   %displayname(my suite)' || chr(10),
+      ''                                || chr(10),  -- blank line breaks association with foo
+      '    procedure foo;'              || chr(10),
+      '  END;'                          || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 3, 'displayname', 'my suite', null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+  procedure test_percent_not_after_dashes_ignored_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- -- present and % present on line but % is not immediately after --
+    -- e.g. a regular comment that happens to mention 100%
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'                      || chr(10),
+      '    -- %suite'                           || chr(10),
+      '    -- coverage is 100% on this module'  || chr(10),  -- % after text, not annotation
+      '    procedure foo;'                      || chr(10),
+      '  END;'                                  || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
 end test_annotation_parser;
 /
