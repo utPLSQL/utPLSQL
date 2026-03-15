@@ -675,14 +675,13 @@ create or replace package body ut_utils is
     l_eq_end_char     varchar2(1 char);
     l_pos             binary_integer;
     l_end             binary_integer;
-    l_token_count     binary_integer;
-    l_has_ml_comment  boolean := false;  
+    l_has_ml_comment  boolean := false;
   begin
     if a_source.count = 0 then
       return a_source;
     end if;
 
-    -- Fast pre-scan: check if any /* exists at all if not, nothing to do — return source as-is
+    -- Fast pre-scan to check for presence of multi-line comments; if none, return original source unmodified
     for i in 1 .. a_source.count loop
       if instr(a_source(i), '/*') > 0 then
         l_has_ml_comment := true;
@@ -697,20 +696,20 @@ create or replace package body ut_utils is
     for i in 1 .. a_source.count loop
       l_line := a_source(i);
 
-      -- Fast path: currently inside a multi-line comment, look only for closing */
+      -- Fast path: inside multi-line comment
       if l_in_ml_comment then
         l_ml_end := instr(l_line, '*/');
         if l_ml_end > 0 then
           l_in_ml_comment := false;
           l_line := substr(l_line, l_ml_end + 2);
-          -- fall through to normal scan of remainder of line, in case there are more /* comments on the same line
+          -- fall through to normal scan
         else
           l_result(i) := '';
           continue;
         end if;
       end if;
 
-      -- Fast path: no special tokens on this line at all, just copy it to result and move on
+      -- Fast path: no special tokens on this line
       if instr(l_line, '/') = 0
         and instr(l_line, '-') = 0
         and instr(l_line, '''') = 0
@@ -719,7 +718,7 @@ create or replace package body ut_utils is
         continue;
       end if;
 
-      -- Normal scan: consume one token at a time, advance l_remaining until end of line
+      -- Normal scan
       l_remaining := l_line;
       l_line      := null;
 
@@ -729,83 +728,71 @@ create or replace package body ut_utils is
         l_ml_start      := instr(l_remaining, '/*');
         l_comment_start := instr(l_remaining, '--');
         l_text_start    := instr(l_remaining, '''');
-        -- only search for q' if ' was found — q' always contains ' and would be misidentified otherwise
-        l_eq_text_start := case when l_text_start > 0 then instr(l_remaining, 'q''') else 0 end;
-        -- count how many tokens are present to decide if we can skip LEAST/GREATEST and just use the one that is present
-        l_token_count := sign(l_ml_start) + sign(l_comment_start)
-                      + sign(l_text_start) + sign(l_eq_text_start);
+        -- q' always puts ' at l_text_start; just check the char immediately before it
+        l_eq_text_start := case
+          when l_text_start > 1 and substr(l_remaining, l_text_start - 1, 1) = 'q'
+          then l_text_start - 1
+          else 0
+        end;
+        -- Sentinel gc_max_plsql_source_len means "not present"; 32767 is beyond any VARCHAR2 position
+        l_pos := least(
+          case when l_ml_start      > 0 then l_ml_start      else gc_max_plsql_source_len end,
+          case when l_comment_start > 0 then l_comment_start else gc_max_plsql_source_len end,
+          case when l_text_start    > 0 then l_text_start    else gc_max_plsql_source_len end,
+          case when l_eq_text_start > 0 then l_eq_text_start else gc_max_plsql_source_len end
+        );
 
-        -- no special tokens left — consume remainder and stop scanning this line
-        if l_token_count = 0 then
+        if l_pos = gc_max_plsql_source_len then
           l_line := l_line || l_remaining;
           exit scan_line;
         end if;
 
-        -- only one token present — skip LEAST, use GREATEST to find it since 0 means not present and any positive value is a valid position
-        if l_token_count = 1 then
-          l_pos := greatest(l_ml_start, l_comment_start, l_text_start, l_eq_text_start);
-        else
-          l_pos := least(
-            case when l_ml_start > 0 then l_ml_start else gc_max_plsql_source_len end,
-            case when l_comment_start > 0 then l_comment_start else gc_max_plsql_source_len end,
-            case when l_text_start > 0 then l_text_start else gc_max_plsql_source_len end,
-            case when l_eq_text_start > 0 then l_eq_text_start else gc_max_plsql_source_len end
-          );
-        end if;
-
-        -- q-quoted string: checked before plain quote because q' contains ' and would be misidentified
-        if l_pos = l_eq_text_start
-          and (l_ml_start = 0 or l_eq_text_start < l_ml_start)
-          and (l_comment_start = 0 or l_eq_text_start < l_comment_start)
-          and (l_text_start = 0 or l_eq_text_start < l_text_start)
-        then
-          l_eq_end_char := translate(substr(l_remaining, l_eq_text_start + 2, 1),gc_open_chars,gc_close_chars);        
-          l_end := instr(l_remaining, l_eq_end_char || '''', l_eq_text_start + 3);
+        l_line      := l_line || substr(l_remaining, 1, l_pos - 1);
+        l_remaining := substr(l_remaining, l_pos);
+        -- l_remaining now starts exactly at the token; all branch offsets below are relative to 1
+        if l_pos = l_eq_text_start then
+          -- q-quoted string: l_remaining starts at 'q', delimiter is at position 3
+          l_eq_end_char := translate(substr(l_remaining, 3, 1), gc_open_chars, gc_close_chars);
+          l_end := instr(l_remaining, l_eq_end_char || '''', 4);
           if l_end > 0 then
-            l_line := l_line || substr(l_remaining, 1, l_end + 1);
+            l_line      := l_line || substr(l_remaining, 1, l_end + 1);
             l_remaining := substr(l_remaining, l_end + 2);
           else
             l_line := l_line || l_remaining;
             exit scan_line;
           end if;
-        -- Multi-line comment start: skip it, look for end of comment, continue scanning line after it
-        elsif l_pos = l_ml_start
-              and (l_comment_start = 0 or l_ml_start < l_comment_start)
-              and (l_text_start = 0 or l_ml_start < l_text_start)
-              and (l_eq_text_start = 0 or l_ml_start < l_eq_text_start)
-        then
-          l_line := l_line || substr(l_remaining, 1, l_ml_start - 1);
-          l_ml_end := instr(l_remaining, '*/', l_ml_start + 2);
+
+        elsif l_pos = l_ml_start then
+          -- Multi-line comment: l_remaining starts at '/*', so end search starts at 3
+          l_ml_end := instr(l_remaining, '*/', 3);
           if l_ml_end > 0 then
             l_remaining := substr(l_remaining, l_ml_end + 2);
           else
             l_in_ml_comment := true;
             exit scan_line;
           end if;
-        -- Single-line comment: keep it, stop scanning this line since everything after -- is comment anyway
-        elsif l_pos = l_comment_start
-              and (l_ml_start = 0 or l_comment_start < l_ml_start)
-              and (l_text_start = 0 or l_comment_start < l_text_start)
-              and (l_eq_text_start = 0 or l_comment_start < l_eq_text_start)
-        then
+
+        elsif l_pos = l_comment_start then
+          -- Single-line comment: everything from here is comment, keep and stop
           l_line := l_line || l_remaining;
           exit scan_line;
-        -- Regular string literal start: keep it, scan forward for closing quote, handle '' escaped quotes properly by skipping them and keep scanning
+
         else
-          -- scan forward continuously to handle '' escaped quotes
-          l_end := l_text_start + 1;
+          -- Regular string literal: l_remaining starts at the opening quote
+          -- scan from position 2 to skip the opening quote
+          l_end := 2;
           loop
             l_end := instr(l_remaining, '''', l_end);
             exit when l_end = 0;
             if substr(l_remaining, l_end, 2) = '''''' then
-              l_end := l_end + 2;  -- skip escaped quote, keep scanning
+              l_end := l_end + 2;  -- skip escaped quote pair
             else
-              exit;                -- found real closing quote
+              exit;                -- real closing quote
             end if;
           end loop;
 
           if l_end > 0 then
-            l_line := l_line || substr(l_remaining, 1, l_end);
+            l_line      := l_line || substr(l_remaining, 1, l_end);
             l_remaining := substr(l_remaining, l_end + 1);
           else
             l_line := l_line || l_remaining;
@@ -814,8 +801,10 @@ create or replace package body ut_utils is
 
         end if;
       end loop scan_line;
+
       l_result(i) := l_line;
     end loop;
+
     return l_result;
   end replace_multiline_comments;
 
