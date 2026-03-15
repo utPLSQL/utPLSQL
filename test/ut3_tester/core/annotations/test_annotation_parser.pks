@@ -69,6 +69,11 @@ create or replace package test_annotation_parser is
   procedure test_rmc_multiple_ml_comments_one_line;
   -- %test(comment markers after string with slash handled correctly)
   procedure test_rmc_comment_after_string_with_slash;
+  --%test(Parses source-code with Windows-style newline using source lines overload)
+  procedure test_windows_newline_lines;
+  --%test(parse annotations with very long procedure name using source lines overload)
+  procedure test_annot_very_long_name_lines;
+
 
 end test_annotation_parser;
 /

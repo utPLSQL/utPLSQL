@@ -859,5 +859,65 @@ END;';
     ut.expect(l_result(1)).to_equal('v := ''a/b''; -- this is /* not */ a ml comment' || chr(10));
   end;
 
+procedure test_windows_newline_lines
+  as
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE test_tt AS'                                          || chr(10),
+      '        -- %suite'                                           || chr(10),
+      '        -- %displayname(Name of suite)'  || chr(13) || chr(10),
+      '  -- %suitepath(all.globaltests)'                            || chr(10),
+      '      END;'                                                  || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
+      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+  procedure test_annot_very_long_name_lines
+  as
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    l_source := make_source(ut_varchar2_list(
+      'PACKAGE very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it AS' || chr(10),
+      '      -- %suite'                                                                                                                             || chr(10),
+      '      -- %displayname(Name of suite)'                                                                                                        || chr(10),
+      '      -- %suitepath(all.globaltests)'                                                                                                        || chr(10),
+      ''                                                                                                                                            || chr(10),
+      '      --%test'                                                                                                                               || chr(10),
+      '      procedure very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it;' || chr(10),
+      '    END;'                                                                                                                                    || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
+      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null ),
+      ut3_develop.ut_annotation( 6, 'test', null, 'very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it' )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
 end test_annotation_parser;
 /
