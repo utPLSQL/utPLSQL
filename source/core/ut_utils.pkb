@@ -25,7 +25,8 @@ create or replace package body ut_utils is
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
   gc_open_chars  constant varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{(
   gc_close_chars constant varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})>     
-  
+  gc_max_plsql_source_len constant integer := 32767;
+
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
     return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
@@ -677,8 +678,6 @@ create or replace package body ut_utils is
     l_token_count     binary_integer;
     l_has_ml_comment  boolean := false;  
   begin
-
-    -- Guard: empty source
     if a_source.count = 0 then
       return a_source;
     end if;
@@ -747,10 +746,10 @@ create or replace package body ut_utils is
           l_pos := greatest(l_ml_start, l_comment_start, l_text_start, l_eq_text_start);
         else
           l_pos := least(
-            case when l_ml_start > 0 then l_ml_start else 32767 end,
-            case when l_comment_start > 0 then l_comment_start else 32767 end,
-            case when l_text_start > 0 then l_text_start else 32767 end,
-            case when l_eq_text_start > 0 then l_eq_text_start else 32767 end
+            case when l_ml_start > 0 then l_ml_start else gc_max_plsql_source_len end,
+            case when l_comment_start > 0 then l_comment_start else gc_max_plsql_source_len end,
+            case when l_text_start > 0 then l_text_start else gc_max_plsql_source_len end,
+            case when l_eq_text_start > 0 then l_eq_text_start else gc_max_plsql_source_len end
           );
         end if;
 
