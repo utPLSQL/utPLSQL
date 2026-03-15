@@ -895,7 +895,7 @@ create or replace package body ut_utils is
               and (l_escaped_text_start < l_comment_start or l_comment_start = 0) and (l_escaped_text_start < l_text_start or l_text_start = 0)
         then
           --translate char "[" from the start of quoted text  "q'[someting]'" into "]"
-          l_escaped_text_end_char := translate( substr(a_source, l_escaped_text_start + 2, 1), '[{(<', ']})>');
+          l_escaped_text_end_char := translate(substr(a_source, l_escaped_text_start + 2, 1),l_open_chars,l_close_chars);
           l_end := instr(a_source,l_escaped_text_end_char||'''',l_escaped_text_start + 3 );
           if l_end > 0 then
             l_end := l_end + 2;
