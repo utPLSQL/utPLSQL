@@ -856,11 +856,22 @@ create or replace package body run_helper is
         procedure some_test;
 
       end;]';
+    execute immediate q'[
+      create or replace package ut3_develop.package_that_is_not_a_test
+      as
+        --%parameter(a comment inside)
+        --%parameters( description )
+
+        --%test
+        procedure some_test;
+
+      end;]';
   end;
 
   procedure drop_ut3_suite is
     pragma autonomous_transaction;
   begin
+    execute immediate q'[drop package ut3_develop.package_that_is_not_a_test]';
     execute immediate q'[drop package ut3_develop.some_test_package]';
   end;
   

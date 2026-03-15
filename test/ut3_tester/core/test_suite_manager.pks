@@ -163,7 +163,7 @@ create or replace package test_suite_manager is
 
   --%context(get_schema_ut_packages)
 
-  --%test(returns list of all unit test packages in given schema)
+  --%test(returns list of all unit test packages in given schema excluding packages that are not suites)
   --%beforetest(create_ut3_suite)
   --%aftertest(drop_ut3_suite)
   procedure test_get_schema_ut_packages;
