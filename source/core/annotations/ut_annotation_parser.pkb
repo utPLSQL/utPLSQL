@@ -152,15 +152,10 @@ create or replace package body ut_annotation_parser as
           l_proc_comments := l_line || chr(10);
         end if;
         l_i := l_i + 1;
-
       -- Whitespace-only line: allowed between comment block and proc decl
-      -- -----------------------------------------------------------------
       elsif l_in_comment_block and trim(replace(l_line, chr(9))) is null then
         l_i := l_i + 1;
-
-      -- -----------------------------------------------------------------
       -- procedure/function declaration following a comment block
-      -- -----------------------------------------------------------------
       elsif l_in_comment_block
             and regexp_like(l_line, '^\s*(procedure|function)\s+', 'i')
       then
@@ -184,16 +179,12 @@ create or replace package body ut_annotation_parser as
           l_i := l_i + 1;
         end loop;
         l_i := l_i + 1;  -- step past the ';' line itself
-
-      -- -----------------------------------------------------------------
       -- Any other line: reset comment block accumulator
-      -- -----------------------------------------------------------------
       else
         l_in_comment_block := false;
-        l_proc_comments    := null;
+        l_proc_comments := null;
         l_i := l_i + 1;
       end if;
-
     end loop;
   end add_procedure_annotations;
 

@@ -675,6 +675,9 @@ create or replace package body ut_utils is
     l_end             binary_integer;
     l_token_count     binary_integer;
     l_has_ml_comment  boolean := false;
+
+    l_open_chars  varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{(
+    l_close_chars varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})>    
   begin
 
     -- Guard: empty source
@@ -766,10 +769,9 @@ create or replace package body ut_utils is
           and (l_comment_start = 0 or l_eq_text_start < l_comment_start)
           and (l_text_start    = 0 or l_eq_text_start < l_text_start)
         then
-          l_eq_end_char := translate(
-            substr(l_remaining, l_eq_text_start + 2, 1),
-            '[{(<', ']})>'
-          );
+
+
+          l_eq_end_char := translate(substr(l_remaining, l_eq_text_start + 2, 1),l_open_chars,l_close_chars);        
           l_end := instr(l_remaining, l_eq_end_char || '''', l_eq_text_start + 3);
           if l_end > 0 then
             l_line      := l_line || substr(l_remaining, 1, l_end + 1);
