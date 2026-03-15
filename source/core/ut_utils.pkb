@@ -23,7 +23,8 @@ create or replace package body ut_utils is
   gc_invalid_xml_char        constant varchar2(50)  := '[^_[:alnum:]\.-]';
   gc_full_valid_xml_name     constant varchar2(50)  := '^([[:alpha:]])([_[:alnum:]\.-])*$';
   gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
-
+  gc_open_chars  constant varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{(
+  gc_close_chars constant varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})>     
   
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
@@ -674,10 +675,7 @@ create or replace package body ut_utils is
     l_pos             binary_integer;
     l_end             binary_integer;
     l_token_count     binary_integer;
-    l_has_ml_comment  boolean := false;
-
-    l_open_chars  varchar2(4):= chr(91) || chr(123) || chr(40) || chr(60);  -- [{(
-    l_close_chars varchar2(4):= chr(93) || chr(125) || chr(41) || chr(62);  -- ]})>    
+    l_has_ml_comment  boolean := false;  
   begin
 
     -- Guard: empty source
@@ -686,19 +684,17 @@ create or replace package body ut_utils is
     end if;
 
     -- Fast pre-scan: check if any /* exists at all if not, nothing to do — return source as-is
-    <<prescan>>
     for i in 1 .. a_source.count loop
       if instr(a_source(i), '/*') > 0 then
         l_has_ml_comment := true;
-        exit prescan;
+        exit;
       end if;
-    end loop prescan;
+    end loop;
 
     if not l_has_ml_comment then
       return a_source;
     end if;
 
-    <<process_lines>>
     for i in 1 .. a_source.count loop
       l_line := a_source(i);
 
@@ -711,7 +707,7 @@ create or replace package body ut_utils is
           -- fall through to normal scan of remainder of line, in case there are more /* comments on the same line
         else
           l_result(i) := '';
-          continue process_lines;
+          continue;
         end if;
       end if;
 
@@ -721,7 +717,7 @@ create or replace package body ut_utils is
         and instr(l_line, '''') = 0
       then
         l_result(i) := l_line;
-        continue process_lines;
+        continue;
       end if;
 
       -- Normal scan: consume one token at a time, advance l_remaining until end of line
@@ -731,16 +727,11 @@ create or replace package body ut_utils is
       <<scan_line>>
       loop
         exit when l_remaining is null or l_remaining = '';
-
         l_ml_start      := instr(l_remaining, '/*');
         l_comment_start := instr(l_remaining, '--');
         l_text_start    := instr(l_remaining, '''');
         -- only search for q' if ' was found — q' always contains ' and would be misidentified otherwise
-        l_eq_text_start := case when l_text_start > 0
-                            then instr(l_remaining, 'q''')
-                            else 0
-                          end;
-
+        l_eq_text_start := case when l_text_start > 0 then instr(l_remaining, 'q''') else 0 end;
         -- count how many tokens are present to decide if we can skip LEAST/GREATEST and just use the one that is present
         l_token_count := sign(l_ml_start) + sign(l_comment_start)
                       + sign(l_text_start) + sign(l_eq_text_start);
@@ -756,38 +747,35 @@ create or replace package body ut_utils is
           l_pos := greatest(l_ml_start, l_comment_start, l_text_start, l_eq_text_start);
         else
           l_pos := least(
-            case when l_ml_start      > 0 then l_ml_start      else 32767 end,
+            case when l_ml_start > 0 then l_ml_start else 32767 end,
             case when l_comment_start > 0 then l_comment_start else 32767 end,
-            case when l_text_start    > 0 then l_text_start    else 32767 end,
+            case when l_text_start > 0 then l_text_start else 32767 end,
             case when l_eq_text_start > 0 then l_eq_text_start else 32767 end
           );
         end if;
 
         -- q-quoted string: checked before plain quote because q' contains ' and would be misidentified
         if l_pos = l_eq_text_start
-          and (l_ml_start      = 0 or l_eq_text_start < l_ml_start)
+          and (l_ml_start = 0 or l_eq_text_start < l_ml_start)
           and (l_comment_start = 0 or l_eq_text_start < l_comment_start)
-          and (l_text_start    = 0 or l_eq_text_start < l_text_start)
+          and (l_text_start = 0 or l_eq_text_start < l_text_start)
         then
-
-
-          l_eq_end_char := translate(substr(l_remaining, l_eq_text_start + 2, 1),l_open_chars,l_close_chars);        
+          l_eq_end_char := translate(substr(l_remaining, l_eq_text_start + 2, 1),gc_open_chars,gc_close_chars);        
           l_end := instr(l_remaining, l_eq_end_char || '''', l_eq_text_start + 3);
           if l_end > 0 then
-            l_line      := l_line || substr(l_remaining, 1, l_end + 1);
+            l_line := l_line || substr(l_remaining, 1, l_end + 1);
             l_remaining := substr(l_remaining, l_end + 2);
           else
             l_line := l_line || l_remaining;
             exit scan_line;
           end if;
-
         -- Multi-line comment start: skip it, look for end of comment, continue scanning line after it
         elsif l_pos = l_ml_start
               and (l_comment_start = 0 or l_ml_start < l_comment_start)
-              and (l_text_start    = 0 or l_ml_start < l_text_start)
+              and (l_text_start = 0 or l_ml_start < l_text_start)
               and (l_eq_text_start = 0 or l_ml_start < l_eq_text_start)
         then
-          l_line   := l_line || substr(l_remaining, 1, l_ml_start - 1);
+          l_line := l_line || substr(l_remaining, 1, l_ml_start - 1);
           l_ml_end := instr(l_remaining, '*/', l_ml_start + 2);
           if l_ml_end > 0 then
             l_remaining := substr(l_remaining, l_ml_end + 2);
@@ -795,16 +783,14 @@ create or replace package body ut_utils is
             l_in_ml_comment := true;
             exit scan_line;
           end if;
-
         -- Single-line comment: keep it, stop scanning this line since everything after -- is comment anyway
         elsif l_pos = l_comment_start
-              and (l_ml_start      = 0 or l_comment_start < l_ml_start)
-              and (l_text_start    = 0 or l_comment_start < l_text_start)
+              and (l_ml_start = 0 or l_comment_start < l_ml_start)
+              and (l_text_start = 0 or l_comment_start < l_text_start)
               and (l_eq_text_start = 0 or l_comment_start < l_eq_text_start)
         then
           l_line := l_line || l_remaining;
           exit scan_line;
-
         -- Regular string literal start: keep it, scan forward for closing quote, handle '' escaped quotes properly by skipping them and keep scanning
         else
           -- scan forward continuously to handle '' escaped quotes
@@ -820,20 +806,17 @@ create or replace package body ut_utils is
           end loop;
 
           if l_end > 0 then
-            l_line      := l_line || substr(l_remaining, 1, l_end);
+            l_line := l_line || substr(l_remaining, 1, l_end);
             l_remaining := substr(l_remaining, l_end + 1);
           else
             l_line := l_line || l_remaining;
             exit scan_line;
           end if;
+
         end if;
-
       end loop scan_line;
-
       l_result(i) := l_line;
-
-    end loop process_lines;
-
+    end loop;
     return l_result;
   end replace_multiline_comments;
 
@@ -895,7 +878,7 @@ create or replace package body ut_utils is
               and (l_escaped_text_start < l_comment_start or l_comment_start = 0) and (l_escaped_text_start < l_text_start or l_text_start = 0)
         then
           --translate char "[" from the start of quoted text  "q'[someting]'" into "]"
-          l_escaped_text_end_char := translate(substr(a_source, l_escaped_text_start + 2, 1),l_open_chars,l_close_chars);
+          l_escaped_text_end_char := translate(substr(a_source, l_escaped_text_start + 2, 1),gc_open_chars,gc_close_chars);
           l_end := instr(a_source,l_escaped_text_end_char||'''',l_escaped_text_start + 3 );
           if l_end > 0 then
             l_end := l_end + 2;
