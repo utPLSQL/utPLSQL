@@ -155,6 +155,24 @@ create or replace package body main_helper is
   begin
     ut3_develop.ut_session_context.clear_all_context;
   end;
+  
+  function lines_to_str(a_lines dbms_preprocessor.source_lines_t) return varchar2 is
+    l_result varchar2(32767);
+  begin
+    for i in 1 .. a_lines.count loop
+      l_result := l_result || a_lines(i);
+    end loop;
+    return l_result;
+  end;
+
+  function make_source(a_lines ut3_develop.ut_varchar2_list) return dbms_preprocessor.source_lines_t is
+    l_result dbms_preprocessor.source_lines_t;
+  begin
+    for i in 1 .. a_lines.count loop
+      l_result(i) := a_lines(i);
+    end loop;
+    return l_result;
+  end;
 
 end;
 /

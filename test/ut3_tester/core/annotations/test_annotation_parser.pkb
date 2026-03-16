@@ -1,45 +1,28 @@
 create or replace package body test_annotation_parser is
 
-  function lines_to_str(a_lines dbms_preprocessor.source_lines_t) return varchar2 is
-    l_result varchar2(32767);
-  begin
-    for i in 1 .. a_lines.count loop
-      l_result := l_result || a_lines(i);
-    end loop;
-    return l_result;
-  end;
-
-  function make_source(a_lines ut_varchar2_list) return dbms_preprocessor.source_lines_t is
-    l_result dbms_preprocessor.source_lines_t;
-  begin
-    for i in 1 .. a_lines.count loop
-      l_result(i) := a_lines(i);
-    end loop;
-    return l_result;
-  end;
-
   procedure test_proc_comments is
-    l_source   clob;
+    l_source   dbms_preprocessor.source_lines_t;
     l_actual   ut3_develop.ut_annotations;
     l_expected ut3_develop.ut_annotations;
-
   begin
-    l_source := 'PACKAGE test_tt AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    -- %ann1(Name of suite)
-    -- wrong line
-    -- %ann2(some_value)
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                 || chr(10),
+      '    -- %suite'                      || chr(10),
+      '    -- %displayname(Name of suite)' || chr(10),
+      '    -- %suitepath(all.globaltests)' || chr(10),
+      ''                                   || chr(10),
+      '    -- %ann1(Name of suite)'        || chr(10),
+      '    -- wrong line'                  || chr(10),
+      '    -- %ann2(some_value)'           || chr(10),
+      '    procedure foo;'                 || chr(10),
+      '  END;'                             || chr(10)
+    ));
 
     --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
-
     l_expected := ut3_develop.ut_annotations(
       ut3_develop.ut_annotation(2,'suite',null, null),
       ut3_develop.ut_annotation(3,'displayname','Name of suite',null),
@@ -52,30 +35,33 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure include_floating_annotations is
-    l_source    clob;
+    l_source    dbms_preprocessor.source_lines_t;
     l_actual    ut3_develop.ut_annotations;
     l_expected  ut3_develop.ut_annotations;
   begin
-    l_source := 'PACKAGE test_tt AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    -- %ann1(Name of suite)
-    -- %ann2(all.globaltests)
-
-    --%test
-    procedure foo;
-
-    -- %ann3(Name of suite)
-    -- %ann4(all.globaltests)
-
-    --%test
-    procedure bar;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                 || chr(10),
+      '    -- %suite'                      || chr(10),
+      '    -- %displayname(Name of suite)' || chr(10),
+      '    -- %suitepath(all.globaltests)' || chr(10),
+      ''                                   || chr(10),
+      '    -- %ann1(Name of suite)'        || chr(10),
+      '    -- %ann2(all.globaltests)'      || chr(10),
+      ''                                   || chr(10),
+      '    --%test'                        || chr(10),
+      '    procedure foo;'                 || chr(10),
+      ''                                   || chr(10),
+      '    -- %ann3(Name of suite)'        || chr(10),
+      '    -- %ann4(all.globaltests)'      || chr(10),
+      ''                                   || chr(10),
+      '    --%test'                        || chr(10),
+      '    procedure bar;'                 || chr(10),
+      '  END;'                             || chr(10)
+    ));
 
     --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -95,40 +81,41 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure parse_complex_with_functions is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    --%test
-    procedure foo;
-
-
-    --%beforeeach
-    procedure foo2;
-
-    --test comment
-    -- wrong comment
-
-
-    /*
-    describtion of the procedure
-    */
-    --%beforeeach(key=testval)
-    PROCEDURE foo3(a_value number default null);
-
-    --%all
-    function foo4(a_val number default null
-      , a_par varchar2 default := ''asdf'');
-  END;';
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+    'PACKAGE test_tt AS'              || chr(10),
+    ' -- %suite'                      || chr(10),
+    ' -- %displayname(Name of suite)' || chr(10),
+    ' -- %suitepath(all.globaltests)' || chr(10),
+    ''                                || chr(10),
+    ' --%test'                        || chr(10),
+    ' procedure foo;'                 || chr(10),
+    ''                                || chr(10),
+    ''                                || chr(10),
+    ' --%beforeeach'                  || chr(10),
+    ' procedure foo2;'                || chr(10),
+    ''                                || chr(10),
+    '    --test comment'              || chr(10),
+    '    -- wrong comment'            || chr(10),
+    ''                                || chr(10),
+    ''                                || chr(10),
+    '/*'                              || chr(10),
+    '    describtion of the procedure'  || chr(10),
+    '    */'                            || chr(10),
+    '    --%beforeeach(key=testval)'    || chr(10),
+    '    PROCEDURE foo3(a_value number default null);' || chr(10),
+    ''                                                 || chr(10),
+    '    --%all'                                       || chr(10),
+    '    function foo4(a_val number default null'      || chr(10),
+    '      , a_par varchar2 default := ''asdf'');'     || chr(10),
+    'END;'));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -146,21 +133,24 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure no_procedure_annotation is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                 || chr(10),
+      '    -- %suite'                      || chr(10),
+      '    -- %displayname(Name of suite)' || chr(10),
+      '    -- %suitepath(all.globaltests)' || chr(10),
+      ''                                   || chr(10),
+      '    procedure foo;'                 || chr(10),
+      '  END;'                             || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -174,21 +164,24 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure parse_accessible_by is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt accessible by (foo) AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt accessible by (foo) AS' || chr(10),
+      '    -- %suite'                           || chr(10),
+      '    -- %displayname(Name of suite)'      || chr(10),
+      '    -- %suitepath(all.globaltests)'      || chr(10),
+      ''                                        || chr(10),
+      '    procedure foo;'                      || chr(10),
+      '  END;'                                  || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -202,24 +195,27 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure complex_package_declaration is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt
-    ACCESSIBLE BY (calling_proc)
-    authid current_user
-    AS
-    -- %suite
-    -- %displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt'                         || chr(10),
+      '    ACCESSIBLE BY (calling_proc)'        || chr(10),
+      '    authid current_user'                 || chr(10),
+      '    AS'                                  || chr(10),
+      '    -- %suite'                           || chr(10),
+      '    -- %displayname(Name of suite)'      || chr(10),
+      '    -- %suitepath(all.globaltests)'      || chr(10),
+      ''                                        || chr(10),
+      '    procedure foo;'                      || chr(10),
+      '  END;'                                  || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -233,21 +229,24 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure complex_text is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt AS
-    -- %suite
-    --%displayname(name = Name of suite)
-    -- %suitepath(key=all.globaltests,key2=foo,"--%some text")
-
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                                              || chr(10),
+      '    -- %suite'                                                   || chr(10),
+      '    --%displayname(name = Name of suite)'                        || chr(10),
+      '    -- %suitepath(key=all.globaltests,key2=foo,"--%some text")'  || chr(10),
+      ''                                                                || chr(10),
+      '    procedure foo;'                                              || chr(10),
+      '  END;'                                                          || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -261,26 +260,29 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure ignore_annotations_in_comments is
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt AS
-    /*
-    Some comment
-    -- inlined
-    -- %ignored
-    */
-    -- %suite
-    --%displayname(Name of suite)
-    -- %suitepath(all.globaltests)
-
-    procedure foo;
-  END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                 || chr(10),
+      '    /*'                             || chr(10),
+      '    Some comment'                   || chr(10),
+      '    -- inlined'                     || chr(10),
+      '    -- %ignored'                    || chr(10),
+      '    */'                             || chr(10),
+      '    -- %suite'                      || chr(10),
+      '    --%displayname(Name of suite)'  || chr(10),
+      '    -- %suitepath(all.globaltests)' || chr(10),
+      ''                                   || chr(10),
+      '    procedure foo;'                 || chr(10),
+      '  END;'                             || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -329,17 +331,19 @@ v58yvbLAXLi9gYHwoIvAgccti+Cmpg0DKLY=
   end;
 
   procedure brackets_in_desc is
-
-    l_source         clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
     l_expected       ut3_develop.ut_annotations;
   begin
-    l_source := 'PACKAGE test_tt AS
-  -- %suite(Name of suite (including some brackets) and some more text)
-END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                                                                   || chr(10),
+      '  -- %suite(Name of suite (including some brackets) and some more text)'             || chr(10),
+      'END;'                                                                                 || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -350,24 +354,27 @@ END;';
   end;
 
   procedure test_space_before_annot_params is
-    l_source clob;
+    l_source         dbms_preprocessor.source_lines_t;
     l_actual         ut3_develop.ut_annotations;
-    l_expected ut3_develop.ut_annotations;
+    l_expected       ut3_develop.ut_annotations;
 
   begin
-    l_source := 'PACKAGE test_tt AS
-  /*
-  Some comment
-  -- inlined
-  */
-  -- %suite
-  -- %suitepath (all.globaltests)
-
-  procedure foo;
-END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'              || chr(10),
+      '  /*'                            || chr(10),
+      '  Some comment'                  || chr(10),
+      '  -- inlined'                    || chr(10),
+      '  */'                            || chr(10),
+      '  -- %suite'                     || chr(10),
+      '  -- %suitepath (all.globaltests)'|| chr(10),
+      ''                                || chr(10),
+      '  procedure foo;'                || chr(10),
+      'END;'                            || chr(10)
+    ));
 
   --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
   --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -380,18 +387,21 @@ END;';
 
   procedure test_windows_newline
   as
-    l_source    clob;
+    l_source    dbms_preprocessor.source_lines_t;
     l_actual    ut3_develop.ut_annotations;
     l_expected  ut3_develop.ut_annotations;
   begin
-    l_source := 'PACKAGE test_tt AS
-        -- %suite
-        -- %displayname(Name of suite)' || chr(13) || chr(10)
-      || '  -- %suitepath(all.globaltests)
-      END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                                         || chr(10),
+      '        -- %suite'                                          || chr(10),
+      '        -- %displayname(Name of suite)' || chr(13) || chr(10),
+      '  -- %suitepath(all.globaltests)'                           || chr(10),
+      '      END;'                                                 || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -405,21 +415,24 @@ END;';
 
   procedure test_annot_very_long_name
   as
-    l_source clob;
-    l_actual         ut3_develop.ut_annotations;
-    l_expected ut3_develop.ut_annotations;
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
   begin
-    l_source := 'PACKAGE very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it AS
-      -- %suite
-      -- %displayname(Name of suite)
-      -- %suitepath(all.globaltests)
-
-      --%test
-      procedure very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it;
-    END;';
+    --Arrange
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it AS' || chr(10),
+      '      -- %suite'                                                                                                                             || chr(10),
+      '      -- %displayname(Name of suite)'                                                                                                        || chr(10),
+      '      -- %suitepath(all.globaltests)'                                                                                                        || chr(10),
+      ''                                                                                                                                            || chr(10),
+      '      --%test'                                                                                                                               || chr(10),
+      '      procedure very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it;' || chr(10),
+      '    END;'                                                                                                                                    || chr(10)
+    ));
 
     --Act
-    l_actual         := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
 
     --Assert
     l_expected := ut3_develop.ut_annotations(
@@ -433,108 +446,27 @@ END;';
   end;
 
   procedure test_upper_annot is
-    l_source    clob;
-    l_actual    ut3_develop.ut_annotations;
-    l_expected  ut3_develop.ut_annotations;
-  begin
-    l_source := 'PACKAGE test_tt AS
-    -- %SUITE
-    -- %DISPLAYNAME(Name of suite)
-    -- %SUITEPATH(all.globaltests)
-
-    -- %ANN1(Name of suite)
-    -- %ANN2(all.globaltests)
-
-    --%TEST
-    procedure foo;
-
-    -- %ANN3(Name of suite)
-    -- %ANN4(all.globaltests)
-
-    --%TEST
-    procedure bar;
-  END;';
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source);
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation( 2, 'suite', null, null ),
-      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null ),
-      ut3_develop.ut_annotation( 6, 'ann1', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 7, 'ann2', 'all.globaltests', null ),
-      ut3_develop.ut_annotation( 9, 'test', null, 'foo'),
-      ut3_develop.ut_annotation( 12, 'ann3', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 13, 'ann4', 'all.globaltests', null ),
-      ut3_develop.ut_annotation( 15, 'test', null, 'bar')
-      );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-
-  end;
-
-  ------------------------------------------------------------
-  -- source_lines_t overload equivalents of existing tests
-  ------------------------------------------------------------
-
-  procedure test_proc_comments_lines is
-    l_source   dbms_preprocessor.source_lines_t;
-    l_actual   ut3_develop.ut_annotations;
-    l_expected ut3_develop.ut_annotations;
-  begin
-    --Arrange
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                 || chr(10),
-      '    -- %suite'                      || chr(10),
-      '    -- %displayname(Name of suite)' || chr(10),
-      '    -- %suitepath(all.globaltests)' || chr(10),
-      ''                                   || chr(10),
-      '    -- %ann1(Name of suite)'        || chr(10),
-      '    -- wrong line'                  || chr(10),
-      '    -- %ann2(some_value)'           || chr(10),
-      '    procedure foo;'                 || chr(10),
-      '  END;'                             || chr(10)
-    ));
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation(2,'suite',null, null),
-      ut3_develop.ut_annotation(3,'displayname','Name of suite',null),
-      ut3_develop.ut_annotation(4,'suitepath','all.globaltests',null),
-      ut3_develop.ut_annotation(6,'ann1','Name of suite',null),
-      ut3_develop.ut_annotation(8,'ann2','some_value','foo')
-    );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-  end;
-
-  procedure include_floating_annotations_lines is
     l_source    dbms_preprocessor.source_lines_t;
     l_actual    ut3_develop.ut_annotations;
     l_expected  ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_source := make_source(ut_varchar2_list(
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'PACKAGE test_tt AS'                 || chr(10),
-      '    -- %suite'                      || chr(10),
-      '    -- %displayname(Name of suite)' || chr(10),
-      '    -- %suitepath(all.globaltests)' || chr(10),
+      '    -- %SUITE'                      || chr(10),
+      '    -- %DISPLAYNAME(Name of suite)' || chr(10),
+      '    -- %SUITEPATH(all.globaltests)' || chr(10),
       ''                                   || chr(10),
-      '    -- %ann1(Name of suite)'        || chr(10),
-      '    -- %ann2(all.globaltests)'      || chr(10),
+      '    -- %ANN1(Name of suite)'        || chr(10),
+      '    -- %ANN2(all.globaltests)'      || chr(10),
       ''                                   || chr(10),
-      '    --%test'                        || chr(10),
+      '    --%TEST'                        || chr(10),
       '    procedure foo;'                 || chr(10),
       ''                                   || chr(10),
-      '    -- %ann3(Name of suite)'        || chr(10),
-      '    -- %ann4(all.globaltests)'      || chr(10),
+      '    -- %ANN3(Name of suite)'        || chr(10),
+      '    -- %ANN4(all.globaltests)'      || chr(10),
       ''                                   || chr(10),
-      '    --%test'                        || chr(10),
+      '    --%TEST'                        || chr(10),
       '    procedure bar;'                 || chr(10),
       '  END;'                             || chr(10)
     ));
@@ -553,72 +485,7 @@ END;';
       ut3_develop.ut_annotation( 12, 'ann3', 'Name of suite', null ),
       ut3_develop.ut_annotation( 13, 'ann4', 'all.globaltests', null ),
       ut3_develop.ut_annotation( 15, 'test', null, 'bar')
-    );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-
-  end;
-
-  procedure ignore_annotations_in_comments_lines is
-    l_source         dbms_preprocessor.source_lines_t;
-    l_actual         ut3_develop.ut_annotations;
-    l_expected       ut3_develop.ut_annotations;
-  begin
-    --Arrange
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                 || chr(10),
-      '    /*'                             || chr(10),
-      '    Some comment'                   || chr(10),
-      '    -- inlined'                     || chr(10),
-      '    -- %ignored'                    || chr(10),
-      '    */'                             || chr(10),
-      '    -- %suite'                      || chr(10),
-      '    --%displayname(Name of suite)'  || chr(10),
-      '    -- %suitepath(all.globaltests)' || chr(10),
-      ''                                   || chr(10),
-      '    procedure foo;'                 || chr(10),
-      '  END;'                             || chr(10)
-    ));
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation( 7, 'suite', null, null ),
-      ut3_develop.ut_annotation( 8, 'displayname', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 9, 'suitepath', 'all.globaltests', null )
-    );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-
-  end;
-
-  procedure no_procedure_annotation_lines is
-    l_source         dbms_preprocessor.source_lines_t;
-    l_actual         ut3_develop.ut_annotations;
-    l_expected       ut3_develop.ut_annotations;
-  begin
-    --Arrange
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                 || chr(10),
-      '    -- %suite'                      || chr(10),
-      '    -- %displayname(Name of suite)' || chr(10),
-      '    -- %suitepath(all.globaltests)' || chr(10),
-      ''                                   || chr(10),
-      '    procedure foo;'                 || chr(10),
-      '  END;'                             || chr(10)
-    ));
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation( 2, 'suite', null, null ),
-      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null )
-    );
+      );
 
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
@@ -644,7 +511,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'procedure foo is' || chr(10),
       'begin'            || chr(10),
       '  null;'          || chr(10),
@@ -655,7 +522,7 @@ END;';
     l_result := ut3_develop.ut_utils.replace_multiline_comments(l_input);
 
     --Assert
-    ut.expect(lines_to_str(l_result)).to_equal(lines_to_str(l_input));
+    ut.expect(ut3_tester_helper.main_helper.lines_to_str(l_result)).to_equal(ut3_tester_helper.main_helper.lines_to_str(l_input));
   end;
 
   procedure test_rmc_line_inside_ml_comment is
@@ -663,7 +530,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'x := 1; /* start'           || chr(10),
       'this whole line is comment' || chr(10),
       'end comment */ x := 2;'    || chr(10)
@@ -683,7 +550,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       '/* open'                            || chr(10),
       'still inside'                       || chr(10),
       '*/ code /* remove this too */ kept' || chr(10)
@@ -703,7 +570,7 @@ END;';
   begin
     --Arrange
     -- line 2 has none of / - ' so hits fast path B; line 1 needed to pass pre-scan
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       '/* comment */' || chr(10),
       'begin'         || chr(10)
     ));
@@ -720,7 +587,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'x := /* inline comment */ 42;' || chr(10)
     ));
 
@@ -736,7 +603,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       '/* marker */'          || chr(10),
       '  -- %test annotation' || chr(10)
     ));
@@ -753,7 +620,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'v := ''val /* not a comment */ here'';' || chr(10)
     ));
 
@@ -769,7 +636,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'v := ''it''''s a /* test */'';' || chr(10)
     ));
 
@@ -785,7 +652,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'v := q''[/* not a comment */]'';' || chr(10)
     ));
 
@@ -801,7 +668,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'v := ''hello /* inside unclosed' || chr(10)
     ));
 
@@ -818,7 +685,7 @@ END;';
     c_line   constant varchar2(100) := q'(v := q'[/* unclosed q-string)' || chr(10);
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(c_line));
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(c_line));
 
     --Act
     l_result := ut3_develop.ut_utils.replace_multiline_comments(l_input);
@@ -832,7 +699,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'a /* one */ := /* two */ 1;' || chr(10)
     ));
 
@@ -848,7 +715,7 @@ END;';
     l_result dbms_preprocessor.source_lines_t;
   begin
     --Arrange
-    l_input := make_source(ut_varchar2_list(
+    l_input := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'v := ''a/b''; -- this is /* not */ a ml comment' || chr(10)
     ));
 
@@ -859,66 +726,6 @@ END;';
     ut.expect(l_result(1)).to_equal('v := ''a/b''; -- this is /* not */ a ml comment' || chr(10));
   end;
 
-procedure test_windows_newline_lines
-  as
-    l_source    dbms_preprocessor.source_lines_t;
-    l_actual    ut3_develop.ut_annotations;
-    l_expected  ut3_develop.ut_annotations;
-  begin
-    --Arrange
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                                          || chr(10),
-      '        -- %suite'                                           || chr(10),
-      '        -- %displayname(Name of suite)'  || chr(13) || chr(10),
-      '  -- %suitepath(all.globaltests)'                            || chr(10),
-      '      END;'                                                  || chr(10)
-    ));
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation( 2, 'suite', null, null ),
-      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null )
-    );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-  end;
-
-  procedure test_annot_very_long_name_lines
-  as
-    l_source    dbms_preprocessor.source_lines_t;
-    l_actual    ut3_develop.ut_annotations;
-    l_expected  ut3_develop.ut_annotations;
-  begin
-    --Arrange
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it AS' || chr(10),
-      '      -- %suite'                                                                                                                             || chr(10),
-      '      -- %displayname(Name of suite)'                                                                                                        || chr(10),
-      '      -- %suitepath(all.globaltests)'                                                                                                        || chr(10),
-      ''                                                                                                                                            || chr(10),
-      '      --%test'                                                                                                                               || chr(10),
-      '      procedure very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it;' || chr(10),
-      '    END;'                                                                                                                                    || chr(10)
-    ));
-
-    --Act
-    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
-
-    --Assert
-    l_expected := ut3_develop.ut_annotations(
-      ut3_develop.ut_annotation( 2, 'suite', null, null ),
-      ut3_develop.ut_annotation( 3, 'displayname', 'Name of suite', null ),
-      ut3_develop.ut_annotation( 4, 'suitepath', 'all.globaltests', null ),
-      ut3_develop.ut_annotation( 6, 'test', null, 'very_long_procedure_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_dit_it' )
-    );
-
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
-  end;
-
   procedure test_multiline_proc_header_lines is
     l_source    dbms_preprocessor.source_lines_t;
     l_actual    ut3_develop.ut_annotations;
@@ -926,7 +733,7 @@ procedure test_windows_newline_lines
   begin
     --Arrange
     -- procedure header spans multiple lines before terminating ;
-    l_source := make_source(ut_varchar2_list(
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'PACKAGE test_tt AS'                        || chr(10),
       '    -- %suite'                             || chr(10),
       ''                                          || chr(10),
@@ -958,12 +765,12 @@ procedure test_windows_newline_lines
     --Arrange
     -- a non-comment non-proc line between annotation and procedure breaks the association
     -- %test becomes a floating top-level annotation with no subobject
-    l_source := make_source(ut_varchar2_list(
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'PACKAGE test_tt AS'             || chr(10),
       '    -- %suite'                  || chr(10),
       ''                               || chr(10),
       '    --%test'                    || chr(10),
-      '    pragma serially_reusable;'  || chr(10),  -- resets accumulator
+      '    pragma serially_reusable;'  || chr(10),
       '    procedure foo;'             || chr(10),
       '  END;'                         || chr(10)
     ));
@@ -988,13 +795,13 @@ procedure test_windows_newline_lines
     l_expected  ut3_develop.ut_annotations;
   begin
     --Arrange
-    -- % appears in line but comment is not at start of line — should be ignored
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                    || chr(10),
-      '    -- %suite'                         || chr(10),
-      '    x := ''value%with%percent'';'      || chr(10),  -- % present but -- not at line start
-      '    procedure foo;'                    || chr(10),
-      '  END;'                                || chr(10)
+    -- code before -- means it is not at start of line and must be ignored
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                || chr(10),
+      '    -- %suite'                     || chr(10),
+      '    x := 1; -- %not_an_annotation' || chr(10),
+      '    procedure foo;'                || chr(10),
+      '  END;'                            || chr(10)
     ));
 
     --Act
@@ -1008,7 +815,36 @@ procedure test_windows_newline_lines
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
- procedure test_space_between_dashes_and_qualifier_lines is
+  procedure test_whitespace_line_between_comment_and_proc_lines is
+    l_source    dbms_preprocessor.source_lines_t;
+    l_actual    ut3_develop.ut_annotations;
+    l_expected  ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    -- space-only line between annotation comment and procedure declaration is tolerated
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'  || chr(10),
+      '    -- %suite'       || chr(10),
+      ''                    || chr(10),
+      '    --%test'         || chr(10),
+      '    '                || chr(10),
+      '    procedure foo;'  || chr(10),
+      '  END;'              || chr(10)
+    ));
+
+    --Act
+    l_actual := ut3_develop.ut_annotation_parser.parse_object_annotations(l_source, 'PACKAGE');
+
+    --Assert
+    l_expected := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 2, 'suite', null, null ),
+      ut3_develop.ut_annotation( 4, 'test', null, 'foo' )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+
+  procedure test_space_between_dashes_and_qualifier_lines is
     l_source    dbms_preprocessor.source_lines_t;
     l_actual    ut3_develop.ut_annotations;
     l_expected  ut3_develop.ut_annotations;
@@ -1016,11 +852,11 @@ procedure test_windows_newline_lines
     --Arrange
     -- spaces between -- and % are skipped and annotation is still recognised
     -- annotations are not adjacent to a procedure so they are top-level
-    l_source := make_source(ut_varchar2_list(
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
       'PACKAGE test_tt AS'              || chr(10),
-      '    --   %suite'                 || chr(10),  -- multiple spaces between -- and %
+      '    --   %suite'                 || chr(10),
       '    --   %displayname(my suite)' || chr(10),
-      ''                                || chr(10),  -- blank line breaks association with foo
+      ''                                || chr(10),
       '    procedure foo;'              || chr(10),
       '  END;'                          || chr(10)
     ));
@@ -1045,12 +881,12 @@ procedure test_windows_newline_lines
     --Arrange
     -- -- present and % present on line but % is not immediately after --
     -- e.g. a regular comment that happens to mention 100%
-    l_source := make_source(ut_varchar2_list(
-      'PACKAGE test_tt AS'                      || chr(10),
-      '    -- %suite'                           || chr(10),
-      '    -- coverage is 100% on this module'  || chr(10),  -- % after text, not annotation
-      '    procedure foo;'                      || chr(10),
-      '  END;'                                  || chr(10)
+    l_source := ut3_tester_helper.main_helper.make_source(ut3_develop.ut_varchar2_list(
+      'PACKAGE test_tt AS'                     || chr(10),
+      '    -- %suite'                          || chr(10),
+      '    -- coverage is 100% on this module' || chr(10),
+      '    procedure foo;'                     || chr(10),
+      '  END;'                                 || chr(10)
     ));
 
     --Act

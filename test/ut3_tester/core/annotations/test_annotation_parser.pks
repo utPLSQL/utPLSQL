@@ -32,15 +32,6 @@ create or replace package test_annotation_parser is
   -- %test(Parses upper case annotations)
   procedure test_upper_annot;
 
-  --%test(Treats procedure level annotations as package level using source lines overload)
-  procedure test_proc_comments_lines;
-  --%test(Includes floating annotations between procedures using source lines overload)
-  procedure include_floating_annotations_lines;
-  --%test(Ignores content of multi-line comments using source lines overload)
-  procedure ignore_annotations_in_comments_lines;
-  --%test(Parses package annotations without any procedure annotations using source lines overload)
-  procedure no_procedure_annotation_lines;
-
   -- %test(empty source returns immediately without processing)
   procedure test_rmc_empty_source;
   -- %test(source with no multiline comment markers returned unchanged)
@@ -69,10 +60,6 @@ create or replace package test_annotation_parser is
   procedure test_rmc_multiple_ml_comments_one_line;
   -- %test(comment markers after string with slash handled correctly)
   procedure test_rmc_comment_after_string_with_slash;
-  --%test(Parses source-code with Windows-style newline using source lines overload)
-  procedure test_windows_newline_lines;
-  --%test(parse annotations with very long procedure name using source lines overload)
-  procedure test_annot_very_long_name_lines;
   --%test(Procedure header spanning multiple lines is handled correctly)
   procedure test_multiline_proc_header_lines;
   --%test(Non-comment line between annotation and procedure resets association)

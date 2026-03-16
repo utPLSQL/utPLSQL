@@ -47,5 +47,9 @@ create or replace package main_helper is
 
   procedure clear_ut_run_context;
   
+  function lines_to_str(a_lines dbms_preprocessor.source_lines_t) return varchar2;
+
+  function make_source(a_lines ut3_develop.ut_varchar2_list) return dbms_preprocessor.source_lines_t;
+
 end;
 /
