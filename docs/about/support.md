@@ -2,5 +2,6 @@
 
 # How to get support
 
-- Feel free to post questions, bugs or issues in the [issues area of GitHub](https://github.com/utPLSQL/utPLSQL/issues)
-- [Join](https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww) developers team on [utPLSQL Slack](https://utplsql.slack.com/)
+- Look into [utPLSQL github discussions](https://github.com/utPLSQL/utPLSQL/discussions) to find support, ask questions and share ideas
+- If needed open a new [issue on github](https://github.com/utPLSQL/utPLSQL/issues) for bugs or feature requests
+
