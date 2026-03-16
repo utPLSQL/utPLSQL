@@ -87,49 +87,6 @@ create or replace package body ut_annotation_parser as
 
   end add_annotations;
 
-  procedure add_procedure_annotations(a_annotations in out nocopy ut_annotations, a_source clob, a_comments in out nocopy tt_comment_list) is
-    l_proc_comments         varchar2(32767);
-    l_proc_name             varchar2(250);
-    l_annot_proc_ind        number;
-    l_annot_proc_block      varchar2(32767);
-  begin
-    -- loop through procedures and functions of the package and get all the comment blocks just before it's declaration
-    l_annot_proc_ind := 1;
-    loop
-      --find annotated procedure index
-      l_annot_proc_ind := regexp_instr(srcstr     => a_source
-                                      ,pattern    => gc_annotation_block_pattern
-                                      ,occurrence => 1
-                                      ,modifier   => 'i'
-                                      ,position   => l_annot_proc_ind);
-      exit when l_annot_proc_ind = 0;
-
-      --get the annotations with procedure name
-      l_annot_proc_block := regexp_substr(srcstr     => a_source
-                                         ,pattern    => gc_annotation_block_pattern
-                                         ,position   => l_annot_proc_ind
-                                         ,occurrence => 1
-                                         ,modifier   => 'i');
-                                         
-
-      --extract the annotations
-      l_proc_comments := trim(regexp_substr(srcstr        => l_annot_proc_block
-                                           ,pattern       => gc_annotation_block_pattern
-                                           ,modifier      => 'i'
-                                           ,subexpression => 1));
-      --extract the procedure name
-      l_proc_name     := trim(regexp_substr(srcstr        => l_annot_proc_block
-                                           ,pattern       => gc_annotation_block_pattern
-                                           ,modifier      => 'i'
-                                           ,subexpression => 5));
-
-      -- parse the comment block for the syntactically correct annotations and store them as an array
-      add_annotations(a_annotations, l_proc_comments, a_comments, l_proc_name);
-
-      l_annot_proc_ind := instr(a_source, ';', l_annot_proc_ind + length(l_annot_proc_block) );
-    end loop;
-  end add_procedure_annotations;
-
   procedure add_procedure_annotations(
     a_annotations in out nocopy ut_annotations,
     a_source      in            dbms_preprocessor.source_lines_t,
@@ -188,55 +145,6 @@ create or replace package body ut_annotation_parser as
       end if;
     end loop;
   end add_procedure_annotations;
-
-  function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
-    l_comments         tt_comment_list;
-    l_comment_pos      binary_integer;
-    l_comment_line     binary_integer;
-    l_comment_replacer varchar2(50);
-    l_source           clob := a_source;
-  begin
-    l_comment_pos := 1;
-    loop
-
-      l_comment_pos := regexp_instr(srcstr     => a_source
-                                   ,pattern    => gc_annot_comment_pattern
-                                   ,occurrence => 1
-                                   ,modifier   => 'm'
-                                   ,position   => l_comment_pos);
-
-      exit when l_comment_pos = 0;
-
-      -- position index is shifted by 1 because gc_annot_comment_pattern contains ^ as first sign
-      -- but after instr index already points to the char on that line
-      l_comment_pos := l_comment_pos - 1;
-      l_comment_line := length(substr(a_source,1,l_comment_pos))
-                        - length(replace(substr(a_source,1,l_comment_pos),chr(10)))
-                        + 1;
-      l_comments(l_comment_line) := trim(regexp_substr(srcstr        => a_source
-                                                            ,pattern       => gc_annot_comment_pattern
-                                                            ,occurrence    => 1
-                                                            ,position      => l_comment_pos
-                                                            ,modifier      => 'm'
-                                                            ,subexpression => 2));
-
-      l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comment_line);
-
-      l_source    := regexp_replace(srcstr     => a_source
-                                   ,pattern    => gc_annot_comment_pattern
-                                   ,replacestr => l_comment_replacer
-                                   ,position   => l_comment_pos
-                                   ,occurrence => 1
-                                   ,modifier   => 'm');
-      dbms_lob.freetemporary(a_source);
-      a_source := l_source;
-      dbms_lob.freetemporary(l_source);
-      l_comment_pos := l_comment_pos + length(l_comment_replacer);
-
-    end loop;
-
-    return l_comments;
-  end extract_and_replace_comments;
 
   function extract_and_replace_comments(
     a_source in out nocopy dbms_preprocessor.source_lines_t
@@ -315,38 +223,6 @@ create or replace package body ut_annotation_parser as
 
     return l_result;
 
-  end parse_object_annotations;
-
-  function parse_object_annotations(a_source clob) return ut_annotations is
-    l_source           clob := a_source;
-    l_comments         tt_comment_list;
-    l_annotations      ut_annotations := ut_annotations();
-    l_result           ut_annotations;
-    l_comment_index    positive;
-  begin
-
-     l_source := ut_utils.replace_multiline_comments(l_source);
-
-    -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
-    -- this call modifies l_source
-    l_comments := extract_and_replace_comments(l_source);
-
-    add_procedure_annotations(l_annotations, l_source, l_comments);
-
-    delete_processed_comments(l_comments, l_annotations);
-
-    --at this point, only the comments not related to procedures are left, so we process them all as top-level
-    l_comment_index := l_comments.first;
-    while l_comment_index is not null loop
-      add_annotation( l_annotations, l_comment_index, l_comments( l_comment_index ) );
-      l_comment_index := l_comments.next(l_comment_index);
-    end loop;
-
-    dbms_lob.freetemporary(l_source);
-
-    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position asc;
-
-    return l_result;
   end parse_object_annotations;
 
   function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t, a_object_type varchar2) return ut_annotations is
