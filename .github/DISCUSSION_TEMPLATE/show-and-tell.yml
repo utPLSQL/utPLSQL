@@ -1,0 +1,79 @@
+title: "[Show & Tell] "
+labels: ["show-and-tell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Show & Tell
+        Share how you are using utPLSQL in the wild — CI pipelines, IDE integrations,
+        custom reporters, coverage setups, framework wrappers, or anything else the
+        community might learn from.
+
+        Posts here are a great source of real-world examples for the documentation.
+
+  - type: input
+    id: title_short
+    attributes:
+      label: What are you sharing?
+      placeholder: "e.g. utPLSQL + GitHub Actions CI pipeline for Oracle 23ai"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      multiple: true
+      options:
+        - CI/CD integration
+        - IDE / SQL client integration
+        - Custom reporter
+        - Code coverage setup
+        - Framework wrapper / helper library
+        - Docker / containerised testing
+        - Annotation patterns
+        - Performance / large test suite
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what you built or configured and why it might be useful to others.
+    validations:
+      required: true
+
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Code or configuration snippet
+      description: Paste the most relevant excerpt. Link to a repo or Gist if you have one.
+      render: yaml
+    validations:
+      required: false
+
+  - type: input
+    id: utplsql_version
+    attributes:
+      label: utPLSQL version used
+      placeholder: "e.g. 3.1.13"
+    validations:
+      required: false
+
+  - type: input
+    id: oracle_version
+    attributes:
+      label: Oracle version
+      placeholder: "e.g. Oracle 19c"
+    validations:
+      required: false
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Repository, blog post, documentation page, etc.
+    validations:
+      required: false

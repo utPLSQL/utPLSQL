@@ -1,0 +1,87 @@
+title: "[Q&A] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Question & Answer
+        Ask anything about **using** utPLSQL — installation, writing tests, CI integration,
+        reporters, annotations, code coverage, etc.
+
+        **Tips for a fast answer:**
+        - Include your utPLSQL version and Oracle version.
+        - Paste a minimal reproducer (test package + expected vs actual output).
+        - Check the [documentation](https://utplsql.github.io/utPLSQL/) and
+          [closed Q&A discussions](../../discussions/categories/q-a?discussions_q=is%3Aclosed) first.
+
+        > If this turns out to be a **bug**, a maintainer will convert this discussion into an Issue.
+
+  - type: input
+    id: utplsql_version
+    attributes:
+      label: utPLSQL version
+      placeholder: "e.g. 3.1.13"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: oracle_version
+    attributes:
+      label: Oracle version
+      options:
+        - Oracle 11g
+        - Oracle 12c
+        - Oracle 18c
+        - Oracle 19c
+        - Oracle 21c
+        - Oracle 23c / 23ai
+        - Other / unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe what you are trying to do and what you have tried so far.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: |
+        Paste a minimal test package and/or the relevant ut_runner call.
+        Include the full error message or unexpected output if applicable.
+      render: sql
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour / error
+    validations:
+      required: false
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installation method
+      options:
+        - utPLSQL-cli
+        - SQL*Plus script
+        - Docker / utPLSQL-docker
+        - Liquibase / Flyway
+        - Other
+        - N/A
+    validations:
+      required: false

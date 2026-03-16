@@ -44,8 +44,8 @@ extra:
   social:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/utPLSQL
-    - icon: fontawesome/brands/slack
-      link: https://join.slack.com/t/utplsql/shared_invite/zt-xwm68udy-4cF_3PNEyczYEbWr38W5ww
+    - icon: fontawesome/regular/comment
+      link: https://github.com/utPLSQL/utPLSQL/discussions
     - icon: fontawesome/brands/github
       link: https://github.com/utPLSQL
     - icon: fontawesome/solid/envelope

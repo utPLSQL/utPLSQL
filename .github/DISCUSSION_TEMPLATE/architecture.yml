@@ -1,0 +1,100 @@
+title: "[Architecture] "
+labels: ["architecture", "design"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Architecture discussion
+        Use this template for internal design decisions: changes to the suite-loading mechanism,
+        the coverage engine, DDL trigger behaviour, reporter infrastructure, or any
+        cross-cutting concern that affects the internals of utPLSQL.
+
+        This category is primarily for **contributors and maintainers**.
+        If you want to propose a user-facing feature, use **RFCs & Design** instead.
+
+  - type: input
+    id: title_short
+    attributes:
+      label: Component / area
+      description: Which internal component or subsystem does this discussion concern?
+      placeholder: "e.g. Suite loader, Coverage engine, Annotation parser, Event system"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and current design
+      description: Briefly describe how the relevant part works today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or design question
+      description: What specific decision needs to be made, or what limitation needs to be addressed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Options under consideration
+      description: |
+        List the design options you are weighing. For each option describe:
+        - How it works
+        - Pros
+        - Cons
+        - Impact on Oracle compatibility
+      placeholder: |
+        **Option A — …**
+        How: …
+        Pros: …
+        Cons: …
+
+        **Option B — …**
+        How: …
+        Pros: …
+        Cons: …
+    validations:
+      required: true
+
+  - type: textarea
+    id: preferred
+    attributes:
+      label: Preferred direction (if any)
+      description: If you already lean toward one option, say so and why. Leave blank if genuinely open.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Does this introduce a breaking change?
+      options:
+        - "No"
+        - "Yes — public API change (ut_runner, ut packages, annotations)"
+        - "Yes — output/reporter format change"
+        - "Yes — internal package change (no public API impact)"
+        - "Unsure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration / compatibility notes
+      description: If breaking, describe the migration path for users and downstream integrations.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have reviewed the existing architecture docs and source
+          required: true
+        - label: Relevant unit / integration tests have been considered
+          required: false
