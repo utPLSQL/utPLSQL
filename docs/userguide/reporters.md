@@ -136,6 +136,10 @@ If you use a compatible terminal, you can also have a colored result. Only top l
 
 ![tap_colored_output](../images/tap_reporter_colored.png)
 
+Suites (and suitepaths) and contexts are included as [commented subtests](https://testanything.org/tap-version-14-specification.html#:~:text=Commented%20Subtests) including a summary of the tests performed for that specific context/suite. This example package has the suitepath "org.utplsql.tests.helpers":
+
+![tap_include_suitepath](../images/tap_reporter_suitepath.png)
+
 ## Debug reporter
 
 The `ut_debug_reporter` provides a highly verbose output containing thorough details about framework and test execution.
