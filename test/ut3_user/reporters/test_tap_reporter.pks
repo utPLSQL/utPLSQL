@@ -31,10 +31,16 @@ create or replace package test_tap_reporter as
   procedure escape_multiple_characters_test_name;
 
   --%test(Disabled Test with special characters in disable reason)
-  procedure special_characters_in_deisabled_reason;
+  procedure special_characters_in_disabled_reason;
 
   --%test(Don't escape special characters in comment)
   procedure special_characters_in_comment;
+
+  --%test(Include context as commented subtests)
+  procedure context_as_commented_subtests;
+
+  --%test(Suitepath as chopped subtests)
+  procedure suitepath_as_chopped_subtests;
 
 
   --%afterall

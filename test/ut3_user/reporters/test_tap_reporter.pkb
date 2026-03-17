@@ -159,7 +159,7 @@ create or replace package body test_tap_reporter as
   end escape_multiple_characters_test_name;
 
 
-  procedure special_characters_in_deisabled_reason as
+  procedure special_characters_in_disabled_reason as
     l_output_data       ut3_develop.ut_varchar2_list;
     l_expected          varchar2(32767);
   begin
@@ -170,7 +170,7 @@ create or replace package body test_tap_reporter as
     from table(ut3_develop.ut.run('test_tap_escaping.not_skipping_escapes',ut3_develop.ut_tap_reporter()));
 
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
-  end special_characters_in_deisabled_reason;
+  end special_characters_in_disabled_reason;
 
 
   procedure special_characters_in_comment as
@@ -185,6 +185,36 @@ create or replace package body test_tap_reporter as
 
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end special_characters_in_comment;
+
+
+  procedure context_as_commented_subtests as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[%# Subtest: A suite for testing different outcomes from reporters%# Subtest: A description of some context%]';
+
+    select *
+      bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_reporters.passing_test',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+
+  end context_as_commented_subtests;
+
+
+  procedure suitepath_as_chopped_subtests as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[.*# Subtest: org.*1\s{5}# Subtest: utplsql.*1\s{9}# Subtest: tests.*1\s{13}# Subtest: helpers.*1\s{17}# Subtest: A suite for testing different outcomes from reporters.*]';
+    
+    select *
+      bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_reporters.passing_test',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected, 'n');
+
+  end suitepath_as_chopped_subtests;
 
 
   procedure drop_help_tests as
