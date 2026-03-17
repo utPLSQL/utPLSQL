@@ -812,94 +812,62 @@ create or replace package body ut_utils is
     return l_result;
   end replace_multiline_comments;
 
-  function replace_multiline_comments(a_source clob) return clob is
-    l_result                  clob;
-    l_ml_comment_start        binary_integer := 1;
-    l_comment_start           binary_integer := 1;
-    l_text_start              binary_integer := 1;
-    l_escaped_text_start      binary_integer := 1;
-    l_escaped_text_end_char   varchar2(1 char);
-    l_end                     binary_integer := 1;
-    l_ml_comment              clob;
-    l_newlines_count          binary_integer;
-    l_offset                  binary_integer := 1;
-    l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
+  function strip_create_header_lines(a_source dbms_preprocessor.source_lines_t)
+    return dbms_preprocessor.source_lines_t
+  is
+    l_result      dbms_preprocessor.source_lines_t := a_source;
+    l_rebased     dbms_preprocessor.source_lines_t;
+    l_create_line pls_integer;
+    l_header_line pls_integer;
+    l_header_pos  pls_integer := 0;
   begin
-    l_ml_comment_start := instr(a_source,'/*');
-    l_comment_start := instr(a_source,'--');
-    l_text_start := instr(a_source,'''');
-    l_escaped_text_start := instr(a_source,q'[q']');
-    while l_offset > 0 and l_ml_comment_start > 0 loop
+    if l_result.count = 0 then
+      return l_result;
+    end if;
 
-      if l_ml_comment_start > 0 and (l_ml_comment_start < l_comment_start or l_comment_start = 0)
-        and (l_ml_comment_start < l_text_start or l_text_start = 0)and (l_ml_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
-      then
-        l_end := instr(a_source,'*/',l_ml_comment_start+2);
-        append_to_clob(l_result, dbms_lob.substr(a_source, l_ml_comment_start-l_offset, l_offset));
-        if l_end > 0 then
-          l_ml_comment     := substr(a_source, l_ml_comment_start, l_end-l_ml_comment_start);
-          l_newlines_count := length( l_ml_comment ) - length( translate( l_ml_comment, 'a'||chr(10), 'a') );
-          if l_newlines_count > 0 then
-            append_to_clob(l_result, lpad( chr(10), l_newlines_count, chr(10) ) );
-          end if;
-          l_end := l_end + 2;
-        end if;
-      else
-
-        if l_comment_start > 0 and (l_comment_start < l_ml_comment_start or l_ml_comment_start = 0)
-           and (l_comment_start < l_text_start or l_text_start = 0) and (l_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
-        then
-          l_end := instr(a_source,chr(10),l_comment_start+2);
-          if l_end > 0 then
-            l_end := l_end + 1;
-          end if;
-        elsif l_text_start > 0 and (l_text_start < l_ml_comment_start or l_ml_comment_start = 0)
-              and (l_text_start < l_comment_start or l_comment_start = 0) and (l_text_start < l_escaped_text_start or l_escaped_text_start = 0)
-        then
-          l_end := instr(a_source,q'[']',l_text_start+1);
-
-          --skip double quotes while searching for end of quoted text
-          while l_end > 0 and l_end = instr(a_source,q'['']',l_text_start+1) loop
-            l_end := instr(a_source,q'[']',l_end+1);
-          end loop;
-          if l_end > 0 then
-            l_end := l_end + 1;
-          end if;
-
-        elsif l_escaped_text_start > 0 and (l_escaped_text_start < l_ml_comment_start or l_ml_comment_start = 0)
-              and (l_escaped_text_start < l_comment_start or l_comment_start = 0) and (l_escaped_text_start < l_text_start or l_text_start = 0)
-        then
-          --translate char "[" from the start of quoted text  "q'[someting]'" into "]"
-          l_escaped_text_end_char := translate(substr(a_source, l_escaped_text_start + 2, 1),gc_open_chars,gc_close_chars);
-          l_end := instr(a_source,l_escaped_text_end_char||'''',l_escaped_text_start + 3 );
-          if l_end > 0 then
-            l_end := l_end + 2;
-          end if;
-        end if;
-
-        if l_end = 0 then
-          append_to_clob(l_result, substr(a_source, l_offset, l_length-l_offset));
-        else
-          append_to_clob(l_result, substr(a_source, l_offset, l_end-l_offset));
-        end if;
-      end if;
-      l_offset := l_end;
-      if l_offset >= l_ml_comment_start then
-        l_ml_comment_start := instr(a_source,'/*',l_offset);
-      end if;
-      if l_offset >= l_comment_start then
-        l_comment_start := instr(a_source,'--',l_offset);
-      end if;
-      if l_offset >= l_text_start then
-        l_text_start := instr(a_source,'''',l_offset);
-      end if;
-      if l_offset >= l_escaped_text_start then
-        l_escaped_text_start := instr(a_source,q'[q']',l_offset);
+    -- remove comment lines that contain "-- create or replace" and find first CREATE
+    for i in 1..l_result.count loop
+      l_result(i) := regexp_replace(l_result(i), '^.*[-]{2,}\s*create(\s+or\s+replace).*$', null, 1, 1, 'i');
+      if l_create_line is null and regexp_like(l_result(i), '(^|[[:space:]])create([[:space:]]|$)', 'i') then
+        l_create_line := i;
       end if;
     end loop;
-    append_to_clob(l_result, substr(a_source, l_end));
+
+    -- find first occurrence of object keyword after CREATE (may be on later line)
+    if l_create_line is not null then
+      for i in l_create_line..l_result.count loop
+        l_header_pos := regexp_instr(
+          l_result(i),
+          '(^|[[:space:]])(package|type|procedure|function)([[:space:]]|$)',
+          1, 1, 0, 'i', 2
+        );
+        if l_header_pos > 0 then
+          l_header_line := i;
+          exit;
+        end if;
+      end loop;
+
+      if l_header_line is not null then
+        -- keep from keyword onward on the header line
+        l_result(l_header_line) := substr(l_result(l_header_line), l_header_pos);
+        -- remove "OWNER." from create or replace statement.
+        -- Owner is not supported along with AUTHID - see issue https://github.com/utPLSQL/utPLSQL/issues/1088
+        l_result(l_header_line) := regexp_replace(
+          l_result(l_header_line),
+          '^(package|type|procedure|function)\s+("?[[:alpha:]][[:alnum:]$#_]*"?\.)(.*)',
+          '\1 \3', 1, 1, 'ni'
+        );
+
+        -- rebase so header line becomes line 1 (matches preprocessor expectations)
+        for i in l_header_line .. l_result.count loop
+          l_rebased(i - l_header_line + 1) := l_result(i);
+        end loop;
+        return l_rebased;
+      end if;
+    end if;
+
     return l_result;
-  end;
+  end strip_create_header_lines;
 
   function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info is
     l_for_reporters ut_reporters_info := a_for_reporters;

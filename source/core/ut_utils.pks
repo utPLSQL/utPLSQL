@@ -406,9 +406,14 @@ create or replace package ut_utils authid definer is
   * Replaces multi-line comments in given source-code with empty lines
   */
   function replace_multiline_comments(a_source dbms_preprocessor.source_lines_t)
-  return dbms_preprocessor.source_lines_t;
-  
-  function replace_multiline_comments(a_source clob) return clob;
+    return dbms_preprocessor.source_lines_t;
+
+   /**
+   * Strips the CREATE header (possibly split across lines) so source starts at
+   *   package/type/procedure/function keyword, preserving line numbers.
+   */
+  function strip_create_header_lines(a_source dbms_preprocessor.source_lines_t)
+    return dbms_preprocessor.source_lines_t;
 
    /**
    * Returns list of sub-type reporters for given list of super-type reporters
