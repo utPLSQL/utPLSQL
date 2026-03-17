@@ -20,6 +20,14 @@ create or replace package body test_tap_reporter as
 
         --%test(Escaped Comments)
         procedure escaped_comments;
+
+        --%context(Some context)
+
+        --%test(Another disabled test)
+        --%disabled
+        procedure another_disabled_test;
+
+        --%endcontext
       end test_tap_escaping;
     ]';
 
@@ -42,6 +50,11 @@ create or replace package body test_tap_reporter as
           dbms_output.put_line('This \ and # should not be escaped, and this not as well!!!');
           ut.expect(1).to_equal(1);
         end escaped_comments;
+
+        procedure another_disabled_test as
+        begin
+          ut.expect(10).to_equal(1);
+        end;
       end test_tap_escaping;
     ]';
 
@@ -215,6 +228,21 @@ create or replace package body test_tap_reporter as
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_match(l_expected, 'n');
 
   end suitepath_as_chopped_subtests;
+
+
+  procedure include_context_with_skipped_tests as
+    l_output_data       ut3_develop.ut_varchar2_list;
+    l_expected          varchar2(32767);
+  begin
+    l_expected := q'[%# Subtest: Some context%]';
+    
+    select *
+      bulk collect into l_output_data
+    from table(ut3_develop.ut.run('test_tap_escaping.another_disabled_test',ut3_develop.ut_tap_reporter()));
+
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
+
+  end include_context_with_skipped_tests;
 
 
   procedure drop_help_tests as

@@ -42,6 +42,9 @@ create or replace package test_tap_reporter as
   --%test(Suitepath as chopped subtests)
   procedure suitepath_as_chopped_subtests;
 
+  --%test(Include context with only skipped tests in output)
+  procedure include_context_with_skipped_tests;
+
 
   --%afterall
   procedure drop_help_tests;
