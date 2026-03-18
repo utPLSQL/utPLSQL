@@ -168,12 +168,6 @@ create or replace package body ut_annotation_manager as
         );
         l_object_lines.delete;
       end if;
-    exception
-      when others then
-        if a_sources_cursor%isopen then
-          close a_sources_cursor;
-        end if;
-        raise;
     end;
     if a_sources_cursor%isopen then
       close a_sources_cursor;
