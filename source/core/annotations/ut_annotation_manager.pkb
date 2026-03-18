@@ -143,31 +143,41 @@ create or replace package body ut_annotation_manager as
     l_parse_time          date := sysdate;
     pragma autonomous_transaction;
   begin
-    loop
-      fetch a_sources_cursor bulk collect into l_names, l_lines limit c_lines_fetch_limit;
-      for i in 1 .. l_names.count loop
-        if l_names(i) != l_name then
-          l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
-          ut_annotation_cache_manager.update_cache(
-            ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
-          );
-          l_object_lines.delete;
-        end if;
+    begin
+      loop
+        fetch a_sources_cursor bulk collect into l_names, l_lines limit c_lines_fetch_limit;
+        for i in 1 .. l_names.count loop
+          if l_names(i) != l_name then
+            l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
+            ut_annotation_cache_manager.update_cache(
+              ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
+            );
+            l_object_lines.delete;
+          end if;
 
-        l_name  := l_names(i);
-        l_object_lines(l_object_lines.count+1) := l_lines(i);
+          l_name  := l_names(i);
+          l_object_lines(l_object_lines.count+1) := l_lines(i);
+        end loop;
+        exit when a_sources_cursor%notfound;
+
       end loop;
-      exit when a_sources_cursor%notfound;
-
-    end loop;
-    if a_sources_cursor%rowcount > 0 then
-      l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
-      ut_annotation_cache_manager.update_cache(
-        ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
-      );
-      l_object_lines.delete;
+      if a_sources_cursor%rowcount > 0 then
+        l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
+        ut_annotation_cache_manager.update_cache(
+          ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
+        );
+        l_object_lines.delete;
+      end if;
+    exception
+      when others then
+        if a_sources_cursor%isopen then
+          close a_sources_cursor;
+        end if;
+        raise;
+    end;
+    if a_sources_cursor%isopen then
+      close a_sources_cursor;
     end if;
-    close a_sources_cursor;
   end;
 
 
