@@ -174,7 +174,6 @@ create or replace package body ut_annotation_manager as
     end if;
   end;
 
-
   procedure validate_annotation_cache(
     a_object_owner   varchar2,
     a_object_type    varchar2,
@@ -238,7 +237,6 @@ create or replace package body ut_annotation_manager as
       l_sql_lines   dbms_preprocessor.source_lines_t := dbms_preprocessor.source_lines_t();
       l_sql_lines_clob ut_varchar2_list := ut_varchar2_list();
       l_result      sys_refcursor;
-      l_replaced    boolean := false;
     begin
       if a_parts > 0 then
         for i in 1..a_parts loop
