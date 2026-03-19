@@ -346,6 +346,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_xunit_reporter.tpb'
 @@install_component.sql 'reporters/ut_sonar_test_reporter.tps'
 @@install_component.sql 'reporters/ut_sonar_test_reporter.tpb'
+@@install_component.sql 'reporters/ut_tap_reporter.tps'
+@@install_component.sql 'reporters/ut_tap_reporter.tpb'
 
 @@install_component.sql 'reporters/ut_coverage_html_reporter.tps'
 @@install_component.sql 'reporters/ut_coverage_report_html_helper.pks'

@@ -104,6 +104,7 @@ grant execute on &&ut3_owner..ut_tfs_junit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_documentation_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_tap_reporter to &ut3_user;
 --reporters - coverage
 grant execute on &&ut3_owner..ut_coverage_html_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to &ut3_user;

@@ -393,7 +393,8 @@ end;';
       select 'UT3_DEVELOP.UT_SONAR_TEST_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_TEAMCITY_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_TFS_JUNIT_REPORTER', 'Y' from dual union all
-      select 'UT3_DEVELOP.UT_XUNIT_REPORTER', 'Y' from dual
+      select 'UT3_DEVELOP.UT_XUNIT_REPORTER', 'Y' from dual union all
+      select 'UT3_DEVELOP.UT_TAP_REPORTER', 'Y' from dual
     order by 1;
     --Act
     open l_actual for select * from table(ut3_develop.ut_runner.GET_REPORTERS_LIST()) order by 1;
