@@ -180,7 +180,7 @@ create or replace package body ut is
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
     a_exclude_object_expr varchar2 := null,
-   a_fail_on_errors boolean := false
+    a_fail_on_errors boolean := false
   ) is
     pragma autonomous_transaction;
   begin
@@ -254,8 +254,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  -- a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -276,8 +276,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr,
-      a_fail_on_errors   
+      a_exclude_object_expr
+       
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -304,8 +304,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+   -- a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -326,8 +326,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr  ,
-      a_fail_on_errors
+      a_exclude_object_expr  
+      --a_fail_on_errors
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -355,8 +355,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  --  a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -377,8 +377,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr  ,
-      a_fail_on_errors 
+      a_exclude_object_expr  
+      --a_fail_on_errors 
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -406,8 +406,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+   -- a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -428,8 +428,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr  ,
-      a_fail_on_errors
+      a_exclude_object_expr  
+  --    a_fail_on_errors
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -457,8 +457,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  --  a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter     ut_reporter_base := a_reporter;
     l_results      sys_refcursor;
@@ -479,8 +479,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr  ,
-      a_fail_on_errors 
+      a_exclude_object_expr  
+     -- a_fail_on_errors 
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -508,8 +508,8 @@ create or replace package body ut is
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+ --   a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -530,8 +530,8 @@ create or replace package body ut is
       a_include_schema_expr,
       a_include_object_expr,
       a_exclude_schema_expr,
-      a_exclude_object_expr ,
-      a_fail_on_errors    
+      a_exclude_object_expr 
+     -- a_fail_on_errors    
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -605,8 +605,8 @@ create or replace package body ut is
         a_include_schema_expr,
         a_include_object_expr,
         a_exclude_schema_expr,
-        a_exclude_object_expr ,
-        a_fail_on_errors         
+        a_exclude_object_expr 
+      --  a_fail_on_errors         
       );
     end if;
     if l_reporter is of (ut_output_reporter_base) then

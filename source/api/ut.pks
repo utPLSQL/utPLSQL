@@ -66,8 +66,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+   -- a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -85,8 +85,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  --  a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -105,8 +105,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+   -- a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -125,8 +125,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  --  a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -145,8 +145,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+    --a_fail_on_errors boolean := fals
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -165,8 +165,8 @@ create or replace package ut authid current_user as
     a_include_schema_expr varchar2 := null,
     a_include_object_expr varchar2 := null,
     a_exclude_schema_expr varchar2 := null,
-    a_exclude_object_expr varchar2 := null,
-    a_fail_on_errors boolean := false
+    a_exclude_object_expr varchar2 := null
+  --  a_fail_on_errors boolean := false
   ) return ut_varchar2_rows pipelined;
 
   procedure run(
