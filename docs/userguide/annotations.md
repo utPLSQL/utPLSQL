@@ -46,7 +46,7 @@ package test_package is
   --%disabled
   procedure my_first_procedure;
 
-  $if dbms_db_version.version >= 12 $then --This is ok - annotation before procedure 
+  $if dbms_db_version.version >= 19 $then --This is ok - annotation before procedure 
   --%test() 
   procedure my_first_procedure;
   $end
@@ -71,7 +71,7 @@ package test_package is
   procedure proc1;
 
   --%test() --This is wrong as there is a compiler directive between procedure and annotation
-  $if dbms_db_version.version >= 12 $then  
+  $if dbms_db_version.version >= 19 $then  
   procedure proc_12;
   $end
 
@@ -1755,7 +1755,7 @@ The `--%throws` annotation allows you to specify a list of exceptions as one of:
 - number literals - example `--%throws(-20134)`
 - variables of type exception defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
 - variables of type number defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
-- [predefined oracle exceptions](https://docs.oracle.com/cd/E11882_01/timesten.112/e21639/exceptions.htm#CIHFIGFE) - example `--%throws(no_data_found)`
+- [predefined oracle exceptions](https://docs.oracle.com/en//database/oracle/oracle-database/19/lnpls/predefined-exceptions.html) - example `--%throws(no_data_found)`
 
 The annotation is ignored, when no valid arguments are provided. Examples of invalid annotations `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
 

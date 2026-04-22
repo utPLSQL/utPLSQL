@@ -2,19 +2,11 @@
 
 ## Supported database versions
 
-utPLSQL is continuously tested against following versions of Oracle databases
+- Oracle Database 19c or newer (SE/EE/Cloud/Free)
 
-* 11g R2 
-* 12c
-* 12c R2
-* 18c
-* 19c
+We do our best to assure full compatibility with **actively supported** versions of Oracle databases. 
+See [this page](https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6) for Oracle Database Releases and their Support Lifetime by Oracle.
 
-We do our best to assure full compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
-
-## Requirements
-
-utPLSQL will run on any Oracle Database version 11g relase 2 or above.
 
 ### Licensed features required
 
@@ -179,7 +171,7 @@ If the installing user and utPLSQL owner is one and the same, the user must have
   
 In addition, the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
-utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
+utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_PROFILER.html) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
 
 It is up to DBA to maintain the storage of the profiler tables.
 
@@ -274,7 +266,7 @@ select
 ## Additional requirements
 
 In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
-This is a requirement of [DBMS_PROFILER package](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476).
+This is a requirement of [DBMS_PROFILER package](https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_PROFILER.html#GUID-DEE5EA97-14AA-4AF2-A5F7-4AB1D004B99F).
 
 In practice, user running tests for PLSQL code that he does not own, needs to have CREATE ANY PROCEDURE/CREATE ANY TRIGGER privileges.
 Running code coverage on objects that the user does not own will **not produce any coverage information** without those privileges.

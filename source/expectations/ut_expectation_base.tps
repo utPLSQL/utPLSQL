@@ -1,7 +1,7 @@
 create or replace type ut_expectation_base authid current_user as object(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2026 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ create or replace type ut_expectation_base authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
   actual_data         ut_data_value,
   description         varchar2(4000 char),
 
