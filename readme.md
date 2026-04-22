@@ -1,102 +1,47 @@
 ![utPLSQL v3 | Testing Framework for PL/SQL](docs/images/utPLSQL-testing-framework-transparent_120.png)
 
-----------
-
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
-[![Download statistics](https://img.shields.io/github/downloads/utPLSQL/utPLSQL/total.svg)](http://gra.caldis.me/?url=https://github.com/utPLSQL/utPLSQL)
 [![GitHub Discussions](https://img.shields.io/github/discussions/utPLSQL/utPLSQL)](https://github.com/utPLSQL/utPLSQL/discussions)
-[![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
-
+[![X](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
 [![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
 
-----------
-utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
-Version 2 still supports older versions of Oracle that are no longer available. 
-The community that had developed on GitHub decided that a new internal architecture was needed, from that version 3 was born.  
+utPLSQL is a unit testing framework for Oracle PL/SQL and SQL, following industry standards and best practices of modern testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/).
 
-# Introduction
-utPLSQL is a Unit Testing framework for Oracle PL/SQL and SQL. 
-The framework follows industry standards and best patterns of modern Unit Testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/)
+## Key Features
 
+- Multiple ways to compare data with [matchers](docs/userguide/expectations.md)
+- Native comparison of complex types (objects, collections, cursors)
+- In-depth and consistent reporting of failures and errors
+- Tests identified and configured by [annotations](docs/userguide/annotations.md)
+- Hierarchies of test suites configured with annotations
+- Automatic (configurable) transaction control
+- Built-in [coverage](docs/userguide/coverage.md) reporting
+- Integration with SonarQube, Coveralls, Jenkins and TeamCity via [reporters](docs/userguide/reporters.md)
+- Plugin architecture for reporters and matchers
+- Flexible and simple test invocation
+- Multi-format reporting from the [command line client](https://github.com/utPLSQL/utPLSQL-cli)
 
-# Key features
+## Requirements
 
-- multiple ways to compare data with [matchers](docs/userguide/expectations.md)
-- native comparison of complex types (objects/collections/cursors)
-- in-depth and consistent reporting of failures and errors for tests
-- tests identified and configured by [annotations](docs/userguide/annotations.md)
-- hierarchies of test suites configured with annotations
-- automatic (configurable) transaction control
-- Build-in [coverage](docs/userguide/coverage.md) reporting
-- Integration with SonarQube, Coveralls, Jenkins and Teamcity with [reporters](docs/userguide/reporters.md)
-- plugin architecture for reporters and matchers
-- flexible and simple test invocation
-- multi-reporting from test-run from [command line](https://github.com/utPLSQL/utPLSQL-cli)
+- Oracle Database 19c or newer
 
-Requirements:
- - Version of Oracle under [extended support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) (Currently 11.2 and above)
+## Installation
 
-# Download
+Published releases are available for download on the [utPLSQL GitHub Releases page](https://github.com/utPLSQL/utPLSQL/releases).
 
-Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
+To install utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
+This creates a new user `UT3`, grants all required privileges, and creates PUBLIC synonyms.
 
-# Documentation
+For all install options see the [Install Guide](docs/userguide/install.md).
 
-Full documentation of the project is automatically published on [utPLSQL github pages](https://utplsql.github.io/utPLSQL/)
+## Quick Start
 
-[Cheat-sheets](https://www.cheatography.com/jgebal/lists/utplsql-v3-cheat-sheets/)
+**1. Write a test package**
 
-# Installation
-
-To install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
-This will create a new user `UT3`, grant all required privileges to that user and create PUBLIC synonyms needed.
-
-For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
-
-
-# Running tests
-
-To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) use one of following commands.
-```sql
-begin
-  ut.run();
-end;
-/
-```
-```sql
-exec  ut.run();
-```
-```sql
-select * from table(ut.run());
-```
-
-The above commands will run all the suites in the current schema and provide report to dbms_output or as a select statement.
-
-# Command line client
-
-You can use the utPLSQL command line client [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) to run tests without the need for Oracle Client or any IDE like SQLDeveloper/TOAD etc.
-
-Amongst many benefits it provides ability to:
-* see the progress of test execution for long-running tests - real-time reporting
-* use many reporting formats simultaneously and save reports to files (publish)
-* map your project source files and test files into database objects 
-
-Download the [latest client](https://github.com/utPLSQL/utPLSQL-cli/releases/latest) and are good to go.
-See [project readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md) for details.  
-
-
-# Example unit test packages
-
-**For examples of using Continuous Integration Server & SonarCloud with utPLSQL see the [utPLSQL demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).**
-
-
-The below test package is a fully-functional Unit Test package for testing a [`betwnstr` function](examples/between_string/betwnstr.sql).
-The package specification is [annotated](docs/userguide/annotations.md) with special comments.
-The annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
-The package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
+Annotate a package specification to define a test suite and its tests, then implement each test procedure in the package body:
 
 ```sql
 create or replace package test_between_string as
@@ -105,12 +50,6 @@ create or replace package test_between_string as
 
   -- %test(Returns substring from start position to end position)
   procedure normal_case;
-
-  -- %test(Returns substring when start position is zero)
-  procedure zero_start_position;
-
-  -- %test(Returns string until end if end position is greater than string length)
-  procedure big_end_position;
 
   -- %test(Returns null for null input string value)
   procedure null_string;
@@ -124,16 +63,6 @@ create or replace package body test_between_string as
     ut.expect( betwnstr( '1234567', 2, 5 ) ).to_( equal('2345') );
   end;
 
-  procedure zero_start_position is
-  begin
-    ut.expect( betwnstr( '1234567', 0, 5 ) ).to_( equal('12345') );
-  end;
-
-  procedure big_end_position is
-  begin
-    ut.expect( betwnstr( '1234567', 0, 500 ) ).to_( equal('1234567') );
-  end;
-
   procedure null_string is
   begin
     ut.expect( betwnstr( null, 2, 5 ) ).to_( be_null );
@@ -143,60 +72,83 @@ end;
 /
 ```
 
-Outputs from running the above tests
+**2. Run your tests**
+
+```sql
+exec ut.run();
+```
+
+**3. See the results**
+
 ```
 Between string function
   Returns substring from start position to end position
-  Returns substring when start position is zero
-  Returns string until end if end position is greater than string length
   Returns null for null input string value
 
 Finished in .036027 seconds
-4 tests, 0 failures
+2 tests, 0 failures
 ```
 
+For complete working examples see [examples/](examples/).
 
-# Contributing to the project
+## Running Tests
 
-We welcome new developers to join our community and contribute to the utPLSQL project.
-If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
-The best place to start is to read the documentation and get familiar with the existing code base.
-[Github discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to go if you want to talk with team members.
+From any Oracle-compatible IDE (SQL Developer, TOAD, PL/SQL Developer):
 
+```sql
+begin
+  ut.run();
+end;
+/
+```
+```sql
+exec ut.run();
+```
+```sql
+select * from table(ut.run());
+```
 
-----------
-[__Authors__](docs/about/authors.md)
+These commands run all suites in the current schema and report test results to `DBMS_OUTPUT` or as a result set.
 
+## Command Line Client
 
-----------
-__Project Directories__
+[utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) lets you run tests without an Oracle Client or IDE. It provides:
 
-* .github - contains files needed for github Actions integration
-* .travis - contains files needed for travis-ci integration
-* client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
-* development - Set of useful scripts and utilities for development and debugging of utPLSQL 
-* docs - Documentation of the project 
-* examples - Example source code and unit tests
-* source - The installation code for utPLSQL
-* tests - Tests for utPLSQL framework
+- Real-time test reporting
+- Simultaneous output of multiple report formats into different files
+- Source files and test files mapping for coverage reports
 
-----------
+Download the [latest release](https://github.com/utPLSQL/utPLSQL-cli/releases/latest) and see the [CLI readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md) for details.
 
+## Documentation
 
-# Version 2 to Version 3 Comparison
+Full documentation is published at [https://www.utplsql.org/utPLSQL/](https://www.utplsql.org/utPLSQL/).
 
-[Version 2 to Version 3 Comparison](docs/compare_version2_to_3.md)
+[Cheat-sheets](https://www.cheatography.com/jgebal/lists/utplsql-v3-cheat-sheets/) are available for quick reference.
 
-# Supporters
+See the [Changelog](CHANGELOG.md) for the full version history.
 
-The utPLSQL project is community-driven and is not commercially motivated. Nonetheless, donations and other contributions are always welcome, and are detailed below.
+Migrating from legacy utPLSQL v2? See the [version 2 to version 3 comparison](docs/compare_version2_to_3.md).
+
+## Contributing
+
+We welcome contributions of all kinds. Please read the [contributing guide](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md) before getting started.
+
+[GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
+
+## Supporters
+
+utPLSQL is community-driven and not commercially motivated. Donations and contributions are always welcome.
 
 <table>
 <tbody>
 <tr>
 <td><a href="https://www.red-gate.com/hub/events/open-source-projects" rel="nofollow"><img src="docs/images/supported_by_redgate_100.png" alt="supported_by_redgate" style="max-width:100%;"></a></td>
-<td>utPLSQL has been supported by Redgate in the form of sponsored stickers and t-shirts. Thank you for helping us spreading the word!</td>
+<td>utPLSQL has been supported by Redgate in the form of sponsored stickers and t-shirts. Thank you for helping us spread the word!</td>
 </tr>
 </tbody>
 </table>
 
+---
+
+[Authors](docs/about/authors.md)
