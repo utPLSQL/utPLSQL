@@ -17,6 +17,7 @@ Releases are available on the [GitHub Releases page](https://github.com/utPLSQL/
   - Added duplicate detection on cursor comparison using `join_by` by @lwasylow in [#1295](https://github.com/utPLSQL/utPLSQL/pull/1295)
   - Fix code causing the object duration Oracle exception on oracle 23.26 by @lwasylow in [#1310](https://github.com/utPLSQL/utPLSQL/pull/1310)
   - Packages with annotation-like comments are not test suites by @jgebal in [#1313](https://github.com/utPLSQL/utPLSQL/pull/1313)
+  - Performance improvements to annotation parsing by @lwasylow in [#1312](https://github.com/utPLSQL/utPLSQL/pull/1319)
   - Updated documentation and copyright banners across source files @jgebal in [#1319](https://github.com/utPLSQL/utPLSQL/pull/1319) 
 
 ---
