@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.14.4342--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.01.4361--develop-blue.svg)
 
 utPLSQL framework provides two main entry points to run unit tests from within the database: 
 
