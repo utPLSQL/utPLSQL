@@ -5,7 +5,7 @@ Releases are available on the [GitHub Releases page](https://github.com/utPLSQL/
 
 ---
 
-## [v3.2.01] - unreleased
+## [v3.2.01] - 2026-04-22
 
 ## Important
   - Dropped support for Oracle Database versions older than 19c
