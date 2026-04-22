@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -870,6 +870,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tap-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TAP Reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#debug-reporter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1151,7 +1162,7 @@
 
   <h1>Using reporters</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.1.14.4342--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4361--develop-blue.svg" /></p>
 <p>utPLSQL provides several reporting formats. The sections below describe most of them. </p>
 <h2 id="documentation-reporter">Documentation reporter<a class="headerlink" href="#documentation-reporter" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_documentation_reporter</code> is the default reporting format used by the framework.
@@ -1225,6 +1236,13 @@ Example of test report from TFS CI server.</p>
 <h2 id="coverage-reporters">Coverage reporters<a class="headerlink" href="#coverage-reporters" title="Permanent link">&para;</a></h2>
 <p>utPLSQL comes with a set of build-in coverage reporters.
 <a href="coverage.html">Code coverage</a> section describes in details how to use configure and use code coverage.</p>
+<h2 id="tap-reporter">TAP Reporter<a class="headerlink" href="#tap-reporter" title="Permanent link">&para;</a></h2>
+<p>The <code>ut_tap_reporter</code> produces output compatible with the <a href="https://testanything.org">Test Anything Protocol</a> (Version 14). TAP output can be consumed by a TAP consumer that can aggregate results from testsuites across different programming languages while maintaining good readability for humans.</p>
+<p><img alt="tap_output_no_color" src="../images/tap_reporter_no_color.png" /></p>
+<p>If you use a compatible terminal, you can also have a colored result. Only top level <code>not ok</code>-results will be colored:</p>
+<p><img alt="tap_colored_output" src="../images/tap_reporter_colored.png" /></p>
+<p>Suites (and suitepaths) and contexts are included as <a href="https://testanything.org/tap-version-14-specification.html#:~:text=Commented%20Subtests">commented subtests</a> including a summary of the tests performed for that specific context/suite. This example package has the suitepath "org.utplsql.tests.helpers":</p>
+<p><img alt="tap_include_suitepath" src="../images/tap_reporter_suitepath.png" /></p>
 <h2 id="debug-reporter">Debug reporter<a class="headerlink" href="#debug-reporter" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_debug_reporter</code> provides a highly verbose output containing thorough details about framework and test execution.</p>
 <p>Use this reporter only when you need to investigate framework issues or raise a bug report to utPLSQL team.</p>
@@ -1310,7 +1328,7 @@ Assuming that reporter with name <code>customer_reporter</code> was created in s
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="March 16, 2026 16:26:31 UTC">March 16, 2026 16:26:31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="April 22, 2026 07:12:28 UTC">April 22, 2026 07:12:28</span>
   </span>
 
     
