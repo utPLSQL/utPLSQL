@@ -1,7 +1,7 @@
 create or replace type body ut_expectation_base as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2019 utPLSQL Project
+  Copyright 2016 - 2026 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ create or replace type body ut_expectation_base as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
   member procedure to_(self in ut_expectation_base, a_matcher ut_matcher_base) is
     l_expectation_result boolean;
     l_matcher       ut_matcher := treat(a_matcher as ut_matcher);
