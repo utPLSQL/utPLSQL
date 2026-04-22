@@ -273,6 +273,8 @@ drop type ut_stack force;
 
 drop sequence ut_savepoint_seq;
 
+drop type ut_tap_reporter force;
+
 drop type ut_documentation_reporter force;
 
 drop type ut_debug_reporter force;
