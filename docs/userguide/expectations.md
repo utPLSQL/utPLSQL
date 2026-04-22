@@ -804,7 +804,7 @@ Syntax:
 
 `ut.expect( a_actual ).to_match( a_pattern [, a_modifiers] );`
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19)
 
 Usage:
 ```sql linenums="1"
@@ -1762,7 +1762,7 @@ FAILURE
 utPLSQL is capable of comparing json data-types of `json_element_t`, and also `json` **on Oracle 21 and above**
 
 !!! note
-    Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
+    Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 19c to 23 AI to enable `json` type compare. 
 
 
 ### Notes on comparison of json data

@@ -10,9 +10,7 @@ See [this page](https://www.oracle.com/us/support/library/lifetime-support-techn
 
 ### Licensed features required
 
-utPLSQL doesn't require any extra licensed features of Oracle database. It can be installed on any Standard Edition Oracle Database.
-
-In fact, it even supports Oracle 11g XE which is a free Oracle Database version with minimal features and storage limits.
+utPLSQL doesn't require any extra licensed features of Oracle database. It can be installed on any Edition of Oracle Database.
 
 ### Storage requirements
 
@@ -116,9 +114,6 @@ The scripts need to be executed by `SYSDBA`, in order to grant access to `DBMS_L
     - `DBMS_LOCK` is required for session synchronization between main session and session consuming realtime reports.<br>
     - The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.<br>
     - When installed with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.<br>
-        - For Oracle 11g following users are excluded:<br>
-            ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL<br> 
-        - For Oracle 12c and above the users returned by below query are excluded by utPLSQL:<br>
             `select username from all_users where oracle_maintained='Y';` <br>
  
 ### Installation without DDL trigger
