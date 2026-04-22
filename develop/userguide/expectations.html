@@ -1449,7 +1449,7 @@
 
   <h1>Expectations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4372--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4373--develop-blue.svg" /></p>
 <h2 id="expectation-concepts">Expectation concepts<a class="headerlink" href="#expectation-concepts" title="Permanent link">&para;</a></h2>
 <p>Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.</p>
 <p>utPLSQL uses expectations and matchers to perform the check on the data.</p>
@@ -2638,7 +2638,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <p>Validates that the actual value is matching the expected regular expression.</p>
 <p>Syntax:</p>
 <p><code>ut.expect( a_actual ).to_match( a_pattern [, a_modifiers] );</code></p>
-<p>Parameters <code>a_pattern</code> and <code>a_modifiers</code> represent a valid regexp pattern accepted by <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501">Oracle REGEXP_LIKE condition</a></p>
+<p>Parameters <code>a_pattern</code> and <code>a_modifiers</code> represent a valid regexp pattern accepted by <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19">Oracle REGEXP_LIKE condition</a></p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-43-1">1</a></span>
 <span class="normal"><a href="#__codelineno-43-2">2</a></span>
@@ -3846,7 +3846,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
 <p>utPLSQL is capable of comparing json data-types of <code>json_element_t</code>, and also <code>json</code> <strong>on Oracle 21 and above</strong></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable <code>json</code> type compare. </p>
+<p>Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 19c to 23 AI to enable <code>json</code> type compare. </p>
 </div>
 <h3 id="notes-on-comparison-of-json-data">Notes on comparison of json data<a class="headerlink" href="#notes-on-comparison-of-json-data" title="Permanent link">&para;</a></h3>
 <ul>
@@ -4142,7 +4142,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="April 22, 2026 11:18:50 UTC">April 22, 2026 11:18:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="April 22, 2026 11:27:44 UTC">April 22, 2026 11:27:44</span>
   </span>
 
     
