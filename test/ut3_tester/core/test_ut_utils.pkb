@@ -375,8 +375,8 @@ end;';
   procedure replace_multiline_comments
   is
     l_source   clob;
-    l_actual   clob;
-    l_expected clob;
+    l_actual   dbms_preprocessor.source_lines_t;
+    l_expected dbms_preprocessor.source_lines_t;
   begin
     --Arrange
     l_source := q'[
@@ -390,11 +390,11 @@ create or replace package dummy as
   gv_text2 varchar2(200) := '/* multi-line comment
     in a multi-line
     string*/';
-  -- ignored start of multi-line comment with multi-byte text � /*
-  -- ignored end of multi-line comment with multi-byte text � */
+  -- ignored start of multi-line comment with multi-byte text ☺ /*
+  -- ignored end of multi-line comment with multi-byte text ☺ */
   /*  multi-line comment
      with
-     multi-byte characters ���
+     multi-byte characters ☺☺☺
       in it */
   gv_text3 varchar2(200) := 'some text'; /* multiline comment*/  --followed by single-line comment
   /* multi-line comment in one line*/
@@ -403,7 +403,14 @@ create or replace package dummy as
     string*/}';
 end;
 ]';
-  l_expected := q'[
+
+    --Act
+    l_actual := ut3_develop.ut_utils.replace_multiline_comments(
+      ut3_tester_helper.main_helper.make_source( ut3_develop.ut_utils.clob_to_table(l_source) )
+    );
+
+    --Assert
+    l_expected := ut3_tester_helper.main_helper.make_source( ut3_develop.ut_utils.clob_to_table( q'[
 create or replace package dummy as
 
   -- single line comment with disabled /* multi-line comment */
@@ -414,8 +421,8 @@ create or replace package dummy as
   gv_text2 varchar2(200) := '/* multi-line comment
     in a multi-line
     string*/';
-  -- ignored start of multi-line comment with multi-byte text � /*
-  -- ignored end of multi-line comment with multi-byte text � */
+  -- ignored start of multi-line comment with multi-byte text ☺ /*
+  -- ignored end of multi-line comment with multi-byte text ☺ */
   ]'||q'[
 
 
@@ -426,11 +433,9 @@ create or replace package dummy as
     in escaped q'multi-line
     string*/}';
 end;
-]';
+]' ) );
     --Act
-    l_actual := ut3_develop.ut_utils.replace_multiline_comments(l_source);
-    --Assert
-    ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(ut3_tester_helper.main_helper.lines_to_str(l_actual)).to_equal(ut3_tester_helper.main_helper.lines_to_str(l_expected));
   end;
   
   procedure int_conv_ds_sec is

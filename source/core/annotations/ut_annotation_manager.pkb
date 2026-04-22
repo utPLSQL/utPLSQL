@@ -143,33 +143,36 @@ create or replace package body ut_annotation_manager as
     l_parse_time          date := sysdate;
     pragma autonomous_transaction;
   begin
-    loop
-      fetch a_sources_cursor bulk collect into l_names, l_lines limit c_lines_fetch_limit;
-      for i in 1 .. l_names.count loop
-        if l_names(i) != l_name then
-          l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
-          ut_annotation_cache_manager.update_cache(
-            ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
-          );
-          l_object_lines.delete;
-        end if;
+    begin
+      loop
+        fetch a_sources_cursor bulk collect into l_names, l_lines limit c_lines_fetch_limit;
+        for i in 1 .. l_names.count loop
+          if l_names(i) != l_name then
+            l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
+            ut_annotation_cache_manager.update_cache(
+              ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
+            );
+            l_object_lines.delete;
+          end if;
 
-        l_name  := l_names(i);
-        l_object_lines(l_object_lines.count+1) := l_lines(i);
+          l_name  := l_names(i);
+          l_object_lines(l_object_lines.count+1) := l_lines(i);
+        end loop;
+        exit when a_sources_cursor%notfound;
+
       end loop;
-      exit when a_sources_cursor%notfound;
-
-    end loop;
-    if a_sources_cursor%rowcount > 0 then
-      l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
-      ut_annotation_cache_manager.update_cache(
-        ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
-      );
-      l_object_lines.delete;
+      if a_sources_cursor%rowcount > 0 then
+        l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
+        ut_annotation_cache_manager.update_cache(
+          ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
+        );
+        l_object_lines.delete;
+      end if;
+    end;
+    if a_sources_cursor%isopen then
+      close a_sources_cursor;
     end if;
-    close a_sources_cursor;
   end;
-
 
   procedure validate_annotation_cache(
     a_object_owner   varchar2,
@@ -231,23 +234,24 @@ create or replace package body ut_annotation_manager as
 
     function get_source_from_sql_text(a_object_name varchar2, a_sql_text ora_name_list_t, a_parts binary_integer) return sys_refcursor is
       l_sql_clob    clob;
-      l_sql_lines   ut_varchar2_rows := ut_varchar2_rows();
+      l_sql_lines   dbms_preprocessor.source_lines_t := dbms_preprocessor.source_lines_t();
+      l_sql_lines_clob ut_varchar2_list := ut_varchar2_list();
       l_result      sys_refcursor;
     begin
       if a_parts > 0 then
         for i in 1..a_parts loop
           ut_utils.append_to_clob(l_sql_clob, a_sql_text(i));
         end loop;
-        l_sql_clob := ut_utils.replace_multiline_comments(l_sql_clob);
-        -- replace comment lines that contain "-- create or replace"
-        l_sql_clob := regexp_replace(l_sql_clob, '^.*[-]{2,}\s*create(\s+or\s+replace).*$', modifier => 'mi');
-        -- remove the "create [or replace] [[non]editionable] " so that we have only "type|package" for parsing
-        -- needed for dbms_preprocessor
-        l_sql_clob := regexp_replace(l_sql_clob, '^(.*?\s*create(\s+or\s+replace)?(\s+(editionable|noneditionable))?\s+?)((package|type).*)', '\5', 1, 1, 'ni');
-        -- remove "OWNER." from create or replace statement.
-        -- Owner is not supported along with AUTHID - see issue https://github.com/utPLSQL/utPLSQL/issues/1088
-        l_sql_clob := regexp_replace(l_sql_clob, '^(package|type)\s+("?[[:alpha:]][[:alnum:]$#_]*"?\.)(.*)', '\1 \3', 1, 1, 'ni');
-        l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
+
+        l_sql_lines_clob := ut_utils.clob_to_table(l_sql_clob);
+        for i in 1..l_sql_lines_clob.count loop
+          l_sql_lines(i) := l_sql_lines_clob(i);
+        end loop;
+
+        -- replace multiline comments that contain "-- create or replace" with single line comment to avoid parsing issues with dbms_preprocessor
+        l_sql_lines := ut_utils.replace_multiline_comments(l_sql_lines);
+        -- strip CREATE header (possibly split across lines) while preserving line numbers
+        l_sql_lines := ut_utils.strip_create_header_lines(l_sql_lines);
       end if;
       open l_result for
         select /*+ no_parallel */ a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
