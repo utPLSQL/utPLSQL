@@ -1449,7 +1449,7 @@
 
   <h1>Expectations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4366--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4371--develop-blue.svg" /></p>
 <h2 id="expectation-concepts">Expectation concepts<a class="headerlink" href="#expectation-concepts" title="Permanent link">&para;</a></h2>
 <p>Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.</p>
 <p>utPLSQL uses expectations and matchers to perform the check on the data.</p>
@@ -2474,8 +2474,7 @@ Since NULL is neither <em>true</em> nor <em>false</em>, both expectations will r
 <p>Validates that the actual value is like the expected expression.</p>
 <p>Syntax:</p>
 <p><code>ut.expect( a_actual ).to_be_like( a_mask [, a_escape_char] )</code></p>
-<p>Parameters <code>a_mask</code> and <code>a_escape_char</code> represent valid parameters of the <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142">Oracle LIKE condition</a>.</p>
-<p>If you use Oracle Database version 11.2.0.4, you may run into Oracle Bug 14402514: WRONG RESULTS WITH LIKE ON CLOB USING ESCAPE CHARACTER. In this case we recommend to use <code>match</code> instead of <code>be_like</code>.</p>
+<p>Parameters <code>a_mask</code> and <code>a_escape_char</code> represent valid parameters of the <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html">Oracle LIKE condition</a>.</p>
 <p>Usage:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-33-1">1</a></span>
 <span class="normal"><a href="#__codelineno-33-2">2</a></span>
@@ -3105,11 +3104,7 @@ The formula used for calcuation of expectation is:
 <li>Comparison of cursor returning <code>TIMESTAMP</code> <strong>columns</strong> against cursor returning <code>TIMESTAMP</code> <strong>bind variables</strong> requires variables to be cast to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See <a href="#comparing-cursor-data-containing-timestamp-bind-variables">Comparing cursor data containing TIMESTAMP bind variables</a> for examples.    </li>
 <li>To compare nested table/varray type you need to convert it to <code>anydata</code> by using <code>anydata.convertCollection()</code>  </li>
 <li>To compare object type you need to convert it to <code>anydata</code> by using <code>anydata.convertObject()</code>  </li>
-<li>It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query<ul>
-<li>On Oracle 11g Release 2 - pipelined table functions are needed (see section <a href="https://oracle-base.com/articles/misc/pipelined-table-functions">Implicit (Shadow) Types in this artcile</a>)</li>
-<li>On Oracle 12c and above - use <a href="https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1">TABLE function on nested tables/varrays/associative arrays of PL/SQL records</a> </li>
-</ul>
-</li>
+<li>It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and <a href="https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1">TABLE operator in SQL query</a> </li>
 <li>utPLSQL is not able to distinguish between NULL and whitespace-only column/attribute value when comparing compound data. This is due to Oracle limitation on of XMLType.<br />
   See <a href="https://github.com/utPLSQL/utPLSQL/issues/880">issue #880</a> for details. <em>Note: This behavior might be fixed in future releases, when utPLSQL is no longer depending on XMLType for compound data comparison.</em></li>
 </ul>
@@ -3848,7 +3843,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
 <a id="__codelineno-77-9" name="__codelineno-77-9" href="#__codelineno-77-9"></a>  at &quot;anonymous block&quot;, line 32
 </code></pre></div></p>
 <h2 id="comparing-json-objects">Comparing Json objects<a class="headerlink" href="#comparing-json-objects" title="Permanent link">&para;</a></h2>
-<p>utPLSQL is capable of comparing json data-types of <code>json_element_t</code> <strong>on Oracle 12.2 and above</strong>, and also <code>json</code> <strong>on Oracle 21 and above</strong></p>
+<p>utPLSQL is capable of comparing json data-types of <code>json_element_t</code>, and also <code>json</code> <strong>on Oracle 21 and above</strong></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable <code>json</code> type compare. </p>
@@ -4147,7 +4142,7 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="April 22, 2026 10:04:38 UTC">April 22, 2026 10:04:38</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="April 22, 2026 11:11:22 UTC">April 22, 2026 11:11:22</span>
   </span>
 
     
