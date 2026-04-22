@@ -648,9 +648,7 @@ Syntax:
 
 `ut.expect( a_actual ).to_be_like( a_mask [, a_escape_char] )`
 
-Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142).
-
-If you use Oracle Database version 11.2.0.4, you may run into Oracle Bug 14402514: WRONG RESULTS WITH LIKE ON CLOB USING ESCAPE CHARACTER. In this case we recommend to use `match` instead of `be_like`.
+Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html).
 
 Usage:
 ```sql linenums="1"
@@ -1224,9 +1222,7 @@ utPLSQL is capable of comparing compound data-types including:
 - Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be cast to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
-- It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
-    - On Oracle 11g Release 2 - pipelined table functions are needed (see section [Implicit (Shadow) Types in this artcile](https://oracle-base.com/articles/misc/pipelined-table-functions))
-    - On Oracle 12c and above - use [TABLE function on nested tables/varrays/associative arrays of PL/SQL records](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
+- It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and [TABLE operator in SQL query](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
 - utPLSQL is not able to distinguish between NULL and whitespace-only column/attribute value when comparing compound data. This is due to Oracle limitation on of XMLType.  
   See [issue #880](https://github.com/utPLSQL/utPLSQL/issues/880) for details. *Note: This behavior might be fixed in future releases, when utPLSQL is no longer depending on XMLType for compound data comparison.*
 
@@ -1763,7 +1759,7 @@ FAILURE
 
 ## Comparing Json objects
 
-utPLSQL is capable of comparing json data-types of `json_element_t` **on Oracle 12.2 and above**, and also `json` **on Oracle 21 and above**
+utPLSQL is capable of comparing json data-types of `json_element_t`, and also `json` **on Oracle 21 and above**
 
 !!! note
     Whenever a database is upgraded to compatible version the utPLSQL needs to be reinstalled to pick up json changes. E.g. upgrade from 18c to 21c to enable `json` type compare. 
