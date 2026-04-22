@@ -9,6 +9,7 @@ git rev-parse && cd "$(git rev-parse --show-cdup)"
 rm -rf ${UTPLSQL_DIR:-utPLSQL_latest_release}
 # clone utPLSQL main branch from upstream into utPLSQL sub-directory of your project
 git clone --depth=1 --branch=${SELFTESTING_BRANCH:-main} https://github.com/utPLSQL/utPLSQL.git ${UTPLSQL_DIR:-utPLSQL_latest_release}
+rm -rf ${UTPLSQL_DIR:-utPLSQL_latest_release}/.git
 
 rm -rf utPLSQL-cli/*
 # download latest release version of utPLSQL-cli
