@@ -1,7 +1,7 @@
 ![utPLSQL v3 | Testing Framework for PL/SQL](docs/images/utPLSQL-testing-framework-transparent_120.png)
 
-[![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
+[![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![GitHub Discussions](https://img.shields.io/github/discussions/utPLSQL/utPLSQL)](https://github.com/utPLSQL/utPLSQL/discussions)
 [![X](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
