@@ -276,17 +276,3 @@ jobs:
           repository:  ${{ matrix.repo }}
           event-type: utPLSQL-build
 
-  slack-workflow-status:
-    if: always()
-    name: Post Workflow Status To Slack
-    needs: [ build, publish, dispatch ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Slack Workflow Notification
-        uses: Gamesight/slack-workflow-status@master
-        with:
-          repo_token: ${{secrets.GITHUB_TOKEN}}
-          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
-          name: 'Github Actions[bot]'
-          icon_url: 'https://octodex.github.com/images/mona-the-rivetertocat.png'
