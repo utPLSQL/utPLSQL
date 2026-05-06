@@ -78,5 +78,37 @@ create or replace package body test_ut_suite_tag_filter is
     ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags and not('test2' member of tags))]');  
   end;
 
+  procedure filtering_is_correctly_applied_to_all_items is
+      l_input_data ut3_develop.ut_suite_cache_rows;
+      l_expected   sys_refcursor;
+      l_actual     sys_refcursor;
+  begin
+      l_input_data := ut3_develop.ut_suite_cache_rows(
+          ut3_develop.ut_suite_cache_row(
+            1, 'UT_SUITE', 'some.path.test_tags', 'TEST_USER', 'TEST_TAGS', 'TEST_TAGS', 3, timestamp '2026-05-06 10:23:38.461299', NULL, NULL, 0, NULL,  null,  null,  null, null, null, null, null, null,
+            ut3_develop.ut_varchar2_rows('slow'), null),
+          ut3_develop.ut_suite_cache_row(
+            2, 'UT_SUITE_CONTEXT', 'some.path.test_tags.nested_context_#1', 'TEST_USER', 'TEST_TAGS', 'NESTED_CONTEXT_#1', 9, timestamp '2026-05-06 10:23:38.461299', 'tags_are_applied_in_contexts', NULL, 0, NULL, null,  null, null, null, null, null, null, null,
+            ut3_develop.ut_varchar2_rows('context_tag'), null),
+          ut3_develop.ut_suite_cache_row(
+            3, 'UT_TEST', 'some.path.test_tags.nested_context_#1.create_new_mapping', 'TEST_USER', 'TEST_TAGS', 'CREATE_NEW_MAPPING', 11, timestamp '2026-05-06 10:23:38.461299', NULL, NULL, 0, NULL, null,  null, null, null, null, null, null, null,
+            ut3_develop.ut_varchar2_rows('test_tag'), ut3_develop.ut_executable_test('UT_EXECUTABLE_TEST', 'test', 'TEST_USER', 'test_tags', 'create_new_mapping', NULL, NULL, NULL, NULL))
+      );
+
+      ut.expect(ut3_develop.ut_suite_tag_filter.apply( l_input_data, 'slow').count).to_equal(3 );
+
+      open l_expected for select * from table( l_input_data );
+      open l_actual for select * from table( ut3_develop.ut_suite_tag_filter.apply( l_input_data, 'slow') );
+      ut.expect(l_actual).to_equal(l_expected).join_by('ID');
+
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!slow').count ).to_equal(0);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'bad').count ).to_equal(0);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!bad').count ).to_equal(3);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!context_tag').count ).to_equal(0);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'context_tag').count ).to_equal(3);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!test_tag').count ).to_equal(0);
+      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'test_tag').count ).to_equal(3);
+  end;
+
 end test_ut_suite_tag_filter;
 /

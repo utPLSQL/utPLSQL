@@ -27,7 +27,10 @@ create or replace package test_ut_suite_tag_filter is
   --%endcontext
 
   --%test( Test conversion of expression from tag into custom where filter for SQL)
-  procedure conv_from_tag_to_sql_filter;  
+  procedure conv_from_tag_to_sql_filter;
+
+  --%test( Regression for issue #1324 - corect filtering by tags with suitepath and contexts)
+  procedure filtering_is_correctly_applied_to_all_items;
 
 end test_ut_suite_tag_filter;
 /
