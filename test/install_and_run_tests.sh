@@ -1,10 +1,9 @@
 #!/bin/bash
 set -ev
 
-. ./development/env.sh
-
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
+. ./development/env.sh
 cd test
 
 time . ./install_tests.sh
