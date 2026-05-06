@@ -62,6 +62,15 @@ create or replace package body test_ut_suite_tag_filter is
     ut.fail('Expected exception but nothing was raised');
   end;
 
+  procedure conversion_throws_when_lb_rb is
+    l_postfix ut3_develop.ut_varchar2_list;
+    l_input_token ut3_develop.ut_varchar2_list;
+  begin
+    l_input_token := ut3_develop.ut_varchar2_list('(',')');
+    l_postfix := ut3_develop.ut_suite_tag_filter.shunt_logical_expression(l_input_token);
+    ut.fail('Expected exception but nothing was raised');
+  end;
+
   procedure conv_from_tag_to_sql_filter is
     l_sql_filter varchar2(4000);
   begin

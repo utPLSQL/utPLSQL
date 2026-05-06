@@ -24,6 +24,10 @@ create or replace package test_ut_suite_tag_filter is
   --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
   procedure test_conversion_rb_by_oprd;
 
+  --%test(Conversion raises exception when empty brackets)
+  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+  procedure conversion_throws_when_lb_rb;
+
   --%endcontext
 
   --%test( Test conversion of expression from tag into custom where filter for SQL)
