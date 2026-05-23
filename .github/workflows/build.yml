@@ -93,6 +93,8 @@ jobs:
             echo \"ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE;
           SHUTDOWN IMMEDIATE;
           STARTUP;
+          PROMPT Should show true for DBFIPS_140 
+          SELECT name, value FROM v$parameter WHERE name = 'DBFIPS_140';
           EXIT;\" | sqlplus -s / as sysdba
           "
           docker exec oracle bash -c "until healthcheck.sh; do echo 'Waiting for DB restart...'; sleep 1; done"
