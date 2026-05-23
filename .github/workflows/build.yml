@@ -193,7 +193,7 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ always() && run-sonar-scanner == true }}
+        if: ${{ always() && matrix.run-sonar-scanner == true }}
         uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
