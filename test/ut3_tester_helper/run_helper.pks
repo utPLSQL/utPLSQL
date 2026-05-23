@@ -74,5 +74,10 @@ create or replace package run_helper is
     a_name  varchar2 := null
   ) return sys_refcursor;
 
+  procedure slow_down_insert_into_table_buffer;
+
+  procedure cleanup_slow_down_insert_into_table_buffer;
+
+  procedure run_as_job(a_job_action varchar2);
 end;
 /
