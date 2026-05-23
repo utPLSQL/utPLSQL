@@ -90,7 +90,7 @@ create or replace package body ut_coverage_report_html_helper is
 
   function object_id(a_object_full_name varchar2) return varchar2 is
   begin
-    return rawtohex(dbms_crypto.hash(src => utl_raw.cast_to_raw(a_object_full_name), typ => dbms_crypto.HASH_MD5));
+    return rawtohex(dbms_crypto.hash(src => utl_raw.cast_to_raw(a_object_full_name), typ => dbms_crypto.HASH_SH256));
   end;
 
   function link_to_source_file(a_object_full_name varchar2) return varchar2 is
