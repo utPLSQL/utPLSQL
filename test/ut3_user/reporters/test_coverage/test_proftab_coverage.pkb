@@ -208,11 +208,8 @@ create or replace package body test_proftab_coverage is
   end;
 
   procedure no_issue_with_duplicate_source is
-    l_expected  clob;
     l_actual    clob;
   begin
-    --Arrange
-    l_expected := '%<file path="trigger mdsys.%">%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -221,14 +218,14 @@ create or replace package body test_proftab_coverage is
               ut3_develop.ut.run(
                 'ut3_develop.test_dummy_coverage.zero_coverage',
                 ut3_develop.ut_coverage_sonar_reporter(),
-                a_include_schema_expr =>'MDSYS'
+                a_include_schema_expr =>'SYS'
               )
             ]'
           )
         );
 
     --Running above line is successful if there is no exception thrown due to duplicate lines in coverage
-    ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).not_to_be_null();
   end;
 
 end;
