@@ -87,7 +87,7 @@ jobs:
 
       - name: Enable FIPS 140 on Oracle DB
         id: enable-fips
-        if: ${{ matrix.fips_enabled == true }}
+        if: ${{ matrix.fips-enabled == true }}
         run: |
           docker exec oracle sqlplus -s / as sysdba <<'EOF'
           ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE;
