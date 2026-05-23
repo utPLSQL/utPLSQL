@@ -90,7 +90,7 @@ create or replace package body ut_coverage_report_html_helper is
 
   function object_id(a_object_full_name varchar2) return varchar2 is
   begin
-    return rawtohex(dbms_crypto.hash(src => utl_raw.cast_to_raw(a_object_full_name), typ => dbms_crypto.hash_md5));
+    return rawtohex(dbms_crypto.hash(src => utl_raw.cast_to_raw(a_object_full_name), typ => dbms_crypto.HASH_SH256));
   end;
 
   function link_to_source_file(a_object_full_name varchar2) return varchar2 is
@@ -231,7 +231,7 @@ create or replace package body ut_coverage_report_html_helper is
     l_title         varchar2(100) := 'All files';
     l_coverage_pct  number(5, 2);
     l_result        ut_varchar2_rows;
-    l_id            varchar2(50) := object_id(a_title);
+    l_id            varchar2(100) := object_id(a_title);
     l_unit_coverage ut_coverage.t_unit_coverage;
     l_unit          ut_coverage.t_object_name;
   begin

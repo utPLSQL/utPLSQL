@@ -457,12 +457,12 @@ create or replace package ut_utils authid definer is
   /*
   * Wrapper function for calling dbms_crypto.hash
   */
-  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh256)  return t_hash;
 
   /*
   * Wrapper function for calling dbms_crypto.hash
   */
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh256) return t_hash;
 
   /*
   * Returns a hash value of suitepath based on input path and random seed
