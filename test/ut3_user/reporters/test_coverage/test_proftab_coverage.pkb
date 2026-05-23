@@ -212,7 +212,7 @@ create or replace package body test_proftab_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<file path="package body mdsys.sdo_util%">%';
+    l_expected := '%<file path="trigger mdsys.%">%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -221,7 +221,7 @@ create or replace package body test_proftab_coverage is
               ut3_develop.ut.run(
                 'ut3_develop.test_dummy_coverage.zero_coverage',
                 ut3_develop.ut_coverage_sonar_reporter(),
-                a_include_objects => ut3_develop.ut_varchar2_list('MDSYS.SDO_UTIL')
+                a_include_schema_expr =>'MDSYS'
               )
             ]'
           )
