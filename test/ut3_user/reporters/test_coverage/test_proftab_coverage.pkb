@@ -207,5 +207,29 @@ create or replace package body test_proftab_coverage is
     ut.expect(l_actual).to_be_like(coverage_helper.substitute_covered_package(l_expected));
   end;
 
+  procedure no_issue_with_duplicate_source is
+    l_expected  clob;
+    l_actual    clob;
+  begin
+    --Arrange
+    l_expected := '%<file path="package body mdsys.sdo_util%">%';
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+        coverage_helper.substitute_covered_package(
+            q'[
+              ut3_develop.ut.run(
+                'ut3_develop.test_dummy_coverage.zero_coverage',
+                ut3_develop.ut_coverage_sonar_reporter(),
+                a_include_objects => ut3_develop.ut_varchar2_list('MDSYS.SDO_UTIL')
+              )
+            ]'
+          )
+        );
+
+    --Running above line is successful if there is no exception thrown due to duplicate lines in coverage
+    ut.expect(l_actual).to_be_like(l_expected);
+  end;
+
 end;
 /

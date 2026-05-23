@@ -55,6 +55,7 @@ create or replace package body ut_coverage is
                s.text
           from {sources_view} s {join_file_mappings}
          where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
+           and s.origin_con_id = sys_context('userenv', 'con_id')
            {filters}
            {regex_exc_filters}
            and not exists (

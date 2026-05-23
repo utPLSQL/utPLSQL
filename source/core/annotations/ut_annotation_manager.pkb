@@ -121,6 +121,7 @@ create or replace package body ut_annotation_manager as
                    and s.type  = r.object_type
                  where s.owner = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
                    and s.type  = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+                   and s.origin_con_id = sys_context('userenv', 'con_id')
                ) x
           where x.is_annotated = 'Y'
           order by x.name, x.line]'
@@ -268,6 +269,7 @@ create or replace package body ut_annotation_manager as
             where s.type  = :a_object_type
               and s.owner = :a_object_owner
               and s.name  = :a_object_name
+              and s.origin_con_id = sys_context('userenv', 'con_id')
           order by s.line]'
         using a_object_name, a_object_type, a_object_owner, a_object_name;
       return l_result;
