@@ -40,6 +40,7 @@ jobs:
             db_version_name: '23-free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim-faststart"
+            fips-enabled: true
     services:
       html_checker:
         image: ghcr.io/validator/validator:latest
@@ -84,6 +85,22 @@ jobs:
 # For PR build - test using target branch as framework, for branch build use self as testing framework
         run: git clone --depth=1 --branch=${CI_BASE_REF:-$CI_REF_NAME} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
 
+      - name: Enable FIPS 140 on Oracle DB
+        id: enable-fips
+        if: ${{ matrix.fips_enabled == true }}
+        run: |
+          docker exec oracle sqlplus -s / as sysdba <<'EOF'
+          ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE;
+          SHUTDOWN IMMEDIATE;
+          STARTUP;
+          EXIT;
+          EOF
+          docker exec oracle bash -c "
+            until healthcheck.sh; do
+              echo 'Waiting for DB to come back up after FIPS restart...'
+              sleep 1
+            done
+          "
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
 
