@@ -59,7 +59,7 @@ create or replace package body ut_coverage is
            {filters}
            {regex_exc_filters}
            and not exists (
-              select /*+ cardinality(el {excuded_objects_cardinality})*/ 1
+              select /*+ cardinality(el {excluded_objects_cardinality})*/ 1
                 from table(:l_excluded_objects) el
                where s.owner = el.owner and  s.name = el.name
            )
@@ -153,7 +153,7 @@ create or replace package body ut_coverage is
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
     l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
-    l_result := replace(l_result, '{excuded_objects_cardinality}', ut_utils.scale_cardinality(cardinality(coalesce(a_coverage_options.exclude_objects, ut_object_names()))));
+    l_result := replace(l_result, '{excluded_objects_cardinality}', ut_utils.scale_cardinality(cardinality(coalesce(a_coverage_options.exclude_objects, ut_object_names()))));
     l_result := replace(l_result, '{regex_exc_filters}', l_regex_exc_filters);
 
     return l_result;
