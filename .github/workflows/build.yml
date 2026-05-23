@@ -89,18 +89,13 @@ jobs:
         id: enable-fips
         if: ${{ matrix.fips-enabled == true }}
         run: |
-          docker exec oracle sqlplus -s / as sysdba <<'EOF'
-          ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE;
+          docker exec oracle bash -c "
+            echo \"ALTER SYSTEM SET DBFIPS_140=TRUE SCOPE=SPFILE;
           SHUTDOWN IMMEDIATE;
           STARTUP;
-          EXIT;
-          EOF
-          docker exec oracle bash -c "
-            until healthcheck.sh; do
-              echo 'Waiting for DB to come back up after FIPS restart...'
-              sleep 1
-            done
+          EXIT;\" | sqlplus -s / as sysdba
           "
+          docker exec oracle bash -c "until healthcheck.sh; do echo 'Waiting for DB restart...'; sleep 1; done"
       - name: Update privileges on sources
         run: chmod -R go+w ./{source,test,examples,${UTPLSQL_DIR}/source}
 
