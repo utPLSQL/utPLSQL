@@ -53,5 +53,10 @@ create or replace package test_output_buffer is
   --%test(Successfully sends multibyte long clob line into text buffer)
   procedure text_buffer_send_clob_multib;
 
+  --%beforetest(ut3_tester_helper.run_helper.slow_down_insert_into_table_buffer)
+  --%aftertest(ut3_tester_helper.run_helper.cleanup_slow_down_insert_into_table_buffer)
+  --%test(concurrent calls to init() procedure do not cause errors - Issue #985)
+  procedure concurrent_calls_do_not_cause_exception;
+
 end test_output_buffer;
 /

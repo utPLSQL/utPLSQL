@@ -211,7 +211,7 @@ create or replace package body run_helper is
       begin execute immediate 'drop package ut3_user.test_db_link'; exception when others then null; end;
   end;
 
- procedure create_suite_with_link is
+  procedure create_suite_with_link is
     pragma autonomous_transaction;
   begin
     create_db_link;
@@ -250,7 +250,7 @@ create or replace package body run_helper is
       execute immediate 'grant execute on test_distributed_savepoint to public';
   end;
   
- procedure drop_suite_with_link is
+  procedure drop_suite_with_link is
     pragma autonomous_transaction;
   begin
     drop_db_link;
@@ -926,5 +926,39 @@ create or replace package body run_helper is
     return l_result;
   end;
 
+  procedure slow_down_insert_into_table_buffer is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+    create or replace trigger ut3_develop.slow_down_buffer_insert
+    before insert on ut3_develop.ut_output_buffer_info_tmp
+    begin
+      dbms_session.sleep(1);
+    end;]';
+  end;
+
+  procedure cleanup_slow_down_insert_into_table_buffer is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop trigger ut3_develop.slow_down_buffer_insert';
+  exception when others then
+      if sqlcode <> -4080 then raise; end if;
+  end;
+
+  procedure run_as_job(a_job_action varchar2) is
+    l_job_name        varchar2(50);
+    l_timestamp       timestamp with time zone := current_timestamp;
+    pragma autonomous_transaction;
+  begin
+    l_job_name := 'utPLSQL__'||to_char(l_timestamp,'yyyymmddhh24missff');
+    dbms_scheduler.create_job(
+      job_name      =>  l_job_name,
+      job_type      =>  'PLSQL_BLOCK',
+      job_action    =>  a_job_action,
+      start_date    =>  l_timestamp,
+      enabled       =>  TRUE,
+      auto_drop     =>  TRUE
+      );
+  end;
 end;
 /

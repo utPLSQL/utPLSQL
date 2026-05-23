@@ -1,5 +1,13 @@
 create or replace package body test_output_buffer is
 
+  function long_text return varchar2 is
+      l_txt varchar2(32767);
+  begin
+    for i in 1 .. 100 loop
+      l_txt := l_txt||lpad('a text', 310, ',a text');
+    end loop;
+    return l_txt;
+  end;
   procedure test_receive is
     l_actual_text        clob;
     l_actual_item_type   varchar2(1000);
@@ -10,10 +18,10 @@ create or replace package body test_output_buffer is
   begin
     --Arrange
     l_buffer        := ut3_develop.ut_output_clob_table_buffer();
-    l_expected_text := to_clob(lpad('a text', 31000, ',a text'))
-      || chr(10) || to_clob(lpad('a text', 31000, ',a text'))
-      || chr(13) || to_clob(lpad('a text', 31000, ',a text'))
-      || chr(13) || chr(10) || to_clob(lpad('a text', 31000, ',a text')) || to_clob(lpad('a text', 31000, ',a text'));
+    l_expected_text := to_clob('a text') ||long_text()
+      || chr(10) || long_text()
+      || chr(13) || long_text()
+      || chr(13) || chr(10) || long_text() || long_text();
     l_expected_item_type := lpad('some item type',1000,'-');
     --Act
     l_buffer.lock_buffer();
@@ -196,5 +204,14 @@ create or replace package body test_output_buffer is
     ut.expect(lengthb(l_text)).to_be_less_or_equal(l_max_len);
   end;
 
-    end test_output_buffer;
+  procedure concurrent_calls_do_not_cause_exception is
+    l_consumer_buffer_instance ut3_develop.ut_output_buffer_base;
+    l_shared_output_id raw(32) := sys_guid();
+  begin
+    ut3_tester_helper.run_helper.run_as_job('declare x ut3_develop.ut_output_buffer_base; begin x := ut3_develop.ut_output_table_buffer(a_output_id => '''||l_shared_output_id||'''); end;');
+    dbms_session.sleep(0.5);
+    l_consumer_buffer_instance := ut3_develop.ut_output_table_buffer(a_output_id => l_shared_output_id);
+  end;
+
+end test_output_buffer;
 /
