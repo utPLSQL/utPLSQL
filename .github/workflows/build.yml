@@ -32,6 +32,8 @@ jobs:
             db_version_name: '19se'
             oracle-sid: 'ORCLCDB'
             oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+            check-coding-style: true
+            validate-utplsql-uninstall: true
           - id: 2
             db_version_name: '21XE'
             oracle-sid: 'XE'
@@ -40,6 +42,7 @@ jobs:
             db_version_name: '23-free'
             oracle-sid: 'FREEPDB1'
             oracle-version: "gvenzl/oracle-free:23-slim-faststart"
+            run-sonar-scanner: true
     services:
       html_checker:
         image: ghcr.io/validator/validator:latest
@@ -116,17 +119,17 @@ jobs:
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
       - name: Check code style
-        if: ${{ matrix.id == 1 }}
+        if: ${{ matrix.check-style == true  }}
         id: check-coding-style
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  "$SQLCLI" ${UT3_DEVELOP_SCHEMA}/${UT3_DEVELOP_SCHEMA_PASSWORD}@//${CONNECTION_STR} @/utPLSQL/development/utplsql_style_check.sql
 
       - name: Validate utPLSQL uninstall
-        if: ${{ matrix.id == 1 }}
+        if: ${{ validate-utplsql-uninstall == true  }}
         id: validate-uninstall
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/uninstall_validate_utplsql.sh
 
       - name: Reinstall utPLSQL
-        if: ${{ matrix.id == 1 }}
+        if: ${{ validate-utplsql-uninstall == true  }}
         id: reinstall-utplsql
         run: docker exec -w /utPLSQL ${DOCKER_ENV} oracle  .github/scripts/install.sh
 
@@ -190,7 +193,7 @@ jobs:
 
       - name: SonarCloud Scan
         id: sonar
-        if: ${{ always() && matrix.db_version_name == '23-free' }}
+        if: ${{ always() && run-sonar-scanner == true }}
         uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
