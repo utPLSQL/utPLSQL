@@ -29,11 +29,13 @@ drop user ut3_select_catalog_user cascade;
 drop user ut3_select_any_table_user cascade;
 drop user ut3_execute_any_proc_user cascade;
 
+set serveroutput on
 begin
   for i in (
     select decode(owner,'PUBLIC','drop public synonym "','drop synonym "'||owner||'"."')|| synonym_name ||'"' drop_orphaned_synonym, owner||'.'||synonym_name syn from dba_synonyms a
      where not exists (select 1 from dba_objects b where (a.table_name=b.object_name and a.table_owner=b.owner or b.owner='SYS' and a.table_owner=b.object_name) )
-       and a.table_owner not in ('SYS','SYSTEM')
+       and a.table_owner not in (select username from dba_users where oracle_maintained = 'Y')
+       and a.origin_con_id = sys_context('userenv', 'con_id')
   ) loop
     execute immediate i.drop_orphaned_synonym;
     dbms_output.put_line('synonym '||i.syn||' dropped');
