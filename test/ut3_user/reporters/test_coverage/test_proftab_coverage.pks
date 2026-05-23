@@ -28,5 +28,8 @@ create or replace package test_proftab_coverage is
   --%test(reports zero coverage on each line of non-executed database object - Issue #917)
   procedure report_zero_coverage;
 
+  --%test(Allows reporting coverage on objects across SYS or MDSYS without errors - Issue #1323 )
+  procedure no_issue_with_duplicate_source;
+
 end;
 /
