@@ -18,18 +18,20 @@ create or replace type body ut_output_buffer_base is
 
   member procedure init(self in out nocopy ut_output_buffer_base, a_output_id raw := null, a_self_type varchar2 := null) is
     pragma autonomous_transaction;
-    l_exists int;
   begin
     cleanup_buffer();
     self.self_type := coalesce(a_self_type,self.self_type);
     self.output_id := coalesce(a_output_id, self.output_id, sys_guid());
     self.start_date := coalesce(self.start_date, sysdate);
-    select /*+ no_parallel */ count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
-    if ( l_exists > 0 ) then
-      update  /*+ no_parallel */ ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;
-    else
-      insert /*+ no_parallel */ into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
-    end if;
+    merge /*+ no_parallel */ into ut_output_buffer_info_tmp dst
+        using (select 1 from dual) src
+            on (dst.output_id = self.output_id)
+        when matched then
+            update
+            set dst.start_date = self.start_date
+        when not matched then
+            insert (output_id, start_date)
+            values (self.output_id, self.start_date);
     commit;
     dbms_lock.allocate_unique( self.output_id, self.lock_handle);
     self.is_closed := 0;
