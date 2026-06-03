@@ -1,0 +1,1507 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL">
+      
+      
+      
+        <link rel="canonical" href="http://utPLSQL.org/v3.2.2-test/userguide/reporters.html">
+      
+      
+        <link rel="prev" href="upgrade.html">
+      
+      
+        <link rel="next" href="coverage.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Using reporters - utPLSQL-framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation-reporter" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="utPLSQL-framework" class="md-header__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            utPLSQL-framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using reporters
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../index.html" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="reporters.html" class="md-tabs__link">
+          
+  
+  
+  Reporting
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../about/project-details.html" class="md-tabs__link">
+          
+  
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="utPLSQL-framework" class="md-nav__button md-logo" aria-label="utPLSQL-framework" data-md-component="logo">
+      
+  <img src="../assets/icon-transparent.png" alt="logo">
+
+    </a>
+    utPLSQL-framework
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/utPLSQL/utPLSQL" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="install.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting-started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="annotations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="expectations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Expectations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="advanced_data_comparison.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced data comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running-unit-tests.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running unit tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="querying_suites.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Querying for test suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="best-practices.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing best practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="upgrade.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade utPLSQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using reporters
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="reporters.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using reporters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation reporter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation reporter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#color-output-from-documentation-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Color output from documentation reporter
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#junit-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JUnit reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teamcity-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teamcity reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sonar-test-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sonar test reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tfs-vsts-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TFS / VSTS Reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-reporters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage reporters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tap-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TAP Reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-reporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug reporter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-reporters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom reporters
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="coverage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="exception-reporting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error handling and reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    About
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/project-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Details
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/support.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Using reporters</h1>
+
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.2.4414--test-blue.svg" /></p>
+<p>utPLSQL provides several reporting formats. The sections below describe most of them. </p>
+<h2 id="documentation-reporter">Documentation reporter<a class="headerlink" href="#documentation-reporter" title="Permanent link">&para;</a></h2>
+<p>The <code>ut_documentation_reporter</code> is the default reporting format used by the framework.
+It provides a human readable test results.</p>
+<p>To invoke tests with documentation reporter use one of following calls from sql console (SQLPlus)  </p>
+<p><code>exec ut.run();</code></p>
+<p><code>exec ut.run(ut_documentation_reporter());</code></p>
+<p>Example outputs from documentation reporter.</p>
+<p><img alt="doc_reporter_outputs" src="../images/documentation_reporter.png" /></p>
+<p>Documentation reporter provides the following information.</p>
+<ul>
+<li>Test suite name or test package name  (nested with suitepath if suitepath is used)</li>
+<li>Test description name or test procedure name</li>
+<li>Information about test failing <code>(FAILED - n)</code> </li>
+<li>Information about disabled test <code>(IGNORED)</code> </li>
+<li>List of all errors and failures</li>
+<li>Summary with total number of tests, number of tests with status and timing for the execution </li>
+</ul>
+<h3 id="color-output-from-documentation-reporter">Color output from documentation reporter<a class="headerlink" href="#color-output-from-documentation-reporter" title="Permanent link">&para;</a></h3>
+<p>When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix) <a href="http://adoxa.altervista.org/ansicon/">available for Windows</a>, you can obtain the coloured outputs from the documentation reporter.</p>
+<p>To invoke tests with documentation reporter in color mode use one of following calls.  </p>
+<p><code>exec ut.run(a_color_console=&gt;true);</code></p>
+<p><code>exec ut.run(ut_documentation_reporter(), a_color_console=&gt;true);</code></p>
+<p>Example outputs from documentation reporter.</p>
+<p><img alt="doc_reporter_outputs" src="../images/documentation_reporter_color.png" /></p>
+<h2 id="junit-reporter">JUnit reporter<a class="headerlink" href="#junit-reporter" title="Permanent link">&para;</a></h2>
+<p>Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in <a href="https://en.wikipedia.org/wiki/JUnit">JUnit</a> format.
+The <code>ut_junit_reporter</code> in earlier version referred as <code>ut_xunit_reporter</code> is producing outcomes as JUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
+Please note that in previous versions it was called ut_xunit_reporter and for backward compatibility that name still exists.</p>
+<p>Invocation of tests with JUnit reporter.  </p>
+<p><code>exec ut.run(ut_junit_reporter());</code></p>
+<p>The <code>ut_junit_reporter</code> doesn't accept any arguments.</p>
+<p>Example of junit report integrated with <a href="https://jenkins.io/">Jenkins CI</a></p>
+<p><img alt="junit_reporter_outputs" src="../images/junit_summary.png" /></p>
+<p>Example of failure report details</p>
+<p><img alt="junit_reporter_outputs" src="../images/junit_errors.png" /></p>
+<h2 id="teamcity-reporter">Teamcity reporter<a class="headerlink" href="#teamcity-reporter" title="Permanent link">&para;</a></h2>
+<p><a href="https://www.jetbrains.com/teamcity/">Teamcity</a> is a CI server by Jetbrains. It supports JUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
+The TeamCity format developed by Jetbrains is supported by utPLSQL with <code>ut_teamcity_reporter</code>.</p>
+<p>Invocation of tests with Teamcity reporter.  </p>
+<p><code>exec ut.run(ut_teamcity_reporter());</code></p>
+<p>The <code>ut_teamcity_reporter</code> doesn't accept any arguments.</p>
+<p>Example of unit test report from Teamcity CI server.</p>
+<p><img alt="junit_reporter_outputs" src="../images/teamcity_report_example.png" /></p>
+<p>Example of failure report details</p>
+<p><img alt="junit_reporter_outputs_errors" src="../images/teamcity_report_example_errors.png" /></p>
+<h2 id="sonar-test-reporter">Sonar test reporter<a class="headerlink" href="#sonar-test-reporter" title="Permanent link">&para;</a></h2>
+<p>If you are using <a href="https://www.sonarqube.org/">SonarQube</a> or <a href="https://about.sonarcloud.io/">SonarCloud</a> to do static code analysis for you PLSQL projects,
+your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for SonarQube:</p>
+<ul>
+<li><code>ut_sonar_test_reporter</code> - provides an XML output of each test executed per each project test file (package) </li>
+<li><code>ut_coverage_sonar_reporter</code> - provides XML output of code coverage per each project source file </li>
+</ul>
+<p><code>ut_sonar_test_reporter</code> needs to be called with a list of paths to test files (packages).
+The paths to files can be relative to the project root directory (recommended) or be absolute. </p>
+<p><code>ut_coverage_sonar_reporter</code> needs to be called with a list of paths to source files for your project.
+The paths to files can be relative to the project root directory (recommended) or be absolute.</p>
+<p>Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.</p>
+<p>For details on how to invoke reporter with paths, see the <a href="coverage.html">Code coverage</a> section.</p>
+<h2 id="tfs-vsts-reporter">TFS / VSTS Reporter<a class="headerlink" href="#tfs-vsts-reporter" title="Permanent link">&para;</a></h2>
+<p>If you are using <a href="https://www.visualstudio.com/tfs/">TFS</a> or <a href="https://www.visualstudio.com/team-services/">VSTS</a> to do static code analysis for you PLSQL projects and run builds, 
+your code analysis can benefit from code coverage and test results. TFS reporter is designed specifically to <a href="https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts">work with Microsoft Team Fundation Server</a> report format which is very old version of <a href="https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd">JUnit</a>.
+Main difference between standard JUnit is that <testsuite> elements cannot be nested and attribute skipped is not present.</p>
+<p>utPLSQL provides a dedicated <code>ut_tfs_junit_reporter</code> reporter to for TFS / VSTS servers. The reporter provides an XML output of each test executed per each project test file (package).
+Example of test report from TFS CI server.</p>
+<p>Summary:</p>
+<p><img alt="tfs_junit_reporter_outputs" src="../images/tfs_summary.png" /></p>
+<p>Details:</p>
+<p><img alt="tfs_junit_reporter_outputs" src="../images/tfs_details.png" /></p>
+<h2 id="coverage-reporters">Coverage reporters<a class="headerlink" href="#coverage-reporters" title="Permanent link">&para;</a></h2>
+<p>utPLSQL comes with a set of build-in coverage reporters.
+<a href="coverage.html">Code coverage</a> section describes in details how to use configure and use code coverage.</p>
+<h2 id="tap-reporter">TAP Reporter<a class="headerlink" href="#tap-reporter" title="Permanent link">&para;</a></h2>
+<p>The <code>ut_tap_reporter</code> produces output compatible with the <a href="https://testanything.org">Test Anything Protocol</a> (Version 14). TAP output can be consumed by a TAP consumer that can aggregate results from testsuites across different programming languages while maintaining good readability for humans.</p>
+<p><img alt="tap_output_no_color" src="../images/tap_reporter_no_color.png" /></p>
+<p>If you use a compatible terminal, you can also have a colored result. Only top level <code>not ok</code>-results will be colored:</p>
+<p><img alt="tap_colored_output" src="../images/tap_reporter_colored.png" /></p>
+<p>Suites (and suitepaths) and contexts are included as <a href="https://testanything.org/tap-version-14-specification.html#:~:text=Commented%20Subtests">commented subtests</a> including a summary of the tests performed for that specific context/suite. This example package has the suitepath "org.utplsql.tests.helpers":</p>
+<p><img alt="tap_include_suitepath" src="../images/tap_reporter_suitepath.png" /></p>
+<h2 id="debug-reporter">Debug reporter<a class="headerlink" href="#debug-reporter" title="Permanent link">&para;</a></h2>
+<p>The <code>ut_debug_reporter</code> provides a highly verbose output containing thorough details about framework and test execution.</p>
+<p>Use this reporter only when you need to investigate framework issues or raise a bug report to utPLSQL team.</p>
+<p>Usage of this reporter might have impact on performance of test-suite execution.</p>
+<p>Amongst others, reporter provides the following information:</p>
+<ul>
+<li>framework version</li>
+<li>database version</li>
+<li>database OS</li>
+<li>database, instance and session NLS settings</li>
+<li>timing of each event</li>
+<li>time between events logged</li>
+<li>time from start of the run</li>
+<li>stack trace</li>
+<li>information about input parameters for the run including<ul>
+<li>run paths</li>
+<li>source file mappings</li>
+<li>test file mappings</li>
+<li>coverage schemas</li>
+<li>coverage exclusions and inclusions</li>
+<li>client character set</li>
+</ul>
+</li>
+<li>information about every step of the run including<ul>
+<li>every suite and context</li>
+<li>every before/after procedure</li>
+<li>every test</li>
+<li>every expectation and it's result</li>
+</ul>
+</li>
+</ul>
+<p>Some information in debug log might be redundant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some information in debug log may be sensitive. In particular:<br>
+ - expectation results and messages (logged even for successful runs)<br>
+ - test structure<br>
+ - db object names<br>
+ - etc.</p>
+</div>
+<h2 id="custom-reporters">Custom reporters<a class="headerlink" href="#custom-reporters" title="Permanent link">&para;</a></h2>
+<p>It is possible to add your own reporters by creating an appropriate object type. 
+In principle, it has to be a subtype of <code>ut_reporter_base</code>. However, if the reporter is expected to produce output consumable by a client oustside of the database (e.g. the data has to be reported to the screen or to a file), then you should base it on <code>ut_output_reporter_base</code> (which is a subtype of <code>ut_reporter_base</code>). In contrast, if you would like to create a reporter that, for example, saves the data to a database table, then it should be based directly on <code>ut_reporter_base</code>. (Currently, all reporters in the utPLSQL framework are based on <code>ut_output_reporter_base</code>.) Coverage reporters are based on <code>ut_coverage_reporter_base</code> (a subtype of <code>ut_output_reporter_base</code>).</p>
+<p>If you need to produce a colored text output from the custom reporter, then you can build it basing on <code>ut_console_reporter_base</code> (a subtype of <code>ut_output_reporter_base</code>). In many cases it may also be more convenient to create the custom reporter type under a more specialized type, like <code>ut_documentation_reporter</code> or <code>ut_junit_reporter</code>, and override just some of the functionality.</p>
+<p>It is recommended to create the reporter type in the schema where utPLSQL is installed (by default it is the <code>UT3</code> schema). Note that before running the utPLSQL uninstall scripts, all custom reporters should be dropped (cf. <a href="install.html">the installation documentation</a>). In particular, when upgrading to a newer version of utPLSQL, one has to drop the custom reporters and recreate them after the upgrade.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please make sure that grants have been added and synonyms created for the custom reporter in order for reporter to be accessible the same way as other reporters.
+Assuming that reporter with name <code>customer_reporter</code> was created in schema <code>UT3</code></p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="w">    </span><span class="k">grant</span><span class="w"> </span><span class="k">execute</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">public</span><span class="p">;</span><span class="w">  </span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">synonym</span><span class="w"> </span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="p">;</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is possible, but cumbersome, to use another schema for storing the custom reporters. This requires to create a synonym for the base reporter type in the schema that is going to own the custom reporter, and to provide appropriate grants both to the owner of the custom reporter and to the user running the reporter. After upgrading or reinstalling utPLSQL, the extra privileges need to be recreated. This approach is not recommended.</p>
+</div>
+<p>Assuming that the custom reporter type is created in the <code>UT3</code> schema, to run the tests using a custom reporter just call: <code>exec ut.run(ut3.custom_reporter_name());</code>, optionally providing parameter values to the <code>custom_reporter_name</code> constructor.</p>
+<p>One may get acquainted with the source code of the standard reporters bundled with utPLSQL (including the coverage reporters) by browsing the <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/reporters"><code>source/reporters/</code></a> directory. The base reporter types <code>ut_reporter_base</code>, <code>ut_output_reporter_base</code> and <code>ut_console_reporter_base</code> are defined in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/types"><code>source/core/types</code></a>. The base coverage reporter type <code>ut_coverage_reporter_base</code> is in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/source/core/coverage"><code>source/core/coverage</code></a>. There are also two examples of custom reporters in <a href="https://github.com/utPLSQL/utPLSQL/tree/develop/examples/custom_reporters"><code>examples/custom_reporters/</code></a>, both extending the functionality of <code>ut_documentation_reporter</code>:</p>
+<ul>
+<li><code>ut_custom_reporter</code> accepts an integer parameter <code>a_tab_size</code>; it alters the behaviour of <code>ut_documentation_reporter</code> by changing the size of the indentation according to the parameter value (by default the indentation is increased).</li>
+<li><code>ut_expectations_reporter</code> accepts a <code>varchar2</code> parameter <code>a_report_all_expectations</code>; if its value is <code>'Y'</code> (which is the default), then the reporter shows the results of all expectations that are run. This stays in contrast with <code>ut_documentation_reporter</code>, which shows the results of all tests that are run, but only of the expectations that failed (keep in mind that a single test may consist of several expectations).</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="May 23, 2026 22:39:37 UTC">May 23, 2026 22:39:37</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="February 26, 2017 02:13:22 UTC">February 26, 2017 02:13:22</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2016 - 2026 utPLSQL Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/utPLSQL" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/utPLSQL/utPLSQL/discussions" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M51.9 384.9C19.3 344.6 0 294.4 0 240 0 107.5 114.6 0 256 0s256 107.5 256 240-114.6 240-256 240c-36.5 0-71.2-7.2-102.6-20L37 509.9c-3.7 1.6-7.5 2.1-11.5 2.1C11.4 512 0 500.6 0 486.5c0-4.3 1.1-8.5 3.1-12.2zm37.3-30.2c12.2 15.1 14.1 36.1 4.8 53.2L76 441l58.5-25.1c11.8-5.1 25.2-5.2 37.1-.3 25.7 10.5 54.2 16.4 84.3 16.4 117.8 0 208-88.8 208-192S373.8 48 256 48 48 136.8 48 240c0 42.8 15.1 82.4 41.2 114.7"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/utPLSQL" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:utPLSQL@utPLSQL.org" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l208 156a48 48 0 0 0 57.6 0l208-156c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48zM0 196v188c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V196L313.6 344.8c-34.1 25.6-81.1 25.6-115.2 0z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+  
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+    
+      
+    
+    
+      
+        
+  
+  
+    
+    
+  
+  <li class="task-list-item">
+    <label class="task-list-control">
+      <input type="checkbox" name="github" checked>
+      <span class="task-list-indicator"></span>
+      GitHub
+    </label>
+  </li>
+
+      
+    
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
