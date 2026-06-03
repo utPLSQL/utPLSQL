@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          token: ${{ secrets.ELEVATED_TOKEN }}
           fetch-depth: 0
       - uses: c-py/action-dotenv-to-setenv@v5
         with:
@@ -36,7 +37,6 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_DATE: ${{ github.event.release.published_at }}
           TARGET_BRANCH: ${{ github.event.release.target_commitish }}
-          GITHUB_TOKEN: ${{ secrets.ELEVATED_TOKEN }}
         run: |
           python3 - <<'PYEOF'
           import os
