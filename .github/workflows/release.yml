@@ -25,12 +25,6 @@ jobs:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
       
-      - name: Set build version number env variables
-        run: .github/scripts/set_release_version_numbers_env.sh
-
-      - name: Update project version & build number in source code and documentation
-        run: .github/scripts/update_project_version.sh
-
       - name: Setup git config
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -71,6 +65,12 @@ jobs:
           git add CHANGELOG.md
           git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
           git push origin HEAD:"${TARGET_BRANCH}"
+
+      - name: Set build version number env variables
+        run: .github/scripts/set_release_version_numbers_env.sh
+
+      - name: Update project version & build number in source code and documentation
+        run: .github/scripts/update_project_version.sh
 
       - name: Build and publish documentation
         run: |
