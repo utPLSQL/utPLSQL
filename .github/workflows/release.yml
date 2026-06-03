@@ -42,7 +42,11 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_DATE: ${{ github.event.release.published_at }}
           TARGET_BRANCH: ${{ github.event.release.target_commitish }}
+          GH_TOKEN: ${{ secrets.ELEVATED_TOKEN }}
         run: |
+          # Configure git to use the elevated token
+          git config --global credential.helper store
+          echo "https://x-access-token:${GH_TOKEN}@github.com" > ~/.git-credentials
           python3 - <<'PYEOF'
           import os
 
