@@ -1,0 +1,69 @@
+title: "[Bug?] "
+labels: ["bug-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this category if you think you have found a bug in the utPLSQL framework and want to discuss it before a formal issue is opened.
+
+        Once a maintainer confirms the bug, they will open an issue and link it back here. You do not need to open an issue yourself.
+
+        If you are certain it is a bug and can provide a reliable reproduction, you may open an issue directly instead.
+
+  - type: input
+    id: utplsql-version
+    attributes:
+      label: utPLSQL version
+      placeholder: "e.g. 3.1.13"
+    validations:
+      required: true
+
+  - type: input
+    id: oracle-version
+    attributes:
+      label: Oracle Database version
+      placeholder: "e.g. 19c, 21c"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "e.g. Linux, Windows Server 2019"
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What did you observe?
+      description: Describe the unexpected behaviour. Include any error messages or stack traces.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe what you expected to happen instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction case
+      description: Paste the minimal PL/SQL needed to reproduce the problem. The simpler, the better.
+      render: sql
+    validations:
+      required: false
+
+  - type: textarea
+    id: investigation
+    attributes:
+      label: What have you investigated so far?
+      description: Any findings from your own debugging that might help narrow this down.
+    validations:
+      required: false

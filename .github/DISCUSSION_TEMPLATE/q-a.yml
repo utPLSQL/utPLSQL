@@ -17,25 +17,18 @@ body:
         > If this turns out to be a **bug**, a maintainer will convert this discussion into an Issue.
 
   - type: input
-    id: utplsql_version
+    id: utplsql-version
     attributes:
       label: utPLSQL version
       placeholder: "e.g. 3.1.13"
     validations:
       required: true
 
-  - type: dropdown
-    id: oracle_version
+  - type: input
+    id: oracle-version
     attributes:
-      label: Oracle version
-      options:
-        - Oracle 11g
-        - Oracle 12c
-        - Oracle 18c
-        - Oracle 19c
-        - Oracle 21c
-        - Oracle 23c / 23ai
-        - Other / unsure
+      label: Oracle Database version
+      placeholder: "e.g. 19c, 21c"
     validations:
       required: true
 
@@ -43,7 +36,7 @@ body:
     id: question
     attributes:
       label: Question
-      description: Describe what you are trying to do and what you have tried so far.
+      description: Describe what you are trying to do and what you have already tried.
     validations:
       required: true
 
@@ -59,29 +52,10 @@ body:
       required: false
 
   - type: textarea
-    id: expected
+    id: output
     attributes:
-      label: Expected behaviour
-    validations:
-      required: false
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behaviour / error
-    validations:
-      required: false
-
-  - type: dropdown
-    id: install_method
-    attributes:
-      label: Installation method
-      options:
-        - utPLSQL-cli
-        - SQL*Plus script
-        - Docker / utPLSQL-docker
-        - Liquibase / Flyway
-        - Other
-        - N/A
+      label: Actual output or error
+      description: Paste any error messages or unexpected output here.
+      render: text
     validations:
       required: false

@@ -1,0 +1,43 @@
+title: ""
+labels: ["contributing"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this category if you are working on or considering a contribution to the utPLSQL framework codebase and have questions about the internals, development setup, testing approach, or contribution process.
+
+        Before posting, it is worth checking:
+        - [CONTRIBUTING.md](https://github.com/utPLSQL/utPLSQL/blob/develop/CONTRIBUTING.md)
+        - [Development setup guide](https://github.com/utPLSQL/utPLSQL/blob/develop/development/README.md)
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Development environment setup
+        - Understanding the codebase
+        - Test writing and running locally
+        - CI / build pipeline
+        - Pull request process
+        - Architectural question
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question or topic
+      description: Describe what you are working on and what you need help with.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Relevant code or context
+      description: Paste any relevant code, configuration, or error output here.
+      render: sql
+    validations:
+      required: false

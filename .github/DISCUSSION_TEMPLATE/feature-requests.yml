@@ -1,0 +1,62 @@
+title: "[Feature] "
+labels: ["feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this category for feature ideas specific to the utPLSQL framework: new matchers, annotation behaviour, reporter output, suite control, coverage, or installation.
+
+        > For ideas that affect multiple components or the project direction overall, use [org-level Feature Requests](https://github.com/orgs/utPLSQL/discussions/categories/feature-requests) instead.
+
+        A maintainer will mark this discussion as answered once the proposal is accepted or declined.
+        If accepted, a maintainer will convert it to an issue for implementation tracking -- you do not need to open an issue yourself.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this feature solve? What is the current limitation or pain point?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature you have in mind. Include examples of how it would be used, ideally with PL/SQL annotation or API examples.
+      render: sql
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds considered
+      description: Have you found any alternative approaches or partial workarounds?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Framework area
+      options:
+        - Annotations
+        - Matchers
+        - Reporters
+        - Suite / test control
+        - Coverage
+        - Transaction control
+        - Installation / upgrade
+        - Performance
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: utplsql-version
+    attributes:
+      label: utPLSQL version you are using
+      placeholder: "e.g. 3.1.13"
+    validations:
+      required: false
