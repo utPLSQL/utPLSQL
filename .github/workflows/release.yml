@@ -36,6 +36,38 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
+      - name: Update CHANGELOG.md with release notes
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_DATE: ${{ github.event.release.published_at }}
+          TARGET_BRANCH: ${{ github.event.release.target_commitish }}
+        run: |
+          python3 - <<'PYEOF'
+          import os
+
+          tag = os.environ['RELEASE_TAG']
+          body = os.environ['RELEASE_BODY'].strip()
+          date = os.environ['RELEASE_DATE'][:10]
+
+          new_section = f"## [{tag}] - {date}\n\n{body}\n\n---\n\n"
+
+          with open('CHANGELOG.md', 'r') as f:
+              content = f.read()
+
+          marker = '\n---\n'
+          pos = content.index(marker) + len(marker)
+          updated = content[:pos] + '\n' + new_section + content[pos:]
+
+          with open('CHANGELOG.md', 'w') as f:
+              f.write(updated)
+
+          print(f"Added {tag} to CHANGELOG.md")
+          PYEOF
+          git add CHANGELOG.md
+          git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
+          git push origin HEAD:"${TARGET_BRANCH}"
+
       - name: Build and publish documentation
         run: |
           pip install mkdocs
