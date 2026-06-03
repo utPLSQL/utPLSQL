@@ -97,3 +97,48 @@ jobs:
             utPLSQL.tar.gz
             utPLSQL.tar.gz.md5
 
+      - name: Post release announcement to org discussions
+        env:
+          GH_TOKEN: ${{ secrets.ORG_DISCUSSION_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+        run: |
+          ORG="utPLSQL"
+
+          ORG_DATA=$(gh api graphql -f query='query($org: String!) {
+            organization(login: $org) {
+              id
+              discussionCategories(first: 20) {
+                nodes { id name }
+              }
+            }
+          }' -f org="$ORG")
+
+          ORG_ID=$(echo "$ORG_DATA" | jq -r '.data.organization.id')
+          CATEGORY_ID=$(echo "$ORG_DATA" | jq -r \
+            '.data.organization.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
+
+          BODY="${RELEASE_BODY}
+
+          ---
+          [View full release on GitHub](${RELEASE_URL})"
+
+          DISCUSSION_URL=$(gh api graphql -f query='mutation($orgId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+            createDiscussion(input: {
+              organizationId: $orgId,
+              categoryId: $categoryId,
+              title: $title,
+              body: $body
+            }) {
+              discussion { url }
+            }
+          }' \
+            -f orgId="$ORG_ID" \
+            -f categoryId="$CATEGORY_ID" \
+            -f title="utPLSQL ${RELEASE_TAG} released" \
+            -f body="$BODY" \
+            --jq '.data.createDiscussion.discussion.url')
+
+          echo "Announcement posted: $DISCUSSION_URL"
+
