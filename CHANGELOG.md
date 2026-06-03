@@ -5,6 +5,19 @@ Releases are available on the [GitHub Releases page](https://github.com/utPLSQL/
 
 ---
 
+## [v3.2.2] - 2026-05-24
+
+## What's Changed
+* Filtering by tags fixed for schemas containing suite-paths and contexts by @jgebal in [1325](https://github.com/utPLSQL/utPLSQL/pull/1325)
+* Fixed issue with reporter failing to initialize by @jgebal in [1354](https://github.com/utPLSQL/utPLSQL/pull/1354)
+* Fixed issue with duplicate sources from dba_source by @jgebal in [1355](https://github.com/utPLSQL/utPLSQL/pull/1355)
+* Allow HTML coverage on FIPS-enabled DB by @jgebal in [1356](https://github.com/utPLSQL/utPLSQL/pull/1356)
+
+
+**Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.01...v3.2.2
+
+---
+
 ## [v3.2.01] - 2026-04-22
 
 ## Important
