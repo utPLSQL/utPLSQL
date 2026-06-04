@@ -14,12 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      API_TOKEN_GITHUB: ${{ secrets.ELEVATED_TOKEN }}
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ env.API_TOKEN_GITHUB }}
       - uses: c-py/action-dotenv-to-setenv@v5
         with:
           env-file: .github/variables/.env
