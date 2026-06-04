@@ -1,4 +1,4 @@
-name: Create and publish release artifacts
+name: TEst publishing of release announcement
 on:
   workflow_dispatch:
 
