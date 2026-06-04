@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      API_TOKEN_GITHUB: ${{ secrets.ELEVATED_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
