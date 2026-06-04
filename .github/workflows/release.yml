@@ -34,31 +34,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_DATE: ${{ github.event.release.published_at }}
           TARGET_BRANCH: ${{ github.event.release.target_commitish }}
-        run: |
-          python3 - <<'PYEOF'
-          import os
-
-          tag = os.environ['RELEASE_TAG']
-          body = os.environ['RELEASE_BODY'].strip()
-          date = os.environ['RELEASE_DATE'][:10]
-
-          new_section = f"## [{tag}] - {date}\n\n{body}\n\n---\n\n"
-
-          with open('CHANGELOG.md', 'r') as f:
-              content = f.read()
-
-          marker = '\n---\n'
-          pos = content.index(marker) + len(marker)
-          updated = content[:pos] + '\n' + new_section + content[pos:]
-
-          with open('CHANGELOG.md', 'w') as f:
-              f.write(updated)
-
-          print(f"Added {tag} to CHANGELOG.md")
-          PYEOF
-          git add CHANGELOG.md
-          git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
-          git push origin HEAD:"${TARGET_BRANCH}"
+        run: .github/scripts/update_changelog.sh
 
       - name: Set build version number env variables
         run: .github/scripts/set_release_version_numbers_env.sh
@@ -83,17 +59,17 @@ jobs:
         run: |
           git archive --prefix=utPLSQL/ -o utPLSQL.zip    --format=zip    HEAD
           git archive --prefix=utPLSQL/ -o utPLSQL.tar.gz --format=tar.gz HEAD
-          md5sum utPLSQL.zip  --tag > utPLSQL.zip.md5
-          md5sum utPLSQL.tar.gz  --tag > utPLSQL.tar.gz.md5
+          sha256sum utPLSQL.zip    --tag > utPLSQL.zip.sha256
+          sha256sum utPLSQL.tar.gz --tag > utPLSQL.tar.gz.sha256
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             utPLSQL.zip
-            utPLSQL.zip.md5
+            utPLSQL.zip.sha256
             utPLSQL.tar.gz
-            utPLSQL.tar.gz.md5
+            utPLSQL.tar.gz.sha256
 
       - name: Post release announcement to org discussions
         env:
@@ -101,42 +77,5 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_BODY: ${{ github.event.release.body }}
           RELEASE_URL: ${{ github.event.release.html_url }}
-        run: |
-          ORG="utPLSQL"
-
-          ORG_DATA=$(gh api graphql -f query='query($org: String!) {
-            organization(login: $org) {
-              id
-              discussionCategories(first: 20) {
-                nodes { id name }
-              }
-            }
-          }' -f org="$ORG")
-
-          ORG_ID=$(echo "$ORG_DATA" | jq -r '.data.organization.id')
-          CATEGORY_ID=$(echo "$ORG_DATA" | jq -r \
-            '.data.organization.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
-
-          BODY="${RELEASE_BODY}
-
-          ---
-          [View full release on GitHub](${RELEASE_URL})"
-
-          DISCUSSION_URL=$(gh api graphql -f query='mutation($orgId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
-            createDiscussion(input: {
-              organizationId: $orgId,
-              categoryId: $categoryId,
-              title: $title,
-              body: $body
-            }) {
-              discussion { url }
-            }
-          }' \
-            -f orgId="$ORG_ID" \
-            -f categoryId="$CATEGORY_ID" \
-            -f title="utPLSQL ${RELEASE_TAG} released" \
-            -f body="$BODY" \
-            --jq '.data.createDiscussion.discussion.url')
-
-          echo "Announcement posted: $DISCUSSION_URL"
+        run: .github/scripts/post_release_announcement.sh
 
