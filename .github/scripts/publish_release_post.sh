@@ -33,8 +33,8 @@ git clone --depth 1 "https://${API_TOKEN_GITHUB}@github.com/${GITHUB_IO_REPO}" -
 #      e.g.  **Full Changelog**: https://.../compare/v3.2.01...v3.2.2
 #         -> **Full Changelog**: [v3.2.01...v3.2.2](https://.../compare/v3.2.01...v3.2.2)
 FORMATTED_BODY=$(echo "${RELEASE_BODY}" \
-  | sed -E 's|https://github\.com/([^/]+)/([^/]+)/(pull|issues)/([0-9]+)|[#\4](https://github.com/\1/\2/\3/\4)|g' \
-  | sed -E 's|\*\*Full Changelog\*\*: (https://[^ ]+/compare/([^ ]+))|\*\*Full Changelog\*\*: [\2](\1)|g')
+  | sed -E 's@https://github\.com/([^/]+)/([^/]+)/(pull|issues)/([0-9]+)@[#\4](https://github.com/\1/\2/\3/\4)@g' \
+  | sed -E 's@\*\*Full Changelog\*\*: (https://[^ ]+/compare/([^ ]+))@\*\*Full Changelog\*\*: [\2](\1)@g')
 
 # Create the post file
 cat > "docs/_posts/${POST_FILENAME}" <<POSTEOF
