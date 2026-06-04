@@ -114,7 +114,7 @@ jobs:
 
           BODY="${RELEASE_BODY}
 
-          <hr /><em>This discussion was created from the release <a href=\'${RELEASE_URL}\'>${RELEASE_TAG}</a>.</em>"
+          <hr /><em>This discussion was created from the release <a href='${RELEASE_URL}'>${RELEASE_TAG}</a>.</em>"
 
           DISCUSSION_URL=$(gh api graphql -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
             createDiscussion(input: {
