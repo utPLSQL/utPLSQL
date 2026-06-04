@@ -47,6 +47,6 @@ jobs:
 #          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
 #        run: .github/scripts/post_release_announcement.sh
 
-      - name: Publish release post to utplsql.github.io
-        run: .github/scripts/publish_release_post.sh
+#      - name: Publish release post to utplsql.github.io
+#        run: .github/scripts/publish_release_post.sh
 
