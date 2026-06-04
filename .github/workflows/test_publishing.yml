@@ -83,6 +83,14 @@ jobs:
         run: |
           ORG="utPLSQL"
           REPO_NAME=".github"
+          
+          # Get org ID
+          ORG_DATA=$(gh api graphql -f query='query($org: String!) {
+            organization(login: $org) {
+              id
+            }
+          }' -f org="$ORG")
+          ORG_ID=$(echo "$ORG_DATA" | jq -r '.data.organization.id')
 
           # Get repository ID
           REPO_DATA=$(gh api graphql -f query='query($owner: String!, $name: String!) {
@@ -90,17 +98,29 @@ jobs:
               id
             }
           }' -f owner="$ORG" -f name="$REPO_NAME")
-
           REPO_ID=$(echo "$REPO_DATA" | jq -r '.data.repository.id')
+      
+          # Get category id
+          CATEGORY_DATA=$(gh api graphql -f query='query($owner: String!, $name: String!) {
+            repository(owner: $owner, name: $name) {
+              discussionCategories(first: 20) {
+                nodes { id name }
+            }
+            }
+          }' -f owner="$ORG" -f name="$REPO_NAME")
+
+          CATEGORY_ID=$(echo "$CATEGORY_DATA" | jq -r \
+            '.data.repository.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
 
           BODY="${RELEASE_BODY}
 
           ---
           [View full release on GitHub](${RELEASE_URL})"
 
-          DISCUSSION_URL=$(gh api graphql -f query='mutation($repoId: ID!, $title: String!, $body: String!) {
+          DISCUSSION_URL=$(gh api graphql -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
             createDiscussion(input: {
               repositoryId: $repoId,
+              categoryId: $categoryId,
               title: $title,
               body: $body
             }) {
@@ -108,6 +128,7 @@ jobs:
             }
           }' \
             -f repoId="$REPO_ID" \
+            -f categoryId="$CATEGORY_ID" \
             -f title="utPLSQL ${RELEASE_TAG} released" \
             -f body="$BODY" \
             --jq '.data.createDiscussion.discussion.url')
