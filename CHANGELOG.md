@@ -19,6 +19,20 @@ Releases are available on the [GitHub Releases page](https://github.com/utPLSQL/
 ---
 
 
+## [v3.2.2-test] - 2026-06-04
+
+## This is  a test of a release publishing
+ * no new features added
+ * no changes
+ * just a release tag
+ * new announcement should be created
+ * changelog should be updated
+
+**Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
+
+---
+
+
 ## [v3.2.2] - 2026-05-24
 
 ## What's Changed
