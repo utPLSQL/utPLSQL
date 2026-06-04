@@ -26,45 +26,45 @@ jobs:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
 
-      - name: Update CHANGELOG.md with release notes
-        env:
-          RELEASE_BODY: |
-            ## This is  a test of a release publishing
-             * no new features added
-             * no changes
-             * just a release tag
-             * new announcement should be created
-             * changelog should be updated
-            
-            **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
-          RELEASE_TAG: "v3.2.2-test"
-          RELEASE_DATE: "2026-06-04"
-          TARGET_BRANCH: "develop"
-        run: |
-          python3 - <<'PYEOF'
-          import os
-
-          tag = os.environ['RELEASE_TAG']
-          body = os.environ['RELEASE_BODY'].strip()
-          date = os.environ['RELEASE_DATE'][:10]
-
-          new_section = f"## [{tag}] - {date}\n\n{body}\n\n---\n\n"
-
-          with open('CHANGELOG.md', 'r') as f:
-              content = f.read()
-
-          marker = '\n---\n'
-          pos = content.index(marker) + len(marker)
-          updated = content[:pos] + '\n' + new_section + content[pos:]
-
-          with open('CHANGELOG.md', 'w') as f:
-              f.write(updated)
-
-          print(f"Added {tag} to CHANGELOG.md")
-          PYEOF
-          git add CHANGELOG.md
-          git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
-          git push origin HEAD:"${TARGET_BRANCH}"
+#      - name: Update CHANGELOG.md with release notes
+#        env:
+#          RELEASE_BODY: |
+#            ## This is  a test of a release publishing
+#             * no new features added
+#             * no changes
+#             * just a release tag
+#             * new announcement should be created
+#             * changelog should be updated
+#
+#            **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
+#          RELEASE_TAG: "v3.2.2-test"
+#          RELEASE_DATE: "2026-06-04"
+#          TARGET_BRANCH: "develop"
+#        run: |
+#          python3 - <<'PYEOF'
+#          import os
+#
+#          tag = os.environ['RELEASE_TAG']
+#          body = os.environ['RELEASE_BODY'].strip()
+#          date = os.environ['RELEASE_DATE'][:10]
+#
+#          new_section = f"## [{tag}] - {date}\n\n{body}\n\n---\n\n"
+#
+#          with open('CHANGELOG.md', 'r') as f:
+#              content = f.read()
+#
+#          marker = '\n---\n'
+#          pos = content.index(marker) + len(marker)
+#          updated = content[:pos] + '\n' + new_section + content[pos:]
+#
+#          with open('CHANGELOG.md', 'w') as f:
+#              f.write(updated)
+#
+#          print(f"Added {tag} to CHANGELOG.md")
+#          PYEOF
+#          git add CHANGELOG.md
+#          git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
+#          git push origin HEAD:"${TARGET_BRANCH}"
 
       - name: Post release announcement to org discussions
         env:
