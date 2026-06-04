@@ -1,8 +1,6 @@
 name: Create and publish release artifacts
 on:
-  release:
-    types: [ released ]
-#See: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-using-multiple-events-with-activity-types-or-configuration
+  workflow_dispatch:
 
 defaults:
   run:
@@ -26,13 +24,21 @@ jobs:
         with:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
-      
+
       - name: Update CHANGELOG.md with release notes
         env:
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_DATE: ${{ github.event.release.published_at }}
-          TARGET_BRANCH: ${{ github.event.release.target_commitish }}
+          RELEASE_BODY: |
+            ## This is  a test of a release publishing
+             * no new features added
+             * no changes
+             * just a release tag
+             * new announcement should be created
+             * changelog should be updated
+            
+            **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
+          RELEASE_TAG: "v3.2.2-test"
+          RELEASE_DATE: "2026-06-04"
+          TARGET_BRANCH: "develop"
         run: |
           python3 - <<'PYEOF'
           import os
@@ -58,41 +64,6 @@ jobs:
           git add CHANGELOG.md
           git commit -m "Add release notes for ${RELEASE_TAG} to CHANGELOG.md [skip ci]"
           git push origin HEAD:"${TARGET_BRANCH}"
-
-      - name: Set build version number env variables
-        run: .github/scripts/set_release_version_numbers_env.sh
-
-      - name: Update project version & build number in source code and documentation
-        run: .github/scripts/update_project_version.sh
-
-      - name: Build and publish documentation
-        run: |
-          pip install mkdocs
-          pip install mkdocs-git-revision-date-localized-plugin
-          pip install mkdocs-material
-          pip install git+https://github.com/jimporter/mike.git
-          mike deploy -p -u ${UTPLSQL_VERSION} latest
-          mkdocs build --clean -f mkdocs_offline.yml         
-          rm -rf docs/* 
-          cp -r -v site/* docs
-          git add .
-          git commit -m "tmp commit of HTML documentation for building a release archive"
-
-      - name: Build release archives
-        run: |
-          git archive --prefix=utPLSQL/ -o utPLSQL.zip    --format=zip    HEAD
-          git archive --prefix=utPLSQL/ -o utPLSQL.tar.gz --format=tar.gz HEAD
-          md5sum utPLSQL.zip  --tag > utPLSQL.zip.md5
-          md5sum utPLSQL.tar.gz  --tag > utPLSQL.tar.gz.md5
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            utPLSQL.zip
-            utPLSQL.zip.md5
-            utPLSQL.tar.gz
-            utPLSQL.tar.gz.md5
 
       - name: Post release announcement to org discussions
         env:
