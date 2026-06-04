@@ -78,24 +78,32 @@ jobs:
           ORG_DATA=$(gh api graphql -f query='query($org: String!) {
             organization(login: $org) {
               id
-              discussionCategories(first: 20) {
-                nodes { id name }
-              }
             }
           }' -f org="$ORG")
 
           ORG_ID=$(echo "$ORG_DATA" | jq -r '.data.organization.id')
-          CATEGORY_ID=$(echo "$ORG_DATA" | jq -r \
-            '.data.organization.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
-
+      
+          # Get discussion categories - these are typically repo-level
+          # For org-level, you may need to use a repository instead
+          CATEGORY_DATA=$(gh api graphql -f query='query($owner: String!, $name: String!) {
+            repository(owner: $owner, name: $name) {
+              discussionCategories(first: 20) {
+                nodes { id name }
+              }
+            }
+          }' -f owner="$ORG" -f name=".github")
+      
+          CATEGORY_ID=$(echo "$CATEGORY_DATA" | jq -r \
+            '.data.repository.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
+      
           BODY="${RELEASE_BODY}
-
+      
           ---
           [View full release on GitHub](${RELEASE_URL})"
-
-          DISCUSSION_URL=$(gh api graphql -f query='mutation($orgId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+      
+          DISCUSSION_URL=$(gh api graphql -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
             createDiscussion(input: {
-              organizationId: $orgId,
+              repositoryId: $repoId,
               categoryId: $categoryId,
               title: $title,
               body: $body
@@ -103,11 +111,10 @@ jobs:
               discussion { url }
             }
           }' \
-            -f orgId="$ORG_ID" \
+            -f repoId="$REPO_ID" \
             -f categoryId="$CATEGORY_ID" \
             -f title="utPLSQL ${RELEASE_TAG} released" \
             -f body="$BODY" \
             --jq '.data.createDiscussion.discussion.url')
-
+      
           echo "Announcement posted: $DISCUSSION_URL"
-
