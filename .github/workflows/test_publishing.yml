@@ -69,9 +69,17 @@ jobs:
       - name: Post release announcement to org discussions
         env:
           GH_TOKEN: ${{ secrets.ORG_DISCUSSION_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_TAG: "v3.2.2-test"
+          RELEASE_BODY: |
+            ## This is  a test of a release publishing
+             * no new features added
+             * no changes
+             * just a release tag
+             * new announcement should be created
+             * changelog should be updated
+            
+            **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
+          RELEASE_URL: "https://github.com/utPLSQL/utPLSQL/releases/tag/v3.2.2"
         run: |
           ORG="utPLSQL"
 
