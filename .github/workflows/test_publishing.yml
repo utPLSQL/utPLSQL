@@ -68,7 +68,7 @@ jobs:
 
       - name: Post release announcement to org discussions
         env:
-          GH_TOKEN: ${{ secrets.ORG_DISCUSSION_TOKEN }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           RELEASE_TAG: "v3.2.2-test"
           RELEASE_BODY: |
             ## This is  a test of a release publishing
