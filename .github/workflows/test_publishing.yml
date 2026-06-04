@@ -1,0 +1,52 @@
+name: Test publishing
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  upload_artifacts:
+    name: Upload archives
+    concurrency: upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      RELEASE_TAG: "v3.2.2-test"
+      RELEASE_BODY: |
+            ## This is  a test of a release publishing
+             * no new features added
+             * no changes
+             * just a release tag
+             * new announcement should be created
+             * changelog should be updated
+
+            **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v3.2.2-test
+      RELEASE_DATE: "2026-06-04"
+      RELEASE_URL: "https://github.com/utPLSQL/utPLSQL/releases/tag/v3.2.2"
+      TARGET_BRANCH: "develop"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ env.API_TOKEN_GITHUB }}
+      - uses: c-py/action-dotenv-to-setenv@v5
+        with:
+          env-file: .github/variables/.env
+      - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
+
+#      - name: Update CHANGELOG.md with release notes
+#        run: .github/scripts/update_changelog.sh
+
+      - name: Post release announcement to org discussions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_API_TOKEN }}
+        run: .github/scripts/post_release_announcement.sh
+
+      - name: Publish release post to utplsql.github.io
+        run: .github/scripts/publish_release_post.sh
+

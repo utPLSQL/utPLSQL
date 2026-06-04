@@ -17,6 +17,11 @@ jobs:
     timeout-minutes: 60
     env:
       API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      RELEASE_BODY: ${{ github.event.release.body }}
+      RELEASE_DATE: ${{ github.event.release.published_at }}
+      RELEASE_URL: ${{ github.event.release.html_url }}
+      TARGET_BRANCH: ${{ github.event.release.target_commitish }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,11 +34,6 @@ jobs:
       - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
       
       - name: Update CHANGELOG.md with release notes
-        env:
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_DATE: ${{ github.event.release.published_at }}
-          TARGET_BRANCH: ${{ github.event.release.target_commitish }}
         run: .github/scripts/update_changelog.sh
 
       - name: Set build version number env variables
@@ -73,9 +73,9 @@ jobs:
 
       - name: Post release announcement to org discussions
         env:
-          GH_TOKEN: ${{ secrets.ORG_DISCUSSION_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_URL: ${{ github.event.release.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_API_TOKEN }}
         run: .github/scripts/post_release_announcement.sh
+
+      - name: Publish release post to utplsql.github.io
+        run: .github/scripts/publish_release_post.sh
 
