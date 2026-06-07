@@ -142,7 +142,7 @@ create or replace package test_suite_builder is
     --%test(Falls back to default context name and gives warning when name contains spaces)
     procedure name_with_spaces_invalid;
 
-    --%test(Raises warning when more than one name annotation used )
+    --%test(Raises warning when more than one name annotation used)
     procedure duplicate_name_annotation;
 
     --%test(Is ignored when used outside of context - no warning given)
@@ -153,6 +153,9 @@ create or replace package test_suite_builder is
 
     --%test(Is applied to corresponding context when multiple contexts used)
     procedure multiple_contexts;
+
+    --%test(Context name is case insensitive)
+    procedure context_name_case_insensitive;
 
   --%endcontext
 

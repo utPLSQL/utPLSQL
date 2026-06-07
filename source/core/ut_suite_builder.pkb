@@ -754,7 +754,7 @@ create or replace package body ut_suite_builder is
       l_used_context_names(l_context_name) := true;
 
       l_context := ut_suite_context(a_parent.object_owner, a_parent.object_name, l_context_name, l_context_pos );
-      l_context.path := a_parent.path||'.'||l_context_name;
+      l_context.path := a_parent.path||'.'||l_context.name;
       l_context.description := coalesce( a_annotations.by_line( l_context_pos ).text, l_context_name );
       l_context.parse_time  := a_annotations.parse_time;
 
