@@ -1370,6 +1370,54 @@ create or replace package body test_suite_builder is
       );
   end;
 
+  procedure context_name_case_insensitive is
+    l_actual      clob;
+    l_annotations ut3_develop.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3_develop.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(4, 'context','A context', null),
+        ut3_develop.ut_annotation(5, 'name','a_Context', null),
+        ut3_develop.ut_annotation(6, 'beforeall',null, 'context_setup'),
+        ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+        ut3_develop.ut_annotation(8, 'endcontext',null, null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+      '<UT_LOGICAL_SUITE>' ||
+        '%<WARNINGS/>' ||
+        '%<ITEMS>' ||
+          '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+            '%<ITEMS>' ||
+              '<UT_SUITE_ITEM>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
+              '%</UT_SUITE_ITEM>' ||
+            '</ITEMS>' ||
+            '<BEFORE_ALL_LIST>' ||
+            '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+            '%</BEFORE_ALL_LIST>' ||
+            '<AFTER_ALL_LIST/>' ||
+          '</UT_SUITE_ITEM>' ||
+        '</ITEMS>' ||
+        '<BEFORE_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+        '%</BEFORE_ALL_LIST>' ||
+        '<AFTER_ALL_LIST/>' ||
+      '</UT_LOGICAL_SUITE>'||
+      '</ROW></ROWSET>'
+    );
+  end;
+
   procedure throws_value_empty is
     l_actual      clob;
     l_annotations ut3_develop.ut_annotations;
