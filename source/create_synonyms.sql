@@ -36,10 +36,10 @@ set termout off
 spool params.sql.tmp
 select
   case
-    when upper('&&ut3_user') = 'PUBLIC' then q'[define action_type='or replace public'
+    when upper('&&ut3_user') = 'PUBLIC' then q'[define action_type='or replace noneditionable public'
       ]'||q'[define ut3_user=''
       ]'||q'[define grantee='PUBLIC']'
-    else q'[define action_type='or replace'
+    else q'[define action_type='or replace noneditionable'
       ]'||q'[define grantee='&&ut3_user']
       ]'||q'[define ut3_user='&&ut3_user..']'
   end
