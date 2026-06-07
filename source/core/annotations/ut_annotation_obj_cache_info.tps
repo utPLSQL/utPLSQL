@@ -1,4 +1,4 @@
-create or replace noneditionable type( )ut_annotation_obj_cache_info as object(
+create or replace noneditionable type ut_annotation_obj_cache_info as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

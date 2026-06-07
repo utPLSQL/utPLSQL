@@ -1,4 +1,4 @@
-create or replace noneditionable type( )ut_suite_cache_rows as
+create or replace noneditionable type ut_suite_cache_rows as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project
