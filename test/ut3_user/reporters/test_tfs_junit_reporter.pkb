@@ -100,7 +100,7 @@ create or replace package body test_tfs_junit_reporter as
       --%displayname(Test in and out of context)
 
       -- %context(incontext)
-      -- %name(ProductincontextFeatures)
+      -- %name(Production_context_Features)
 
       --%test(inctx)
       --%displayname(inctx)
@@ -298,7 +298,7 @@ create or replace package body test_tfs_junit_reporter as
 <testsuites>
 <testsuite tests="2" id="1" package="core.check_junit_inout_context"  errors="0" failures="0" name="Test in and out of context" time="%"  timestamp="%"  hostname="%" >
 <properties/>
-<testcase classname="core.check_junit_inout_context.ProductincontextFeatures"  name="inctx" time="%">
+<testcase classname="core.check_junit_inout_context.production_context_features"  name="inctx" time="%">
 </testcase>
 <testcase classname="core.check_junit_inout_context"  name="outctx" time="%">
 </testcase>
