@@ -1,4 +1,4 @@
-create or replace package ut_coverage authid current_user is
+create or replace noneditionable package ut_coverage authid current_user is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

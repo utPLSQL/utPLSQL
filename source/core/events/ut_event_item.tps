@@ -1,4 +1,4 @@
-create or replace type ut_event_item authid current_user as object (
+create or replace noneditionable type ut_event_item authid current_user as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

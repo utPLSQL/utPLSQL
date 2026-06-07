@@ -1,4 +1,4 @@
-create or replace type ut_logical_suite force under ut_suite_item (
+create or replace noneditionable type ut_logical_suite force under ut_suite_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

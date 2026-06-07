@@ -1,4 +1,4 @@
-create or replace type ut_path_items as
+create or replace noneditionable type ut_path_items as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

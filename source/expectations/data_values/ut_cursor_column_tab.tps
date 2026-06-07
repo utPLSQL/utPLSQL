@@ -1,4 +1,4 @@
-create or replace type ut_cursor_column_tab as
+create or replace noneditionable type ut_cursor_column_tab as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

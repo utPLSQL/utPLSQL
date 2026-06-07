@@ -1,4 +1,4 @@
-create or replace package body ut_trigger_check is
+create or replace noneditionable package body ut_trigger_check is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project
@@ -22,7 +22,7 @@ create or replace package body ut_trigger_check is
   function is_alive return boolean is
     pragma autonomous_transaction;
   begin
-    execute immediate 'create or replace synonym '||ut_utils.ut_owner||'.'||gc_check_object_name||' for no_object';
+    execute immediate 'create or replace noneditionable synonym '||ut_utils.ut_owner||'.'||gc_check_object_name||' for no_object';
     return g_is_trigger_live;
   end;
 

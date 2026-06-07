@@ -1,1 +1,1 @@
-create synonym equal for ut_equal;
+create noneditionable synonym equal for ut_equal;

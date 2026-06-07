@@ -1,4 +1,4 @@
-create or replace type ut_executable_test authid current_user under ut_executable (
+create or replace noneditionable type ut_executable_test authid current_user under ut_executable (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

@@ -1,4 +1,4 @@
-create or replace package ut_teamcity_reporter_helper is
+create or replace noneditionable package ut_teamcity_reporter_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

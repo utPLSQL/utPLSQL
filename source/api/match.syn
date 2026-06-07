@@ -1,1 +1,1 @@
-create synonym match for ut_match;
+create noneditionable synonym match for ut_match;

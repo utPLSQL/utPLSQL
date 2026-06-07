@@ -1,4 +1,4 @@
-create or replace type body ut_matcher_options_items is
+create or replace noneditionable type body ut_matcher_options_items is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

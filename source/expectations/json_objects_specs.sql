@@ -2,13 +2,13 @@ BEGIN
   null;
   $if dbms_db_version.version < 21 $then
     dbms_output.put_line('Installing json structures specs for native json.');
-    execute immediate  q'[create or replace TYPE JSON FORCE AUTHID CURRENT_USER AS OBJECT(
+    execute immediate  q'[create or replace noneditionable TYPE JSON FORCE AUTHID CURRENT_USER AS OBJECT(
    dummyobjt NUMBER
 ) NOT FINAL NOT INSTANTIABLE;]';   
   $end
   $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
     dbms_output.put_line('Installing json structures specs.');
-    execute immediate  q'[create or replace TYPE JSON_Element_T FORCE AUTHID CURRENT_USER AS OBJECT(
+    execute immediate  q'[create or replace noneditionable TYPE JSON_Element_T FORCE AUTHID CURRENT_USER AS OBJECT(
    dummyobjt NUMBER,
    STATIC FUNCTION  parse(jsn VARCHAR2) RETURN JSON_Element_T,
    STATIC FUNCTION  parse(jsn CLOB) RETURN JSON_Element_T,
@@ -34,9 +34,9 @@ BEGIN
    MEMBER FUNCTION  get_Size(self IN JSON_ELEMENT_T) RETURN NUMBER
 ) NOT FINAL NOT INSTANTIABLE;]';
 
-    execute immediate  q'[create or replace TYPE JSON_KEY_LIST FORCE AS VARRAY(32767) OF VARCHAR2(4000);]';
+    execute immediate  q'[create or replace noneditionable TYPE JSON_KEY_LIST FORCE AS VARRAY(32767) OF VARCHAR2(4000);]';
     
-    execute immediate  q'[create or replace TYPE JSON_Array_T FORCE AUTHID CURRENT_USER UNDER JSON_Element_T(
+    execute immediate  q'[create or replace noneditionable TYPE JSON_Array_T FORCE AUTHID CURRENT_USER UNDER JSON_Element_T(
    CONSTRUCTOR FUNCTION JSON_Array_T RETURN SELF AS RESULT,
    MEMBER      FUNCTION  get(pos NUMBER) RETURN JSON_Element_T,
    MEMBER      FUNCTION  get_String(pos NUMBER) RETURN VARCHAR2,
@@ -51,7 +51,7 @@ BEGIN
    MEMBER      FUNCTION  get_Type(pos NUMBER) RETURN VARCHAR2
 ) FINAL;]';
     
-    execute immediate  q'[create or replace TYPE JSON_Object_T AUTHID CURRENT_USER UNDER JSON_Element_T(
+    execute immediate  q'[create or replace noneditionable TYPE JSON_Object_T AUTHID CURRENT_USER UNDER JSON_Element_T(
    CONSTRUCTOR FUNCTION JSON_Object_T RETURN SELF AS RESULT,
    MEMBER      FUNCTION  get(key VARCHAR2) RETURN JSON_Element_T,
    MEMBER      FUNCTION  get_Object(key VARCHAR2) RETURN JSON_OBJECT_T,

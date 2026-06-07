@@ -19,3 +19,13 @@ set verify off
 alter session set plsql_optimize_level=0;
 @${INSTALL_FILE} $UT3_DEVELOP_SCHEMA $UT3_DEVELOP_SCHEMA_PASSWORD
 SQL
+
+#Enable editioning on the UT3_DEVELOP schema
+time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+whenever sqlerror exit failure rollback
+set feedback off
+set verify off
+
+alter user $UT3_DEVELOP_SCHEMA enable editions;
+exit
+SQL

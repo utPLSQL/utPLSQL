@@ -1,4 +1,4 @@
-create or replace type body ut_sonar_test_reporter is
+create or replace noneditionable type body ut_sonar_test_reporter is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

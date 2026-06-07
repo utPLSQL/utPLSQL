@@ -1,4 +1,4 @@
-create or replace type ut_output_table_buffer under ut_output_buffer_base (
+create or replace noneditionable type ut_output_table_buffer under ut_output_buffer_base (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

@@ -1,4 +1,4 @@
-create or replace type ut_test force under ut_suite_item (
+create or replace noneditionable type ut_test force under ut_suite_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

@@ -1,4 +1,4 @@
-create or replace package ut_ansiconsole_helper as
+create or replace noneditionable package ut_ansiconsole_helper as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

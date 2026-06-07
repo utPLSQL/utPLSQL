@@ -1,4 +1,4 @@
-create or replace type ut_stack as object (
+create or replace noneditionable type ut_stack as object (
   top integer,
   tokens ut_varchar2_list,
   /*

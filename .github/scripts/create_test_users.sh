@@ -18,6 +18,9 @@ PROMPT Creating UT3_TESTER - Power-user for testing internal framework code
 create user UT3_TESTER identified by "ut3" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
 grant create session, create procedure, create type, create table to UT3_TESTER;
 
+# Editioning is enable on test users to validate that utPLSQL works well with editioned schema
+alter user UT3_TESTER enable editions;
+
 grant execute on dbms_lock to UT3_TESTER;
 
 PROMPT Granting $UT3_DEVELOP_SCHEMA code to UT3_TESTER
@@ -51,6 +54,9 @@ PROMPT Creating UT3_USER - minimal privileges user for API testing
 
 create user UT3_USER identified by "ut3" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
 grant create session, create procedure, create type, create table to UT3_USER;
+
+# Editioning is enable on test users to validate that utPLSQL works well with editioned schema
+alter user UT3_USER enable editions;
 
 PROMPT Grants for starting a debugging session from UT3_USER
 grant debug connect session to UT3_USER;

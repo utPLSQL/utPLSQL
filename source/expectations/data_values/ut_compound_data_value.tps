@@ -1,4 +1,4 @@
-create or replace type ut_compound_data_value force under ut_data_value(
+create or replace noneditionable type ut_compound_data_value force under ut_data_value(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

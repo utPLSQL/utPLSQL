@@ -1,4 +1,4 @@
-create or replace type ut_run_info under ut_event_item (
+create or replace noneditionable type ut_run_info under ut_event_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

@@ -1,4 +1,4 @@
-create or replace type ut_tap_reporter under ut_documentation_reporter(
+create or replace noneditionable type ut_tap_reporter under ut_documentation_reporter(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

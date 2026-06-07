@@ -1,1 +1,1 @@
-create synonym have_count for ut_have_count;
+create noneditionable synonym have_count for ut_have_count;

@@ -1,4 +1,4 @@
-create or replace type ut_session_info under ut_event_listener (
+create or replace noneditionable type ut_session_info under ut_event_listener (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

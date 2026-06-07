@@ -1,4 +1,4 @@
-create or replace package body ut_suite_manager is
+create or replace noneditionable package body ut_suite_manager is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project
