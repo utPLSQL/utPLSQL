@@ -37,7 +37,6 @@ There is a [migration tool](https://github.com/utPLSQL/utPLSQL-v2-v3-migration) 
 | **Code Coverage Reporting**            |  No                    | Yes                    |
 | Html Coverage Report                   |  No                    | Yes                    |
 | Sonar XML Coverage Report              |  No                    | Yes                    |
-| Coveralls Json Coverage Report         |  No                    | Yes                    |
 | Framework Transaction Control          |  No                    | Yes - Annotations<sup>1</sup> | 
 | **Test Output**                        |                        |                        |
 | Real-time test execution progress reporting | No                | Yes                    |

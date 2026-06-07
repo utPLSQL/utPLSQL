@@ -108,7 +108,6 @@ grant execute on &&ut3_owner..ut_tap_reporter to &ut3_user;
 --reporters - coverage
 grant execute on &&ut3_owner..ut_coverage_html_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to &ut3_user;
-grant execute on &&ut3_owner..ut_coveralls_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_cobertura_reporter to &ut3_user;
 --reporters - debug
 grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;

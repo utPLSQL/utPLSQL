@@ -19,7 +19,7 @@ utPLSQL is a unit testing framework for Oracle PL/SQL and SQL, following industr
 - Hierarchies of test suites configured with annotations
 - Automatic (configurable) transaction control
 - Built-in [coverage](docs/userguide/coverage.md) reporting
-- Integration with SonarQube, Coveralls, Jenkins and TeamCity via [reporters](docs/userguide/reporters.md)
+- Integration with SonarQube, Jenkins and TeamCity via [reporters](docs/userguide/reporters.md)
 - Plugin architecture for reporters and matchers
 - Flexible and simple test invocation
 - Multi-format reporting from the [command line client](https://github.com/utPLSQL/utPLSQL-cli)
