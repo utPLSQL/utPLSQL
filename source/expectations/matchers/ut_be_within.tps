@@ -1,4 +1,4 @@
-create or replace type ut_be_within force under ut_be_within_pct(
+create or replace noneditionable type ut_be_within force under ut_be_within_pct(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

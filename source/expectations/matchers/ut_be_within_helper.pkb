@@ -1,4 +1,4 @@
-create or replace package body ut_be_within_helper as
+create or replace noneditionable package body ut_be_within_helper as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

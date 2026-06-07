@@ -1,4 +1,4 @@
-create or replace type body ut_suite_item as
+create or replace noneditionable type body ut_suite_item as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

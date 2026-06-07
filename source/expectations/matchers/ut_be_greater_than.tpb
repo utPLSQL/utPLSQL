@@ -1,4 +1,4 @@
-create or replace type body ut_be_greater_than AS
+create or replace noneditionable type body ut_be_greater_than AS
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

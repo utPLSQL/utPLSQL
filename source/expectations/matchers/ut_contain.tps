@@ -1,4 +1,4 @@
-create or replace type ut_contain under ut_equal(
+create or replace noneditionable type ut_contain under ut_equal(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

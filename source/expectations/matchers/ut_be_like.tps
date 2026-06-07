@@ -1,4 +1,4 @@
-create or replace type ut_be_like under ut_matcher(
+create or replace noneditionable type ut_be_like under ut_matcher(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

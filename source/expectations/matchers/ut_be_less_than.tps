@@ -1,4 +1,4 @@
-create or replace type ut_be_less_than under ut_comparison_matcher(
+create or replace noneditionable type ut_be_less_than under ut_comparison_matcher(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

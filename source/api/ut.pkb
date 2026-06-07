@@ -1,4 +1,4 @@
-create or replace package body ut is
+create or replace noneditionable package body ut is
 
   /*
   utPLSQL - Version 3

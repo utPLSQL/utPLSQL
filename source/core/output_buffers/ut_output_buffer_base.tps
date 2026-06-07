@@ -1,4 +1,4 @@
-create or replace type ut_output_buffer_base force authid definer as object(
+create or replace noneditionable type ut_output_buffer_base force authid definer as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

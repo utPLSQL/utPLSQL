@@ -1,4 +1,4 @@
-create or replace package ut_runner authid current_user is
+create or replace noneditionable package ut_runner authid current_user is
 
   /*
   utPLSQL - Version 3

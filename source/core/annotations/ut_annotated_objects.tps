@@ -1,4 +1,4 @@
-create type ut_annotated_objects as
+create or replace noneditionable type( )ut_annotated_objects as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

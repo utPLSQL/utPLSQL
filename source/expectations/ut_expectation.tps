@@ -1,4 +1,4 @@
-create or replace type ut_expectation force under ut_expectation_base(
+create or replace noneditionable type ut_expectation force under ut_expectation_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

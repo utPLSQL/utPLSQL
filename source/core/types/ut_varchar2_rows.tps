@@ -1,4 +1,4 @@
-create or replace type ut_varchar2_rows as
+create or replace noneditionable type ut_varchar2_rows as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

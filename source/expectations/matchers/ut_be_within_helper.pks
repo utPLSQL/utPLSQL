@@ -1,4 +1,4 @@
-create or replace package ut_be_within_helper authid definer as
+create or replace noneditionable package ut_be_within_helper authid definer as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

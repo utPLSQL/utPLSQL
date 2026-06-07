@@ -1,4 +1,4 @@
-create or replace package ut_utils authid definer is
+create or replace noneditionable package ut_utils authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

@@ -1,4 +1,4 @@
-create or replace package body ut_runner is
+create or replace noneditionable package body ut_runner is
 
   /*
   utPLSQL - Version 3

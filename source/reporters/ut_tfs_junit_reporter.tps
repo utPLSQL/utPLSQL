@@ -1,4 +1,4 @@
-create or replace type ut_tfs_junit_reporter under ut_output_reporter_base(
+create or replace noneditionable type ut_tfs_junit_reporter under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project

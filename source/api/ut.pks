@@ -1,4 +1,4 @@
-create or replace package ut authid current_user as
+create or replace noneditionable package ut authid current_user as
 
   /*
   utPLSQL - Version 3

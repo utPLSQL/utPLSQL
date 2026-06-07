@@ -1,4 +1,4 @@
-create or replace type ut_data_value_anydata under ut_data_value_refcursor(
+create or replace noneditionable type ut_data_value_anydata under ut_data_value_refcursor(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project
