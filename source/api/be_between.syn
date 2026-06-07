@@ -1,1 +1,1 @@
-create synonym be_between for ut_be_between;
+create noneditionable synonymbe_between for ut_be_between;

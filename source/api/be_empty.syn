@@ -1,1 +1,1 @@
-create synonym be_empty for ut_be_empty;
+create noneditionable synonymbe_empty for ut_be_empty;
