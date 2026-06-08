@@ -23,8 +23,8 @@ In below example we have a `suite` annotation with `Stuff) -- we should name thi
 
 Do not place comments within annotation line to avoid unexpected behaviors.
 
-**Note:**
->Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
+!!! note
+    Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
 
 There are two distinct types of annotations, identified by their location in package.
 - package annotations
@@ -151,15 +151,13 @@ The `--%suite` annotation denotes PLSQL package as a unit test suite.
 It accepts an optional description that will be visible when running the tests.
 When description is not provided, package name is displayed on report.
 
-**Note**
->Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
->
->Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
-Values for parameters should be provided without any quotation marks.
-If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
->
->Example: `--%suite(The name of suite without closing bracket`
->Example: `--%suite The name of suite without brackets`
+!!! note
+    Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
+    Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
+    Values for parameters should be provided without any quotation marks.
+    If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+    Example: `--%suite(The name of suite without closing bracket`
+    Example: `--%suite The name of suite without brackets`
 
 
 Suite package without description.
@@ -459,7 +457,7 @@ Finished in .005868 seconds
 
 ### Beforeall
 
-There are two possible ways  to use the `--%beforeall` annotation.
+There are two possible ways to use the `--%beforeall` annotation.
 
 As a procedure level annotation:
 ```sql linenums="1"
@@ -545,7 +543,7 @@ Finished in .012292 seconds
 ```
 
 In the below example a combination pacakge and procedure level `--%beforeall` annotations is used.
-The order of execution of the beforeall procedures is determined by the annotation position in package. 
+The execution order of the `--%beforeall` procedures is determined by the annotation position in the package. 
 All of the `--%beforeall` procedures get invoked before any test is executed in a suite.  
 ```sql linenums="1"
   create or replace package test_package as
@@ -672,6 +670,8 @@ Finished in .012158 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)
 ```
 
+!!! note "Suite scope"
+    The `--%beforeall` procedrues in parent suite package are always part of all suite packages that are children on the suitepath.
 
 ### Afterall
 
@@ -758,6 +758,10 @@ Tests for a package
 Finished in .014161 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
+
+!!! note "Suite scope"
+    The `--%afterall` procedrues in parent suite package are always part of all suite packages that are children on the suitepath.
+
 
 ### Beforeeach
 
@@ -868,6 +872,9 @@ Finished in .014683 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
+!!! note "Package scope"
+    Unlike `--%beforeall`, the `--%beforeeach` annotation is only applicable within the scope of current test suite package. The `--%beforeeach` annotations from parent suite package are ignored.
+
 See [beforeall](#Beforeall) for more examples.
 
 ### Aftereach
@@ -976,6 +983,9 @@ Tests for a package
 Finished in .018115 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
+
+!!! note "Package scope"
+    Unlike `--%afterall`, the `--%aftereach` annotation is only applicable within the scope of current test suite package. The `--%aftereach` annotations from parent suite package are ignored.
 
 See [beforeall](#Beforeall) for more examples.
 
@@ -1715,6 +1725,8 @@ When executing tests, `path` for executing tests can be provided in three ways:
 * [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests by `suitepath` in all suites on path suite1[.suite2][.suite3]...[.procedure]. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
 * [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
 
+!!! note
+    Only the `beforeall` and `afterall` hooks of the parent suite are executed for the suite package. The `beforeeach` and `aftereach` hooks of the suite package are not executed.
 
 ### Rollback
 
@@ -1740,12 +1752,12 @@ Doing so allows your tests to use the framework's automatic transaction control 
 When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
 Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.
 
-**Note**
-> The `--%suitepath` annotation, when used, must be provided with a value of path.
-> The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path.
->
-> Example: `--%suitepath(org.utplsql.core.utils)`
->
+!!! note
+    The `--%rollback(manual)` annotation is only relevant for suites that use shared setup/cleanup with beforeall,
+    The `--%suitepath` annotation, when used, must be provided with a value of path.
+    The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path. 
+    Example: `--%suitepath(org.utplsql.core.utils)`
+
 
 
 ### Throws
