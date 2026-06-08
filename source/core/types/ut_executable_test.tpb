@@ -65,9 +65,11 @@ create or replace noneditionable type body ut_executable_test as
         return false;
       end;
 
-      function check_exception_type(a_exception_name in varchar2) return varchar2 is
-        l_exception_type varchar2(50);
+      function to_exception_number(a_exception_name in varchar2) return integer is
+        l_exception_type varchar2(100);
+        l_exc_no integer;
       begin
+
         --check if it is a predefined exception
         begin
           execute immediate 'begin null; exception when '||a_exception_name||' then null; end;';
@@ -87,10 +89,21 @@ create or replace noneditionable type body ut_executable_test as
               end;
               end if;
         end;
-        return l_exception_type;
+
+        execute immediate
+          case l_exception_type
+          when c_integer_exception then
+            'declare l_exception number; begin :l_exception := '||a_exception_name||'; end;'
+          when c_named_exception then
+            'begin raise '||a_exception_name||'; exception when others then :l_exception := sqlcode; end;'
+          else
+            'begin :l_exception := null; end;'
+          end
+          using out l_exc_no;
+        return l_exc_no;
       end;
 
-      function get_exception_number (a_exception_var in varchar2) return integer is
+      function get_exception_number (a_exception_var in varchar2, a_item ut_suite_item) return integer is
         l_exc_no   integer;
         l_exc_type varchar2(50);
         function remap_no_data_found (a_number integer) return integer is
@@ -98,18 +111,11 @@ create or replace noneditionable type body ut_executable_test as
           return case a_number when 100 then -1403 else a_number end;
         end;
       begin
-        l_exc_type := check_exception_type(a_exception_var);
-
-        execute immediate
-          case l_exc_type
-          when c_integer_exception then
-            'declare l_exception number; begin :l_exception := '||a_exception_var||'; end;'
-          when c_named_exception then
-            'begin raise '||a_exception_var||'; exception when others then :l_exception := sqlcode; end;'
-          else
-            'begin :l_exception := null; end;'
-          end
-          using out l_exc_no;
+        l_exc_no := coalesce(
+                to_exception_number(a_exception_var),
+                to_exception_number(a_item.object_owner||'.'||a_exception_var),
+                to_exception_number(a_item.object_owner||'.'||a_item.object_name||'.'||a_exception_var)
+        );
 
         return remap_no_data_found(l_exc_no);
       end;
@@ -121,7 +127,7 @@ create or replace noneditionable type body ut_executable_test as
           * Check if its a valid qualified name and if so try to resolve name to an exception number
           */
           if is_valid_qualified_name(a_expected_error_codes(i)) then
-            l_exception_number := get_exception_number(a_expected_error_codes(i));
+            l_exception_number := get_exception_number(a_expected_error_codes(i), a_item);
           elsif regexp_like(a_expected_error_codes(i), c_regexp_for_exception_no) then
             l_exception_number := a_expected_error_codes(i);
           end if;
