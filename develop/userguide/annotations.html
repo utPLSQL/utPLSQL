@@ -1317,7 +1317,7 @@
 
   <h1>Annotations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4470--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4475--develop-blue.svg" /></p>
 <p>Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
 No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.</p>
@@ -1334,10 +1334,10 @@ The framework runner searches for all the suitable annotated packages, automatic
 <p>In below example we have a <code>suite</code> annotation with <code>Stuff) -- we should name this ( correctly</code> as the annotation text</p>
 <p><code>--%suite(Stuff) -- we should name this ( correctly )</code></p>
 <p>Do not place comments within annotation line to avoid unexpected behaviors.</p>
-<p><strong>Note:</strong></p>
-<blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.</p>
-</blockquote>
+</div>
 <p>There are two distinct types of annotations, identified by their location in package.
 - package annotations
 - procedure annotations</p>
@@ -1597,15 +1597,15 @@ We strongly recommend putting package level annotations at the very top of packa
 <p>The <code>--%suite</code> annotation denotes PLSQL package as a unit test suite.
 It accepts an optional description that will be visible when running the tests.
 When description is not provided, package name is displayed on report.</p>
-<p><strong>Note</strong></p>
-<blockquote>
-<p>Package is considered a test-suite only when package specification contains the <code>--%suite</code> annotation at the package level.</p>
-<p>Some annotations like <code>--%suite</code>, <code>--%test</code> and <code>--%displayname</code> accept parameters. The parameters for annotations need to be placed in brackets.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Package is considered a test-suite only when package specification contains the <code>--%suite</code> annotation at the package level.
+Some annotations like <code>--%suite</code>, <code>--%test</code> and <code>--%displayname</code> accept parameters. The parameters for annotations need to be placed in brackets.
 Values for parameters should be provided without any quotation marks.
-If the parameters are placed without brackets or with incomplete brackets, they will be ignored.</p>
-<p>Example: <code>--%suite(The name of suite without closing bracket</code>
+If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+Example: <code>--%suite(The name of suite without closing bracket</code>
 Example: <code>--%suite The name of suite without brackets</code></p>
-</blockquote>
+</div>
 <p>Suite package without description.
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
@@ -1956,7 +1956,7 @@ You can provide the reason why the test is disabled that will be displayed in ou
 <a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>2 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
 </code></pre></div></p>
 <h3 id="beforeall">Beforeall<a class="headerlink" href="#beforeall" title="Permanent link">&para;</a></h3>
-<p>There are two possible ways  to use the <code>--%beforeall</code> annotation.</p>
+<p>There are two possible ways to use the <code>--%beforeall</code> annotation.</p>
 <p>As a procedure level annotation:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-34-1">1</a></span>
 <span class="normal"><a href="#__codelineno-34-2">2</a></span>
@@ -2063,7 +2063,7 @@ Indicates that the procedure(s) mentioned as the annotation parameter are to be 
 <a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 </code></pre></div>
 <p>In the below example a combination pacakge and procedure level <code>--%beforeall</code> annotations is used.
-The order of execution of the beforeall procedures is determined by the annotation position in package. 
+The execution order of the <code>--%beforeall</code> procedures is determined by the annotation position in the package. 
 All of the <code>--%beforeall</code> procedures get invoked before any test is executed in a suite.<br />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-39-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-39-2"> 2</a></span>
@@ -2252,6 +2252,10 @@ When procedure is annotated as both <code>--%beforeall</code> and <code>--%test<
 <a id="__codelineno-44-16" name="__codelineno-44-16" href="#__codelineno-44-16"></a>Finished in .012158 seconds
 <a id="__codelineno-44-17" name="__codelineno-44-17" href="#__codelineno-44-17"></a>2 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Suite scope</p>
+<p>The <code>--%beforeall</code> procedrues in parent suite package are always part of all suite packages that are children on the suitepath.</p>
+</div>
 <h3 id="afterall">Afterall<a class="headerlink" href="#afterall" title="Permanent link">&para;</a></h3>
 <p>There are two possible ways  to use the <code>--%afterall</code> annotation.</p>
 <p>As a procedure level annotation:
@@ -2358,6 +2362,10 @@ This however doesn't have direct impact on test execution within current suite, 
 <a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a>Finished in .014161 seconds
 <a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a>2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Suite scope</p>
+<p>The <code>--%afterall</code> procedrues in parent suite package are always part of all suite packages that are children on the suitepath.</p>
+</div>
 <h3 id="beforeeach">Beforeeach<a class="headerlink" href="#beforeeach" title="Permanent link">&para;</a></h3>
 <p>The procedure annotated as <code>--%beforeeach</code> is getting executed before each test in a suite.
 That means that the procedure will be executed as many times as there are test in suite package.</p>
@@ -2498,6 +2506,10 @@ Marks annotated procedure to be executed before each test procedures in a suite.
 <a id="__codelineno-54-10" name="__codelineno-54-10" href="#__codelineno-54-10"></a>Finished in .014683 seconds
 <a id="__codelineno-54-11" name="__codelineno-54-11" href="#__codelineno-54-11"></a>2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Package scope</p>
+<p>Unlike <code>--%beforeall</code>, the <code>--%beforeeach</code> annotation is only applicable within the scope of current test suite package. The <code>--%beforeeach</code> annotations from parent suite package are ignored.</p>
+</div>
 <p>See <a href="#Beforeall">beforeall</a> for more examples.</p>
 <h3 id="aftereach">Aftereach<a class="headerlink" href="#aftereach" title="Permanent link">&para;</a></h3>
 <p>Marks annotated procedure to be executed after each test procedure in a suite.</p>
@@ -2639,6 +2651,10 @@ Marks annotated procedure to be executed after each test procedures in a suite.<
 <a id="__codelineno-59-10" name="__codelineno-59-10" href="#__codelineno-59-10"></a>Finished in .018115 seconds
 <a id="__codelineno-59-11" name="__codelineno-59-11" href="#__codelineno-59-11"></a>2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 </code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Package scope</p>
+<p>Unlike <code>--%afterall</code>, the <code>--%aftereach</code> annotation is only applicable within the scope of current test suite package. The <code>--%aftereach</code> annotations from parent suite package are ignored.</p>
+</div>
 <p>See <a href="#Beforeall">beforeall</a> for more examples.</p>
 <h3 id="beforetest">Beforetest<a class="headerlink" href="#beforetest" title="Permanent link">&para;</a></h3>
 <p>Indicates specific setup procedure(s) to be executed for a test. The procedure(s) can be located either:</p>
@@ -3741,6 +3757,10 @@ The test report indicates which expectation has failed on the payments module. T
 <li>[schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests by <code>suitepath</code> in all suites on path suite1[.suite2][.suite3]...[.procedure]. If schema is not provided, then the current schema is used. Example: <code>:all.rooms_tests</code></li>
 <li>[schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: <code>tests.test_contact.test_last_name_validator</code> or simply <code>test_contact.test_last_name_validator</code> if <code>tests</code> is the current schema.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only the <code>beforeall</code> and <code>afterall</code> hooks of the parent suite are executed for the suite package. The <code>beforeeach</code> and <code>aftereach</code> hooks of the suite package are not executed.</p>
+</div>
 <h3 id="rollback">Rollback<a class="headerlink" href="#rollback" title="Permanent link">&para;</a></h3>
 <p>By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
 This solution is suitable for use-cases where the code that is being tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.</p>
@@ -3758,13 +3778,13 @@ It is recommended to move such DDL statements to a procedure with <code>pragma a
 Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.</p>
 <p>When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with <code>pragma autonomous_transaction</code>.
 Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.</p>
-<p><strong>Note</strong></p>
-<blockquote>
-<p>The <code>--%suitepath</code> annotation, when used, must be provided with a value of path.
-The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path.</p>
-<p>Example: <code>--%suitepath(org.utplsql.core.utils)</code>
-</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code>--%rollback(manual)</code> annotation is only relevant for suites that use shared setup/cleanup with beforeall,
+The <code>--%suitepath</code> annotation, when used, must be provided with a value of path.
+The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path. 
+Example: <code>--%suitepath(org.utplsql.core.utils)</code></p>
+</div>
 <h3 id="throws">Throws<a class="headerlink" href="#throws" title="Permanent link">&para;</a></h3>
 <p>The <code>--%throws</code> annotation allows you to specify a list of exceptions as one of:</p>
 <ul>
@@ -4505,7 +4525,7 @@ Example:
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 8, 2026 10:45:50 UTC">June 8, 2026 10:45:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 8, 2026 14:18:52 UTC">June 8, 2026 14:18:52</span>
   </span>
 
     
