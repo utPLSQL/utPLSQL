@@ -17,7 +17,6 @@ time utPLSQL-cli/bin/utplsql run UT3_TESTER_HELPER/ut3@//${CONNECTION_STR} -D \
 -f=ut_coverage_sonar_reporter     -o=coverage.xml \
 -f=ut_coverage_cobertura_reporter -o=cobertura.xml \
 -f=ut_coverage_html_reporter      -o=coverage.html \
--f=ut_coveralls_reporter          -o=coverage.json \
 -f=ut_sonar_test_reporter         -o=test_results.xml \
 -f=ut_junit_reporter              -o=junit_test_results.xml \
 -f=ut_tfs_junit_reporter          -o=tfs_test_results.xml \

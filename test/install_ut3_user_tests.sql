@@ -50,7 +50,6 @@ set define on
 @@ut3_user/reporters/test_coverage/test_extended_coverage.pks
 @@ut3_user/reporters/test_coverage/test_html_coverage_reporter.pks
 set define off
-@@ut3_user/reporters/test_coverage/test_coveralls_reporter.pks
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pks
 set define on
@@ -93,7 +92,6 @@ set define on
 @@ut3_user/reporters/test_coverage/test_extended_coverage.pkb
 @@ut3_user/reporters/test_coverage/test_html_coverage_reporter.pkb
 set define off
-@@ut3_user/reporters/test_coverage/test_coveralls_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 set define on

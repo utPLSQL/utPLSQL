@@ -386,7 +386,6 @@ end;';
       select 'UT3_DEVELOP.UT_DEBUG_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_COVERAGE_HTML_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_COVERAGE_SONAR_REPORTER', 'Y' from dual union all
-      select 'UT3_DEVELOP.UT_COVERALLS_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_DOCUMENTATION_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_JUNIT_REPORTER', 'Y' from dual union all
       select 'UT3_DEVELOP.UT_REALTIME_REPORTER', 'Y' from dual union all
