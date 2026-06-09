@@ -136,7 +136,7 @@ create or replace noneditionable type body ut_executable_test as
       end if;
     end;
 
-    function get_exception_failure_message(a_expected_errors_list ut_varchar2_rows) return varchar is
+    function get_exception_failure_message(a_expected_errors_list ut_varchar2_rows) return varchar2 is
       l_actual_error_no      integer;
       l_expected_errors      varchar2(4000);
       l_fail_message         varchar2(4000);
