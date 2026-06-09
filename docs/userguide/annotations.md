@@ -1783,7 +1783,7 @@ Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To captu
 
 Syntax: `--%throws( [[schema.]package.]exception [, ... ])`
  
-The exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package than the unti test package. The schema name is required only when the exception variable is located in a package in another schema.
+The exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package than the unit test package. The schema name is required only when the exception variable is located in a package in another schema.
 
 Example:
 ```sql linenums="1"
