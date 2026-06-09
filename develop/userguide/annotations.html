@@ -1317,7 +1317,7 @@
 
   <h1>Annotations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4475--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4476--develop-blue.svg" /></p>
 <p>Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
 No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.</p>
@@ -3789,16 +3789,18 @@ Example: <code>--%suitepath(org.utplsql.core.utils)</code></p>
 <p>The <code>--%throws</code> annotation allows you to specify a list of exceptions as one of:</p>
 <ul>
 <li>number literals - example <code>--%throws(-20134)</code></li>
-<li>variables of type exception defined in a package specification - example <code>--%throws(exc_pkg.c_exception_No_variable)</code></li>
-<li>variables of type number defined in a package specification - example <code>--%throws(exc_pkg.c_some_exception)</code></li>
+<li>variables of type <code>exception</code> defined in a package specification - example <code>--%throws(exc_pkg.c_exception_No_variable)</code></li>
+<li>variables of type <code>number</code> defined in a package specification - example <code>--%throws(exc_pkg.c_some_exception)</code></li>
 <li><a href="https://docs.oracle.com/en//database/oracle/oracle-database/19/lnpls/predefined-exceptions.html">predefined oracle exceptions</a> - example <code>--%throws(no_data_found)</code></li>
 </ul>
-<p>The annotation is ignored, when no valid arguments are provided. Examples of invalid annotations <code>--%throws()</code>,<code>--%throws</code>, <code>--%throws(abe, 723pf)</code>.</p>
+<p>The annotation is ignored when no valid arguments are provided. Examples of invalid annotations <code>--%throws()</code>,<code>--%throws</code>, <code>--%throws(abe, 723pf)</code>.</p>
 <p>If <code>--%throws</code> annotation is specified with arguments and no exception is raised, the test is marked as failed.</p>
 <p>If <code>--%throws</code> annotation is specified with arguments and exception raised is not on the list of provided exceptions, the test is marked as failed.</p>
 <p>The framework will raise a warning, when <code>--%throws</code> annotation has invalid arguments or when no arguments were provided.</p>
 <p>Annotation <code>--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)</code> will be interpreted as <code>--%throws(-20496)</code>.</p>
 <p>Please note that <code>NO_DATA_FOUND</code> exception is a special case in Oracle. To capture it use <code>NO_DATA_FOUND</code> named exception or <code>-1403</code> exception No.</p>
+<p>Syntax: <code>--%throws( [[schema.]package.]exception [, ... ])</code></p>
+<p>So the exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package. The schema name is required only when the exception variable is located in a pacakge in a nother schema.</p>
 <p>Example:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-80-1">  1</a></span>
 <span class="normal"><a href="#__codelineno-80-2">  2</a></span>
@@ -4525,7 +4527,7 @@ Example:
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 8, 2026 14:18:52 UTC">June 8, 2026 14:18:52</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 9, 2026 11:39:07 UTC">June 9, 2026 11:39:07</span>
   </span>
 
     
