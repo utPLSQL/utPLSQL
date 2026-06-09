@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.01.4475--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.01.4476--develop-blue.svg)
 
 ### utPLSQL v3 Major Contributors 
 
