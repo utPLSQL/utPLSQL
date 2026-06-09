@@ -101,7 +101,7 @@ create or replace package body test_ut_suite_tag_filter is
             ut3_develop.ut_varchar2_rows('context_tag'), null),
           ut3_develop.ut_suite_cache_row(
             3, 'UT_TEST', 'some.path.test_tags.nested_context_#1.create_new_mapping', 'TEST_USER', 'TEST_TAGS', 'CREATE_NEW_MAPPING', 11, timestamp '2026-05-06 10:23:38.461299', NULL, NULL, 0, NULL, null,  null, null, null, null, null, null, null,
-            ut3_develop.ut_varchar2_rows('test_tag'), ut3_develop.ut_executable_test('UT_EXECUTABLE_TEST', 'test', 'TEST_USER', 'test_tags', 'create_new_mapping', NULL, NULL, NULL, NULL))
+            ut3_develop.ut_varchar2_rows('test_tag'), ut3_develop.ut_executable_test('UT_EXECUTABLE_TEST', 'test', 'TEST_USER', 'test_tags', 'create_new_mapping', NULL, NULL, NULL, NULL, NULL))
       );
 
       ut.expect(ut3_develop.ut_suite_tag_filter.apply( l_input_data, 'slow').count).to_equal(3 );

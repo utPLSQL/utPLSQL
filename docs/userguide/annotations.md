@@ -1765,8 +1765,8 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 The `--%throws` annotation allows you to specify a list of exceptions as one of:
 
 - number literals - example `--%throws(-20134)`
-- variables of type `exception` defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
-- variables of type `number` defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
+- variables of type `exception` defined in a package specification - example `--%throws(exc_pkg.c_exception_no_variable)`
+- variables or constants of containing a valid negative exception number defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
 - [predefined oracle exceptions](https://docs.oracle.com/en//database/oracle/oracle-database/19/lnpls/predefined-exceptions.html) - example `--%throws(no_data_found)`
 
 The annotation is ignored when no valid arguments are provided. Examples of invalid annotations `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
@@ -1783,23 +1783,27 @@ Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To captu
 
 Syntax: `--%throws( [[schema.]package.]exception [, ... ])`
  
-So the exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package. The schema name is required only when the exception variable is located in a pacakge in a nother schema.
+The exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package than the unit test package. The schema name is required only when the exception variable is located in a package in another schema.
 
 Example:
 ```sql linenums="1"
 create or replace package exc_pkg is
   c_e_option1  constant number := -20200;
   c_e_option2  constant varchar2(10) := '-20201';
-  c_e_option3  number := -20202;
+  c_e_option3  integer := -20202;
           
-  e_option4 exception;
-  pragma exception_init(e_option4, -20203);
-          
+  e_initialized_exception    exception;
+  pragma exception_init(e_initialized_exception, -20203);
+
+  e_uninitialized_exception  exception;      
 end;
 /
 
 create or replace package example_pgk as
 
+  e_local_exception exception;
+  e_local_exception_num constant integer := -20123;
+    
   --%suite(Example Throws Annotation)
 
   --%test(Throws one of the listed exceptions)
@@ -1830,10 +1834,22 @@ create or replace package example_pgk as
   --%throws(exc_pkg.c_e_option3)
   procedure raised_option3_exception;
   
-  --%test(Throws package exception option4)
-  --%throws(exc_pkg.e_option4)
-  procedure raised_option4_exception;
+  --%test(Throws exception associated with exception number)
+  --%throws(exc_pkg.e_initialized_exception)
+  procedure raised_initialized_exception;
   
+  --%test(Throws uninitialized exception)
+  --%throws(exc_pkg.e_uninitialized_exception)
+  procedure raised_uninitialized_exception;
+  
+  --%test(Throws exception local to unit tests package)
+  --%throws(e_local_exception)
+  procedure raised_local_exception;
+      
+  --%test(Throws exception local to unit tests package with exception number)
+  --%throws(e_local_exception_num)
+  procedure raised_local_exception_num;
+      
   --%test(Raise name exception)
   --%throws(DUP_VAL_ON_INDEX)
   procedure raise_named_exc;
@@ -1844,6 +1860,7 @@ create or replace package example_pgk as
 
 end;  
 /
+
 create or replace package body example_pgk is
   procedure raised_one_listed_exception is
   begin
@@ -1880,11 +1897,28 @@ create or replace package body example_pgk is
       raise_application_error(exc_pkg.c_e_option3, 'Test error');
   end;
   
-  procedure raised_option4_exception is
+  procedure raised_initialized_exception is
   begin
-      raise exc_pkg.e_option4;
+      raise exc_pkg.e_initialized_exception;
   end;
   
+  procedure raised_uninitialized_exception is
+  begin
+      raise exc_pkg.e_uninitialized_exception;
+  end;
+  
+  procedure raised_local_exception is
+      pragma autonomous_transaction;
+  begin
+      raise e_local_exception;
+  end;
+  
+  procedure raised_local_exception_num is
+      pragma autonomous_transaction;
+  begin
+      raise_application_error(e_local_exception_num, 'Test error');
+  end;
+      
   procedure raise_named_exc is
   begin
       raise DUP_VAL_ON_INDEX;
@@ -1903,48 +1937,55 @@ exec ut3.ut.run('example_pgk');
 Running the test will give report:
 ```
 Example Throws Annotation
-  Throws one of the listed exceptions [.002 sec]
-  Throws different exception than expected [.002 sec] (FAILED - 1)
-  Throws different exception than listed [.003 sec] (FAILED - 2)
-  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
-  Throws package exception option1 [.003 sec]
-  Throws package exception option2 [.002 sec]
-  Throws package exception option3 [.002 sec]
-  Throws package exception option4 [.002 sec]
-  Raise name exception [.002 sec]
-  Invalid throws annotation [.002 sec]
- 
+  Throws one of the listed exceptions [,026 sec]
+  Throws different exception than expected [,009 sec] (FAILED - 1)
+  Throws different exception than listed [,014 sec] (FAILED - 2)
+  Gives failure when an exception is expected and nothing is thrown [,016 sec] (FAILED - 3)
+  SUCCESS
+    Actual: 1 (number) was expected to equal: 1 (number)
+  Throws package exception option1 [,007 sec]
+  Throws package exception option2 [,008 sec]
+  Throws package exception option3 [,007 sec]
+  Throws exception associated with exception number [,006 sec]
+  Throws uninitialized exception [,006 sec]
+  Throws exception local to unit tests package [,009 sec]
+  Throws exception local to unit tests package with exception number [,011 sec]
+  Raise name exception [,006 sec]
+  Invalid throws annotation [,004 sec]
+
 Failures:
- 
+
   1) raised_different_exception
       Actual: -20143 was expected to equal: -20144
       ORA-20143: Test error
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
-      ORA-06512: at line 6
-       
+      ORA-06512: at "UT3_TESTER.EXAMPLE_PGK", line 9
+      ORA-06512: at "UT3_TESTER.EXAMPLE_PGK", line 9
+      ORA-06512: at line 7
+
   2) raised_unlisted_exception
       Actual: -20143 was expected to be one of: (-20144, -1, -20145)
       ORA-20143: Test error
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
-      ORA-06512: at line 6
-       
+      ORA-06512: at "UT3_TESTER.EXAMPLE_PGK", line 14
+      ORA-06512: at "UT3_TESTER.EXAMPLE_PGK", line 14
+      ORA-06512: at line 7
+
   3) nothing_thrown
       Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
-       
- 
+
+
 Warnings:
- 
-  1) example_pgk
+
+  1) example_pgk.raised_one_listed_exception
       Invalid parameter value "bad" for "--%throws" annotation. Parameter ignored.
-      at "UT3.EXAMPLE_PGK.RAISED_ONE_LISTED_EXCEPTION", line 6
+      at package "UT3_TESTER.EXAMPLE_PGK.RAISED_ONE_LISTED_EXCEPTION", line 8
+
   2) example_pgk
       "--%throws" annotation requires a parameter. Annotation ignored.
-      at "UT3.EXAMPLE_PGK.BAD_THROWS_ANNOTATION", line 42
- 
-Finished in .025784 seconds
-10 tests, 3 failed, 0 errored, 0 disabled, 2 warning(s)
+      at package "UT3_TESTER.EXAMPLE_PGK.BAD_THROWS_ANNOTATION", line 57
+
+Finished in ,138276 seconds
+13 tests, 3 failed, 0 errored, 0 disabled, 2 warning(s)
+
 ```
 
 ## Order of execution

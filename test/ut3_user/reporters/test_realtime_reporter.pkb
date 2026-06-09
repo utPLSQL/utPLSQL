@@ -410,7 +410,7 @@ create or replace package body test_realtime_reporter as
            = 'realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error';
     ut3_tester_helper.main_helper.append_to_list(l_expected_list, '<![CDATA[ORA-00942: table or view %does not exist');
     ut3_tester_helper.main_helper.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 5');
-    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%ORA-06512: at line 6]]>');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%ORA-06512: at line 7]]>');
     l_expected := ut3_tester_helper.main_helper.table_to_clob(l_expected_list);
     ut.expect(l_actual).to_be_like(l_expected);
   end error_stack_of_test;
@@ -427,7 +427,7 @@ create or replace package body test_realtime_reporter as
            = 'realtime_reporting.check_realtime_reporting3';
     ut3_tester_helper.main_helper.append_to_list(l_expected_list, '<![CDATA[ORA-01403: no data found');
     ut3_tester_helper.main_helper.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 21');
-    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%ORA-06512: at line 6]]>');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%ORA-06512: at line 7]]>');
     l_expected := ut3_tester_helper.main_helper.table_to_clob(l_expected_list);
     ut.expect(l_actual).to_be_like(l_expected);
   end error_stack_of_testsuite;

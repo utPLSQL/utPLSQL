@@ -22,12 +22,12 @@ create or replace noneditionable type ut_executable_test authid current_user und
   
   member procedure do_execute(
     self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item, 
-    a_expected_error_codes in ut_varchar2_rows
+    a_expected_errors in ut_varchar2_rows
   ),
   
   member function do_execute(
     self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item, 
-    a_expected_error_codes in ut_varchar2_rows
+    a_expected_errors in ut_varchar2_rows
   ) return boolean
   
 ) final;

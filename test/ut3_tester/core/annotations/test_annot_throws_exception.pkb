@@ -36,6 +36,8 @@ is
         e_some_local_exception exception;
         pragma exception_init(e_some_local_exception, -20212);
 
+        e_uninitialized_exception_variable exception;
+
         --%suite(Dummy package to test annotation throws)
 
         --%test(Throws same annotated exception)
@@ -145,6 +147,15 @@ is
         --%test(Bad exception constant)
         --%throws(exc_pkg.c_e_dummy);
         procedure bad_exc_const;
+
+        --%test(Uninitialized exception variable can be used successfully in a test)
+        --%throws(e_uninitialized_exception_variable)
+        procedure referencing_uninitialized_exception;
+
+        --%test(Failure report shows all expected exceptions)
+        --%throws(c_local_error_no,e_some_local_exception,e_uninitialized_exception_variable)
+        procedure not_throwing_expected_exceptions;
+
       end;
     ]';
 
@@ -286,6 +297,15 @@ is
           raise_application_error(-20143, ''Test error'');
         end;
            
+        procedure referencing_uninitialized_exception is
+        begin
+          raise e_uninitialized_exception_variable;
+        end;
+
+        procedure not_throwing_expected_exceptions is
+        begin
+          raise_application_error(-20143, ''Test error'');
+        end;
       end;
     ';
 
@@ -298,6 +318,14 @@ is
 
     g_tests_results := ut3_develop.ut_utils.table_to_clob(l_test_results);
   end;
+
+  procedure drop_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package annotated_package_with_throws';
+    execute immediate 'drop package exc_pkg';
+  end;
+
 
   procedure throws_same_annotated_except is
   begin
@@ -409,26 +437,26 @@ is
 
   procedure named_exc_pragma_run_from_another_schema is
   begin
-    ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
-    ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema');
+      ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$', 'm');
+      ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema');
   end;
 
   procedure named_exc_pragma_run_from_another_schema_no_package_name is
   begin
-    ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
-    ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema_no_package_name');
+      ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$', 'm');
+      ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema_no_package_name');
   end;
 
   procedure exc_number_var_run_from_another_schema_no_package_name is
   begin
-    ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
-    ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema_no_package_name');
+      ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$', 'm');
+      ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema_no_package_name');
   end;
 
   procedure exc_number_var_run_from_another_schema is
   begin
-    ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
-    ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema');
+      ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$', 'm');
+      ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema');
   end;
 
   procedure named_exc_ora is
@@ -465,13 +493,23 @@ is
   begin
     ut.expect(g_tests_results).to_match('^\s*Bad exception constant \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('bad_exc_const\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
-  end; 
-  
-  procedure drop_test_package is
-    pragma autonomous_transaction;
+  end;
+
+  procedure referencing_uninitialized_exception is
+      l_test_results ut3_develop.ut_varchar2_list;
+      l_actual clob;
   begin
-    execute immediate 'drop package annotated_package_with_throws';
-    execute immediate 'drop package exc_pkg';
+    select * bulk collect into l_test_results from table(ut3_develop.ut.run(('annotated_package_with_throws.referencing_uninitialized_exception')));
+
+    l_actual := ut3_develop.ut_utils.table_to_clob(l_test_results);
+    ut.expect(l_actual).to_match('^\s*Uninitialized exception variable can be used successfully in a test \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(l_actual).not_to_match('referencing_uninitialized_exception');
+  end;
+
+  procedure not_throwing_expected_exceptions is
+  begin
+    ut.expect(g_tests_results).to_match('not_throwing_expected_exceptions');
+    ut.expect(g_tests_results).to_match('Actual: -20143 was expected to be one of: \(annotated_package_with_throws.e_some_local_exception, annotated_package_with_throws.e_uninitialized_exception_variable, -20211\)');
   end;
 
 end;

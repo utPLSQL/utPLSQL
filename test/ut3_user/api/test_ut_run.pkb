@@ -551,7 +551,7 @@ Failures:%
       ORA-04068: existing state of packages (DB_LOOPBACK%) has been discarded
       ORA-04061: existing state of package body "%.STATEFUL_PACKAGE" has been invalidated
       ORA-04065: not executed, altered or dropped package body "%.STATEFUL_PACKAGE"%
-      ORA-06512: at line 6%
+      ORA-06512: at line 7%
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
 
     --Act

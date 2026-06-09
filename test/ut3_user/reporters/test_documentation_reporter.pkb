@@ -38,7 +38,7 @@ Failures:
   2) erroring_test
       ORA-06502: PL/SQL: %: character to number conversion error
       ORA-06512: at "UT3_USER.TEST_REPORTERS", line 44%
-      ORA-06512: at line 6
+      ORA-06512: at line 7
 Finished in % seconds
 5 tests, 1 failed, 1 errored, 2 disabled, 0 warning(s)%]';
 
