@@ -38,20 +38,30 @@ create or replace noneditionable type body ut_executable is
     return ut_metadata.form_name(l_owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) is
+  member procedure do_execute(
+    self in out nocopy ut_executable,
+    a_item in out nocopy ut_suite_item,
+    a_ignored_exception_names in ut_varchar2_rows := null,
+    a_ignored_exception_numbers in ut_varchar2_rows :=null)
+  is
     l_completed_without_errors  boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_item);
+    l_completed_without_errors := self.do_execute(a_item, a_ignored_exception_names, a_ignored_exception_numbers);
   end do_execute;
 
-	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) return boolean is
-    l_statement                varchar2(4000);
-    l_status                   number;
-    l_cursor_number            number;
-    l_completed_without_errors boolean := true;
-    l_failed_with_invalid_pck  boolean := true;
-    l_start_transaction_id     varchar2(250);
-    l_end_transaction_id     varchar2(250);
+  member function do_execute(
+    self in out nocopy ut_executable,
+    a_item in out nocopy ut_suite_item,
+    a_ignored_exception_names in ut_varchar2_rows := null,
+    a_ignored_exception_numbers in ut_varchar2_rows :=null)
+  return boolean is
+    l_statement                   varchar2(4000);
+    l_status                      number;
+    l_cursor_number               number;
+    l_completed_without_errors    boolean := true;
+    l_failed_with_invalid_pck     boolean := true;
+    l_start_transaction_id        varchar2(250);
+    l_end_transaction_id          varchar2(250);
 
     function is_defined return boolean is
       l_result boolean := false;
@@ -111,19 +121,33 @@ create or replace noneditionable type body ut_executable is
     if l_completed_without_errors then
       l_statement :=
       'declare' || chr(10) ||
-      '  l_error_stack varchar2(32767);' || chr(10) ||
-      '  l_error_backtrace varchar2(32767);' || chr(10) ||
+      '  l_error_stack                varchar2(32767);' || chr(10) ||
+      '  l_error_backtrace            varchar2(32767);' || chr(10) ||
+      '  l_ignored_exception_detected integer := 0;' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
       '    ' || self.form_name( a_skip_current_user_schema => true ) || ';' || chr(10) ||
       '  exception' || chr(10) ||
+              case when a_ignored_exception_names is not empty then
+      '    when ' || ut_utils.table_to_clob( a_ignored_exception_names, ' or ' ) || ' then ' || chr(10) ||
+      '      l_ignored_exception_detected := 1;'
+             end ||
       '    when others then ' || chr(10) ||
+            case when a_ignored_exception_numbers is not empty then
+      '      if sqlcode in (' || ut_utils.table_to_clob( a_ignored_exception_numbers, ', ' ) || ') then ' || chr(10) ||
+      '        l_ignored_exception_detected := 1; ' || chr(10) ||
+      '      else ' || chr(10) ||
+      '        l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
+      '        l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
+      '      end if;'
+            else
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
-      '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
-      '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
+      '      l_error_backtrace := dbms_utility.format_error_backtrace;'
+            end || chr(10) ||
       '  end;' || chr(10) ||
       '  :a_error_stack := l_error_stack;' || chr(10) ||
       '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
+      '  :a_ignored_exception_detected := l_ignored_exception_detected;' || chr(10) ||
       'end;';
 
       ut_utils.debug_log('ut_executable.do_execute l_statement: ' || l_statement);
@@ -139,9 +163,11 @@ create or replace noneditionable type body ut_executable is
         dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
         dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
         dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
+        dbms_sql.bind_variable(l_cursor_number, 'a_ignored_exception_detected', to_number(null));
         l_status := dbms_sql.execute(l_cursor_number);
         dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
         dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
+        dbms_sql.variable_value(l_cursor_number, 'a_ignored_exception_detected', self.ignored_exception_detected);
         dbms_sql.close_cursor(l_cursor_number);
       exception 
         when ut_utils.ex_invalid_package then

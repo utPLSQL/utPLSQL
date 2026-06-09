@@ -5,7 +5,11 @@ is
     
   --%beforeall
   procedure recollect_tests_results;
-  
+
+  --%afterall
+  procedure drop_test_package;
+
+
   --%test(Gives success when annotated number exception is thrown)
   procedure throws_same_annotated_except;
 
@@ -73,11 +77,11 @@ is
   procedure non_existing_const;   
   
   --%test(Bad exception constant)  
-  procedure bad_exc_const;     
-  
-  --%afterall
-  procedure drop_test_package;
+  procedure bad_exc_const;
 
+  --%test(Uninitialized exception variable can be used successfully in a test)
+  procedure referencing_uninitialized_exception;
+  
   --%context(referencing exceptions when running from another schema)
 
     --%beforeall
