@@ -1765,11 +1765,11 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 The `--%throws` annotation allows you to specify a list of exceptions as one of:
 
 - number literals - example `--%throws(-20134)`
-- variables of type exception defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
-- variables of type number defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
+- variables of type `exception` defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
+- variables of type `number` defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
 - [predefined oracle exceptions](https://docs.oracle.com/en//database/oracle/oracle-database/19/lnpls/predefined-exceptions.html) - example `--%throws(no_data_found)`
 
-The annotation is ignored, when no valid arguments are provided. Examples of invalid annotations `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
+The annotation is ignored when no valid arguments are provided. Examples of invalid annotations `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
 
 If `--%throws` annotation is specified with arguments and no exception is raised, the test is marked as failed.
 
@@ -1780,7 +1780,11 @@ The framework will raise a warning, when `--%throws` annotation has invalid argu
 Annotation `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
 
 Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To capture it use `NO_DATA_FOUND` named exception or `-1403` exception No.
-                                                                                                        
+
+Syntax: `--%throws( [[schema.]package.]exception [, ... ])`
+ 
+So the exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package. The schema name is required only when the exception variable is located in a pacakge in a nother schema.
+
 Example:
 ```sql linenums="1"
 create or replace package exc_pkg is

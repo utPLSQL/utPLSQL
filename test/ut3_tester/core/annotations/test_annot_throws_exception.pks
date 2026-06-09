@@ -18,7 +18,7 @@ is
   --%test(Gives failure when the raised exception is different that the annotated one)
   procedure throws_diff_annotated_except;
   
-  --%test(Ignores when  the annotation throws is empty)
+  --%test(Ignores the throws annotation when it is empty)
   procedure throws_empty;
   
   --%test(Ignores when only bad parameters are passed, the test raise a exception and it shows errored test)
@@ -56,8 +56,8 @@ is
     
   --%test(Success resolve and match named exception defined in pragma exception init)  
   procedure named_exc_pragma;
-  
-  --%test(Success resolve and match oracle named exception no data)  
+
+  --%test(Success resolve and match oracle named exception no data)
   procedure named_exc_ora;
  
   --%test(Success resolve and match oracle named exception dup val index)  
@@ -77,6 +77,25 @@ is
   
   --%afterall
   procedure drop_test_package;
+
+  --%context(referencing exceptions when running from another schema)
+
+    --%beforeall
+    procedure run_from_another_schema;
+
+    --%test(Success referencing an exception variable when running from another schema)
+    procedure named_exc_pragma_run_from_another_schema;
+
+    --%test(Success referencing a numeric exception variable when running from another schema)
+    procedure exc_number_var_run_from_another_schema;
+
+    --%test(Success referencing an exception variable without a package name when running from another schema)
+    procedure named_exc_pragma_run_from_another_schema_no_package_name;
+
+    --%test(Success referencing a numeric exception variable without a package name when running from another schema)
+    procedure exc_number_var_run_from_another_schema_no_package_name;
+
+  --%endcontext
 
 end;
 /

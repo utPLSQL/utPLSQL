@@ -1,6 +1,7 @@
 create or replace package body test_annot_throws_exception
 is
   g_tests_results clob;
+  g_results_other_schema clob;
 
   procedure recollect_tests_results is
     pragma autonomous_transaction;
@@ -25,10 +26,16 @@ is
           e_some_exception exception;
           pragma exception_init(e_some_exception, -20207);
           
-       end;]';
+       end;
+    ]';
     
-    l_package_spec := '
-      create package annotated_package_with_throws is
+    l_package_spec := q'[
+      create or replace package annotated_package_with_throws is
+
+        c_local_error_no constant number := -20211;
+        e_some_local_exception exception;
+        pragma exception_init(e_some_local_exception, -20212);
+
         --%suite(Dummy package to test annotation throws)
 
         --%test(Throws same annotated exception)
@@ -95,6 +102,22 @@ is
         --%throws(exc_pkg.c_e_mix_missin,utter_rubbish)
         procedure mixed_list_notexi;
 
+        --%test(Success referencing an exception variable when running from another schema)
+        --%throws(exc_pkg.e_some_exception)
+        procedure named_exc_pragma_run_from_another_schema;
+
+        --%test(Success referencing a numeric exception variable when running from another schema)
+        --%throws(exc_pkg.c_e_list_1)
+        procedure exc_number_var_run_from_another_schema;
+
+        --%test(Success referencing an exception variable without package name when running from another schema)
+        --%throws(e_some_local_exception)
+        procedure named_exc_pragma_run_from_another_schema_no_package_name;
+
+        --%test(Success referencing a numeric exception variable without package name when running from another schema)
+        --%throws(c_local_error_no)
+        procedure exc_number_var_run_from_another_schema_no_package_name;
+
         --%test(Success resolve and match named exception defined in pragma exception init)
         --%throws(exc_pkg.e_some_exception)
         procedure named_exc_pragma;
@@ -123,10 +146,10 @@ is
         --%throws(exc_pkg.c_e_dummy);
         procedure bad_exc_const;
       end;
-    ';
+    ]';
 
     l_package_body := '
-      create package body annotated_package_with_throws is
+      create or replace package body annotated_package_with_throws is
         procedure raised_same_exception is
         begin
           raise_application_error(-20145, ''Test error'');
@@ -206,6 +229,26 @@ is
         procedure mixed_list_notexi is
         begin
           raise_application_error(exc_pkg.c_e_mix_missin,''Test'');
+        end;
+
+        procedure named_exc_pragma_run_from_another_schema is
+        begin
+          raise exc_pkg.e_some_exception;
+        end;
+
+        procedure exc_number_var_run_from_another_schema is
+        begin
+          raise_application_error(exc_pkg.c_e_list_1,''Test'');
+        end;
+
+        procedure named_exc_pragma_run_from_another_schema_no_package_name is
+        begin
+          raise e_some_local_exception;
+        end;
+
+        procedure exc_number_var_run_from_another_schema_no_package_name is
+        begin
+          raise_application_error(c_local_error_no,''Test'');
         end;
 
         procedure named_exc_pragma is
@@ -312,7 +355,7 @@ is
 
   procedure one_valid_exception_number is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Detects a valid exception number within many invalid ones \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Detects a valid exception number within many invalid ones \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).to_match('one_valid_exception_number\s*Invalid parameter value ".*" for "--%throws" annotation. Parameter ignored.','m');
   end;
 
@@ -357,7 +400,37 @@ is
     ut.expect(g_tests_results).to_match('^\s*Success resolve and match named exception defined in pragma exception init \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('named_exc_pragma');
   end;
-  
+
+  procedure run_from_another_schema is
+  begin
+    ut3_tester_helper.run_helper.run(('ut3_tester.annotated_package_with_throws'));
+    g_results_other_schema := ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+  end;
+
+  procedure named_exc_pragma_run_from_another_schema is
+  begin
+    ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema');
+  end;
+
+  procedure named_exc_pragma_run_from_another_schema_no_package_name is
+  begin
+    ut.expect(g_results_other_schema).to_match('^\s*Success referencing an exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_results_other_schema).not_to_match('named_exc_pragma_run_from_another_schema_no_package_name');
+  end;
+
+  procedure exc_number_var_run_from_another_schema_no_package_name is
+  begin
+    ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable without package name when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema_no_package_name');
+  end;
+
+  procedure exc_number_var_run_from_another_schema is
+  begin
+    ut.expect(g_results_other_schema).to_match('^\s*Success referencing a numeric exception variable when running from another schema \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_results_other_schema).not_to_match('exc_number_var_run_from_another_schema');
+  end;
+
   procedure named_exc_ora is
   begin
     ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception \[[,\.0-9]+ sec\]\s*$','m');
