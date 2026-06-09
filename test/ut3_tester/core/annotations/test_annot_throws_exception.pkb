@@ -152,6 +152,10 @@ is
         --%throws(e_uninitialized_exception_variable)
         procedure referencing_uninitialized_exception;
 
+        --%test(Failure report shows all expected exceptions)
+        --%throws(c_local_error_no,e_some_local_exception,e_uninitialized_exception_variable)
+        procedure not_throwing_expected_exceptions;
+
       end;
     ]';
 
@@ -296,6 +300,11 @@ is
         procedure referencing_uninitialized_exception is
         begin
           raise e_uninitialized_exception_variable;
+        end;
+
+        procedure not_throwing_expected_exceptions is
+        begin
+          raise_application_error(-20143, ''Test error'');
         end;
       end;
     ';
@@ -495,6 +504,12 @@ is
     l_actual := ut3_develop.ut_utils.table_to_clob(l_test_results);
     ut.expect(l_actual).to_match('^\s*Uninitialized exception variable can be used successfully in a test \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(l_actual).not_to_match('referencing_uninitialized_exception');
+  end;
+
+  procedure not_throwing_expected_exceptions is
+  begin
+    ut.expect(g_tests_results).to_match('not_throwing_expected_exceptions');
+    ut.expect(g_tests_results).to_match('Actual: -20143 was expected to be one of: \(annotated_package_with_throws.e_some_local_exception, annotated_package_with_throws.e_uninitialized_exception_variable, -20211\)');
   end;
 
 end;

@@ -74,6 +74,7 @@ create or replace noneditionable type body ut_executable_test as
         return remap_no_data_found(
  coalesce(
                 get_exception_no(a_exception_var),
+                get_exception_no(a_item.object_name||'.'||a_exception_var),
                 get_exception_no(a_item.object_owner||'.'||a_exception_var),
                 get_exception_no(a_item.object_owner||'.'||a_item.object_name||'.'||a_exception_var)
           )
@@ -93,6 +94,7 @@ create or replace noneditionable type body ut_executable_test as
       begin
         return coalesce(
                 verify_name(a_exception_var),
+                verify_name(a_item.object_name||'.'||a_exception_var),
                 verify_name(a_item.object_owner||'.'||a_exception_var),
                 verify_name(a_item.object_owner||'.'||a_item.object_name||'.'||a_exception_var)
         );
