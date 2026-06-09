@@ -1317,7 +1317,7 @@
 
   <h1>Annotations</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4476--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.01.4488--develop-blue.svg" /></p>
 <p>Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
 No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.</p>
@@ -3789,8 +3789,8 @@ Example: <code>--%suitepath(org.utplsql.core.utils)</code></p>
 <p>The <code>--%throws</code> annotation allows you to specify a list of exceptions as one of:</p>
 <ul>
 <li>number literals - example <code>--%throws(-20134)</code></li>
-<li>variables of type <code>exception</code> defined in a package specification - example <code>--%throws(exc_pkg.c_exception_No_variable)</code></li>
-<li>variables of type <code>number</code> defined in a package specification - example <code>--%throws(exc_pkg.c_some_exception)</code></li>
+<li>variables of type <code>exception</code> defined in a package specification - example <code>--%throws(exc_pkg.c_exception_no_variable)</code></li>
+<li>variables or constants of containing a valid negative exception number defined in a package specification - example <code>--%throws(exc_pkg.c_some_exception)</code></li>
 <li><a href="https://docs.oracle.com/en//database/oracle/oracle-database/19/lnpls/predefined-exceptions.html">predefined oracle exceptions</a> - example <code>--%throws(no_data_found)</code></li>
 </ul>
 <p>The annotation is ignored when no valid arguments are provided. Examples of invalid annotations <code>--%throws()</code>,<code>--%throws</code>, <code>--%throws(abe, 723pf)</code>.</p>
@@ -3800,7 +3800,7 @@ Example: <code>--%suitepath(org.utplsql.core.utils)</code></p>
 <p>Annotation <code>--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)</code> will be interpreted as <code>--%throws(-20496)</code>.</p>
 <p>Please note that <code>NO_DATA_FOUND</code> exception is a special case in Oracle. To capture it use <code>NO_DATA_FOUND</code> named exception or <code>-1403</code> exception No.</p>
 <p>Syntax: <code>--%throws( [[schema.]package.]exception [, ... ])</code></p>
-<p>So the exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package. The schema name is required only when the exception variable is located in a pacakge in a nother schema.</p>
+<p>The exception name can be provided with or without the schema and package name. The package name is required only when the exception variable is located in another package than the unit test package. The schema name is required only when the exception variable is located in a package in another schema.</p>
 <p>Example:
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-80-1">  1</a></span>
 <span class="normal"><a href="#__codelineno-80-2">  2</a></span>
@@ -3912,162 +3912,236 @@ Example: <code>--%suitepath(org.utplsql.core.utils)</code></p>
 <span class="normal"><a href="#__codelineno-80-108">108</a></span>
 <span class="normal"><a href="#__codelineno-80-109">109</a></span>
 <span class="normal"><a href="#__codelineno-80-110">110</a></span>
-<span class="normal"><a href="#__codelineno-80-111">111</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">exc_pkg</span><span class="w"> </span><span class="k">is</span>
+<span class="normal"><a href="#__codelineno-80-111">111</a></span>
+<span class="normal"><a href="#__codelineno-80-112">112</a></span>
+<span class="normal"><a href="#__codelineno-80-113">113</a></span>
+<span class="normal"><a href="#__codelineno-80-114">114</a></span>
+<span class="normal"><a href="#__codelineno-80-115">115</a></span>
+<span class="normal"><a href="#__codelineno-80-116">116</a></span>
+<span class="normal"><a href="#__codelineno-80-117">117</a></span>
+<span class="normal"><a href="#__codelineno-80-118">118</a></span>
+<span class="normal"><a href="#__codelineno-80-119">119</a></span>
+<span class="normal"><a href="#__codelineno-80-120">120</a></span>
+<span class="normal"><a href="#__codelineno-80-121">121</a></span>
+<span class="normal"><a href="#__codelineno-80-122">122</a></span>
+<span class="normal"><a href="#__codelineno-80-123">123</a></span>
+<span class="normal"><a href="#__codelineno-80-124">124</a></span>
+<span class="normal"><a href="#__codelineno-80-125">125</a></span>
+<span class="normal"><a href="#__codelineno-80-126">126</a></span>
+<span class="normal"><a href="#__codelineno-80-127">127</a></span>
+<span class="normal"><a href="#__codelineno-80-128">128</a></span>
+<span class="normal"><a href="#__codelineno-80-129">129</a></span>
+<span class="normal"><a href="#__codelineno-80-130">130</a></span>
+<span class="normal"><a href="#__codelineno-80-131">131</a></span>
+<span class="normal"><a href="#__codelineno-80-132">132</a></span>
+<span class="normal"><a href="#__codelineno-80-133">133</a></span>
+<span class="normal"><a href="#__codelineno-80-134">134</a></span>
+<span class="normal"><a href="#__codelineno-80-135">135</a></span>
+<span class="normal"><a href="#__codelineno-80-136">136</a></span>
+<span class="normal"><a href="#__codelineno-80-137">137</a></span>
+<span class="normal"><a href="#__codelineno-80-138">138</a></span>
+<span class="normal"><a href="#__codelineno-80-139">139</a></span>
+<span class="normal"><a href="#__codelineno-80-140">140</a></span>
+<span class="normal"><a href="#__codelineno-80-141">141</a></span>
+<span class="normal"><a href="#__codelineno-80-142">142</a></span>
+<span class="normal"><a href="#__codelineno-80-143">143</a></span>
+<span class="normal"><a href="#__codelineno-80-144">144</a></span>
+<span class="normal"><a href="#__codelineno-80-145">145</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">exc_pkg</span><span class="w"> </span><span class="k">is</span>
 <a id="__codelineno-80-2" name="__codelineno-80-2"></a><span class="w">  </span><span class="n">c_e_option1</span><span class="w">  </span><span class="n">constant</span><span class="w"> </span><span class="nb">number</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">20200</span><span class="p">;</span>
 <a id="__codelineno-80-3" name="__codelineno-80-3"></a><span class="w">  </span><span class="n">c_e_option2</span><span class="w">  </span><span class="n">constant</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;-20201&#39;</span><span class="p">;</span>
-<a id="__codelineno-80-4" name="__codelineno-80-4"></a><span class="w">  </span><span class="n">c_e_option3</span><span class="w">  </span><span class="nb">number</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">20202</span><span class="p">;</span>
+<a id="__codelineno-80-4" name="__codelineno-80-4"></a><span class="w">  </span><span class="n">c_e_option3</span><span class="w">  </span><span class="nb">integer</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">20202</span><span class="p">;</span>
 <a id="__codelineno-80-5" name="__codelineno-80-5"></a>
-<a id="__codelineno-80-6" name="__codelineno-80-6"></a><span class="w">  </span><span class="n">e_option4</span><span class="w"> </span><span class="k">exception</span><span class="p">;</span>
-<a id="__codelineno-80-7" name="__codelineno-80-7"></a><span class="w">  </span><span class="n">pragma</span><span class="w"> </span><span class="n">exception_init</span><span class="p">(</span><span class="n">e_option4</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">20203</span><span class="p">);</span>
+<a id="__codelineno-80-6" name="__codelineno-80-6"></a><span class="w">  </span><span class="n">e_initialized_exception</span><span class="w">    </span><span class="k">exception</span><span class="p">;</span>
+<a id="__codelineno-80-7" name="__codelineno-80-7"></a><span class="w">  </span><span class="n">pragma</span><span class="w"> </span><span class="n">exception_init</span><span class="p">(</span><span class="n">e_initialized_exception</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">20203</span><span class="p">);</span>
 <a id="__codelineno-80-8" name="__codelineno-80-8"></a>
-<a id="__codelineno-80-9" name="__codelineno-80-9"></a><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-10" name="__codelineno-80-10"></a><span class="o">/</span>
-<a id="__codelineno-80-11" name="__codelineno-80-11"></a>
-<a id="__codelineno-80-12" name="__codelineno-80-12"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">example_pgk</span><span class="w"> </span><span class="k">as</span>
-<a id="__codelineno-80-13" name="__codelineno-80-13"></a>
-<a id="__codelineno-80-14" name="__codelineno-80-14"></a><span class="w">  </span><span class="c1">--%suite(Example Throws Annotation)</span>
-<a id="__codelineno-80-15" name="__codelineno-80-15"></a>
-<a id="__codelineno-80-16" name="__codelineno-80-16"></a><span class="w">  </span><span class="c1">--%test(Throws one of the listed exceptions)</span>
-<a id="__codelineno-80-17" name="__codelineno-80-17"></a><span class="w">  </span><span class="c1">--%throws(-20145,bad,-20146, -20189 ,-20563)</span>
-<a id="__codelineno-80-18" name="__codelineno-80-18"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_one_listed_exception</span><span class="p">;</span>
+<a id="__codelineno-80-9" name="__codelineno-80-9"></a><span class="w">  </span><span class="n">e_uninitialized_exception</span><span class="w">  </span><span class="k">exception</span><span class="p">;</span><span class="w">      </span>
+<a id="__codelineno-80-10" name="__codelineno-80-10"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-11" name="__codelineno-80-11"></a><span class="o">/</span>
+<a id="__codelineno-80-12" name="__codelineno-80-12"></a>
+<a id="__codelineno-80-13" name="__codelineno-80-13"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">example_pgk</span><span class="w"> </span><span class="k">as</span>
+<a id="__codelineno-80-14" name="__codelineno-80-14"></a>
+<a id="__codelineno-80-15" name="__codelineno-80-15"></a><span class="w">  </span><span class="n">e_local_exception</span><span class="w"> </span><span class="k">exception</span><span class="p">;</span>
+<a id="__codelineno-80-16" name="__codelineno-80-16"></a><span class="w">  </span><span class="n">e_local_exception_num</span><span class="w"> </span><span class="n">constant</span><span class="w"> </span><span class="nb">integer</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">20123</span><span class="p">;</span>
+<a id="__codelineno-80-17" name="__codelineno-80-17"></a>
+<a id="__codelineno-80-18" name="__codelineno-80-18"></a><span class="w">  </span><span class="c1">--%suite(Example Throws Annotation)</span>
 <a id="__codelineno-80-19" name="__codelineno-80-19"></a>
-<a id="__codelineno-80-20" name="__codelineno-80-20"></a><span class="w">  </span><span class="c1">--%test(Throws different exception than expected)</span>
-<a id="__codelineno-80-21" name="__codelineno-80-21"></a><span class="w">  </span><span class="c1">--%throws(-20144)</span>
-<a id="__codelineno-80-22" name="__codelineno-80-22"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_different_exception</span><span class="p">;</span>
+<a id="__codelineno-80-20" name="__codelineno-80-20"></a><span class="w">  </span><span class="c1">--%test(Throws one of the listed exceptions)</span>
+<a id="__codelineno-80-21" name="__codelineno-80-21"></a><span class="w">  </span><span class="c1">--%throws(-20145,bad,-20146, -20189 ,-20563)</span>
+<a id="__codelineno-80-22" name="__codelineno-80-22"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_one_listed_exception</span><span class="p">;</span>
 <a id="__codelineno-80-23" name="__codelineno-80-23"></a>
-<a id="__codelineno-80-24" name="__codelineno-80-24"></a><span class="w">  </span><span class="c1">--%test(Throws different exception than listed)</span>
-<a id="__codelineno-80-25" name="__codelineno-80-25"></a><span class="w">  </span><span class="c1">--%throws(-20144,-00001,-20145)</span>
-<a id="__codelineno-80-26" name="__codelineno-80-26"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_unlisted_exception</span><span class="p">;</span>
+<a id="__codelineno-80-24" name="__codelineno-80-24"></a><span class="w">  </span><span class="c1">--%test(Throws different exception than expected)</span>
+<a id="__codelineno-80-25" name="__codelineno-80-25"></a><span class="w">  </span><span class="c1">--%throws(-20144)</span>
+<a id="__codelineno-80-26" name="__codelineno-80-26"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_different_exception</span><span class="p">;</span>
 <a id="__codelineno-80-27" name="__codelineno-80-27"></a>
-<a id="__codelineno-80-28" name="__codelineno-80-28"></a><span class="w">  </span><span class="c1">--%test(Gives failure when an exception is expected and nothing is thrown)</span>
-<a id="__codelineno-80-29" name="__codelineno-80-29"></a><span class="w">  </span><span class="c1">--%throws(-20459, -20136, -20145)</span>
-<a id="__codelineno-80-30" name="__codelineno-80-30"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">nothing_thrown</span><span class="p">;</span>
+<a id="__codelineno-80-28" name="__codelineno-80-28"></a><span class="w">  </span><span class="c1">--%test(Throws different exception than listed)</span>
+<a id="__codelineno-80-29" name="__codelineno-80-29"></a><span class="w">  </span><span class="c1">--%throws(-20144,-00001,-20145)</span>
+<a id="__codelineno-80-30" name="__codelineno-80-30"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_unlisted_exception</span><span class="p">;</span>
 <a id="__codelineno-80-31" name="__codelineno-80-31"></a>
-<a id="__codelineno-80-32" name="__codelineno-80-32"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option1)</span>
-<a id="__codelineno-80-33" name="__codelineno-80-33"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option1)</span>
-<a id="__codelineno-80-34" name="__codelineno-80-34"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option1_exception</span><span class="p">;</span>
+<a id="__codelineno-80-32" name="__codelineno-80-32"></a><span class="w">  </span><span class="c1">--%test(Gives failure when an exception is expected and nothing is thrown)</span>
+<a id="__codelineno-80-33" name="__codelineno-80-33"></a><span class="w">  </span><span class="c1">--%throws(-20459, -20136, -20145)</span>
+<a id="__codelineno-80-34" name="__codelineno-80-34"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">nothing_thrown</span><span class="p">;</span>
 <a id="__codelineno-80-35" name="__codelineno-80-35"></a>
-<a id="__codelineno-80-36" name="__codelineno-80-36"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option2)</span>
-<a id="__codelineno-80-37" name="__codelineno-80-37"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option2)</span>
-<a id="__codelineno-80-38" name="__codelineno-80-38"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option2_exception</span><span class="p">;</span>
+<a id="__codelineno-80-36" name="__codelineno-80-36"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option1)</span>
+<a id="__codelineno-80-37" name="__codelineno-80-37"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option1)</span>
+<a id="__codelineno-80-38" name="__codelineno-80-38"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option1_exception</span><span class="p">;</span>
 <a id="__codelineno-80-39" name="__codelineno-80-39"></a>
-<a id="__codelineno-80-40" name="__codelineno-80-40"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option3)</span>
-<a id="__codelineno-80-41" name="__codelineno-80-41"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option3)</span>
-<a id="__codelineno-80-42" name="__codelineno-80-42"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option3_exception</span><span class="p">;</span>
+<a id="__codelineno-80-40" name="__codelineno-80-40"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option2)</span>
+<a id="__codelineno-80-41" name="__codelineno-80-41"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option2)</span>
+<a id="__codelineno-80-42" name="__codelineno-80-42"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option2_exception</span><span class="p">;</span>
 <a id="__codelineno-80-43" name="__codelineno-80-43"></a>
-<a id="__codelineno-80-44" name="__codelineno-80-44"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option4)</span>
-<a id="__codelineno-80-45" name="__codelineno-80-45"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.e_option4)</span>
-<a id="__codelineno-80-46" name="__codelineno-80-46"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option4_exception</span><span class="p">;</span>
+<a id="__codelineno-80-44" name="__codelineno-80-44"></a><span class="w">  </span><span class="c1">--%test(Throws package exception option3)</span>
+<a id="__codelineno-80-45" name="__codelineno-80-45"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.c_e_option3)</span>
+<a id="__codelineno-80-46" name="__codelineno-80-46"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option3_exception</span><span class="p">;</span>
 <a id="__codelineno-80-47" name="__codelineno-80-47"></a>
-<a id="__codelineno-80-48" name="__codelineno-80-48"></a><span class="w">  </span><span class="c1">--%test(Raise name exception)</span>
-<a id="__codelineno-80-49" name="__codelineno-80-49"></a><span class="w">  </span><span class="c1">--%throws(DUP_VAL_ON_INDEX)</span>
-<a id="__codelineno-80-50" name="__codelineno-80-50"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raise_named_exc</span><span class="p">;</span>
+<a id="__codelineno-80-48" name="__codelineno-80-48"></a><span class="w">  </span><span class="c1">--%test(Throws exception associated with exception number)</span>
+<a id="__codelineno-80-49" name="__codelineno-80-49"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.e_initialized_exception)</span>
+<a id="__codelineno-80-50" name="__codelineno-80-50"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_initialized_exception</span><span class="p">;</span>
 <a id="__codelineno-80-51" name="__codelineno-80-51"></a>
-<a id="__codelineno-80-52" name="__codelineno-80-52"></a><span class="w">  </span><span class="c1">--%test(Invalid throws annotation)</span>
-<a id="__codelineno-80-53" name="__codelineno-80-53"></a><span class="w">  </span><span class="c1">--%throws</span>
-<a id="__codelineno-80-54" name="__codelineno-80-54"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">bad_throws_annotation</span><span class="p">;</span>
+<a id="__codelineno-80-52" name="__codelineno-80-52"></a><span class="w">  </span><span class="c1">--%test(Throws uninitialized exception)</span>
+<a id="__codelineno-80-53" name="__codelineno-80-53"></a><span class="w">  </span><span class="c1">--%throws(exc_pkg.e_uninitialized_exception)</span>
+<a id="__codelineno-80-54" name="__codelineno-80-54"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_uninitialized_exception</span><span class="p">;</span>
 <a id="__codelineno-80-55" name="__codelineno-80-55"></a>
-<a id="__codelineno-80-56" name="__codelineno-80-56"></a><span class="k">end</span><span class="p">;</span><span class="w">  </span>
-<a id="__codelineno-80-57" name="__codelineno-80-57"></a><span class="o">/</span>
-<a id="__codelineno-80-58" name="__codelineno-80-58"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">example_pgk</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-59" name="__codelineno-80-59"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_one_listed_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-60" name="__codelineno-80-60"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-61" name="__codelineno-80-61"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20189</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-62" name="__codelineno-80-62"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-56" name="__codelineno-80-56"></a><span class="w">  </span><span class="c1">--%test(Throws exception local to unit tests package)</span>
+<a id="__codelineno-80-57" name="__codelineno-80-57"></a><span class="w">  </span><span class="c1">--%throws(e_local_exception)</span>
+<a id="__codelineno-80-58" name="__codelineno-80-58"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_local_exception</span><span class="p">;</span>
+<a id="__codelineno-80-59" name="__codelineno-80-59"></a>
+<a id="__codelineno-80-60" name="__codelineno-80-60"></a><span class="w">  </span><span class="c1">--%test(Throws exception local to unit tests package with exception number)</span>
+<a id="__codelineno-80-61" name="__codelineno-80-61"></a><span class="w">  </span><span class="c1">--%throws(e_local_exception_num)</span>
+<a id="__codelineno-80-62" name="__codelineno-80-62"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_local_exception_num</span><span class="p">;</span>
 <a id="__codelineno-80-63" name="__codelineno-80-63"></a>
-<a id="__codelineno-80-64" name="__codelineno-80-64"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_different_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-65" name="__codelineno-80-65"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-66" name="__codelineno-80-66"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20143</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-67" name="__codelineno-80-67"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-68" name="__codelineno-80-68"></a>
-<a id="__codelineno-80-69" name="__codelineno-80-69"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_unlisted_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-70" name="__codelineno-80-70"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-71" name="__codelineno-80-71"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20143</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-72" name="__codelineno-80-72"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-73" name="__codelineno-80-73"></a>
-<a id="__codelineno-80-74" name="__codelineno-80-74"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">nothing_thrown</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-75" name="__codelineno-80-75"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-76" name="__codelineno-80-76"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-<a id="__codelineno-80-77" name="__codelineno-80-77"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-78" name="__codelineno-80-78"></a>
-<a id="__codelineno-80-79" name="__codelineno-80-79"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option1_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-80" name="__codelineno-80-80"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-81" name="__codelineno-80-81"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-82" name="__codelineno-80-82"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-83" name="__codelineno-80-83"></a>
-<a id="__codelineno-80-84" name="__codelineno-80-84"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option2_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-85" name="__codelineno-80-85"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-86" name="__codelineno-80-86"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-87" name="__codelineno-80-87"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-88" name="__codelineno-80-88"></a>
-<a id="__codelineno-80-89" name="__codelineno-80-89"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option3_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-90" name="__codelineno-80-90"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-91" name="__codelineno-80-91"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option3</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
-<a id="__codelineno-80-92" name="__codelineno-80-92"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-93" name="__codelineno-80-93"></a>
-<a id="__codelineno-80-94" name="__codelineno-80-94"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option4_exception</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-95" name="__codelineno-80-95"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-96" name="__codelineno-80-96"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">e_option4</span><span class="p">;</span>
-<a id="__codelineno-80-97" name="__codelineno-80-97"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-98" name="__codelineno-80-98"></a>
-<a id="__codelineno-80-99" name="__codelineno-80-99"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raise_named_exc</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-100" name="__codelineno-80-100"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-101" name="__codelineno-80-101"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">DUP_VAL_ON_INDEX</span><span class="p">;</span>
-<a id="__codelineno-80-102" name="__codelineno-80-102"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-103" name="__codelineno-80-103"></a>
-<a id="__codelineno-80-104" name="__codelineno-80-104"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">bad_throws_annotation</span><span class="w"> </span><span class="k">is</span>
-<a id="__codelineno-80-105" name="__codelineno-80-105"></a><span class="w">  </span><span class="k">begin</span>
-<a id="__codelineno-80-106" name="__codelineno-80-106"></a><span class="w">    </span><span class="k">null</span><span class="p">;</span>
-<a id="__codelineno-80-107" name="__codelineno-80-107"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-108" name="__codelineno-80-108"></a><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-80-109" name="__codelineno-80-109"></a><span class="o">/</span>
+<a id="__codelineno-80-64" name="__codelineno-80-64"></a><span class="w">  </span><span class="c1">--%test(Raise name exception)</span>
+<a id="__codelineno-80-65" name="__codelineno-80-65"></a><span class="w">  </span><span class="c1">--%throws(DUP_VAL_ON_INDEX)</span>
+<a id="__codelineno-80-66" name="__codelineno-80-66"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raise_named_exc</span><span class="p">;</span>
+<a id="__codelineno-80-67" name="__codelineno-80-67"></a>
+<a id="__codelineno-80-68" name="__codelineno-80-68"></a><span class="w">  </span><span class="c1">--%test(Invalid throws annotation)</span>
+<a id="__codelineno-80-69" name="__codelineno-80-69"></a><span class="w">  </span><span class="c1">--%throws</span>
+<a id="__codelineno-80-70" name="__codelineno-80-70"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">bad_throws_annotation</span><span class="p">;</span>
+<a id="__codelineno-80-71" name="__codelineno-80-71"></a>
+<a id="__codelineno-80-72" name="__codelineno-80-72"></a><span class="k">end</span><span class="p">;</span><span class="w">  </span>
+<a id="__codelineno-80-73" name="__codelineno-80-73"></a><span class="o">/</span>
+<a id="__codelineno-80-74" name="__codelineno-80-74"></a>
+<a id="__codelineno-80-75" name="__codelineno-80-75"></a><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">example_pgk</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-76" name="__codelineno-80-76"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_one_listed_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-77" name="__codelineno-80-77"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-78" name="__codelineno-80-78"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20189</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-79" name="__codelineno-80-79"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-80" name="__codelineno-80-80"></a>
+<a id="__codelineno-80-81" name="__codelineno-80-81"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_different_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-82" name="__codelineno-80-82"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-83" name="__codelineno-80-83"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20143</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-84" name="__codelineno-80-84"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-85" name="__codelineno-80-85"></a>
+<a id="__codelineno-80-86" name="__codelineno-80-86"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_unlisted_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-87" name="__codelineno-80-87"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-88" name="__codelineno-80-88"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="o">-</span><span class="mi">20143</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-89" name="__codelineno-80-89"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-90" name="__codelineno-80-90"></a>
+<a id="__codelineno-80-91" name="__codelineno-80-91"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">nothing_thrown</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-92" name="__codelineno-80-92"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-93" name="__codelineno-80-93"></a><span class="w">      </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-80-94" name="__codelineno-80-94"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-95" name="__codelineno-80-95"></a>
+<a id="__codelineno-80-96" name="__codelineno-80-96"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option1_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-97" name="__codelineno-80-97"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-98" name="__codelineno-80-98"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-99" name="__codelineno-80-99"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-100" name="__codelineno-80-100"></a>
+<a id="__codelineno-80-101" name="__codelineno-80-101"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option2_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-102" name="__codelineno-80-102"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-103" name="__codelineno-80-103"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-104" name="__codelineno-80-104"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-105" name="__codelineno-80-105"></a>
+<a id="__codelineno-80-106" name="__codelineno-80-106"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_option3_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-107" name="__codelineno-80-107"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-108" name="__codelineno-80-108"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">c_e_option3</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-109" name="__codelineno-80-109"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
 <a id="__codelineno-80-110" name="__codelineno-80-110"></a>
-<a id="__codelineno-80-111" name="__codelineno-80-111"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example_pgk&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-111" name="__codelineno-80-111"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_initialized_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-112" name="__codelineno-80-112"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-113" name="__codelineno-80-113"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">e_initialized_exception</span><span class="p">;</span>
+<a id="__codelineno-80-114" name="__codelineno-80-114"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-115" name="__codelineno-80-115"></a>
+<a id="__codelineno-80-116" name="__codelineno-80-116"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_uninitialized_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-117" name="__codelineno-80-117"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-118" name="__codelineno-80-118"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">exc_pkg</span><span class="p">.</span><span class="n">e_uninitialized_exception</span><span class="p">;</span>
+<a id="__codelineno-80-119" name="__codelineno-80-119"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-120" name="__codelineno-80-120"></a>
+<a id="__codelineno-80-121" name="__codelineno-80-121"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_local_exception</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-122" name="__codelineno-80-122"></a><span class="w">      </span><span class="n">pragma</span><span class="w"> </span><span class="n">autonomous_transaction</span><span class="p">;</span>
+<a id="__codelineno-80-123" name="__codelineno-80-123"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-124" name="__codelineno-80-124"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">e_local_exception</span><span class="p">;</span>
+<a id="__codelineno-80-125" name="__codelineno-80-125"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-126" name="__codelineno-80-126"></a>
+<a id="__codelineno-80-127" name="__codelineno-80-127"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raised_local_exception_num</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-128" name="__codelineno-80-128"></a><span class="w">      </span><span class="n">pragma</span><span class="w"> </span><span class="n">autonomous_transaction</span><span class="p">;</span>
+<a id="__codelineno-80-129" name="__codelineno-80-129"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-130" name="__codelineno-80-130"></a><span class="w">      </span><span class="n">raise_application_error</span><span class="p">(</span><span class="n">e_local_exception_num</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Test error&#39;</span><span class="p">);</span>
+<a id="__codelineno-80-131" name="__codelineno-80-131"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-132" name="__codelineno-80-132"></a>
+<a id="__codelineno-80-133" name="__codelineno-80-133"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">raise_named_exc</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-134" name="__codelineno-80-134"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-135" name="__codelineno-80-135"></a><span class="w">      </span><span class="n">raise</span><span class="w"> </span><span class="n">DUP_VAL_ON_INDEX</span><span class="p">;</span>
+<a id="__codelineno-80-136" name="__codelineno-80-136"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-137" name="__codelineno-80-137"></a>
+<a id="__codelineno-80-138" name="__codelineno-80-138"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">bad_throws_annotation</span><span class="w"> </span><span class="k">is</span>
+<a id="__codelineno-80-139" name="__codelineno-80-139"></a><span class="w">  </span><span class="k">begin</span>
+<a id="__codelineno-80-140" name="__codelineno-80-140"></a><span class="w">    </span><span class="k">null</span><span class="p">;</span>
+<a id="__codelineno-80-141" name="__codelineno-80-141"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-142" name="__codelineno-80-142"></a><span class="k">end</span><span class="p">;</span>
+<a id="__codelineno-80-143" name="__codelineno-80-143"></a><span class="o">/</span>
+<a id="__codelineno-80-144" name="__codelineno-80-144"></a>
+<a id="__codelineno-80-145" name="__codelineno-80-145"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example_pgk&#39;</span><span class="p">);</span>
 </code></pre></div></td></tr></table></div></p>
 <p>Running the test will give report:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>Example Throws Annotation
-<a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a>  Throws one of the listed exceptions [.002 sec]
-<a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>  Throws different exception than expected [.002 sec] (FAILED - 1)
-<a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>  Throws different exception than listed [.003 sec] (FAILED - 2)
-<a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
-<a id="__codelineno-81-6" name="__codelineno-81-6" href="#__codelineno-81-6"></a>  Throws package exception option1 [.003 sec]
-<a id="__codelineno-81-7" name="__codelineno-81-7" href="#__codelineno-81-7"></a>  Throws package exception option2 [.002 sec]
-<a id="__codelineno-81-8" name="__codelineno-81-8" href="#__codelineno-81-8"></a>  Throws package exception option3 [.002 sec]
-<a id="__codelineno-81-9" name="__codelineno-81-9" href="#__codelineno-81-9"></a>  Throws package exception option4 [.002 sec]
-<a id="__codelineno-81-10" name="__codelineno-81-10" href="#__codelineno-81-10"></a>  Raise name exception [.002 sec]
-<a id="__codelineno-81-11" name="__codelineno-81-11" href="#__codelineno-81-11"></a>  Invalid throws annotation [.002 sec]
-<a id="__codelineno-81-12" name="__codelineno-81-12" href="#__codelineno-81-12"></a>
-<a id="__codelineno-81-13" name="__codelineno-81-13" href="#__codelineno-81-13"></a>Failures:
-<a id="__codelineno-81-14" name="__codelineno-81-14" href="#__codelineno-81-14"></a>
-<a id="__codelineno-81-15" name="__codelineno-81-15" href="#__codelineno-81-15"></a>  1) raised_different_exception
-<a id="__codelineno-81-16" name="__codelineno-81-16" href="#__codelineno-81-16"></a>      Actual: -20143 was expected to equal: -20144
-<a id="__codelineno-81-17" name="__codelineno-81-17" href="#__codelineno-81-17"></a>      ORA-20143: Test error
-<a id="__codelineno-81-18" name="__codelineno-81-18" href="#__codelineno-81-18"></a>      ORA-06512: at &quot;UT3.EXAMPLE_PGK&quot;, line 9
-<a id="__codelineno-81-19" name="__codelineno-81-19" href="#__codelineno-81-19"></a>      ORA-06512: at &quot;UT3.EXAMPLE_PGK&quot;, line 9
-<a id="__codelineno-81-20" name="__codelineno-81-20" href="#__codelineno-81-20"></a>      ORA-06512: at line 6
-<a id="__codelineno-81-21" name="__codelineno-81-21" href="#__codelineno-81-21"></a>
-<a id="__codelineno-81-22" name="__codelineno-81-22" href="#__codelineno-81-22"></a>  2) raised_unlisted_exception
-<a id="__codelineno-81-23" name="__codelineno-81-23" href="#__codelineno-81-23"></a>      Actual: -20143 was expected to be one of: (-20144, -1, -20145)
-<a id="__codelineno-81-24" name="__codelineno-81-24" href="#__codelineno-81-24"></a>      ORA-20143: Test error
-<a id="__codelineno-81-25" name="__codelineno-81-25" href="#__codelineno-81-25"></a>      ORA-06512: at &quot;UT3.EXAMPLE_PGK&quot;, line 14
-<a id="__codelineno-81-26" name="__codelineno-81-26" href="#__codelineno-81-26"></a>      ORA-06512: at &quot;UT3.EXAMPLE_PGK&quot;, line 14
-<a id="__codelineno-81-27" name="__codelineno-81-27" href="#__codelineno-81-27"></a>      ORA-06512: at line 6
-<a id="__codelineno-81-28" name="__codelineno-81-28" href="#__codelineno-81-28"></a>
-<a id="__codelineno-81-29" name="__codelineno-81-29" href="#__codelineno-81-29"></a>  3) nothing_thrown
-<a id="__codelineno-81-30" name="__codelineno-81-30" href="#__codelineno-81-30"></a>      Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
-<a id="__codelineno-81-31" name="__codelineno-81-31" href="#__codelineno-81-31"></a>
-<a id="__codelineno-81-32" name="__codelineno-81-32" href="#__codelineno-81-32"></a>
-<a id="__codelineno-81-33" name="__codelineno-81-33" href="#__codelineno-81-33"></a>Warnings:
-<a id="__codelineno-81-34" name="__codelineno-81-34" href="#__codelineno-81-34"></a>
-<a id="__codelineno-81-35" name="__codelineno-81-35" href="#__codelineno-81-35"></a>  1) example_pgk
-<a id="__codelineno-81-36" name="__codelineno-81-36" href="#__codelineno-81-36"></a>      Invalid parameter value &quot;bad&quot; for &quot;--%throws&quot; annotation. Parameter ignored.
-<a id="__codelineno-81-37" name="__codelineno-81-37" href="#__codelineno-81-37"></a>      at &quot;UT3.EXAMPLE_PGK.RAISED_ONE_LISTED_EXCEPTION&quot;, line 6
-<a id="__codelineno-81-38" name="__codelineno-81-38" href="#__codelineno-81-38"></a>  2) example_pgk
-<a id="__codelineno-81-39" name="__codelineno-81-39" href="#__codelineno-81-39"></a>      &quot;--%throws&quot; annotation requires a parameter. Annotation ignored.
-<a id="__codelineno-81-40" name="__codelineno-81-40" href="#__codelineno-81-40"></a>      at &quot;UT3.EXAMPLE_PGK.BAD_THROWS_ANNOTATION&quot;, line 42
-<a id="__codelineno-81-41" name="__codelineno-81-41" href="#__codelineno-81-41"></a>
-<a id="__codelineno-81-42" name="__codelineno-81-42" href="#__codelineno-81-42"></a>Finished in .025784 seconds
-<a id="__codelineno-81-43" name="__codelineno-81-43" href="#__codelineno-81-43"></a>10 tests, 3 failed, 0 errored, 0 disabled, 2 warning(s)
+<a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a>  Throws one of the listed exceptions [,026 sec]
+<a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>  Throws different exception than expected [,009 sec] (FAILED - 1)
+<a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>  Throws different exception than listed [,014 sec] (FAILED - 2)
+<a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>  Gives failure when an exception is expected and nothing is thrown [,016 sec] (FAILED - 3)
+<a id="__codelineno-81-6" name="__codelineno-81-6" href="#__codelineno-81-6"></a>  SUCCESS
+<a id="__codelineno-81-7" name="__codelineno-81-7" href="#__codelineno-81-7"></a>    Actual: 1 (number) was expected to equal: 1 (number)
+<a id="__codelineno-81-8" name="__codelineno-81-8" href="#__codelineno-81-8"></a>  Throws package exception option1 [,007 sec]
+<a id="__codelineno-81-9" name="__codelineno-81-9" href="#__codelineno-81-9"></a>  Throws package exception option2 [,008 sec]
+<a id="__codelineno-81-10" name="__codelineno-81-10" href="#__codelineno-81-10"></a>  Throws package exception option3 [,007 sec]
+<a id="__codelineno-81-11" name="__codelineno-81-11" href="#__codelineno-81-11"></a>  Throws exception associated with exception number [,006 sec]
+<a id="__codelineno-81-12" name="__codelineno-81-12" href="#__codelineno-81-12"></a>  Throws uninitialized exception [,006 sec]
+<a id="__codelineno-81-13" name="__codelineno-81-13" href="#__codelineno-81-13"></a>  Throws exception local to unit tests package [,009 sec]
+<a id="__codelineno-81-14" name="__codelineno-81-14" href="#__codelineno-81-14"></a>  Throws exception local to unit tests package with exception number [,011 sec]
+<a id="__codelineno-81-15" name="__codelineno-81-15" href="#__codelineno-81-15"></a>  Raise name exception [,006 sec]
+<a id="__codelineno-81-16" name="__codelineno-81-16" href="#__codelineno-81-16"></a>  Invalid throws annotation [,004 sec]
+<a id="__codelineno-81-17" name="__codelineno-81-17" href="#__codelineno-81-17"></a>
+<a id="__codelineno-81-18" name="__codelineno-81-18" href="#__codelineno-81-18"></a>Failures:
+<a id="__codelineno-81-19" name="__codelineno-81-19" href="#__codelineno-81-19"></a>
+<a id="__codelineno-81-20" name="__codelineno-81-20" href="#__codelineno-81-20"></a>  1) raised_different_exception
+<a id="__codelineno-81-21" name="__codelineno-81-21" href="#__codelineno-81-21"></a>      Actual: -20143 was expected to equal: -20144
+<a id="__codelineno-81-22" name="__codelineno-81-22" href="#__codelineno-81-22"></a>      ORA-20143: Test error
+<a id="__codelineno-81-23" name="__codelineno-81-23" href="#__codelineno-81-23"></a>      ORA-06512: at &quot;UT3_TESTER.EXAMPLE_PGK&quot;, line 9
+<a id="__codelineno-81-24" name="__codelineno-81-24" href="#__codelineno-81-24"></a>      ORA-06512: at &quot;UT3_TESTER.EXAMPLE_PGK&quot;, line 9
+<a id="__codelineno-81-25" name="__codelineno-81-25" href="#__codelineno-81-25"></a>      ORA-06512: at line 7
+<a id="__codelineno-81-26" name="__codelineno-81-26" href="#__codelineno-81-26"></a>
+<a id="__codelineno-81-27" name="__codelineno-81-27" href="#__codelineno-81-27"></a>  2) raised_unlisted_exception
+<a id="__codelineno-81-28" name="__codelineno-81-28" href="#__codelineno-81-28"></a>      Actual: -20143 was expected to be one of: (-20144, -1, -20145)
+<a id="__codelineno-81-29" name="__codelineno-81-29" href="#__codelineno-81-29"></a>      ORA-20143: Test error
+<a id="__codelineno-81-30" name="__codelineno-81-30" href="#__codelineno-81-30"></a>      ORA-06512: at &quot;UT3_TESTER.EXAMPLE_PGK&quot;, line 14
+<a id="__codelineno-81-31" name="__codelineno-81-31" href="#__codelineno-81-31"></a>      ORA-06512: at &quot;UT3_TESTER.EXAMPLE_PGK&quot;, line 14
+<a id="__codelineno-81-32" name="__codelineno-81-32" href="#__codelineno-81-32"></a>      ORA-06512: at line 7
+<a id="__codelineno-81-33" name="__codelineno-81-33" href="#__codelineno-81-33"></a>
+<a id="__codelineno-81-34" name="__codelineno-81-34" href="#__codelineno-81-34"></a>  3) nothing_thrown
+<a id="__codelineno-81-35" name="__codelineno-81-35" href="#__codelineno-81-35"></a>      Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
+<a id="__codelineno-81-36" name="__codelineno-81-36" href="#__codelineno-81-36"></a>
+<a id="__codelineno-81-37" name="__codelineno-81-37" href="#__codelineno-81-37"></a>
+<a id="__codelineno-81-38" name="__codelineno-81-38" href="#__codelineno-81-38"></a>Warnings:
+<a id="__codelineno-81-39" name="__codelineno-81-39" href="#__codelineno-81-39"></a>
+<a id="__codelineno-81-40" name="__codelineno-81-40" href="#__codelineno-81-40"></a>  1) example_pgk.raised_one_listed_exception
+<a id="__codelineno-81-41" name="__codelineno-81-41" href="#__codelineno-81-41"></a>      Invalid parameter value &quot;bad&quot; for &quot;--%throws&quot; annotation. Parameter ignored.
+<a id="__codelineno-81-42" name="__codelineno-81-42" href="#__codelineno-81-42"></a>      at package &quot;UT3_TESTER.EXAMPLE_PGK.RAISED_ONE_LISTED_EXCEPTION&quot;, line 8
+<a id="__codelineno-81-43" name="__codelineno-81-43" href="#__codelineno-81-43"></a>
+<a id="__codelineno-81-44" name="__codelineno-81-44" href="#__codelineno-81-44"></a>  2) example_pgk
+<a id="__codelineno-81-45" name="__codelineno-81-45" href="#__codelineno-81-45"></a>      &quot;--%throws&quot; annotation requires a parameter. Annotation ignored.
+<a id="__codelineno-81-46" name="__codelineno-81-46" href="#__codelineno-81-46"></a>      at package &quot;UT3_TESTER.EXAMPLE_PGK.BAD_THROWS_ANNOTATION&quot;, line 57
+<a id="__codelineno-81-47" name="__codelineno-81-47" href="#__codelineno-81-47"></a>
+<a id="__codelineno-81-48" name="__codelineno-81-48" href="#__codelineno-81-48"></a>Finished in ,138276 seconds
+<a id="__codelineno-81-49" name="__codelineno-81-49" href="#__codelineno-81-49"></a>13 tests, 3 failed, 0 errored, 0 disabled, 2 warning(s)
 </code></pre></div></p>
 <h2 id="order-of-execution">Order of execution<a class="headerlink" href="#order-of-execution" title="Permanent link">&para;</a></h2>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-82-1"> 1</a></span>
@@ -4527,7 +4601,7 @@ Example:
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 9, 2026 11:39:07 UTC">June 9, 2026 11:39:07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 9, 2026 14:35:17 UTC">June 9, 2026 14:35:17</span>
   </span>
 
     
