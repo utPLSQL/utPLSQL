@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{#
+  Sub-repository template override.
+  Loads the shared utPLSQL.org top navigation bar from the central org site.
+  The topbar.js file is the single source of truth — update nav links there only.
+#}
+
+{% block extrahead %}
+  {{ super() }}
+  <script src="https://utplsql.org/assets/topbar.js" defer></script>
+{% endblock %}
