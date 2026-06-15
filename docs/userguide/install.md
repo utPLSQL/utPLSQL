@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.01.4497--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.3.4498--develop-blue.svg)
 
 ## Supported database versions
 
