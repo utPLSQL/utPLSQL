@@ -5,7 +5,7 @@
 # https://squidfunk.github.io/mkdocs-material/setup/building-for-offline-usage/
 
 edit_uri: ""
-site_url: https://utplsql.org/
+site_url: https://www.utplsql.org/
 site_name: utPLSQL-framework
 site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
 copyright: Copyright &copy; 2016 - 2026 utPLSQL Team
@@ -41,8 +41,7 @@ theme:
     - search.suggest
     - search.highlight
 extra:
-#  homepage: http://jgebal.github.io/
-#  homepage: http://utPLSQL.org/
+#  homepage: https://www.utPLSQL.org/
   social:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/utPLSQL
