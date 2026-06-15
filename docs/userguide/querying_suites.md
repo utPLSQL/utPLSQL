@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.01.4495--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.01.4496--develop-blue.svg)
 
 ## Obtaining information about suites 
 
