@@ -14,7 +14,7 @@ extra_css:
   - stylesheets/extra.css
 theme:
   name: material
-#  custom_dir: docs/overrides
+  custom_dir: docs/overrides
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"

@@ -8,7 +8,7 @@ edit_uri: ""
 site_url: http://utPLSQL.org/
 site_name: utPLSQL-framework
 site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
-copyright: Copyright &copy; 2016 - 2022 utPLSQL Team
+copyright: Copyright &copy; 2016 - 2026 utPLSQL Team
 #repo_url: https://github.com/utPLSQL/utPLSQL # disable for offline docs
 extra_css:
   - stylesheets/extra.css
