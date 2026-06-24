@@ -1,0 +1,54 @@
+name: Rebuild older docs versions
+on:
+  workflow_dispatch:
+    inputs:
+      versions:
+        description: 'Space-separated list of versions to rebuild (e.g. "v3.1.14 v3.1.13")'
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  rebuild:
+    name: Rebuild documentation for older versions
+    concurrency: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+
+    steps:
+      - name: 🔍 API_TOKEN_GITHUB
+        if: env.API_TOKEN_GITHUB == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "API_TOKEN_GITHUB=${GITHUB_TOKEN}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ env.API_TOKEN_GITHUB }}
+
+      - uses: c-py/action-dotenv-to-setenv@v5
+        with:
+          env-file: .github/variables/.env
+
+      - uses: FranzDiebold/github-env-vars-action@v2.8.0
+
+      - name: Install mkdocs stack
+        run: |
+          pip install mkdocs
+          pip install mkdocs-git-revision-date-localized-plugin
+          pip install mkdocs-material
+          pip install git+https://github.com/jimporter/mike.git
+
+      - name: Rebuild specified versions
+        run: |
+          for VERSION in ${{ inputs.versions }}; do
+            echo "=== Rebuilding $VERSION ==="
+            git checkout "tags/${VERSION}" -- docs/
+            mike deploy -p "${VERSION}"
+            git checkout HEAD -- docs/ mkdocs.yml
+          done
