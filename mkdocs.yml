@@ -6,8 +6,8 @@
 
 edit_uri: ""
 site_url: https://www.utplsql.org/
-site_name: utPLSQL-framework
-site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
+site_name: utPLSQL
+site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL
 copyright: > 
   Copyright &copy; 2016 - 2026 utPLSQL Team
   <a href="#__consent">Change cookie settings</a>
