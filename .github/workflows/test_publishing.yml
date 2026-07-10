@@ -15,18 +15,21 @@ jobs:
     timeout-minutes: 60
     env:
       API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-      RELEASE_TAG: "v3.2.2"
+      RELEASE_TAG: "v3.2.3"
       RELEASE_BODY: |
         ## What's Changed
-        * Filtering by tags fixed for schemas containing suite-paths and contexts by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1325
-        * Fixed issue with reporter failing to initialize by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1354
-        * Fixed issue with duplicate sources from dba_source by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1355
-        * Allow HTML coverage on FIPS-enabled DB by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1356
+        * Fix issue with `UT_TAP_REPORTER` on Oracle 23.26 by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1359
+        * Fixed support for camelCase in context `--%name` annotation. by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1361
+        * utPLSQL can be installed in editioned schema. by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1362
+        * Removed coveralls reporter by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1363
+        * Clarify behavior of before/after procedures in suitepath by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1364
+        * `throws` can reference exception without schema or package name by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1365
+        * `throws` works with uninitialized exception variables by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1366
         
         
-        **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.01...v3.2.2
-      RELEASE_DATE: "2026-05-24 10:48:22"
-      RELEASE_URL: "https://github.com/utPLSQL/utPLSQL/releases/tag/v3.2.2"
+        **Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v.3.2.3
+      RELEASE_DATE: "2026-07-10 08:30:22"
+      RELEASE_URL: "https://github.com/utPLSQL/utPLSQL/releases/tag/v3.2.3"
       TARGET_BRANCH: "develop"
 
     steps:
@@ -47,6 +50,6 @@ jobs:
 #          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
 #        run: .github/scripts/post_release_announcement.sh
 
-#      - name: Publish release post to utplsql.github.io
-#        run: .github/scripts/publish_release_post.sh
+      - name: Publish release post to utplsql.github.io
+        run: .github/scripts/publish_release_post.sh
 
