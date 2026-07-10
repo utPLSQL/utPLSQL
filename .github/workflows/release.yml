@@ -73,7 +73,7 @@ jobs:
 
       - name: Post release announcement to org discussions
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_API_TOKEN }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
         run: .github/scripts/post_release_announcement.sh
 
       - name: Publish release post to utplsql.github.io
