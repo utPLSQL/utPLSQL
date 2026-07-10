@@ -20,6 +20,7 @@ POST_TIME=$(echo "${RELEASE_DATE}" | sed 's/T/ /' | sed 's/Z/ +0000/')
 POST_FILENAME="${POST_DATE}-version${VERSION}-released.md"
 POST_TITLE="utPLSQL ${RELEASE_TAG} released"
 POST_NAV_TITLE="utPLSQL ${VERSION} released"
+POST_PATH='docs/announcements/posts'
 
 mkdir -p github_io
 cd github_io
@@ -37,7 +38,7 @@ FORMATTED_BODY=$(echo "${RELEASE_BODY}" \
   | sed -E 's@\*\*Full Changelog\*\*: (https://[^ ]+/compare/([^ ]+))@\*\*Full Changelog\*\*: [\2](\1)@g')
 
 # Create the post file
-cat > "docs/announcements/posts/${POST_FILENAME}" <<POSTEOF
+cat > "${POST_PATH}/${POST_FILENAME}" <<POSTEOF
 ---
 layout: post
 title:  "${POST_TITLE}"
@@ -51,24 +52,8 @@ ${FORMATTED_BODY}
 [Download utPLSQL release ${RELEASE_TAG} here](https://github.com/utPLSQL/utPLSQL/releases/tag/${RELEASE_TAG})
 POSTEOF
 
-# Prepend new entry to the top of docs/index.md
-INDEX_ENTRY="----------------------------------------------------------------------
-
-^${POST_DATE}^
-
-[${POST_TITLE}](_posts/${POST_FILENAME})
-
-----------------------------------------------------------------------
-
-"
-printf '%s' "${INDEX_ENTRY}" | cat - docs/index.md > /tmp/index_new.md
-mv /tmp/index_new.md docs/index.md
-
-# Insert new post into mkdocs.yml nav immediately after "- index.md"
-sed -i "s|    - index.md|    - index.md\n    - ${POST_NAV_TITLE}: _posts/${POST_FILENAME}|" mkdocs.yml
-
-git add "docs/_posts/${POST_FILENAME}" docs/index.md mkdocs.yml
+git add "${POST_PATH}/${POST_FILENAME}" docs/index.md mkdocs.yml
 git commit -m "Release announcement for ${RELEASE_TAG}"
 git push origin "${GITHUB_IO_BRANCH}"
 
-echo "Release post published: docs/_posts/${POST_FILENAME}"
+echo "Release post published: ${POST_PATH}/${POST_FILENAME}"
