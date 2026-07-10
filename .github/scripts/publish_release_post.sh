@@ -16,7 +16,6 @@ GITHUB_IO_BRANCH="main"
 
 VERSION="${RELEASE_TAG#v}"
 POST_DATE=$(echo "${RELEASE_DATE}" | cut -c1-10)
-POST_TIME=$(echo "${RELEASE_DATE}" | sed 's/T/ /' | sed 's/Z/ +0000/')
 POST_FILENAME="${POST_DATE}-version${VERSION}-released.md"
 POST_TITLE="utPLSQL ${RELEASE_TAG} released"
 POST_NAV_TITLE="utPLSQL ${VERSION} released"
@@ -42,8 +41,11 @@ cat > "${POST_PATH}/${POST_FILENAME}" <<POSTEOF
 ---
 layout: post
 title:  "${POST_TITLE}"
-date:   ${POST_TIME}
-categories: version3
+date:
+  created: ${POST_DATE}
+categories:
+  - "releases"
+  - "utplsql-core"
 ---
 
 ${FORMATTED_BODY}
