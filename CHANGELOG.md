@@ -5,6 +5,23 @@ Releases are available on the [GitHub Releases page](https://github.com/utPLSQL/
 
 ---
 
+## [v.3.2.3] - 2026-07-10
+
+## What's Changed
+* Fix issue with `UT_TAP_REPORTER` on Oracle 23.26 by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1359
+* Fixed support for camelCase in context `--%name` annotation. by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1361
+* utPLSQL can be installed in editioned schema. by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1362
+* Removed coveralls reporter by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1363
+* Clarify behavior of before/after procedures in suitepath by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1364
+* `throws` can reference exception without schema or package name by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1365
+* `throws` works with uninitialized exception variables by @jgebal in https://github.com/utPLSQL/utPLSQL/pull/1366
+
+
+**Full Changelog**: https://github.com/utPLSQL/utPLSQL/compare/v3.2.2...v.3.2.3
+
+---
+
+
 ## [v3.2.2] - 2026-05-24
 
 ## What's Changed
