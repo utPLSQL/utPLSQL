@@ -37,7 +37,7 @@ FORMATTED_BODY=$(echo "${RELEASE_BODY}" \
   | sed -E 's@\*\*Full Changelog\*\*: (https://[^ ]+/compare/([^ ]+))@\*\*Full Changelog\*\*: [\2](\1)@g')
 
 # Create the post file
-cat > "docs/_posts/${POST_FILENAME}" <<POSTEOF
+cat > "docs/announcements/posts/${POST_FILENAME}" <<POSTEOF
 ---
 layout: post
 title:  "${POST_TITLE}"
