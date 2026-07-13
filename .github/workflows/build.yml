@@ -4,6 +4,9 @@ on:
     branches-ignore: [ main ]
   pull_request:
     branches: [ develop ]
+  schedule:
+    - cron: '0 8 * * 5'          # run scheduled at 8:00 AM every Friday
+      timezone: "Europe/Nicosia"
 
   workflow_dispatch:
 
