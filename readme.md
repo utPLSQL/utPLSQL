@@ -136,19 +136,5 @@ We welcome contributions of all kinds. Please read the [contributing guide](CONT
 
 [GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
 
-## Supporters
+The list of **authors** and **significant contributors** is available [here](docs/about/authors.md). For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
 
-utPLSQL is community-driven and not commercially motivated. Donations and contributions are always welcome.
-
-<table>
-<tbody>
-<tr>
-<td><a href="https://www.red-gate.com/hub/events/open-source-projects" rel="nofollow"><img src="docs/images/supported_by_redgate_100.png" alt="supported_by_redgate" style="max-width:100%;"></a></td>
-<td>utPLSQL has been supported by Redgate in the form of sponsored stickers and t-shirts. Thank you for helping us spread the word!</td>
-</tr>
-</tbody>
-</table>
-
----
-
-[Authors](docs/about/authors.md)
