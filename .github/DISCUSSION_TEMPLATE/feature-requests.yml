@@ -24,7 +24,6 @@ body:
     attributes:
       label: Proposed solution
       description: Describe the feature you have in mind. Include examples of how it would be used, ideally with PL/SQL annotation or API examples.
-      render: sql
     validations:
       required: true
 
