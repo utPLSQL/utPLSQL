@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.4.4518--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.4.4519--develop-blue.svg)
 
 # Licensing information
 
