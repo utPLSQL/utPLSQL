@@ -136,5 +136,5 @@ We welcome contributions of all kinds. Please read the [contributing guide](CONT
 
 [GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
 
-The list of **authors** and **significant contributors** is available [here](docs/about/authors.md). For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
+The list of **authors** and **significant contributors** is available on the [About](https://www.utplsql.org/about/) page. For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
 

@@ -97,8 +97,3 @@ nav:
        - Using reporters: userguide/reporters.md
        - Code coverage: userguide/coverage.md
        - Error handling and reporting: userguide/exception-reporting.md
-  - About:
-       - Project Details: about/project-details.md
-       - License: about/license.md
-       - Support: about/support.md
-       - Authors: about/authors.md
