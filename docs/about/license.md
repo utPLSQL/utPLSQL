@@ -1,13 +1,15 @@
 ![version](https://img.shields.io/badge/version-v3.2.4.4518--develop-blue.svg)
 
-# Version Information
+# Licensing information
 
-**utPLSQL version 3** is licensed under 
-[Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+## Framework licensing
 
-External code used in the development of this project, but is not required for use.
+**utPLSQL** framework is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
 
-| Tool | License | Purpose |
-| ---- | --------| --------|
-| [mkDocs](http://www.mkdocs.org/) |  [BSD](http://www.mkdocs.org/about/license/) | Produce HTML version of documentation |     
+## Third party products
+
+| Tool                                                               | License                                                     | Purpose                           |
+|--------------------------------------------------------------------|-------------------------------------------------------------|-----------------------------------|
+| [mkDocs](http://www.mkdocs.org/)                                   | [BSD](http://www.mkdocs.org/about/license/)                 | Project website and documentation |
+| [material-for-mkdocs](https://squidfunk.github.io/mkdocs-material/)| [MIT](https://squidfunk.github.io/mkdocs-material/license/) | Project website and documentation |  
 
