@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.4.4520--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.4.4521--develop-blue.svg)
 
 utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting combines data from package DBMS_PROFILER and DBMS_PLSQL_CODE_COVERAGE.
 Code coverage is gathered for the following source types:
