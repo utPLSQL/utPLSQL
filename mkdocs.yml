@@ -105,6 +105,9 @@ plugins:
       repository: utPLSQL/utPLSQL
       branch: develop
       token: !ENV ["API_TOKEN_GITHUB"]
+      exclude_committers:
+        - github-actions[bot]
+        - web-flow
   - mike
   - git-revision-date-localized: # disable for offline docs
       enable_creation_date: true # disable for offline docs
