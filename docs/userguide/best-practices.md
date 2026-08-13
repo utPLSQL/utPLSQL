@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.2.4.4521--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.2.4.4522--develop-blue.svg)
 
 The following are best practices we at utPLSQL have learned about PL/SQL and Unit Testing. 
 
