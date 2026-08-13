@@ -103,7 +103,7 @@ plugins:
   - search
   - git-committers:
       repository: utPLSQL/utPLSQL
-      branch: main
+      branch: develop
       token: !ENV ["API_TOKEN_GITHUB"]
   - mike
   - git-revision-date-localized: # disable for offline docs
