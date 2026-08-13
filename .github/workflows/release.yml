@@ -48,6 +48,7 @@ jobs:
           pip install mkdocs-git-revision-date-localized-plugin
           pip install mkdocs-material
           pip install git+https://github.com/jimporter/mike.git
+          pip install mkdocs-git-committers-plugin-2
           mike deploy -p -u ${UTPLSQL_VERSION} latest
           mkdocs build --clean -f mkdocs_offline.yml         
           rm -rf docs/* 
