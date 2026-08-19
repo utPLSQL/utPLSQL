@@ -181,10 +181,9 @@ create or replace noneditionable type body ut_coverage_cobertura_reporter is
 
  overriding member function get_description return varchar2 as
  begin
-   return 'Generates a Cobertura coverage report providing information on code coverage with line numbers.' || chr(10) ||
-          'Designed for Jenkins and TFS to report coverage. ' || chr(10) ||
-          'Cobertura Document Type Definition can be found: http://cobertura.sourceforge.net/xml/coverage-04.dtd.'|| chr(10) ||
-          'Sample file: https://github.com/leobalter/testing-examples/blob/master/solutions/3/report/cobertura-coverage.xml.';
+   return 'Generates Cobertura report on code coverage with line numbers.
+Compatible with GitHub Actions, Jenkins, Azure Pipelines, GitLab CI, and any tool that reads the popular Cobertura format.
+Cobertura Document Type Definition is located [here](https://github.com/cobertura/cobertura/blob/master/cobertura/src/site/htdocs/xml/coverage-04.dtd).';
  end;
 
 end;
