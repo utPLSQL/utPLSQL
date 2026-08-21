@@ -21,7 +21,7 @@ create or replace noneditionable package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.2.4.4527-develop';
+  gc_version                 constant varchar2(50) := 'v3.2.4.4528-develop';
     
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
