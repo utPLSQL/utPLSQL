@@ -987,7 +987,7 @@
 
   <h1>Using reporters</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.4.4525--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.4.4527--develop-blue.svg" /></p>
 <p>utPLSQL provides several reporting formats. The sections below describe most of them. </p>
 <h2 id="documentation-reporter">Documentation reporter<a class="headerlink" href="#documentation-reporter" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_documentation_reporter</code> is the default reporting format used by the framework.
@@ -1118,9 +1118,9 @@ In principle, it has to be a subtype of <code>ut_reporter_base</code>. However, 
 <p>Please make sure that grants have been added and synonyms created for the custom reporter in order for reporter to be accessible the same way as other reporters.
 Assuming that reporter with name <code>customer_reporter</code> was created in schema <code>UT3</code></p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="w">    </span><span class="k">grant</span><span class="w"> </span><span class="k">execute</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">public</span><span class="p">;</span><span class="w">  </span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">synonym</span><span class="w"> </span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="p">;</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="w">    </span><span class="k">grant</span><span class="w"> </span><span class="k">execute</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">public</span><span class="p">;</span><span class="w">  </span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">create</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">synonym</span><span class="w"> </span><span class="n">custom_reporter</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">ut3</span><span class="p">.</span><span class="n">custom_reporter</span><span class="p">;</span>
+</span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is possible, but cumbersome, to use another schema for storing the custom reporters. This requires to create a synonym for the base reporter type in the schema that is going to own the custom reporter, and to provide appropriate grants both to the owner of the custom reporter and to the user running the reporter. After upgrading or reinstalling utPLSQL, the extra privileges need to be recreated. This approach is not recommended.</p>
@@ -1153,7 +1153,7 @@ Assuming that reporter with name <code>customer_reporter</code> was created in s
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="August 14, 2026 06:13:12 UTC">August 14, 2026 06:13:12</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="August 21, 2026 01:55:22 UTC">August 21, 2026 01:55:22</span>
   </span>
 
     
@@ -1194,11 +1194,6 @@ Assuming that reporter with name <code>customer_reporter</code> was created in s
         <a href="https://github.com/lwasylow" class="md-author" title="@lwasylow">
           
           <img src="https://avatars.githubusercontent.com/u/7831112?v=4&size=72" alt="lwasylow">
-        </a>
-      
-        <a href="https://github.com/kukimik" class="md-author" title="@kukimik">
-          
-          <img src="https://avatars.githubusercontent.com/u/53443372?v=4&size=72" alt="kukimik">
         </a>
       
       
@@ -1434,7 +1429,7 @@ Assuming that reporter with name <code>customer_reporter</code> was created in s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>

@@ -1143,7 +1143,7 @@
 
   <h1>Installation</h1>
 
-<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.4.4525--develop-blue.svg" /></p>
+<p><img alt="version" src="https://img.shields.io/badge/version-v3.2.4.4527--develop-blue.svg" /></p>
 <h2 id="supported-database-versions">Supported database versions<a class="headerlink" href="#supported-database-versions" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Oracle Database 19c or newer (SE/EE/Cloud/Free)</li>
@@ -1178,43 +1178,43 @@ utPLSQl does not purge profiler tables as those tables can can be shared with ot
 <p>The below snippets can be used to download latest version of utPLSQL from github releases.</p>
 <p>After downloading follow the installation instructions in next sections of this document.</p>
 <h4 id="unixlinux">Unix/Linux<a class="headerlink" href="#unixlinux" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/bin/bash</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release &quot;zip&quot; file</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>utPLSQL.zip
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded &quot;zip&quot; file</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip<span class="w"> </span>-q<span class="w"> </span>utPLSQL.zip
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release &quot;zip&quot; file</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release &quot;zip&quot; file</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">UTPLSQL_DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>utPLSQL.zip
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded &quot;zip&quot; file</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip<span class="w"> </span>-q<span class="w"> </span>utPLSQL.zip
+</span></code></pre></div>
 <p>You may download with a one-liner if that is more convenient.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="ch">#!/bin/bash</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-LOk<span class="w"> </span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span><span class="w"> </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-LOk<span class="w"> </span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span><span class="w"> </span>
+</span></code></pre></div></p>
 <h4 id="windows">Windows<a class="headerlink" href="#windows" title="Permanent link">&para;</a></h4>
 <p>To run the script on windows you will need <a href="https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/">PowerShell 3.0</a> or above. 
 You will also need .NET 4.0 Framework or above.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$archiveName = &#39;utPLSQL.zip&#39;
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>$latestRepo = Invoke-WebRequest https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>$repo = $latestRepo.Content <span class="p">|</span> Convertfrom-Json
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>$urlList = $repo.assets.browser_download_url
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Add-Type -assembly <span class="s2">&quot;system.io.compression.filesystem&quot;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>foreach ($i in $urlList) {
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>   $fileName = $i.substring($i.LastIndexOf(<span class="s2">&quot;/&quot;</span>) + 1)
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>   <span class="k">if</span> (<span class="err"> $fileName.substring($fileName.LastIndexOf(&quot;.&quot;) + 1) -eq &#39;zip&#39; ) {</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>      Invoke-WebRequest $i -OutFile $archiveName
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>      $fileLocation = Get-ChildItem <span class="p">|</span> where {$_.Name -eq $archiveName}
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>      <span class="k">if</span> ($fileLocation)<span class="err"> {</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>         [io.compression.zipfile]::ExtractToDirectory($($fileLocation.FullName),$($fileLocation.DirectoryName))   
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>      }
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>   }
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>}
-</code></pre></div>
+<div class="language-batch highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$archiveName = &#39;utPLSQL.zip&#39;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>$latestRepo = Invoke-WebRequest https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>$repo = $latestRepo.Content <span class="p">|</span> Convertfrom-Json
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>$urlList = $repo.assets.browser_download_url
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Add-Type -assembly <span class="s2">&quot;system.io.compression.filesystem&quot;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>foreach ($i in $urlList) {
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>   $fileName = $i.substring($i.LastIndexOf(<span class="s2">&quot;/&quot;</span>) + 1)
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>   <span class="k">if</span> (<span class="err"> $fileName.substring($fileName.LastIndexOf(&quot;.&quot;) + 1) -eq &#39;zip&#39; ) {</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>      Invoke-WebRequest $i -OutFile $archiveName
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>      $fileLocation = Get-ChildItem <span class="p">|</span> where {$_.Name -eq $archiveName}
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>      <span class="k">if</span> ($fileLocation)<span class="err"> {</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>         [io.compression.zipfile]::ExtractToDirectory($($fileLocation.FullName),$($fileLocation.DirectoryName))   
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>      }
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>   }
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>}
+</span></code></pre></div>
 <h2 id="headless-installation">Headless installation<a class="headerlink" href="#headless-installation" title="Permanent link">&para;</a></h2>
 <p>utPLSQL can be installed with DDL trigger, to enable tracking of DDL changes to your unit test packages.
 This is the recommended installation approach, when you want to compile and run unit test packages in a schema containing huge amount of database packages (for example Oracle EBS installation schema).
@@ -1238,23 +1238,23 @@ This process can be time-consuming if DB schema is large.     </p>
 <h3 id="installation-without-ddl-trigger">Installation without DDL trigger<a class="headerlink" href="#installation-without-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w">  </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w">  </span>
+</span></code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
+</span></code></pre></div></p>
 <h3 id="installation-with-ddl-trigger">Installation with DDL trigger<a class="headerlink" href="#installation-with-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless_with_trigger.sql</code> as SYSDBA.</p>
 <p>Example invocation of the script from command line:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w">  </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w">  </span>
+</span></code></pre></div></p>
 <p>Invoking script with parameters:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sqlplus<span class="w"> </span>sys/sys_pass@db<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@install_headless_with_trigger.sql<span class="w"> </span>utp3<span class="w"> </span>my_verySecret_password<span class="w"> </span>utp3_tablespace<span class="w">   </span>
+</span></code></pre></div></p>
 <h2 id="recommended-schema">Recommended Schema<a class="headerlink" href="#recommended-schema" title="Permanent link">&para;</a></h2>
 <p>It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
 Installing uPLSQL into a shared schema is really not recommended as you loose isolation of framework.</p>
@@ -1282,17 +1282,17 @@ Installing uPLSQL into a shared schema is really not recommended as you loose is
 <li><code>tablespace name</code> - the tablespace name to hold data created during test execution</li>
 </ul>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus<span class="w"> </span>sys/sys_password@database<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@create_utPLSQL_owner.sql<span class="w"> </span>ut3<span class="w"> </span>ut3<span class="w"> </span>users<span class="w">  </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sqlplus<span class="w"> </span>sys/sys_password@database<span class="w"> </span>as<span class="w"> </span>sysdba<span class="w"> </span>@create_utPLSQL_owner.sql<span class="w"> </span>ut3<span class="w"> </span>ut3<span class="w"> </span>users<span class="w">  </span>
+</span></code></pre></div></p>
 <h3 id="installing-utplsql">Installing utPLSQL<a class="headerlink" href="#installing-utplsql" title="Permanent link">&para;</a></h3>
 <p>To install the utPLSQL framework into your database, go to <code>source</code> directory, run the <code>install.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.<br />
 Schema must be created prior to calling the <code>install</code> script.
 You may install utPLSQL from any account that has sufficient privileges to create objects in other users schema.  </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install.sql<span class="w"> </span>ut3<span class="w">  </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install.sql<span class="w"> </span>ut3<span class="w">  </span>
+</span></code></pre></div></p>
 <h3 id="installing-ddl-trigger">Installing DDL trigger<a class="headerlink" href="#installing-ddl-trigger" title="Permanent link">&para;</a></h3>
 <p>To minimize startup time of utPLSQL framework (especially on a database with large schema) it is recommended to install utPLSQL DDL trigger to enable utPLSQL annotation to be updated at compile-time.</p>
 <p>It's recommended to install DDL trigger when connected as <code>SYSDBA</code> user. Trigger is created in utPLSQL schema.
@@ -1300,9 +1300,9 @@ If using the owner schema of utPLSQL to install trigger, the owner needs to have
 If using different user to install trigger, the user needs to have <code>ADMINISTER DATABASE TRIGGER</code> and <code>CREATE ANY TRIGGER</code> system privileges. </p>
 <p>To install DDL trigger go to <code>source</code> directory, run the <code>install_ddl_trigger.sql</code> providing the <code>schema_name</code> for utPLSQL as parameter.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install_ddl_trigger.sql<span class="w"> </span>ut3<span class="w">  </span>
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install_ddl_trigger.sql<span class="w"> </span>ut3<span class="w">  </span>
+</span></code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Trigger can be installed ant any point in time after the utPLSQL installation. The framework will detect the presence of DDL trigger and act accordingly.</p>
@@ -1316,15 +1316,15 @@ You have two options:</p>
 </ul>
 <p>To grant utPLSQL to public execute script <code>source/create_synonyms_and_grants_for_public.sql</code> and provide <code>schema_name</code> where utPLSQL is installed. </p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@create_synonyms_and_grants_for_public.sql<span class="w"> </span>ut3<span class="w">  </span>
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@create_synonyms_and_grants_for_public.sql<span class="w"> </span>ut3<span class="w">  </span>
+</span></code></pre></div>
 To grant utPLSQL to an individual user, execute scripts <code>source/create_user_grants.sql</code> and <code>source/create_user_synonyms.sql</code>, provide <code>schema_name</code> where utPLSQL is installed and <code>user_name</code> to grant access for.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus<span class="w"> </span>ut3_owner_schema/ut3_password@database<span class="w"> </span>@create_user_grants.sql<span class="w"> </span>ut3<span class="w"> </span>hr
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>sqlplus<span class="w"> </span>user/user_password@database<span class="w"> </span>@create_user_synonyms.sql<span class="w"> </span>ut3<span class="w"> </span>hr
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sqlplus<span class="w"> </span>ut3_owner_schema/ut3_password@database<span class="w"> </span>@create_user_grants.sql<span class="w"> </span>ut3<span class="w"> </span>hr
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>sqlplus<span class="w"> </span>user/user_password@database<span class="w"> </span>@create_user_synonyms.sql<span class="w"> </span>ut3<span class="w"> </span>hr
+</span></code></pre></div></p>
 <p>The following tools that support the SQL*Plus commands can be used to run the installation script:</p>
 <ul>
 <li>SQL*Plus</li>
@@ -1333,15 +1333,15 @@ To grant utPLSQL to an individual user, execute scripts <code>source/create_user
 </ul>
 <h2 id="checking-environment-and-utplsql-version">Checking environment and utPLSQL version<a class="headerlink" href="#checking-environment-and-utplsql-version" title="Permanent link">&para;</a></h2>
 <p>To check the framework version execute the following query:
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
-</code></pre></div></td></tr></table></div></p>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">select</span><span class="w"> </span><span class="n">substr</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="k">version</span><span class="p">(),</span><span class="mi">1</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">ut_version</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div></p>
 <p>Additionally you may retrieve more information about your environment by executing the following query:
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
 <span class="normal"><a href="#__codelineno-13-2">2</a></span>
-<span class="normal"><a href="#__codelineno-13-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">select</span><span class="w"> </span>
-<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
-</code></pre></div></td></tr></table></div></p>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">select</span><span class="w"> </span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="n">xmlserialize</span><span class="p">(</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">xmltype</span><span class="p">(</span><span class="n">ut_run_info</span><span class="p">())</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">clob</span><span class="w"> </span><span class="n">indent</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div></p>
 <h2 id="additional-requirements">Additional requirements<a class="headerlink" href="#additional-requirements" title="Permanent link">&para;</a></h2>
 <p>In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
 This is a requirement of <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_PROFILER.html#GUID-DEE5EA97-14AA-4AF2-A5F7-4AB1D004B99F">DBMS_PROFILER package</a>.</p>
@@ -1350,9 +1350,9 @@ Running code coverage on objects that the user does not own will <strong>not pro
 <h2 id="uninstalling-utplsql">Uninstalling utPLSQL<a class="headerlink" href="#uninstalling-utplsql" title="Permanent link">&para;</a></h2>
 <p>To uninstall run <code>uninstall.sql</code> and provide <code>schema_name</code> where utPLSQL is installed.</p>
 <p>Example invocation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@uninstall.sql<span class="w"> </span>ut3
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@uninstall.sql<span class="w"> </span>ut3
+</span></code></pre></div></p>
 <p>The uninstall script will remove all the objects installed by the installation script.
 Additionally, all the public and private synonyms pointing to the objects in the utPLSQL schema will be removed.</p>
 <p>If you have extended any utPLSQL types such as a custom reporter, these will need to be dropped before the uninstall, otherwise the uninstall script might fail.</p>
@@ -1388,7 +1388,7 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="August 14, 2026 06:13:12 UTC">August 14, 2026 06:13:12</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="August 21, 2026 01:55:22 UTC">August 21, 2026 01:55:22</span>
   </span>
 
     
@@ -1654,7 +1654,7 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
