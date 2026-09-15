@@ -132,7 +132,7 @@ Migrating from legacy utPLSQL v2? See the [version 2 to version 3 comparison](do
 
 ## Contributing
 
-We welcome contributions of all kinds. Please read the [contributing guide](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md) before getting started.
+We welcome contributions of all kinds. Please read the [contributing guide](CONTRIBUTING.md) and the [code of conduct](https://github.com/utPLSQL/utPLSQL?tab=coc-ov-file) before getting started.
 
 [GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
 
