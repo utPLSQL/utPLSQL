@@ -1,11 +1,10 @@
 #!/bin/bash
 # Publishes a release announcement post to utplsql.github.io.
-# Creates the post file, prepends an entry to docs/index.md,
-# and inserts the post into the mkdocs.yml nav.
+# Creates a new post file in directory docs/announcements/posts/[year]
 #
 # Required environment variables:
 #   API_TOKEN_GITHUB - GitHub token with write access to utPLSQL.github.io
-#   RELEASE_TAG      - e.g. v3.2.01
+#   RELEASE_TAG      - e.g. v3.2.3
 #   RELEASE_BODY     - markdown release notes (from github.event.release.body)
 #   RELEASE_DATE     - ISO-8601 publish timestamp (from github.event.release.published_at)
 
@@ -19,11 +18,14 @@ POST_DATE=$(echo "${RELEASE_DATE}" | cut -c1-10)
 POST_FILENAME="${POST_DATE}-version${VERSION}-released.md"
 POST_TITLE="utPLSQL ${RELEASE_TAG} released"
 POST_NAV_TITLE="utPLSQL ${VERSION} released"
-POST_PATH='docs/announcements/posts'
+POST_PATH="docs/announcements/posts/${POST_DATE:0:4}"
 
 mkdir -p github_io
 cd github_io
 git clone --depth 1 "https://${API_TOKEN_GITHUB}@github.com/${GITHUB_IO_REPO}" -b "${GITHUB_IO_BRANCH}" .
+
+# Make sure that the post directory exists
+mkdir -p "${POST_PATH}
 
 # Format the release body for the post:
 #   1. Convert bare GitHub issue/PR URLs to [#NUMBER](URL)
@@ -54,7 +56,7 @@ ${FORMATTED_BODY}
 [Download utPLSQL release ${RELEASE_TAG} here](https://github.com/utPLSQL/utPLSQL/releases/tag/${RELEASE_TAG})
 POSTEOF
 
-git add "${POST_PATH}/${POST_FILENAME}" docs/index.md mkdocs.yml
+git add "${POST_PATH}/${POST_FILENAME}"
 git commit -m "Release announcement for ${RELEASE_TAG}"
 git push origin "${GITHUB_IO_BRANCH}"
 
