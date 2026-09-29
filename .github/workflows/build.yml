@@ -9,6 +9,11 @@ on:
       timezone: "Europe/Nicosia"
 
   workflow_dispatch:
+    inputs:
+      force_docs_publish:
+        description: 'Publish develop documentation even if no documentation changes were detected'
+        type: boolean
+        default: false
 
 concurrency: ${{github.ref}}
 defaults:
@@ -247,27 +252,36 @@ jobs:
           env-file: .github/variables/.env
       - uses: FranzDiebold/github-env-vars-action@v2.8.0 #https://github.com/marketplace/actions/github-environment-variables-action
 
-      - name: Set buid version number env variables
+      - name: Detect changes since last publish
+        id: detect-changes
+        run: .github/scripts/detect_changes_since_last_publish.sh
+
+      - name: Set build version number env variables
         id: set-build-version-number-vars
+        if: steps.detect-changes.outputs.project_changed == 'true'
         run: .github/scripts/set_version_numbers_env.sh
 
       - name: Update project version & build number in source code and documentation
         id: update-project-version
+        if: steps.detect-changes.outputs.project_changed == 'true'
         run:  .github/scripts/update_project_version.sh
 
       - name: Push version update to repository
         id: push-version-number-update
+        if: steps.detect-changes.outputs.project_changed == 'true'
         run: |
           git add sonar-project.properties VERSION BUILD_NO source/* docs/*
           git commit -m 'Updated project version after build [skip ci]'
           git push --quiet origin HEAD:${CI_ACTION_REF_NAME}
 
       - name: Setup git config
+        if: steps.detect-changes.outputs.docs_changed == 'true' || inputs.force_docs_publish
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
       - name: Build and publish documentation
+        if: steps.detect-changes.outputs.docs_changed == 'true' || inputs.force_docs_publish
         run: |
           pip install mkdocs
           pip install mkdocs-git-revision-date-localized-plugin
