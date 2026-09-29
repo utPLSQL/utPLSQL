@@ -171,9 +171,9 @@ create or replace noneditionable type body ut_tfs_junit_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Provides outcomes in a format conforming with JUnit version for TFS / VSTS.
-    As defined by specs :https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts
-    Version is based on windy road junit https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd.';
+    return 'Provides outcomes in a format conforming with JUnit version for TFS / VSTS
+as defined by [specification](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/publish-test-results-v2?view=azure-pipelines)
+The implementation is based on [windyroad junit schema](https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd).';
   end;
 
 end;

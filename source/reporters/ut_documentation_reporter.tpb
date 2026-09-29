@@ -222,7 +222,7 @@ create or replace noneditionable type body ut_documentation_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'A textual pretty-print of unit test results (usually use for console output)';
+    return 'Creates a textual, pretty-print, human-readable report mirroring the suite hierarchy. Used for console runs, interactive development and log review.';
   end;
 
 end;

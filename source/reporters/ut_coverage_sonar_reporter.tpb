@@ -103,9 +103,9 @@ create or replace noneditionable type body ut_coverage_sonar_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Generates a XML coverage report providing information on code coverage with line numbers.' || chr(10) ||
-           'Designed for [SonarQube](https://www.sonarqube.org/) to report coverage.' || chr(10) ||
-           'XML format returned conforms with the Sonar specification: https://docs.sonarqube.org/latest/analysis/generic-test/';
+    return 'Generates an XML coverage report providing information on code coverage with line numbers.
+Designed for [SonarQube](https://www.sonarsource.com/products/sonarqube/) to report coverage.
+XML format returned conforms with the [Sonar specification](https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/test-coverage/generic-test-data).';
   end;
 
 end;

@@ -106,9 +106,9 @@ create or replace noneditionable type body ut_sonar_test_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Generates a XML report providing detailed information on test execution.' || chr(10) ||
-           'Designed for [SonarQube](https://www.sonarqube.org/) to report test execution.' || chr(10) ||
-           'XML format returned conforms with the Sonar specification: https://docs.sonarqube.org/latest/analysis/generic-test/';
+    return 'Generates an XML report providing detailed information on test execution.
+Designed for [SonarQube](https://www.sonarsource.com/products/sonarqube/) to report test execution.
+XML format returned conforms with the [Sonar specification](https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/test-coverage/generic-test-data).';
   end;
 
 end;

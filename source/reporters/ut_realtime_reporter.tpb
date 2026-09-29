@@ -204,11 +204,6 @@ create or replace noneditionable type body ut_realtime_reporter is
     self.flush_print_buffer('post-test');
   end after_calling_test;
 
-  overriding member function get_description return varchar2 is
-  begin
-    return 'Provides test results in a XML format, for clients such as SQL Developer interested in showing progressing details.';
-  end get_description;
-
   member procedure print_start_node(
      self         in out nocopy ut_realtime_reporter,
      a_node_name  in            varchar2,
@@ -283,6 +278,11 @@ create or replace noneditionable type body ut_realtime_reporter is
     self.print_clob(l_doc, a_item_type);
     print_buffer.delete;
   end flush_print_buffer;
+
+  overriding member function get_description return varchar2 is
+  begin
+    return 'Provides live test execution progress that can be consumed from another session, enabling clients such as SQL Developer to show progress in real time as tests run.';
+  end get_description;
 
 end;
 /
