@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -273,26 +273,6 @@
   
   
   Reporting
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../about/project-details.html" class="md-tabs__link">
-          
-  
-  
-  About
 
         </a>
       </li>
@@ -948,175 +928,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    About
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    About
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../about/project-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Project Details
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../about/license.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    License
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../about/support.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Support
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../about/authors.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Authors
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1164,11 +975,11 @@ If the code that is testes is complied as NATIVE, the code coverage will not be 
 <p>Using code coverage functionality is as easy as using any other <a href="reporters.html">reporter</a> for utPLSQL project. All you need to do is run your tests from your preferred SQL tool and save the outcomes of reporter to a file.
 All you need to do, is pass the constructor of the reporter to your <code>ut.run</code></p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_coverage_html_reporter</span><span class="p">());</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">end</span><span class="p">;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="o">/</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_coverage_html_reporter</span><span class="p">());</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">end</span><span class="p">;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="o">/</span>
+</span></code></pre></div>
 Executes all unit tests in current schema, gather information about code coverage and output the html text into DBMS_OUTPUT.
 The <code>ut_coverage_html_reporter</code> will produce a interactive HTML report. You may see a sample of code coverage for utPLSQL project <a href="https://utplsql.github.io/utPLSQL-coverage-html/">here</a></p>
 <p>The report provides a summary information with list of source code that was expected to be covered.</p>
@@ -1184,12 +995,12 @@ All valid unit tests are excluded from the report regardless if they were invoke
 You may specify both include and exclude objects lists to specify which objects are to be included in the report and which are to be excluded.
 Both of those options are meant to be used to narrow down the scope of unit test runs, that is broad by default.</p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_include_objects</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;ut3_user.award_bonus&#39;</span><span class="p">));</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_include_objects</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;ut3_user.award_bonus&#39;</span><span class="p">));</span>
+</span></code></pre></div>
 Executes test <code>test_award_bonus</code> and gather coverage only on object <code>ut3_user.award_bonus</code></p>
 <p>Alternatively you could run:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_exclude_objects</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;ut3_user.betwnstr&#39;</span><span class="p">));</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_exclude_objects</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;ut3_user.betwnstr&#39;</span><span class="p">));</span>
+</span></code></pre></div>
 Executes test <code>test_award_bonus</code> and gather on all objects in schema <code>ut3_user</code> except valid unit test objects and object <code>betwnstr</code> that schema.</p>
 <p>You can also combine the parameters and both will be applied.</p>
 <h3 id="defining-different-schema-names">Defining different schema names<a class="headerlink" href="#defining-different-schema-names" title="Permanent link">&para;</a></h3>
@@ -1199,22 +1010,22 @@ In such scenarios, you would probably have a separate database schema to hold un
 Since by default, coverage reporting is done on the schema/schemes that the invoked tests are on, the code will not be included in coverage report as it is in a different schema than the invoked tests. </p>
 <p>In this situation you need to provide list of schema names that the tested code is in. This option overrides the default schema names for coverage.</p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_coverage_schemes</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">));</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">exec</span><span class="w"> </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_coverage_schemes</span><span class="o">=&gt;</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">));</span>
+</span></code></pre></div>
 Executes test <code>test_award_bonus</code> in schema <code>ut3_user</code> and gather coverage for that execution on all non <code>unit-test</code> objects from schema <code>usr</code>.</p>
 <p>You can combine schema names with include/exclude parameters and all will be applied.
 The <code>a_coverage_schemes</code> parameter takes precedence however, so if include list contains objects from other schemes, that will not be considered.  </p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">begin</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">a_coverage_schemes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">),</span><span class="w"> </span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">a_exclude_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr.betwnstr&#39;</span><span class="p">),</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr.award_bonus&#39;</span><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">);</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">end</span><span class="p">;</span>
-</code></pre></div>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">begin</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="s1">&#39;ut3_user.test_award_bonus&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">a_coverage_schemes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">),</span><span class="w"> </span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">a_exclude_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr.betwnstr&#39;</span><span class="p">),</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">a_include_objects</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;usr.award_bonus&#39;</span><span class="p">)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">end</span><span class="p">;</span>
+</span></code></pre></div>
 Executes test <code>test_award_bonus</code> in schema <code>ut3_user</code> and gather coverage for that execution on <code>award_bonus</code> object from schema <code>usr</code>. The exclude list is of no relevance as it is not overlapping with include list.</p>
 <h3 id="working-with-projects-and-project-files">Working with projects and project files<a class="headerlink" href="#working-with-projects-and-project-files" title="Permanent link">&para;</a></h3>
 <p>Both <code>sonar</code> and <code>coveralls</code> are utilities that are more project-oriented than database-centric. They report statistics and coverage for project files in version control system.
@@ -1226,41 +1037,41 @@ This syntax also allows usage of <code>a_include_object_list</code> and <code>a_
 <p><strong>Reporting using externally provided file mapping</strong>
 One of ways to perform coverage reporting on your project files is to provide to the coverage reporter a list of file path/names along with mapping to corresponding object name and object type.</p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">begin</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">a_source_file_mappings</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="n">ut_coverage_file_mappings</span><span class="p">(</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="n">ut_coverage_file_mapping</span><span class="p">(</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">          </span><span class="n">file_name</span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;sources/hr/award_bonus.prc&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">          </span><span class="n">object_owner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;USR&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">          </span><span class="n">object_name</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;AWARD_BONUS&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">          </span><span class="n">object_type</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;PROCEDURE&#39;</span><span class="w">                        </span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="p">),</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">ut_coverage_file_mapping</span><span class="p">(</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">          </span><span class="n">file_name</span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;sources/hr/betwnstr.fnc&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">          </span><span class="n">object_owner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;USR&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">          </span><span class="n">object_name</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;BETWNSTR&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">          </span><span class="n">object_type</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;FUNCTION&#39;</span><span class="w">                        </span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">        </span><span class="p">)</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">      </span><span class="p">)</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="p">);</span>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">end</span><span class="p">;</span>
-</code></pre></div></p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">begin</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">a_source_file_mappings</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="n">ut_coverage_file_mappings</span><span class="p">(</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="n">ut_coverage_file_mapping</span><span class="p">(</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">          </span><span class="n">file_name</span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;sources/hr/award_bonus.prc&#39;</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">          </span><span class="n">object_owner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;USR&#39;</span><span class="p">,</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">          </span><span class="n">object_name</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;AWARD_BONUS&#39;</span><span class="p">,</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">          </span><span class="n">object_type</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;PROCEDURE&#39;</span><span class="w">                        </span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="p">),</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">ut_coverage_file_mapping</span><span class="p">(</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">          </span><span class="n">file_name</span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;sources/hr/betwnstr.fnc&#39;</span><span class="p">,</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">          </span><span class="n">object_owner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;USR&#39;</span><span class="p">,</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">          </span><span class="n">object_name</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;BETWNSTR&#39;</span><span class="p">,</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">          </span><span class="n">object_type</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;FUNCTION&#39;</span><span class="w">                        </span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">        </span><span class="p">)</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">      </span><span class="p">)</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">end</span><span class="p">;</span>
+</span></code></pre></div></p>
 <p>Executes all tests in schema <code>usr</code> and reports coverage for that execution on procedure <code>award_bonus</code> and function <code>betwnstr</code>. The coverage report is mapped-back to file-system object names with paths.</p>
 <p><strong>Reporting using regex file mapping rule</strong>
 If file names and paths in your project follow a well established naming conventions, 
 then you can use the predefined rule for mapping file names to object names or you can define your own rule and pass it to the coverage reporter at runtime.</p>
 <p>Example of running with predefined regex mapping rule.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">begin</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">a_source_files</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;sources/hr/award_bonus.prc&#39;</span><span class="p">,</span><span class="s1">&#39;sources/hr/betwnstr.fnc&#39;</span><span class="p">)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">);</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">end</span><span class="p">;</span>
-</code></pre></div></p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">begin</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">a_source_files</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;sources/hr/award_bonus.prc&#39;</span><span class="p">,</span><span class="s1">&#39;sources/hr/betwnstr.fnc&#39;</span><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">end</span><span class="p">;</span>
+</span></code></pre></div></p>
 <p>The predefined rule is based on the following default values for parameters:
 * <code>a_regex_pattern =&gt; '.*(\\|\/)((\w+)\.)?(\w+)\.(\w{3})'</code> 
 * <code>a_object_owner_subexpression =&gt; 3</code>
@@ -1311,24 +1122,24 @@ then you can use the predefined rule for mapping file names to object names or y
 <p>If file names in your project structure are not prefixed with schema name (like above), the coverage report will look for objects to match the file names in the <code>current schema</code> of the connection that was used to execute tests with coverage.</p>
 <p>If your project structure is different, you may define your own mapping rule using regex.</p>
 <p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">ut_file_mapper</span><span class="p">.</span><span class="n">build_file_mappings</span><span class="p">(</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="n">a_file_paths</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;sources/hr/procedures/award_bonus.sql&#39;</span><span class="p">,</span><span class="s1">&#39;sources/hr/functions/betwnstr.sql&#39;</span><span class="p">),</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="n">a_regex_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;.*(\\|\/)(\w+)\.(\w+)\.(\w{3})&#39;</span><span class="p">,</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="n">a_object_owner_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="n">a_object_type_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="n">a_object_name_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="n">a_file_to_object_type_mapping</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_key_value_pairs</span><span class="p">(</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="p">),</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">        </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;procedure&#39;</span><span class="p">)</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">      </span><span class="p">)</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="p">)</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">  </span><span class="p">);</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="k">end</span><span class="p">;</span>
-</code></pre></div></p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">ut_coverage_html_reporter</span><span class="p">(),</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">ut_file_mapper</span><span class="p">.</span><span class="n">build_file_mappings</span><span class="p">(</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="n">a_file_paths</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;sources/hr/procedures/award_bonus.sql&#39;</span><span class="p">,</span><span class="s1">&#39;sources/hr/functions/betwnstr.sql&#39;</span><span class="p">),</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="n">a_regex_pattern</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;.*(\\|\/)(\w+)\.(\w+)\.(\w{3})&#39;</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="n">a_object_owner_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="n">a_object_type_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="n">a_object_name_subexpression</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="n">a_file_to_object_type_mapping</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ut_key_value_pairs</span><span class="p">(</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="p">),</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">        </span><span class="n">ut_key_value_pair</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;procedure&#39;</span><span class="p">)</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">      </span><span class="p">)</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="k">end</span><span class="p">;</span>
+</span></code></pre></div></p>
 
 
 
@@ -1351,7 +1162,7 @@ then you can use the predefined rule for mapping file names to object names or y
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="June 25, 2026 06:03:49 UTC">June 25, 2026 06:03:49</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="September 28, 2026 17:15:58 UTC">September 28, 2026 17:15:58</span>
   </span>
 
     
@@ -1366,6 +1177,29 @@ then you can use the predefined rule for mapping file names to object names or y
 
     
     
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/jgebal" class="md-author" title="@jgebal">
+          
+          <img src="https://avatars.githubusercontent.com/u/1398171?v=4&size=72" alt="jgebal">
+        </a>
+      
+      
+      
+    </nav>
+  </span>
+
     
   </aside>
 
@@ -1594,10 +1428,10 @@ then you can use the predefined rule for mapping file names to object names or y
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
