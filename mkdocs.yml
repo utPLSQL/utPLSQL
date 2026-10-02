@@ -92,7 +92,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/utPLSQL
     - icon: fontawesome/solid/envelope
-      link: mailto:utPLSQL@utPLSQL.org
+      link: mailto:info@utplsql.org
   version:            # disable for offline docs
     provider: mike    # disable for offline docs
 markdown_extensions:
