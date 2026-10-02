@@ -3,12 +3,14 @@
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![GitHub Discussions](https://img.shields.io/github/discussions/utPLSQL/utPLSQL)](https://github.com/utPLSQL/utPLSQL/discussions)
-[![X](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
+[![X](https://img.shields.io/badge/X-utPLSQL-000000?logo=x)](https://x.com/utPLSQL)
+[![Bluesky](https://img.shields.io/badge/Bluesky-utplsql.org-0285FF?logo=bluesky&logoColor=white)](https://bsky.app/profile/utplsql.org)
+[![LinkedIn](https://img.shields.io/badge/in-utPLSQL-0A66C2)](https://www.linkedin.com/company/utplsql/)
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
 [![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
 
-utPLSQL is a unit testing framework for Oracle PL/SQL and SQL, following industry standards and best practices of modern testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/).
+utPLSQL is a unit testing framework for Oracle PL/SQL and SQL, following industry standards and best practices of modern testing frameworks like [JUnit](https://junit.org/) and [RSpec](https://rspec.info/).
 
 ## Key Features
 
@@ -136,5 +138,14 @@ We welcome contributions of all kinds. Please read the [contributing guide](CONT
 
 [GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
 
-The list of **authors** and **significant contributors** is available on the [About](https://www.utplsql.org/about/) page. For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
+The list of **authors** and **significant contributors** is available on the [About](https://www.utplsql.org/about.html) page. For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
 
+## License
+
+utPLSQL is free and open source, licensed under the [Apache 2.0 license](LICENSE).
+
+## Stewardship
+
+utPLSQL is stewarded by utPLSQL Development Labs Ltd, which holds the utPLSQL name, branding and project assets, and manages sponsorships and funded development.
+Contributors retain copyright of their contributions, which are licensed under the Apache 2.0 license.
+See the [announcement](https://www.utplsql.org/announcements/incorporation-of-utplsql-development-labs-ltd.html) for details.

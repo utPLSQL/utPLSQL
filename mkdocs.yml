@@ -9,7 +9,8 @@ site_url: https://www.utplsql.org/
 site_name: utPLSQL
 site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL
 copyright: > 
-  Copyright &copy; 2016 - 2026 utPLSQL Team
+  Copyright &copy; 2016 - 2026 utPLSQL contributors.
+  utPLSQL is stewarded by utPLSQL Development Labs Ltd.
   <a href="#__consent">Change cookie settings</a>
 repo_url: https://github.com/utPLSQL/utPLSQL
 extra_css:
@@ -77,8 +78,15 @@ extra:
     # the cookie: utplsql-consent allows for shred cookie across all documentation versions and the global site
     cookie: utplsql-consent
   social:
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/utPLSQL
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/utPLSQL
+      name: utPLSQL on X
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/utplsql/
+      name: utPLSQL on LinkedIn
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/utplsql.org
+      name: utPLSQL on Bluesky
     - icon: fontawesome/regular/comment
       link: https://github.com/utPLSQL/utPLSQL/discussions
     - icon: fontawesome/brands/github

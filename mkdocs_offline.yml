@@ -8,7 +8,7 @@ edit_uri: ""
 site_url: https://www.utplsql.org/
 site_name: utPLSQL-framework
 site_description: utPLSQL Ultimate Testing Framework for Oracle PL/SQL & SQL
-copyright: Copyright &copy; 2016 - 2026 utPLSQL Team
+copyright: Copyright &copy; 2016 - 2026 utPLSQL contributors. utPLSQL is stewarded by utPLSQL Development Labs Ltd.
 #repo_url: https://github.com/utPLSQL/utPLSQL # disable for offline docs
 extra_css:
   - stylesheets/extra.css
@@ -41,8 +41,15 @@ theme:
 extra:
 #  homepage: https://www.utPLSQL.org/
   social:
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/utPLSQL
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/utPLSQL
+      name: utPLSQL on X
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/utplsql/
+      name: utPLSQL on LinkedIn
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/utplsql.org
+      name: utPLSQL on Bluesky
     - icon: fontawesome/regular/comment
       link: https://github.com/utPLSQL/utPLSQL/discussions
     - icon: fontawesome/brands/github

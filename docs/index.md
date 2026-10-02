@@ -3,7 +3,9 @@
 ## What is utPLSQL
 
 utPLSQL is a Unit Testing framework for Oracle PL/SQL.
-The framework follows industry standards and best patterns of modern Unit Testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/)
+The framework follows industry standards and best patterns of modern Unit Testing frameworks like [JUnit](https://junit.org/) and [RSpec](https://rspec.info/).
+
+See [About](https://www.utplsql.org/about.html) for project history, contributors and stewardship.
  
 ## Demo project
 
@@ -11,18 +13,18 @@ Have a look at [utPLSQL demo project](https://github.com/utPLSQL/utPLSQL-demo-pr
 
 - sample code and tests
 - demo of deployment automation that leverages:
-  - Flyway / Liquidbase for scripting and deployment of DB changes 
+  - Flyway / Liquibase for scripting and deployment of DB changes 
   - Docker container with Oracle XE Database
   - GitHub Actions and Azure Pipelines to orchestrate the deployment and testing process
-  - utPLSQL framework for writhing, execution of tests as well as reporting test results and code coverage
-  - [Sonar]((https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project).) for code quality gate, test results and code coverage reporting  
+  - utPLSQL framework for writing and executing tests, as well as reporting test results and code coverage
+  - [Sonar](https://sonarcloud.io/project/overview?id=utPLSQL:utPLSQL-demo-project) for code quality gate, test results and code coverage reporting  
 
 ## Three steps
 
 With just three simple steps you can define and run your unit tests for PLSQL code.
  
 1. Install the utPLSQL framework 
-2. Create Unit Tests to for the code
+2. Create unit tests for the code
 3. Run the tests
 
 Here is how you can simply create tested code, unit tests and execute the tests using SQL Developer
