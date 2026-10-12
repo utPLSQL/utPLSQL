@@ -6,6 +6,7 @@ To create a release, follow the below steps.
    - Create a **draft** of a Release with a new tag number `vX.Y.X`  sourced from the `develop` branch on [github releases page](https://github.com/utPLSQL/utPLSQL/releases) 
    - Populate release description using the `Generate release notes` button
    - Review the auto-generated release notes and update tem if needed
+   - Add this line at the end of the release notes: `This release was made possible by our sponsors: https://www.utplsql.org/sponsors.html` (a link, not a list of names, so it always shows who is current)
    - Optionally, split the default `## What's Changed` list into `## New features`, `## Enhancements`, `## Bug fixes`. See previous release notes for details
 
 ## Performing a release

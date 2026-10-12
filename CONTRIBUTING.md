@@ -1,7 +1,8 @@
 # How to contribute
 
 The following are the guidelines everyone should use to contribute to utPLSQL.  
-Changes are welcome from all members of the Community.
+Changes are welcome from all members of the Community.  
+Not able to contribute code? You can also support the project through [sponsorship](https://www.utplsql.org/sponsorship.html).
 
 # Getting Started
 

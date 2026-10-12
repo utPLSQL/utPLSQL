@@ -6,6 +6,7 @@
 [![X](https://img.shields.io/badge/X-utPLSQL-000000?logo=x)](https://x.com/utPLSQL)
 [![Bluesky](https://img.shields.io/badge/Bluesky-utplsql.org-0285FF?logo=bluesky&logoColor=white)](https://bsky.app/profile/utplsql.org)
 [![LinkedIn](https://img.shields.io/badge/in-utPLSQL-0A66C2)](https://www.linkedin.com/company/utplsql/)
+[![Sponsor](https://img.shields.io/badge/Sponsor-utPLSQL-ea4aaa?logo=githubsponsors)](https://www.utplsql.org/sponsorship.html)
 [![build](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml/badge.svg)](https://github.com/utPLSQL/utPLSQL/actions/workflows/build.yml)
 [![QualityGate](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL_utPLSQL&metric=coverage)](https://sonarcloud.io/summary/new_code?id=utPLSQL_utPLSQL)
@@ -139,6 +140,14 @@ We welcome contributions of all kinds. Please read the [contributing guide](CONT
 [GitHub Discussions](https://github.com/utPLSQL/utPLSQL/discussions) is the place to ask questions and connect with the team.
 
 The list of **authors** and **significant contributors** is available on the [About](https://www.utplsql.org/about.html) page. For a full list of contributors, see [contributors](https://github.com/utPLSQL/utPLSQL/graphs/contributors?all=1) on GitHub.
+
+## Sponsorship
+
+utPLSQL is free and open source (Apache 2.0). Sponsorship funds development of new features and tools, maintaining compatibility with new Oracle versions and platforms, documentation.
+See [Sponsorship](https://www.utplsql.org/sponsorship.html) for organization tiers, commercial support and individual sponsorship. All current and past sponsors are listed in [SPONSORS.md](SPONSORS.md).
+
+<!--start-sponsors-->
+<!--end-sponsors-->
 
 ## License
 
