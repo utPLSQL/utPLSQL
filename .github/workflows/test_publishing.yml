@@ -45,11 +45,11 @@ jobs:
 #      - name: Update CHANGELOG.md with release notes
 #        run: .github/scripts/update_changelog.sh
 
-#      - name: Post release announcement to org discussions
-#        env:
-#          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-#        run: .github/scripts/post_release_announcement.sh
-
       - name: Publish release post to utplsql.github.io
-        run: .github/scripts/publish_release_post.sh
+        uses: utPLSQL/.github/actions/announce-release@v1
+        with:
+          project-name: utPLSQL
+          tag: ${{ env.RELEASE_TAG }}
+          site-token: ${{ secrets.API_TOKEN_GITHUB }}
+          site-category: utplsql-core
 

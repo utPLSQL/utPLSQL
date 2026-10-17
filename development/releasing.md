@@ -18,7 +18,8 @@ To create a release, follow the below steps.
      - upload release artifacts (`zip` and `tar.gz` files along with `sha256` files)
      - update the CHANGELOG.md file with the release details
      - publish an announcement about the release in the utPLSQL Organization Discussions
-     - publish a release post on utplsql.github.io (new post in `docs/_posts`, updated `mkdocs.yml` nav and `docs/index.md`)
+     - publish a release post on utplsql.github.io (new post in `docs/announcements/posts`)
+     - both announcements are created by the shared [announce-release action](https://github.com/utPLSQL/.github/tree/main/actions/announce-release), also used by utPLSQL-cli, utPLSQL-maven-plugin and utPLSQL-java-api
   - After the release process is finished, manually increase the version number in the `VERSION` file on `develop` branch to start the next release version.
   - Send an announcement about the release on:Twitter(X), BlueSky, LinkedIn account about the utPLSQL release.
 
