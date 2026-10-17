@@ -72,11 +72,12 @@ jobs:
             utPLSQL.tar.gz
             utPLSQL.tar.gz.sha256
 
-      - name: Post release announcement to org discussions
-        env:
-          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-        run: .github/scripts/post_release_announcement.sh
-
-      - name: Publish release post to utplsql.github.io
-        run: .github/scripts/publish_release_post.sh
+      - name: Announce release in org discussions and on utplsql.github.io
+        uses: utPLSQL/.github/actions/announce-release@v1
+        with:
+          project-name: utPLSQL
+          tag: ${{ github.event.release.tag_name }}
+          discussion-token: ${{ secrets.API_TOKEN_GITHUB }}
+          site-token: ${{ secrets.API_TOKEN_GITHUB }}
+          site-category: utplsql-core
 
