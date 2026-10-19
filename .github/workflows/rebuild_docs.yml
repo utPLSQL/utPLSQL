@@ -52,6 +52,9 @@ jobs:
           for VERSION in ${{ inputs.versions }}; do
             echo "=== Rebuilding $VERSION ==="
             git checkout "tags/${VERSION}" -- docs/
+            # Use the current look and feel (colors, footer, top bar) for every version;
+            # tags released since the restyling carry their own, older copies of these files
+            git checkout HEAD -- docs/stylesheets docs/overrides
             # Keep the version badge as originally published with the release
             DOCS_VERSION=$(.github/scripts/get_published_docs_version.sh "${VERSION}")
             if [[ -n "${DOCS_VERSION}" ]]; then
