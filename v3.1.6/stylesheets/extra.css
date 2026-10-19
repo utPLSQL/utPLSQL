@@ -20,3 +20,45 @@
 [data-md-color-scheme="slate"][data-md-color-primary] {
     --md-typeset-a-color: #4a90e2;           /* link: header blue lightened just enough to read on dark, 4.8:1 */
 }
+
+/* Footer: make the sponsor and cookie links stand out from the copyright text */
+.md-copyright a.footer-sponsor {
+    display: inline-flex;
+    overflow: hidden;
+    margin: 0 .4rem;
+    font-size: .65rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    text-decoration: none;
+    vertical-align: middle;
+    border-radius: .2rem;
+}
+
+.footer-sponsor__label,
+.footer-sponsor__name {
+    padding: .3rem .5rem;
+}
+
+.footer-sponsor__label {
+    background: #555;
+}
+
+.footer-sponsor__name {
+    background: #ea4aaa;
+}
+
+.md-copyright a.footer-sponsor:hover {
+    color: #fff;
+    opacity: .85;
+}
+
+.md-copyright a.footer-cookies {
+    color: var(--md-footer-fg-color);
+    text-decoration: underline;
+    text-underline-offset: .15em;
+}
+
+.md-copyright a.footer-cookies:hover {
+    color: var(--md-accent-fg-color);
+}
