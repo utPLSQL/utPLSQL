@@ -166,7 +166,10 @@ You may specify both _include_ and _exclude_ options to gain more control over w
     - else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure<br>
     - else if no paths were specified, the coverage is gathered on current schema of the session running the tests
     
-The exclude parameters are not mutually-exclusive and can be mixed together. All of exclude parameters are always applied.  
+The include and exclude parameters can be combined. An object is reported when it passes the include filters and does not match any of the exclude filters.
+
+The `a_exclude_schema_expr` and `a_exclude_object_expr` parameters are not mutually-exclusive and can be used together.
+When any of them is specified, the `a_exclude_objects` parameter is ignored.
 
 Example: Limiting coverage by schema regex.
 ```sql linenums="1"
@@ -218,7 +221,7 @@ end;
 ```
 Will result in showing coverage for objects in all schema except schemas that are matching regular expression `er_1$`
 
-Example: Limiting coverage by excluding schema with regex and excluding specific object. 
+Example: Limiting coverage by excluding schema with regex, with parameter `a_exclude_objects` ignored.
 ```sql linenums="1"
 begin
   ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
@@ -226,8 +229,8 @@ begin
   );
 end;
 ```
-Will result in showing coverage for objects in all schemas except schemas that are matching regular expression `er_1$`
-Will also exclude object `user_2.utils_package` from coverage report
+Will result in showing coverage for objects in all schemas except schemas that are matching regular expression `er_1$`.
+The `a_exclude_objects` parameter is ignored when `a_exclude_schema_expr` is specified, so object `user_2.utils_package` is not excluded from the coverage report.
 
 Example: Limiting coverage by excluding objects with regex. 
 ```sql linenums="1"
@@ -248,7 +251,7 @@ begin
 end;
 ```
 Will result in showing coverage for all objects that name is not matching regular expression `utl`.
-Will also exclude object `user_2.utils_package` from coverage report
+The `a_exclude_objects` parameter is ignored when `a_exclude_object_expr` is specified, so object `user_2.utils_package` is not excluded from the coverage report.
 
 
 Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
