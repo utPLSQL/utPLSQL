@@ -1,12 +1,22 @@
 [data-md-color-scheme="default"] {
-    --md-primary-fg-color: #2f8bff;
-    --md-accent-fg-color: #1f5db0;
-    --md-accent-fg-color--transparent:   #1f5db0;
+    --md-primary-fg-color: #1565c0;          /* link + header colour: 5.8:1 with white text */
+    --md-typeset-a-color: #1565c0;           /* link = header colour: 5.8:1 */
+    --md-accent-fg-color: #1e88e5;           /* hover: lighter than the link, 3.7:1 */
+    --md-accent-fg-color--transparent: rgba(30, 136, 229, .1);
+    --md-default-fg-color--light: hsla(0, 0%, 0%, .64);   /* muted text 6.7:1 */
 }
 
 [data-md-color-scheme="slate"] {
-    --md-hue: 200;
-    --md-primary-fg-color: #2f8bff;
-    --md-accent-fg-color: #1f5db0;
-    --md-accent-fg-color--transparent:   #1f5db0;
+    --md-hue: 215;
+    --md-primary-fg-color: #1565c0;          /* header background keeps the brand blue */
+    --md-accent-fg-color: #3578cc;           /* hover: darker than the link, 3.6:1 */
+    --md-accent-fg-color--transparent: rgba(53, 120, 204, .1);
+    --md-default-fg-color: hsla(var(--md-hue), 15%, 90%, .90);        /* body ~10:1 */
+    --md-default-fg-color--light: hsla(var(--md-hue), 15%, 90%, .68); /* muted 6.5:1 */
+    --md-code-hl-keyword-color: hsl(219, 80%, 72%);
+}
+
+/* Material sets the dark link colour per primary colour with higher specificity */
+[data-md-color-scheme="slate"][data-md-color-primary] {
+    --md-typeset-a-color: #4a90e2;           /* link: header blue lightened just enough to read on dark, 4.8:1 */
 }
