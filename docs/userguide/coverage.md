@@ -140,19 +140,49 @@ end;
 
 #### Filtering objects in coverage reports
 
-Multiple parameters can be used to define the scope of coverage report.
+By default, coverage is reported on all objects of the schema(s) described above. Several parameters narrow the scope of the coverage report.
+You can describe the scope with lists of names, or with regular expressions that match names.
 
-- `a_source_file_mappings ( ut_file_mappings )` - map of filenames to database objects. It is used for file-based coverage - see below.
-- `a_include_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be included in the coverage report. Case-insensitive. 
-- `a_include_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be included in the coverage report. Case-insensitive.
-- `a_exclude_schema_expr  (    varchar(4000) )` - string of regex expression of schemas to be excluded from the coverage report. Case-insensitive.
-- `a_exclude_object_expr  (    varchar(4000) )` - string of regex expression of objects ( without schema name ) to be excluded from the coverage report. Case-insensitive. 
-- `a_coverage_schemes     ( ut_varchar2_list )` - List of database schema names to gather coverage on.
-- `a_include_objects      ( ut_varchar2_list )` - list of `[object_owner.]object_name` to be included in the coverage report.
-- `a_exclude_objects      ( ut_varchar2_list )` - list of `[object_owner.]object_name` to be excluded from the coverage report.
+| Parameter               | Type                 | Meaning                                                                                              |
+|-------------------------|----------------------|------------------------------------------------------------------------------------------------------|
+| `a_coverage_schemes`    | `ut_varchar2_list`   | schemas to gather coverage on                                                                        |
+| `a_include_objects`     | `ut_varchar2_list`   | `[object_owner.]object_name` to be included in the coverage report                                   |
+| `a_exclude_objects`     | `ut_varchar2_list`   | `[object_owner.]object_name` to be excluded from the coverage report                                 |
+| `a_include_schema_expr` | `varchar2(4000)`     | regular expression, schemas whose name matches are included in the coverage report                   |
+| `a_include_object_expr` | `varchar2(4000)`     | regular expression, objects whose name (without schema name) matches are included in the report      |
+| `a_exclude_schema_expr` | `varchar2(4000)`     | regular expression, schemas whose name matches are excluded from the coverage report                 |
+| `a_exclude_object_expr` | `varchar2(4000)`     | regular expression, objects whose name (without schema name) matches are excluded from the report    |
+| `a_source_file_mappings`| `ut_file_mappings`   | map of filenames to database objects, used for file-based coverage - see [Project based Coverage](#project-based-coverage) |
+
+Use lists when the scope is a handful of known objects. Use regular expressions when the scope follows a naming convention,
+for example all schemas that start with `APP_`, or all objects that end with `_TMP`.
+A rule written once as a regular expression also covers the objects and schemas that are created later.
 
 You may specify both _include_ and _exclude_ options to gain more control over what needs to be included / excluded from the coverage report.
+An object is reported when it passes the include filters and does not match any of the exclude filters.
 
+##### Regular expressions
+
+- The expression is evaluated by Oracle `REGEXP_LIKE`. It is **case-insensitive**, so `app_` matches `APP_ORDERS`.
+- A schema expression is matched against the schema name. An object expression is matched against the object name **without** the schema name.
+- The expression is **not anchored**. `util` matches `UT_UTILS`, `UTIL_TRAINING` and `ERROR_UTIL_2`.
+  Use `^` to match from the beginning of the name and `$` to match up to the end, for example `^app_` or `_tmp$`.
+- When both an include schema expression and an include object expression are specified, an object must match both.
+
+##### Which parameters are used when several are given
+
+| If you specify                                                  | utPLSQL ignores                                           |
+|-----------------------------------------------------------------|-----------------------------------------------------------|
+| `a_source_file_mappings`                                        | all other include/exclude parameters                      |
+| `a_include_schema_expr` or `a_include_object_expr`              | `a_include_objects` (and associated `a_coverage_schemes`) |
+| `a_exclude_schema_expr` or `a_exclude_object_expr`              | `a_exclude_objects` (and associated `a_coverage_schemes`) |
+
+Everything else can be combined. In particular:
+
+- include expressions can be combined with exclude expressions and with `a_exclude_objects`,
+- `a_exclude_schema_expr` and `a_exclude_object_expr` can be used together,
+- without include parameters, coverage is gathered on the schemas described in [Setting coverage schema(s)](#setting-coverage-schemas)
+  and the exclude parameters remove objects from that scope.
 
 !!! warning "Important note"
 
@@ -160,99 +190,18 @@ You may specify both _include_ and _exclude_ options to gain more control over w
     - if `a_source_file_mappings` is defined then all include/exclude parameters are ignored (see section below for usage of `a_source_file_mappings` parameter )<br>
     - else if `a_include_schema_expr` or `a_include_object_expr` parameter is specified then parameters `a_coverage_schemes` and `a_include_objects` are ignored<br>
     - else if `a_include_objects` is specified then the coverage is gathered only on specified database objects.<br> 
-      - if `a_coverage_schemes` is specified then those schemas are used for objects in `a_include_objects` without schema name<br>    
-      - if `a_coverage_schemes` is not specified then schema from paths (`a_paths`) parameter are used for objects in `a_include_objects` without schema name<br>    
+      - if `a_coverage_schemes` is specified then those schemas are used for objects without schema name in `a_include_objects` and `a_exclude_objects`<br>    
+      - if `a_coverage_schemes` is not specified then schema from paths (`a_paths`) parameter are used for objects without schema name in `a_include_objects` and `a_exclude_objects`<br>    
     - else if, only the `a_coverage_schemes` is specified then the coverage is gathered only on specified database schemas<br>
     - else if no coverage specific parameters are provided coverage is gathered on all schemas specified in paths passed to run procedure<br>
     - else if no paths were specified, the coverage is gathered on current schema of the session running the tests
     
-The include and exclude parameters can be combined. An object is reported when it passes the include filters and does not match any of the exclude filters.
+##### Examples
 
-The `a_exclude_schema_expr` and `a_exclude_object_expr` parameters are not mutually-exclusive and can be used together.
-When any of them is specified, the `a_exclude_objects` parameter is ignored.
+The examples use a system split into schemas `app_orders` and `app_billing` that contain the application code,
+and schemas `app_orders_test` and `app_billing_test` that contain the unit tests.
 
-Example: Limiting coverage by schema regex.
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_include_schema_expr => '^ut3_develop'
-  );
-end;
-```
-Will result in showing coverage for all schemas that match regular expression `^ut3_develop`
-
-Example: Limiting coverage by schema regex with parameter `a_include_objects` ignored. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(),
-    a_include_schema_expr => '^ut3_develop', a_include_objects => ut_varchar2_list( 'ut3_tester_helper.regex_dummy_cov' )
-  );
-end;
-```
-Will result in showing coverage for all schemas that match regular expression `^ut3_develop`.
-
-Example: Limiting coverage by object regex. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_include_object_expr => 'regex123'
-  );
-end;
-```
-Will result in showing coverage for all objects that name match regular expression `regex123`.
-
-Example: Limiting coverage by object regex with parameter `a_include_objects` ignored. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_include_object_expr => 'utl', a_include_objects => ut_varchar2_list( 'user_2.utils_package' )
-  );
-end;
-```
-Will result in showing coverage for all objects that name match regular expression `utl`.
-
-Example: Limiting coverage by excluding schema with regex. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_schema_expr => 'er_1$'
-  );
-end;
-```
-Will result in showing coverage for objects in all schema except schemas that are matching regular expression `er_1$`
-
-Example: Limiting coverage by excluding schema with regex, with parameter `a_exclude_objects` ignored.
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_schema_expr => 'er_1$', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
-  );
-end;
-```
-Will result in showing coverage for objects in all schemas except schemas that are matching regular expression `er_1$`.
-The `a_exclude_objects` parameter is ignored when `a_exclude_schema_expr` is specified, so object `user_2.utils_package` is not excluded from the coverage report.
-
-Example: Limiting coverage by excluding objects with regex. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_object_expr => 'utl'
-  );
-end;
-```
-Will result in showing coverage for all objects that name is not matching regular expression `utl`.
-
-Example: Limiting coverage by excluding objects with regex with parameter `a_exclude_objects` ignored. 
-```sql linenums="1"
-begin
-  ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), 
-    a_exclude_object_expr => 'utl', a_exclude_objects => ut_varchar2_list( 'user_2.utils_package' )
-  );
-end;
-```
-Will result in showing coverage for all objects that name is not matching regular expression `utl`.
-The `a_exclude_objects` parameter is ignored when `a_exclude_object_expr` is specified, so object `user_2.utils_package` is not excluded from the coverage report.
-
+###### Filtering by lists of names
 
 Example: Limiting coverage by object name, for tested code located in the same schema as the unit tests.
 ```sql linenums="1"
@@ -302,13 +251,91 @@ end;
 ```
 Executes test `test_award_bonus` in schema `unit_test_schema`. Coverage will be reported on all objects in schema `ut3_user` except the `betwnstr` object.
 
+###### Filtering by regular expressions
+
+Example: Tests are located in other schemas than the application code. Report coverage on the application schemas, selected by a pattern.
+```sql linenums="1"
+begin
+  ut.run(
+    ut_varchar2_list('app_orders_test','app_billing_test'), ut_coverage_html_reporter(),
+    a_include_schema_expr => '^app_(orders|billing)$'
+  );
+end;
+```
+Executes all tests in schemas `app_orders_test` and `app_billing_test`.
+Coverage will be reported on all objects in the schemas `app_orders` and `app_billing`, even though those schemas are not mentioned in the paths.
+Any other schema whose name matches the expression is reported as well.
+
+Example: Include all application schemas and exclude the test schemas, using one include and one exclude expression.
+```sql linenums="1"
+begin
+  ut.run(
+    ut_varchar2_list('app_orders_test','app_billing_test'), ut_coverage_html_reporter(),
+    a_include_schema_expr => '^app_',
+    a_exclude_schema_expr => '_test$'
+  );
+end;
+```
+Coverage will be reported on all schemas whose name starts with `app_` except the ones whose name ends with `_test`.
+When a new schema `app_shipping` is created, it is included without any change to the call.
+
+Example: Report coverage on one functional area of a schema, identified by a naming convention.
+```sql linenums="1"
+begin
+  ut.run(
+    'app_orders_test', ut_coverage_html_reporter(),
+    a_include_schema_expr => '^app_orders$',
+    a_include_object_expr => '^(ord|invoice)_'
+  );
+end;
+```
+Coverage will be reported only on objects in schema `app_orders` whose name starts with `ord_` or `invoice_`.
+
+Example: Keep generated and temporary objects out of the coverage report.
+```sql linenums="1"
+begin
+  ut.run(
+    'app_orders_test', ut_coverage_html_reporter(),
+    a_coverage_schemes => ut_varchar2_list('app_orders'),
+    a_exclude_object_expr => '(_tmp|_gen)$'
+  );
+end;
+```
+There is no include expression, so coverage is gathered on the schema `app_orders` given in `a_coverage_schemes`.
+Objects whose name ends with `_tmp` or `_gen` are left out.
+
+Example: Use an expression for the bulk of the scope and a list for the exceptions.
+```sql linenums="1"
+begin
+  ut.run(
+    'app_orders_test', ut_coverage_html_reporter(),
+    a_include_schema_expr => '^app_orders$',
+    a_exclude_objects => ut_varchar2_list('app_orders.ord_legacy')
+  );
+end;
+```
+Coverage will be reported on all objects in schema `app_orders` except for `ord_legacy`.
+The list can be used with an include expression. It would be ignored if an exclude expression was given too.
+
+!!! note
+    An include object expression used **without** an include schema expression is not limited to the schemas of your tests.
+    It is applied to the objects of all schemas visible to the user running the tests, for example `a_include_object_expr => '^ord_'`
+    also reports objects named `ord_...` in other schemas. Add `a_include_schema_expr` to keep the scope where you want it.
+
 !!! note
     Filtering using `a_include_objects` and `a_exclude_objects` is only applicable when gathering coverage for a schema. Those filters are not applied when reporting coverage on project files.
+    The same is true for the expression parameters.
 
 !!! note
     When running coverage on schema objects, all source code of package bodies, functions, procedures, type bodies and triggers that were not executed will be reported as having 0% code coverage and all source code lines will show as uncovered.
     This is different from the behavior when gathering coverage on project files.
 
+##### Using the filters from utPLSQL-cli and the Maven plugin
+
+The filter options described above are available in [utPLSQL-cli](https://www.utplsql.org/utPLSQL-cli.html)
+and in the [utPLSQL-maven-plugin](https://www.utplsql.org/utPLSQL-maven-plugin.html), and the same rules apply
+(which options are ignored when several are given, how expressions are matched, and that the filters are not applied when coverage is gathered on project files).
+See the documentation of those tools for the list of supported options and their names.
 
 ### Project based Coverage
 
