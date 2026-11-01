@@ -50,7 +50,33 @@ We use five different database accounts (users) for development process.
 * `ut3_user` - used for testing accessibility to schema names with special characters.
 * `ut3_tester_helper` - elevated privileges user, used for creating and dropping objects in other schemas during test run.
 
+## Local database in a disposable Docker container
 
+We use, and recommend, a disposable Docker container with Oracle Database Free, built from [gvenzl/oci-oracle-free](https://github.com/gvenzl/oci-oracle-free/tree/main), using image `gvenzl/oracle-free:slim-faststart`.
+The container needs no setup and can be thrown away and recreated whenever you need a clean database.
+`ORACLE_PASSWORD` sets the SYS password. Use the same value for `ORACLE_PWD` in `development/env.sh`, and connect to `127.0.0.1:1521/FREEPDB1`.
+
+Run the container in background:
+```bash
+docker run -d --name utplsql-db -p 1521:1521 -e ORACLE_PASSWORD=oracle gvenzl/oracle-free:slim-faststart
+```
+
+Stop the container:
+```bash
+docker stop utplsql-db
+```
+
+Restart the container (database content is kept):
+```bash
+docker restart utplsql-db
+```
+
+Recreate the container (database content is lost):
+```bash
+docker rm -f utplsql-db && docker run -d --name utplsql-db -p 1521:1521 -e ORACLE_PASSWORD=oracle gvenzl/oracle-free:slim-faststart
+```
+
+The database is ready to use once `docker logs utplsql-db` shows `DATABASE IS READY TO USE!`.
 
 ## Get started with development
 
@@ -87,7 +113,7 @@ You might have to adjust the following lines in `development/env.sh`:
 ```bash
 export SQLCLI=sql # For sqlcl client
 #export SQLCLI=sqlplus # For sqlplus client
-export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
+export CONNECTION_STR=127.0.0.1:1521/FREEPDB1 # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 ```
 
