@@ -43,7 +43,7 @@ Not able to contribute code? You can also support the project through [sponsorsh
 Your local environment can be of any flavor (Unix/Linux/Windows/Mac).
 At minimum, you need to have Oracle database 19c accessible for the project and SYS account access to install and develop utPLSQL.
 
-We use four different database accounts (users) for development process.
+We use five different database accounts (users) for development process.
 * `ut3` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.
 * `ut3_develop` - holds the version of utPLSQL of your current branch. This is the schema you will be working on.
 * `ut3_tester` - holds unit test packages for development of utPLSQL.
@@ -107,12 +107,12 @@ The below script is fetching latest release version from utPLSQL repository. Lat
 ### That's it
 
 You now have the following:
-- sources from `develop` branch of your fork of utPLSQL repository in `utPLSQL/ut3_latest_release` directory
-- sources from `main` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
+- sources from your fork of utPLSQL repository in `utPLSQL` directory
+- sources from utPLSQL/utPLSQL repository (branch set by `SELFTESTING_BRANCH` in `development/env.sh`) in `utPLSQL/utPLSQL_latest_release` directory
 - binaries of `utplsql-cli` in `utPLSQL/utPLSQL-cli` directory
 - database users created
-- your current branch of utPLSQL deployed into `ut3` schema
-- utPLSQL released version deployed to `ut3_latest_release`
+- your current branch of utPLSQL deployed into `ut3_develop` schema
+- utPLSQL released version deployed into `ut3` schema
 
 At any time, if you need to refresh your database, the below scripts might be helpful.
 
@@ -122,7 +122,7 @@ At any time, if you need to refresh your database, the below scripts might be he
 development/cleanup.sh
 ```
 
-## Reinstalling utPLSQL development in `ut3` schema
+## Reinstalling utPLSQL development in `ut3_develop` schema
 
 ```bash
 development/refresh_ut3.sh
