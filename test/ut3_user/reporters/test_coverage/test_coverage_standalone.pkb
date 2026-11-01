@@ -7,11 +7,7 @@ create or replace package body test_coverage_standalone is
   begin
     l_file_path := 'package body ut3_develop.'||a_object_name;
     --Arrange
-    if ut3_tester_helper.coverage_helper.block_coverage_available then
-      l_block_cov := '<line number="4" hits="5" branch="true" condition-coverage="67% (2/3)"/>';
-    else
-      l_block_cov := '<line number="4" hits="5" branch="false"/>';
-    end if;
+    l_block_cov := '<line number="4" hits="5" branch="true" condition-coverage="67% (2/3)"/>';
     l_expected :=
       q'[<?xml version="1.0" encoding="]'||upper(a_charset)||q'["?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">

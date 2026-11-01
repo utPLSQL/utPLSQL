@@ -51,12 +51,8 @@ create or replace noneditionable type body ut_data_value_refcursor as
     loop
       l_xml := dbms_xmlgen.getxmltype(l_ctx);      
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
-      --Bug in oracle 12.2+ where XML binary storage trimming insignificant whitespaces.
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-        l_xml := xmltype( replace(l_xml.getClobVal(),'<ROWSET','<ROWSET xml:space=''preserve'''));
-      $else
-        null;
-      $end
+      --Workaround for Oracle bug where XML binary storage trims insignificant whitespaces.
+      l_xml := xmltype( replace(l_xml.getClobVal(),'<ROWSET','<ROWSET xml:space=''preserve'''));
       l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
       ut_compound_data_helper.save_cursor_data_for_diff( self.data_id, l_set_id, l_xml );
       l_set_id := l_set_id + c_bulk_rows;   

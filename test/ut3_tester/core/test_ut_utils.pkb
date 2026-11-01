@@ -287,7 +287,7 @@ end;';
     l_varchar2_byte_limit integer := 32767;
     l_workaround_byte_limit integer := 8191;
     l_singlebyte_string_max_size varchar2(32767 char) := rpad('x',l_varchar2_byte_limit,'x');
-    l_twobyte_character char(1 char) := '�?';
+    l_twobyte_character char(1 char) := unistr('\00E4');
     l_clob_multibyte clob := l_twobyte_character||l_singlebyte_string_max_size; --here we have 32769(2+32767) bytes and 32768 chars
     l_expected ut3_develop.ut_varchar2_list := ut3_develop.ut_varchar2_list();
     l_result   ut3_develop.ut_varchar2_list;

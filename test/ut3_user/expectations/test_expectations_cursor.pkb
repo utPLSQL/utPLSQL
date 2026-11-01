@@ -2843,8 +2843,6 @@ Check the query and data for errors.';
     l_expected_data(1).col4 :=  2016;
     l_expected_data(1).col5 :=  -1;
 
-    --Select on package level nested table types supported only since Oracle 12
-    $if dbms_db_version.version >= 12 $then
     open l_expected for
       select *
         from table (l_expected_data);
@@ -2869,7 +2867,6 @@ Check the query and data for errors.';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
 
     ut.expect(l_actual_message).to_be_like(l_expected_message);
-    $end
   end;
 
   procedure uc_columns_exclude is
@@ -2890,19 +2887,15 @@ Check the query and data for errors.';
     l_expected sys_refcursor;
   begin
     -- populate actual
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      open l_actual for
-        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+    open l_actual for
+      select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
 
-      open l_expected for
-        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+    open l_expected for
+      select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
 
-      ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
-      --Assert
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
-    $else
-      null;
-    $end
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure compare_specific_column_names is

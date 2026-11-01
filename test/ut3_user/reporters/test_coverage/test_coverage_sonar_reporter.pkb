@@ -6,11 +6,7 @@ create or replace package body test_coverage_sonar_reporter is
     l_block_cov clob;
   begin
     --Arrange
-    if ut3_tester_helper.coverage_helper.block_coverage_available then
-      l_block_cov := '<lineToCover lineNumber="4" covered="true" branchesToCover="3" coveredBranches="2"/>';
-    else
-      l_block_cov := '<lineToCover lineNumber="4" covered="true"/>';
-    end if;
+    l_block_cov := '<lineToCover lineNumber="4" covered="true" branchesToCover="3" coveredBranches="2"/>';
     l_expected := '<?xml version="1.0"?>
 <coverage version="1">
 <file path="test/ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'.pkb">

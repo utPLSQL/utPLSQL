@@ -277,41 +277,38 @@ create or replace noneditionable package body ut_coverage is
     l_result_profiler_enrich := ut_coverage_profiler.get_coverage_data( l_coverage_options );
     ut_event_manager.trigger_event('profiler coverage data retrieved');
 
-    -- If block coverage available we will use it.
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      l_result_block := ut_coverage_block.get_coverage_data( l_coverage_options );
-      ut_event_manager.trigger_event('block coverage data retrieved');
+    l_result_block := ut_coverage_block.get_coverage_data( l_coverage_options );
+    ut_event_manager.trigger_event('block coverage data retrieved');
 
-      -- Enrich profiler results with some of the block results
-      l_object := l_result_profiler_enrich.objects.first;
-      while (l_object is not null) loop
+    -- Enrich profiler results with some of the block results
+    l_object := l_result_profiler_enrich.objects.first;
+    while (l_object is not null) loop
 
-        l_line_no := l_result_profiler_enrich.objects(l_object).lines.first;
+      l_line_no := l_result_profiler_enrich.objects(l_object).lines.first;
 
-        -- to avoid no data found check if we got object in profiler
-        if l_result_block.objects.exists(l_object) then
-          while (l_line_no is not null) loop
-            -- To avoid no data check for object line
-            if l_result_block.objects(l_object).lines.exists(l_line_no) then
-             -- enrich line level stats
-             l_result_profiler_enrich.objects(l_object).lines(l_line_no).partcove := l_result_block.objects(l_object).lines(l_line_no).partcove;
-             l_result_profiler_enrich.objects(l_object).lines(l_line_no).covered_blocks := l_result_block.objects(l_object).lines(l_line_no).covered_blocks;
-             l_result_profiler_enrich.objects(l_object).lines(l_line_no).no_blocks := l_result_block.objects(l_object).lines(l_line_no).no_blocks;
-             -- enrich object level stats
-             l_result_profiler_enrich.objects(l_object).partcovered_lines :=  nvl(l_result_profiler_enrich.objects(l_object).partcovered_lines,0) + l_result_block.objects(l_object).lines(l_line_no).partcove;
-            end if;
-            --At the end go to next line
-            l_line_no := l_result_profiler_enrich.objects(l_object).lines.next(l_line_no);
-          end loop;
-          --total level stats enrich
-          l_result_profiler_enrich.partcovered_lines := nvl(l_result_profiler_enrich.partcovered_lines,0) + l_result_profiler_enrich.objects(l_object).partcovered_lines;
-          -- At the end go to next object
-        end if;
+      -- to avoid no data found check if we got object in profiler
+      if l_result_block.objects.exists(l_object) then
+        while (l_line_no is not null) loop
+          -- To avoid no data check for object line
+          if l_result_block.objects(l_object).lines.exists(l_line_no) then
+           -- enrich line level stats
+           l_result_profiler_enrich.objects(l_object).lines(l_line_no).partcove := l_result_block.objects(l_object).lines(l_line_no).partcove;
+           l_result_profiler_enrich.objects(l_object).lines(l_line_no).covered_blocks := l_result_block.objects(l_object).lines(l_line_no).covered_blocks;
+           l_result_profiler_enrich.objects(l_object).lines(l_line_no).no_blocks := l_result_block.objects(l_object).lines(l_line_no).no_blocks;
+           -- enrich object level stats
+           l_result_profiler_enrich.objects(l_object).partcovered_lines :=  nvl(l_result_profiler_enrich.objects(l_object).partcovered_lines,0) + l_result_block.objects(l_object).lines(l_line_no).partcove;
+          end if;
+          --At the end go to next line
+          l_line_no := l_result_profiler_enrich.objects(l_object).lines.next(l_line_no);
+        end loop;
+        --total level stats enrich
+        l_result_profiler_enrich.partcovered_lines := nvl(l_result_profiler_enrich.partcovered_lines,0) + l_result_profiler_enrich.objects(l_object).partcovered_lines;
+        -- At the end go to next object
+      end if;
 
-        l_object := l_result_profiler_enrich.objects.next(l_object);
-      end loop;
-      ut_event_manager.trigger_event('coverage data combined');
-    $end
+      l_object := l_result_profiler_enrich.objects.next(l_object);
+    end loop;
+    ut_event_manager.trigger_event('coverage data combined');
         
     return l_result_profiler_enrich;
   end get_coverage_data;
