@@ -2,13 +2,7 @@ create or replace package body test_extended_coverage is
 
   function get_block_coverage_line return clob is
   begin
-    return
-      case
-        when ut3_tester_helper.coverage_helper.block_coverage_available then
-          '%<lineToCover lineNumber="4" covered="true" branchesToCover="3" coveredBranches="2"/>'
-        else
-          '%<lineToCover lineNumber="4" covered="true"/>'
-      end;
+    return '%<lineToCover lineNumber="4" covered="true" branchesToCover="3" coveredBranches="2"/>';
   end;
   procedure coverage_for_object is
     l_expected  clob;
@@ -130,8 +124,7 @@ create or replace package body test_extended_coverage is
         );          
 
     --Assert
-    --The below is a workaround for problem with large CLOB like comparison on 11g XE db.
-    ut.expect(to_char(substr(l_actual,instr(l_actual,'<file path="package body ut3_tester_helper.regex_dummy_cov">'),2000))).to_be_like(l_expected);
+    ut.expect(l_actual).to_be_like(l_expected);
     ut.expect(l_actual).not_to_be_like(l_not_expected);
     ut.expect(l_actual).not_to_be_like('%ut3_tester_helper.test_regex_dummy_cov%');
   end;

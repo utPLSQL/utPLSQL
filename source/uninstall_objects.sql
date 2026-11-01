@@ -273,12 +273,6 @@ begin
   $if dbms_db_version.version < 21 $then
     begin execute immediate 'drop type json force'; exception when others then null; end;
   $end
-  $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
-    begin execute immediate 'drop type json_element_t force'; exception when others then null; end;
-    begin execute immediate 'drop type json_object_t force'; exception when others then null; end;
-    begin execute immediate 'drop type json_array_t force'; exception when others then null; end;
-    begin execute immediate 'drop type json_key_list force'; exception when others then null; end;
-  $end
 end;
 /
 
@@ -417,7 +411,7 @@ set feedback off
 declare
   i        integer := 0;
 begin
-  dbms_output.put_line('Dropping packages created for 12.2+ ' || upper('&&ut3_owner'));
+  dbms_output.put_line('Dropping block coverage packages ' || upper('&&ut3_owner'));
   for pkg in (
   select object_name, owner
   from all_objects

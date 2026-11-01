@@ -2,22 +2,9 @@ create or replace package body coverage_helper is
 
   g_job_no          integer := 0;
 
-  function block_coverage_available return boolean is
-  begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      return true;
-    $else
-      return false;
-    $end
-  end;
-
   function covered_package_name return varchar2 is
   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      return 'dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long';
-    $else
-      return 'dummy_coverage';
-    $end
+    return 'dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long';
   end;
 
   function substitute_covered_package( a_text varchar2, a_substitution varchar2 ) return varchar2 is

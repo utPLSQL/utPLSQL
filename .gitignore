@@ -19,7 +19,6 @@ development/*.jar
 *.log
 
 # exclusions based on artifacts created via actions documented in CONTRIBUTING.md
-test/dummy.sql
 coverage.html_assets/
 coverage.html
 coverage.json

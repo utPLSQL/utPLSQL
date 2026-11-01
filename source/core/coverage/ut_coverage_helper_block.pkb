@@ -25,20 +25,12 @@ create or replace noneditionable package body ut_coverage_helper_block is
 
   function coverage_start(a_run_comment varchar2) return integer is
   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      return dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
-    $else
-      return null;
-    $end
+    return dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
   end;
 
   procedure coverage_stop is
   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      dbms_plsql_code_coverage.stop_coverage();
-    $else
-      null;
-    $end
+    dbms_plsql_code_coverage.stop_coverage();
   exception
     when others then
       if sqlcode = -08402 then
@@ -89,21 +81,19 @@ create or replace noneditionable package body ut_coverage_helper_block is
     l_results  ut_coverage_helper.t_unit_line_calls;
   
   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      l_tmp_data := block_results(a_object, a_coverage_run_id);
+    l_tmp_data := block_results(a_object, a_coverage_run_id);
 
-      for i in 1 .. l_tmp_data.count loop
-        l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
-        l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;
-        l_results(l_tmp_data(i).line).partcovered :=
-          case
-            when (l_tmp_data(i).covered_blocks > 0)
-             and (l_tmp_data(i).blocks > l_tmp_data(i).covered_blocks)
-            then 1
-            else 0
-         end;
-      end loop;
-    $end
+    for i in 1 .. l_tmp_data.count loop
+      l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
+      l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;
+      l_results(l_tmp_data(i).line).partcovered :=
+        case
+          when (l_tmp_data(i).covered_blocks > 0)
+           and (l_tmp_data(i).blocks > l_tmp_data(i).covered_blocks)
+          then 1
+          else 0
+       end;
+    end loop;
     return l_results;
   end;
 end;

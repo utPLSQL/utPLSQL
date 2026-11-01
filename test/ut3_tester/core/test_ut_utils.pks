@@ -93,7 +93,6 @@ create or replace package test_ut_utils is
   procedure clean_append_with_multibyte;
 
   --%test(clob_to_table - converts multibyte CLOB to ut_varchar2_list)
-  --%disabled(We cannot run this test successfully on 12.1 until we change NLSCHARACTERSET from US7ASCII to AL32UTF8)
   procedure test_clob_to_table_multibyte;
 
   --%test(to_version - splits version string into individual version components)

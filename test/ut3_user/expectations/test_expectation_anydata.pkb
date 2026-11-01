@@ -1229,7 +1229,6 @@ Rows: [ 60 differences, showing first 20 ]
 
   end;  
 
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   procedure long_names_object_types is
     pragma autonomous_transaction;
   begin
@@ -1253,7 +1252,6 @@ Rows: [ 60 differences, showing first 20 ]
     execute immediate 'drop type very_long_type_name_valid_for_oracle_12_so_utPLSQL_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_did_it';
     raise;
   end;
-  $end
 
 end;
 /

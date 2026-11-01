@@ -49,7 +49,7 @@ end;
 declare
   i integer := 0;
 begin
-  dbms_output.put_line('Dropping synonyms pointing to PL/SQL code coverage objects on 12.2 ' || upper('&&ut3_owner'));
+  dbms_output.put_line('Dropping synonyms pointing to PL/SQL code coverage objects ' || upper('&&ut3_owner'));
   for syn in (
   select
     case when owner = 'PUBLIC' then 'public synonym '

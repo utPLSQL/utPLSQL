@@ -1,7 +1,5 @@
 create or replace package coverage_helper is
 
-  function block_coverage_available return boolean;
-
   function covered_package_name return varchar2;
 
   function substitute_covered_package( a_text varchar2, a_substitution varchar2 := '{p}' ) return varchar2;

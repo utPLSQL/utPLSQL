@@ -155,8 +155,7 @@ create or replace noneditionable package body ut_expectation_processor as
     l_owner                      varchar2(1000);
     l_object_name                varchar2(1000);
     l_result                     varchar2(4000);
-    -- in 12.2 format_call_stack reportes not only package name, but also the procedure name
-    -- when 11g and 12c reports only package name
+    -- format_call_stack reports not only package name, but also the procedure name
     function cut_header_and_expectations( a_stack varchar2 ) return varchar2 is
     begin
       return regexp_substr( a_stack, '(.*\.(UT_EQUAL|UT_BE_WITHIN[[:alnum:]$#_]*|UT_EXPECTATION[[:alnum:]$#_]*|UT|UTASSERT2?)(\.[[:alnum:]$#_]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);

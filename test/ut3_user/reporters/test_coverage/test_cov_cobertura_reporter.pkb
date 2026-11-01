@@ -12,11 +12,7 @@ create or replace package body test_cov_cobertura_reporter is
     --Arrange
     l_name := ut3_tester_helper.coverage_helper.covered_package_name;
     l_file_path := 'test/ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'.pkb';
-    if ut3_tester_helper.coverage_helper.block_coverage_available then
-      l_block_cov := '<line number="4" hits="3" branch="true" condition-coverage="67% (2/3)"/>';
-    else
-      l_block_cov := '<line number="4" hits="3" branch="false"/>';
-    end if;
+    l_block_cov := '<line number="4" hits="3" branch="true" condition-coverage="67% (2/3)"/>';
     l_expected :=
     q'[<?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">

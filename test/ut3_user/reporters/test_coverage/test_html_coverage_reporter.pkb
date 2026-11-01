@@ -9,9 +9,7 @@ create or replace package body test_html_coverage_reporter is
   begin
     --Arrange
     l_name := ut3_tester_helper.coverage_helper.covered_package_name;
-    if ut3_tester_helper.coverage_helper.block_coverage_available then
-      l_block_cov := '(including <span class="yellow"><b>1</b> lines partially covered</span> ) ';
-    end if;
+    l_block_cov := '(including <span class="yellow"><b>1</b> lines partially covered</span> ) ';
     l_expected := '%<meta %charset='||l_charset||'" />%<h3>UT3_DEVELOP.'||upper(l_name)||'</h3>' ||
       '%<b>2</b> relevant lines. <span class="green"><b>1</b> lines covered</span> ' ||
       l_block_cov || 'and <span class="red"><b>1</b> lines missed%';

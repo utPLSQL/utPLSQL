@@ -33,19 +33,14 @@ PROMPT Grants for starting a debugging session from UT3_USER
 grant debug connect session to UT3_USER;
 grant debug any procedure to UT3_USER;
 begin
-  \$if dbms_db_version.version <= 11 \$then
-    null; -- no addition action necessary
-  \$else
-    -- necessary on 12c or higher
-    dbms_network_acl_admin.append_host_ace (
-      host =>'*',
-      ace  => sys.xs\$ace_type(
-                  privilege_list => sys.xs\$name_list('JDWP') ,
-                  principal_name => 'UT3_USER',
-                  principal_type => sys.xs_acl.ptype_db
-              )
-    );
-  \$end
+  dbms_network_acl_admin.append_host_ace (
+    host =>'*',
+    ace  => sys.xs\$ace_type(
+                privilege_list => sys.xs\$name_list('JDWP') ,
+                principal_name => 'UT3_USER',
+                principal_type => sys.xs_acl.ptype_db
+            )
+  );
 end;
 /
 

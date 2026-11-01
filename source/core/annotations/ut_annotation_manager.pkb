@@ -277,15 +277,8 @@ create or replace noneditionable package body ut_annotation_manager as
 
   begin
     if ora_dict_obj_type in ('PACKAGE','PROCEDURE','FUNCTION','TYPE') then
-      $if dbms_db_version.version < 12 $then
-        l_restricted_users := ora_name_list_t(
-          'ANONYMOUS','APPQOSSYS','AUDSYS','DBSFWUSER','DBSNMP','DIP','GGSYS','GSMADMIN_INTERNAL',
-          'GSMCATUSER','GSMUSER','ORACLE_OCM','OUTLN','REMOTE_SCHEDULER_AGENT','SYS','SYS$UMF',
-          'SYSBACKUP','SYSDG','SYSKM','SYSRAC','SYSTEM','WMSYS','XDB','XS$NULL');
-      $else
-        select /*+ no_parallel */ username bulk collect into l_restricted_users
-          from all_users where oracle_maintained = 'Y';
-      $end
+      select /*+ no_parallel */ username bulk collect into l_restricted_users
+        from all_users where oracle_maintained = 'Y';
       if ora_dict_obj_owner member of l_restricted_users then
         return;
       end if;
