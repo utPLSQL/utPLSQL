@@ -387,16 +387,14 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
 
   procedure remove_missing_objs_from_cache(a_schema_name varchar2) is
-    l_cached_objects ut_annotation_objs_cache_info;
     pragma autonomous_transaction;
   begin
-    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list(a_schema_name, 'PACKAGE');
-
     --rows of ut_suite_cache are removed by the "on delete cascade" foreign key
     delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache_package i
      where i.object_owner = a_schema_name
        and not exists (
-             select 1 from table(l_cached_objects) o
+             select 1
+               from &&ut3_owner..ut_annotation_cache_macros.get_cached_objects(a_schema_name, 'PACKAGE') o
               where o.object_name = i.object_name
            );
 

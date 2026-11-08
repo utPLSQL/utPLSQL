@@ -27,28 +27,30 @@ create or replace noneditionable package body ut_annotation_manager as
   end;
 
   function get_non_existing_objects( a_object_owner varchar2, a_object_type varchar2 ) return ut_annotation_objs_cache_info is
+    l_ut_owner         varchar2(250) := ut_utils.ut_owner;
     l_objects_view     varchar2(200) := ut_metadata.get_objects_view_name();
-    l_object_to_delete ut_annotation_objs_cache_info := ut_annotation_objs_cache_info();
-    l_cached_objects   ut_annotation_objs_cache_info;
+    l_object_to_delete ut_annotation_objs_cache_info;
   begin
-    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type );
-
-    if l_cached_objects is not empty then
-      execute immediate 'select /*+ no_parallel cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
-                  value(i)
-             from table( :l_data ) i
-             where
-               not exists (
-                  select 1  from '||l_objects_view||q'[ o
-                   where o.owner       = i.object_owner
-                     and o.object_name = i.object_name
-                     and o.object_type = i.object_type
-                     and o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
-                     and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-                  )]'
-        bulk collect into l_object_to_delete
-        using l_cached_objects;
-    end if;
+    execute immediate
+      'select /*+ no_parallel */
+              '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                object_owner  => i.object_owner,
+                object_name   => i.object_name,
+                object_type   => i.object_type,
+                needs_refresh => 'N',
+                parse_time    => i.parse_time
+              )
+         from ]'||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type ) i
+        where not exists (
+                select 1  from ]'||l_objects_view||q'[ o
+                 where o.owner       = i.object_owner
+                   and o.object_name = i.object_name
+                   and o.object_type = i.object_type
+                   and o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+                   and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+              )]'
+      bulk collect into l_object_to_delete
+      using a_object_owner, a_object_type;
     return l_object_to_delete;
   end;
 
@@ -60,7 +62,6 @@ create or replace noneditionable package body ut_annotation_manager as
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_refresh_needed boolean;
     l_objects_view   varchar2(200) := ut_metadata.get_objects_view_name();
-    l_cached_objects ut_annotation_objs_cache_info;
     l_result         ut_annotation_objs_cache_info := ut_annotation_objs_cache_info();
   begin
     ut_event_manager.trigger_event( 'get_objects_to_refresh - start', ut_key_anyvalues().put('ut_trigger_check.is_alive()',ut_trigger_check.is_alive()) );
@@ -69,9 +70,8 @@ create or replace noneditionable package body ut_annotation_manager as
     if l_refresh_needed then
       --limit the list to objects that exist and are visible to the invoking user
       --enrich the list by info about cache validity
-      l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type, a_modified_after );
       execute immediate
-        'select /*+ no_parallel cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
+        'select /*+ no_parallel */
                 '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
                   object_owner  => o.owner,
                   object_name   => o.object_name,
@@ -80,7 +80,7 @@ create or replace noneditionable package body ut_annotation_manager as
                   parse_time    => c.parse_time
                 )
            from ]'||l_objects_view||' o
-           left join table( cast(:l_cached_objects as '||l_ut_owner||q'[.ut_annotation_objs_cache_info ) ) c
+           left join '||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type, :a_parsed_after ) c
              on o.owner       = c.object_owner
             and o.object_name = c.object_name
             and o.object_type = c.object_type
@@ -93,7 +93,7 @@ create or replace noneditionable package body ut_annotation_manager as
                then ':a_modified_after is null'
              else 'o.last_ddl_time >= cast(:a_modified_after as date)'
              end
-        bulk collect into l_result using l_cached_objects, a_modified_after;
+        bulk collect into l_result using a_object_owner, a_object_type, a_modified_after, a_modified_after;
     end if;
     ut_event_manager.trigger_event('get_objects_to_refresh - end (count='||l_result.count||')');
     return l_result;

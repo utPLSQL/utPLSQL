@@ -49,11 +49,6 @@ create or replace noneditionable package ut_annotation_cache_manager authid curr
   function get_cache_schema_info(a_object_owner varchar2, a_object_type varchar2) return t_cache_schema_info;
 
   /**
-   * Returns information about all objects stored in annotation cache
-   */
-  function get_cached_objects_list(a_object_owner varchar2, a_object_type varchar2, a_parsed_after timestamp := null) return ut_annotation_objs_cache_info;
-
-  /**
    * Resets cached information about annotations for objects on the list and updates parse_time in cache info table.
    *
    * @param a_objects a `ut_annotation_objs_cache_info` list with information about objects to remove annotations for

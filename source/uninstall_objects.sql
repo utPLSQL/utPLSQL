@@ -240,6 +240,8 @@ drop package ut_annotation_parser;
 
 drop package ut_annotation_cache_manager;
 
+drop package ut_annotation_cache_macros;
+
 drop table ut_annotation_cache cascade constraints purge;
 
 drop table ut_annotation_cache_info cascade constraints purge;
