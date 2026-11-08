@@ -47,21 +47,22 @@ create or replace noneditionable type body ut_cursor_column as
                                  a_access_path||'/'||self.xml_valid_name
                                end; --Access path used for XMLTABLE query   
       self.filter_path      := '/'||self.access_path; --Filter path will differ from access path in anydata type
-      --Transformed name needs to be build on full access path to avoid ambiguity when there is 3 or more levels of nesting.
-      self.transformed_name := case when length(self.xml_valid_name) > 30 then
-                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.access_path)||'"'
-                               when self.parent_name is null then 
+      --Transformed name is used as a column alias in generated SQL.
+      --Nested columns and names longer than the maximum identifier length are replaced by a hash of the full access path,
+      --  to avoid ambiguity when there is 3 or more levels of nesting.
+      self.transformed_name := case when self.parent_name is null and lengthb(self.xml_valid_name) <= ora_max_name_len_supported then
                                  '"'||self.xml_valid_name||'"'
-                               else 
+                               else
                                  '"'||ut_compound_data_helper.get_fixed_size_hash(self.access_path)||'"'
-                               end; --when is nestd we need to hash name to make sure we dont exceed 30 char
+                               end;
       self.column_type      := a_col_type; --column type e.g. user_defined , varchar2
       self.column_schema    := a_col_schema_name; -- schema name
       self.is_sql_diffable  := case 
                               when lower(self.column_type) = 'user_defined_type' then 
                                 0 
-                              -- Due to bug in 11g/12.1 collection fails on varchar 4000+
-                              when (lower(self.column_type) in ('varchar2','char')) and (self.column_len > 4000) then
+                              -- Columns can be described as longer than SQL varchar2 allows (e.g. a dynamic bind over 4000 chars),
+                              -- XMLTABLE rejects such a length (ORA-00910), so these values are compared by hash.
+                              when (lower(self.column_type) in ('varchar2','char')) and (self.column_len > ut_utils.gc_max_storage_varchar2_len) then
                                 0
                               else 
                                 ut_utils.boolean_to_int(ut_compound_data_helper.is_sql_compare_allowed(self.column_type))

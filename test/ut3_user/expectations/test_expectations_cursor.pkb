@@ -2898,6 +2898,48 @@ Check the query and data for errors.';
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
+  procedure compare_column_names_over_max_identifier is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    --An unaliased literal gets a column name longer than an identifier can be
+    l_sql      varchar2(4000) := 'select '''||rpad('a',ora_max_name_len_supported + 10,'a')||''' from dual';
+  begin
+    --Act
+    open l_actual for l_sql;
+    open l_expected for l_sql;
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+
+    --Act
+    open l_actual for l_sql;
+    open l_expected for l_sql||' connect by level <=  2';
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(1);
+  end;
+
+  procedure compare_varchar2_described_over_4000 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    --A dynamic bind longer than 4000 chars is described as a varchar2 longer than 4000, even with max_string_size=standard
+    c_sql      constant varchar2(100) := 'select :some_text as some_text from dual';
+  begin
+    --Act
+    open l_actual for c_sql using rpad('x',4001,'x');
+    open l_expected for c_sql using rpad('x',4001,'x');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+
+    --Act
+    open l_actual for c_sql using rpad('x',4001,'x');
+    open l_expected for c_sql using rpad('y',4001,'y');
+    ut3_develop.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(1);
+  end;
+
   procedure compare_specific_column_names is
     function get_cursor return sys_refcursor is
       l_result sys_refcursor;
