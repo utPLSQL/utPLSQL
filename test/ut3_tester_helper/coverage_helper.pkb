@@ -301,7 +301,7 @@ create or replace package body coverage_helper is
   begin
     g_job_no := g_job_no + 1;
     l_job_name := 'utPLSQL_selftest_job_'||g_job_no;
-    dbms_lock.sleep(0.15);
+    dbms_session.sleep(0.15);
     dbms_scheduler.create_job(
       job_name      =>  l_job_name,
       job_type      =>  'PLSQL_BLOCK',
@@ -313,7 +313,7 @@ create or replace package body coverage_helper is
       );
     while (l_job_run_info.status is null or l_job_run_info.status not in ('SUCCEEDED','FAILED')) and i < 6000 loop
       l_job_run_info := get_job_status( l_job_name, l_timestamp );
-      dbms_lock.sleep(0.1);
+      dbms_session.sleep(0.1);
       i := i + 1;
     end loop;
     commit;
@@ -356,7 +356,7 @@ create or replace package body coverage_helper is
     pragma autonomous_transaction;
   begin
     run_job_and_wait_for_finish( a_plsql_block );
-    dbms_lock.sleep(0.1);
+    dbms_session.sleep(0.1);
     execute immediate q'[
       declare
         l_results ut3_develop.ut_varchar2_list;

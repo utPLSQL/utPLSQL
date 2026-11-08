@@ -111,7 +111,7 @@ create or replace noneditionable type body ut_output_clob_table_buffer is
         remove_read_data(l_buffer_rowids);
       else
         --nothing fetched from output, wait.
-        dbms_lock.sleep(l_sleep_time);
+        dbms_session.sleep(l_sleep_time);
         l_already_waited_sec := l_already_waited_sec + l_sleep_time;
       end if;
 

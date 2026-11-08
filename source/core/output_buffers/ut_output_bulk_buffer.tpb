@@ -118,7 +118,7 @@ create or replace noneditionable type body ut_output_bulk_buffer is
         or self.timeout_producer_not_started(l_producer_started, l_already_waited_sec, lc_init_wait_sec)
         or l_producer_finished;
 
-      dbms_lock.sleep(l_sleep_time);
+      dbms_session.sleep(l_sleep_time);
       l_already_waited_sec := l_already_waited_sec + l_sleep_time;
     end loop;
 
