@@ -141,7 +141,7 @@ create or replace noneditionable type body ut_output_table_buffer is
         end loop;
       else
         --nothing fetched from output, wait.
-        dbms_lock.sleep(l_sleep_time);
+        dbms_session.sleep(l_sleep_time);
         l_already_waited_sec := l_already_waited_sec + l_sleep_time;
       end if;
 
