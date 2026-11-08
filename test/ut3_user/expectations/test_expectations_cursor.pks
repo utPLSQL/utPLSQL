@@ -479,6 +479,12 @@ create or replace package test_expectations_cursor is
   --%test( Compares cursors with long column names - Issue #952 )
   procedure compare_long_column_names;
 
+  --%test( Compares cursors with column names longer than the maximum identifier length )
+  procedure compare_column_names_over_max_identifier;
+
+  --%test( Compares cursors with varchar2 columns described as longer than 4000 )
+  procedure compare_varchar2_described_over_4000;
+
   --%test( Compares cursors with specific column names - Issue #997 )
   procedure compare_specific_column_names;
 
