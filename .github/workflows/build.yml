@@ -39,7 +39,7 @@ jobs:
           - id: 1
             db_version_name: '19se'
             oracle-sid: 'ORCLCDB'
-            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+            oracle-version: "utplsqlv3/oracledb:19.20-small"
             check-coding-style: true
             validate-utplsql-uninstall: true
           - id: 2

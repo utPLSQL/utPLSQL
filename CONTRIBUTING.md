@@ -41,7 +41,7 @@ Not able to contribute code? You can also support the project through [sponsorsh
 # Configuring local environment
 
 Your local environment can be of any flavor (Unix/Linux/Windows/Mac).
-At minimum, you need to have Oracle database 19c accessible for the project and SYS account access to install and develop utPLSQL.
+At minimum, you need to have Oracle database 19c (we use Release Update 19.20 or later) accessible for the project and SYS account access to install and develop utPLSQL.
 
 We use five different database accounts (users) for development process.
 * `ut3` - holds latest released version of utPLSQL. This schema holds the testing framework used for self-testing of utPLSQL development.

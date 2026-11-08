@@ -2,7 +2,9 @@
 
 ## Supported database versions
 
-- Oracle Database 19c or newer (SE/EE/Cloud/Free)
+- Oracle Database 19c with Release Update 19.20 or later, or any newer version (SE/EE/Cloud/Free)
+
+utPLSQL uses SQL macros. Earlier 19c Release Updates are not verified and supported.
 
 We do our best to assure full compatibility with **actively supported** versions of Oracle databases. 
 See [this page](https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6) for Oracle Database Releases and their Support Lifetime by Oracle.

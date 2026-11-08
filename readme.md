@@ -29,7 +29,7 @@ utPLSQL is a unit testing framework for Oracle PL/SQL and SQL, following industr
 
 ## Requirements
 
-- Oracle Database 19c or newer
+- Oracle Database 19c with Release Update 19.20 or later, or any newer version (we are testing on 19.20, 21 XE and 23 free )
 
 ## Installation
 
