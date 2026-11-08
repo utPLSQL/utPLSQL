@@ -95,7 +95,6 @@ create or replace noneditionable type body ut_output_table_buffer is
     lc_init_wait_sec        constant number := coalesce(a_initial_timeout, 10 );
     l_buffer_texts          ut_varchar2_rows;
     l_buffer_item_types     ut_varchar2_rows;
-    l_finished_flags        ut_integer_list;
     l_already_waited_sec    number(10,2) := 0;
     l_finished              boolean := false;
     l_sleep_time            number(2,1);
@@ -105,8 +104,7 @@ create or replace noneditionable type body ut_output_table_buffer is
 
   procedure get_data_from_buffer_table(
     a_buffer_texts         out nocopy ut_varchar2_rows,
-    a_buffer_item_types    out nocopy ut_varchar2_rows,
-    a_finished_flags       out nocopy ut_integer_list
+    a_buffer_item_types    out nocopy ut_varchar2_rows
   ) is
     lc_bulk_limit           constant integer     := 20000;
     pragma autonomous_transaction;
@@ -118,8 +116,8 @@ create or replace noneditionable type body ut_output_table_buffer is
                      and a.message_id <= (select min(message_id) from ut_output_buffer_tmp o where o.output_id = self.output_id) + lc_bulk_limit
                    order by a.message_id
                 ) d
-    returning d.text, d.item_type, d.is_finished
-    bulk collect into a_buffer_texts, a_buffer_item_types, a_finished_flags;
+    returning d.text, d.item_type
+    bulk collect into a_buffer_texts, a_buffer_item_types;
     commit;
   end;
   begin
@@ -127,16 +125,13 @@ create or replace noneditionable type body ut_output_table_buffer is
 
       l_sleep_time := case when l_already_waited_sec >= 1 then 0.5 else 0.1 end;
       l_lock_status := self.get_lock_status();
-      get_data_from_buffer_table( l_buffer_texts, l_buffer_item_types, l_finished_flags );
+      get_data_from_buffer_table( l_buffer_texts, l_buffer_item_types );
 
       if l_buffer_texts.count > 0 then
         l_already_waited_sec := 0;
         for i in 1 .. l_buffer_texts.count loop
           if l_buffer_texts(i) is not null then
             pipe row( ut_output_data_row(l_buffer_texts(i), l_buffer_item_types(i)) );
-          elsif l_finished_flags(i) = 1 then
-            l_finished := true;
-            exit;
           end if;
         end loop;
       else
@@ -151,8 +146,7 @@ create or replace noneditionable type body ut_output_table_buffer is
       l_finished :=
         self.timeout_producer_not_finished(l_producer_finished, l_already_waited_sec, a_timeout_sec)
         or self.timeout_producer_not_started(l_producer_started, l_already_waited_sec, lc_init_wait_sec)
-        or l_producer_finished
-        or l_finished;
+        or l_producer_finished;
 
     end loop;
 

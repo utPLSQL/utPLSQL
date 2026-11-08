@@ -26,11 +26,8 @@ begin
   message_id     number(38,0) not null,
   text           clob,
   item_type      varchar2(1000),
-  is_finished    number(1,0) default 0 not null,
   constraint ut_output_clob_buffer_tmp_pk primary key(output_id, message_id),
-  constraint ut_output_clob_buffer_tmp_ck check(
-         is_finished = 0 and (text is not null or item_type is not null )
-      or is_finished = 1 and text is null and item_type is null ),
+  constraint ut_output_clob_buffer_tmp_ck check( text is not null or item_type is not null ),
   constraint ut_output_clob_buffer_tmp_fk foreign key (output_id) references ut_output_buffer_info_tmp(output_id) on delete cascade
 ) nologging initrans 100
 ';
