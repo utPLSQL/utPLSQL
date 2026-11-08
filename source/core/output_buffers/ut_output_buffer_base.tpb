@@ -40,7 +40,7 @@ create or replace noneditionable type body ut_output_buffer_base is
   member procedure lock_buffer(a_timeout_sec number := null) is
     l_status integer;
   begin
-    l_status := dbms_lock.request( self.lock_handle, dbms_lock.x_mode, 5, false );
+    l_status := dbms_lock.request( self.lock_handle, dbms_lock.x_mode, coalesce(a_timeout_sec, 0.1), false );
     if l_status != 0 then
       raise_application_error(-20000, 'Cannot allocate lock for output buffer of reporter. lock request status = '||l_status||', lock handle = '||self.lock_handle||', self.output_id ='||self.output_id);
     end if;
