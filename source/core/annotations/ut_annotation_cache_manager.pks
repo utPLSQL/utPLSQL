@@ -1,4 +1,4 @@
-create or replace noneditionable package ut_annotation_cache_manager authid definer as
+create or replace noneditionable package ut_annotation_cache_manager authid current_user as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2026 utPLSQL Project
@@ -15,6 +15,13 @@ create or replace noneditionable package ut_annotation_cache_manager authid defi
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
+  /*
+   * The package runs with invoker rights. It accesses the annotation cache tables of the framework owner
+   * through the code based access control role <framework owner>_cbac_modify_objects_role granted to the package,
+   * so all references to those tables in SQL statements are qualified with the framework owner.
+   * The owner is filled in by the SQL*Plus substitution variable ut3_owner when the package body is installed by install.sql.
+   */
   subtype t_cache_schema_info is ut_annotation_cache_schema%rowtype;
 
   /**

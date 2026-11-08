@@ -438,3 +438,15 @@ begin
   dbms_output.put_line(i || ' packages dropped');
 end;
 /
+
+declare
+  e_role_not_exists exception;
+  pragma exception_init(e_role_not_exists, -1919);
+begin
+  execute immediate 'drop role &&ut3_owner._cbac_modify_objects_role';
+  dbms_output.put_line('Role ' || upper('&&ut3_owner._cbac_modify_objects_role') || ' dropped');
+exception
+  when e_role_not_exists then
+    dbms_output.put_line('Role ' || upper('&&ut3_owner._cbac_modify_objects_role') || ' does not exist');
+end;
+/

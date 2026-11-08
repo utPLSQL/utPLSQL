@@ -36,6 +36,8 @@ alter session set current_schema = &&ut3_owner;
 
 create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context;
 
+@@create_cbac_role.sql
+
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
 
@@ -142,6 +144,7 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/annotations/ut_annotation_cache.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager_grants.sql'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pks'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'

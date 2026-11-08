@@ -163,6 +163,7 @@ If the installing user and utPLSQL owner is one and the same, the user must have
   - CREATE SYNONYM
   - ALTER SESSION
   - CREATE TRIGGER
+  - CREATE ROLE
   
 In addition, the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
@@ -189,6 +190,10 @@ sqlplus sys/sys_password@database as sysdba @create_utPLSQL_owner.sql ut3 ut3 us
 To install the utPLSQL framework into your database, go to `source` directory, run the `install.sql` providing the `schema_name` for utPLSQL as parameter.  
 Schema must be created prior to calling the `install` script.
 You may install utPLSQL from any account that has sufficient privileges to create objects in other users schema.  
+
+The installation uses code based access control (CBAC) to give utPLSQL packages access to internal utPLSQL tables without granting those tables to users.
+It creates the role `<utPLSQL schema>_cbac_modify_objects_role` (for example `ut3_cbac_modify_objects_role`), unless it already exists, and grants it to the utPLSQL schema and to utPLSQL packages.
+The installing user therefore needs the `CREATE ROLE` privilege. Each utPLSQL schema gets its own role. The role is dropped when utPLSQL is uninstalled.
 
 Example invocation:
 ```bash
