@@ -394,7 +394,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
      where i.object_owner = a_schema_name
        and not exists (
              select 1
-               from &&ut3_owner..ut_annotation_cache_macros.get_cached_objects(a_schema_name, 'PACKAGE') o
+               from (&&ut3_owner..ut_annotation_cache_macros.get_cached_objects(a_schema_name, 'PACKAGE', null)) o
               where o.object_name = i.object_name
            );
 

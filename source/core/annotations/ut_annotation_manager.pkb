@@ -40,7 +40,7 @@ create or replace noneditionable package body ut_annotation_manager as
                 needs_refresh => 'N',
                 parse_time    => i.parse_time
               )
-         from ]'||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type ) i
+         from (]'||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type, null )) i
         where not exists (
                 select 1  from ]'||l_objects_view||q'[ o
                  where o.owner       = i.object_owner
