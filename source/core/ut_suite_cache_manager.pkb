@@ -46,19 +46,19 @@ create or replace noneditionable package body ut_suite_cache_manager is
       logical_suite_data as (
         select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
                upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
-               cast(null as ut_executables) as x,
-               cast(null as ut_varchar2_rows) as y,
-               cast(null as ut_executable_test) as z
+               cast(null as &&ut3_owner..ut_executables) as x,
+               cast(null as &&ut3_owner..ut_varchar2_rows) as y,
+               cast(null as &&ut3_owner..ut_executable_test) as z
           from suitepath_part p
          where p.path
            not in (select s.path from suitepaths s)
       ),
       logical_suites as (
-        select ut_suite_cache_row(
+        select &&ut3_owner..ut_suite_cache_row(
                  null,
                  s.self_type, s.path, s.object_owner, s.object_name,
                  s.object_name, null, null, null, null, 0,null,
-                 ut_varchar2_rows(),
+                 &&ut3_owner..ut_varchar2_rows(),
                  s.x, s.x, s.x, s.x, s.x, s.x,
                  s.y, null, s.z
                ) as obj
@@ -76,7 +76,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
 
     select /*+ no_parallel */ i.object_name
            bulk collect into l_result
-      from ut_suite_cache_package i
+      from &&ut3_owner..ut_suite_cache_package i
      where not exists (
        select 1 from table(l_data) o
         where o.object_owner = i.object_owner
@@ -135,7 +135,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       paths_for_object as ( 
       select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
         null as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c
+        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%'))
         where sp.suite_path is null and sp.object_name is not null
@@ -145,7 +145,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       paths_for_procedures as (
       select /*+ no_parallel */ path as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
         nvl(c.name,sp.procedure_name) as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c
+        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c
         on ( c.object_owner = upper(sp.schema_name)
         and c.object_name like  replace(upper(sp.object_name),'*','%')
         and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
@@ -154,7 +154,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       ),
       paths_for_suite_path_with_ast as (
       select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c on
+        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c on
         ( c.object_owner = upper(sp.schema_name) 
         --and c.path like replace(sp.suite_path,'*','%'))
         and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[[:alnum:]$#_]*')))
@@ -177,7 +177,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
     union all 
     select * from straigth_suite_paths
     )
-    select ut_path_item(schema_name,object_name,procedure_name,suite_path)
+    select &&ut3_owner..ut_path_item(schema_name,object_name,procedure_name,suite_path)
       bulk collect into l_schema_paths
       from 
       (select schema_name,object_name,procedure_name,suite_path,
@@ -204,7 +204,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
     select obj bulk collect into  l_suite_items
     from (
     select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num  
-      from ut_suite_cache c,
+      from &&ut3_owner..ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
       and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
@@ -240,7 +240,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
     extract_parent_child as (
         select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,
           case when a_random_seed is null then s.line_no end line_no,
-          case when a_random_seed is not null then ut_utils.hash_suite_path(s.path, a_random_seed) end random_seed
+          case when a_random_seed is not null then &&ut3_owner..ut_utils.hash_suite_path(s.path, a_random_seed) end random_seed
           from table(a_suite_rows) s),        
       t1(path,parent_path,object_owner,line_no,random_seed) as (
         --Anchor member
@@ -290,7 +290,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
   begin
     select /*+ no_parallel */ min(t.parse_time)
       into l_cache_parse_time
-      from ut_suite_cache_schema t
+      from &&ut3_owner..ut_suite_cache_schema t
      where object_owner = upper(a_schema_name);
     return l_cache_parse_time;
   end;
@@ -308,11 +308,11 @@ create or replace noneditionable package body ut_suite_cache_manager is
   begin
     if a_suite_items is null or a_suite_items.count = 0 then
 
-      delete from ut_suite_cache t
+      delete from &&ut3_owner..ut_suite_cache t
        where t.object_owner = l_object_owner
          and t.object_name = l_object_name;
 
-      delete from ut_suite_cache_package t
+      delete from &&ut3_owner..ut_suite_cache_package t
        where t.object_owner = l_object_owner
          and t.object_name = l_object_name;
 
@@ -320,38 +320,38 @@ create or replace noneditionable package body ut_suite_cache_manager is
 
       select /*+ no_parallel */ min(parse_time)
         into l_cached_parse_time
-        from ut_suite_cache_package t
+        from &&ut3_owner..ut_suite_cache_package t
        where t.object_name = l_object_name
          and t.object_owner = l_object_owner;
 
       if a_parse_time > l_cached_parse_time or l_cached_parse_time is null then
 
-        update /*+ no_parallel */ ut_suite_cache_schema t
+        update /*+ no_parallel */ &&ut3_owner..ut_suite_cache_schema t
            set t.parse_time = greatest(t.parse_time,a_parse_time)
          where object_owner = l_object_owner;
 
         if sql%rowcount = 0 then
-          insert /*+ no_parallel */ into ut_suite_cache_schema
+          insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache_schema
             (object_owner, parse_time)
           values (l_object_owner, a_parse_time);
         end if;
 
-        update  /*+ no_parallel */ ut_suite_cache_package t
+        update  /*+ no_parallel */ &&ut3_owner..ut_suite_cache_package t
            set t.parse_time = a_parse_time
          where t.object_owner = l_object_owner
            and t.object_name = l_object_name;
 
         if sql%rowcount = 0 then
-          insert /*+ no_parallel */ into ut_suite_cache_package
+          insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache_package
             (object_owner, object_name, parse_time)
           values (l_object_owner, l_object_name, a_parse_time );
         end if;
 
-        delete from ut_suite_cache t
+        delete from &&ut3_owner..ut_suite_cache t
         where t.object_owner = l_object_owner
           and t.object_name  = l_object_name;
 
-        insert /*+ no_parallel */ into ut_suite_cache t
+        insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache t
             (
                 id, self_type, path, object_owner, object_name, name,
                 line_no, parse_time, description,
@@ -363,10 +363,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
                 item
             )
           with suites as (
-               select treat(value(x) as ut_suite) i
+               select treat(value(x) as &&ut3_owner..ut_suite) i
                  from table(a_suite_items) x
                 where x.self_type in( 'UT_SUITE', 'UT_SUITE_CONTEXT' ) )
-          select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
+          select /*+ no_parallel */ &&ut3_owner..ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
                  upper(s.i.object_owner) as object_owner, upper(s.i.object_name) as object_name, upper(s.i.name) as name,
                  s.i.line_no as line_no, s.i.parse_time as parse_time, s.i.description as description,
                  s.i.rollback_type as rollback_type, s.i.disabled_flag as disabled_flag,s.i.disabled_reason as disabled_reason, s.i.warnings as warnings,
@@ -377,7 +377,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
                  null item
           from suites s;
 
-        insert /*+ no_parallel */ into ut_suite_cache t
+        insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache t
           (
             id, self_type, path, object_owner, object_name, name,
             line_no, parse_time, description,
@@ -389,10 +389,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
             item
           )
           with tests as (
-               select treat(value(x) as ut_test) t
+               select treat(value(x) as &&ut3_owner..ut_test) t
                  from table ( a_suite_items ) x
                 where x.self_type in ( 'UT_TEST' ) )
-        select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
+        select /*+ no_parallel */ &&ut3_owner..ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
                upper(s.t.object_owner) as object_owner, upper(s.t.object_name) as object_name, upper(s.t.name) as name,
                s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
                s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.disabled_reason as disabled_reason, s.t.warnings as warnings,
@@ -415,11 +415,11 @@ create or replace noneditionable package body ut_suite_cache_manager is
     l_objects := get_missing_cache_objects(a_schema_name);
 
     if l_objects is not empty then
-      delete /*+ no_parallel */ from ut_suite_cache i
+      delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache i
        where i.object_owner = a_schema_name
          and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
 
-      delete /*+ no_parallel */ from ut_suite_cache_package i
+      delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache_package i
        where i.object_owner = a_schema_name
          and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
     end if;
@@ -439,7 +439,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
   ) return ut_suite_items_info is
     l_results      ut_suite_items_info;
   begin
-    select /*+ no_parallel */ ut_suite_item_info(
+    select /*+ no_parallel */ &&ut3_owner..ut_suite_item_info(
              c.object_owner, c.object_name, c.name,
              c.description, c.self_type, c.line_no,
              c.path, c.disabled_flag, c.disabled_reason, c.tags
@@ -454,9 +454,9 @@ create or replace noneditionable package body ut_suite_cache_manager is
   ) return ut_object_names is
     l_results ut_object_names;
   begin
-    select /*+ no_parallel */ ut_object_name( c.object_owner, c.object_name )
+    select /*+ no_parallel */ &&ut3_owner..ut_object_name( c.object_owner, c.object_name )
       bulk collect into l_results
-      from ut_suite_cache_package c
+      from &&ut3_owner..ut_suite_cache_package c
       join table ( a_schema_names ) s
         on c.object_owner = upper(s.column_value);
     return l_results;
@@ -473,7 +473,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
                   and c.name = a_procedure_name
@@ -482,7 +482,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
                );
@@ -490,7 +490,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                );
     end if;

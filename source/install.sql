@@ -144,7 +144,6 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/annotations/ut_annotation_cache.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
-@@install_component.sql 'core/annotations/ut_annotation_cache_manager_grants.sql'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pks'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'
@@ -380,6 +379,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
 @@install_component.sql 'api/contain.syn'
+
+@@ut3_cbac_modify_objects_role_grants.sql
 
 set linesize 200
 set define on
