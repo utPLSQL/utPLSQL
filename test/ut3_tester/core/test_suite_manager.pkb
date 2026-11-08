@@ -1732,6 +1732,7 @@ end;]';
     
     begin
       select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER') || '.test_removing_annotation'));
+      ut.fail('Expected exception ORA-20204 was not raised');
     exception
       when others then
         ut.expect(sqlerrm).to_be_like('%ORA-20204: Suite package ut3_tester.test_removing_annotation does not exist%');

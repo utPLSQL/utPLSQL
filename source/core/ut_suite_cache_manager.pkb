@@ -68,25 +68,6 @@ create or replace noneditionable package body ut_suite_cache_manager is
       union all
       select /*+ no_parallel */ obj from logical_suites;
 
-  function get_missing_cache_objects(a_object_owner varchar2) return ut_varchar2_rows is
-    l_result       ut_varchar2_rows;
-    l_data         ut_annotation_objs_cache_info;
-  begin
-    l_data := ut_annotation_cache_manager.get_cached_objects_list(a_object_owner, 'PACKAGE');
-
-    select /*+ no_parallel */ i.object_name
-           bulk collect into l_result
-      from &&ut3_owner..ut_suite_cache_package i
-     where not exists (
-       select 1 from table(l_data) o
-        where o.object_owner = i.object_owner
-          and o.object_name = i.object_name
-          and o.object_type = 'PACKAGE'
-       )
-       and i.object_owner = a_object_owner;
-    return l_result;
-  end;
-
   function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
@@ -308,10 +289,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
   begin
     if a_suite_items is null or a_suite_items.count = 0 then
 
-      delete from &&ut3_owner..ut_suite_cache t
-       where t.object_owner = l_object_owner
-         and t.object_name = l_object_name;
-
+      --rows of ut_suite_cache are removed by the "on delete cascade" foreign key
       delete from &&ut3_owner..ut_suite_cache_package t
        where t.object_owner = l_object_owner
          and t.object_name = l_object_name;
@@ -409,20 +387,18 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
 
   procedure remove_missing_objs_from_cache(a_schema_name varchar2) is
-    l_objects ut_varchar2_rows;
+    l_cached_objects ut_annotation_objs_cache_info;
     pragma autonomous_transaction;
   begin
-    l_objects := get_missing_cache_objects(a_schema_name);
+    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list(a_schema_name, 'PACKAGE');
 
-    if l_objects is not empty then
-      delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache i
-       where i.object_owner = a_schema_name
-         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
-
-      delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache_package i
-       where i.object_owner = a_schema_name
-         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
-    end if;
+    --rows of ut_suite_cache are removed by the "on delete cascade" foreign key
+    delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache_package i
+     where i.object_owner = a_schema_name
+       and not exists (
+             select 1 from table(l_cached_objects) o
+              where o.object_name = i.object_name
+           );
 
     commit;
   end;
