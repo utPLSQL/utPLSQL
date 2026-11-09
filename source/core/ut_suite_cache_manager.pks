@@ -66,20 +66,26 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
   
   /*
-  * Retrieves suite item info rows from cache.
-  * Returned data is not filtered by user access rights.
+  * Retrieves suite item rows from cache, with logical suites added.
+  * Returns only items of packages the invoking user can access, unless a_skip_access_check is true.
   * Not to be used publicly. Used internally for building suites info.
   */
   function get_cached_suite_info(
-    a_schema_paths     ut_path_items
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
   ) return ut_suite_cache_rows;
-  
+
   function get_suite_items_info(
     a_suite_cache_items ut_suite_cache_rows
   ) return ut_suite_items_info;
 
+  /*
+  * Retrieves suite item rows matching the paths from cache.
+  * Returns only items of packages the invoking user can access, unless a_skip_access_check is true.
+  */
   function get_suite_items (
-    a_schema_paths ut_path_items
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
   ) return ut_suite_cache_rows;
   
   /*

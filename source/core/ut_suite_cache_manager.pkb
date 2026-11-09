@@ -174,31 +174,44 @@ create or replace noneditionable package body ut_suite_cache_manager is
     We need to consider also an wildcard character on our procedures and object
     names.
     Were the path is populated we need to make sure we dont return duplicates
-    as the wildcard can produce multiple results from same path and 
-    parents and child for each can be same resulting in duplicates    
-  */  
+    as the wildcard can produce multiple results from same path and
+    parents and child for each can be same resulting in duplicates
+    Only items of packages the invoking user can access are returned, unless a_skip_access_check is true.
+  */
   function get_suite_items (
-    a_schema_paths ut_path_items
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
   ) return ut_suite_cache_rows is
-    l_suite_items ut_suite_cache_rows := ut_suite_cache_rows();
+    l_suite_items        ut_suite_cache_rows := ut_suite_cache_rows();
+    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
   begin
     select obj bulk collect into  l_suite_items
     from (
-    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num  
+    select  /*+ cardinality(c 500) no_expand */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num
       from &&ut3_owner..ut_suite_cache c,
       table(a_schema_paths)  sp
       where c.object_owner = upper(sp.schema_name)
-      and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
+      and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/
         or
-        ( 
+        (
           c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
-          and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
-          and c.name like nvl(upper(sp.procedure_name),c.name) 
-        ))          
+          and c.object_name like nvl(upper(sp.object_name),c.object_name)
+          and c.name like nvl(upper(sp.procedure_name),c.name)
+        ))
         or
         ( sp.suite_path is null
-        and c.object_name = nvl(upper(sp.object_name),c.object_name)					 
-        and c.name = nvl(upper(sp.procedure_name),c.name)))) where r_num =1;        
+        and c.object_name = nvl(upper(sp.object_name),c.object_name)
+        and c.name = nvl(upper(sp.procedure_name),c.name)))
+      and ( l_skip_access_check = 'Y'
+            or exists (
+                 select 1
+                   from all_objects a
+                  where a.owner       = c.object_owner
+                    and a.object_name = c.object_name
+                    and a.object_type = 'PACKAGE'
+               )
+          )
+    ) where r_num =1;
     return l_suite_items;
   end;
       
@@ -402,10 +415,11 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
 
   function get_cached_suite_info(
-    a_schema_paths     ut_path_items
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
   ) return ut_suite_cache_rows is
   begin
-    return get_cached_suite_rows(get_suite_items(a_schema_paths));
+    return get_cached_suite_rows(get_suite_items(a_schema_paths, a_skip_access_check));
   end;
 
   function get_suite_items_info(

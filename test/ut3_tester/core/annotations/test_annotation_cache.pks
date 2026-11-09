@@ -276,5 +276,25 @@ create or replace package test_annotation_cache is
 
   --%endcontext
 
+  --%context(Suites spread across packages, user without elevated privileges)
+    --%beforeall(annotation_cache_helper.enable_ddl_trigger)
+    --%beforeall(annotation_cache_helper.setup_suite_hierarchy)
+    --%afterall(annotation_cache_helper.cleanup_suite_hierarchy)
+
+    --%test(Runs a granted package whose parent suite is in a package that is not granted)
+    procedure user_runs_child_of_hidden_suite;
+
+    --%test(Runs a granted package when its parent suitepath is given)
+    procedure user_runs_hidden_suite_path;
+
+    --%test(Lists no logical suites without granted packages below them)
+    procedure user_no_empty_logical_suites;
+
+    --%test(Raises an error for a suitepath without granted packages below it)
+    --%throws(-20204)
+    procedure user_hidden_path_not_found;
+
+  --%endcontext
+
 end;
 /

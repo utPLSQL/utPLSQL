@@ -8,7 +8,7 @@ Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature
 
 | Pattern | What it is | Status | Approach |
 |---|---|---|---|
-| P1 | access filter applied to a collection by the caller | open | access predicate in the `ut_suite_cache` query, plain SQL in `ut_suite_cache_manager` (CBAC) |
+| P1 | access filter applied to a collection by the caller | **done** | access predicate in `get_suite_items`, plain SQL in `ut_suite_cache_manager` (step 3) |
 | P2 | chain of collection → collection functions | open | one statement with named CTEs |
 | P3 | logical suites appended to a collection | open | CTE of the main statement |
 | P4 | sort by self-join of a collection | open | last CTE of the main statement |
@@ -76,6 +76,10 @@ Consolidated from the checks on 19.20 EE, 21.3 XE and 23ai Free (2026-11-09).
 6. **Collections can be arguments.** `from macro(sys.odcivarchar2list('a','b','c'))`, with `table(a_list)` in the macro text, returned 3 rows on 19.20. Not checked with framework types such as `ut_path_items`. The suite plan below doesn't need it.
 7. **Qualify framework objects in the macro text** with `&&ut3_owner.`. The text is expanded into the caller's statement, and the caller is invoker rights.
 8. **SYS can't call the macro directly.** It fails with `ORA-06598: insufficient INHERIT PRIVILEGES privilege`. This doesn't affect normal use.
+9. **Recreating a package spec drops its CBAC role grant.** Seen on 19.20, 2026-11-09:
+   - `create or replace package ut_suite_cache_manager` removed the package from `dba_code_role_privs`. Its SQL then failed with `ORA-00942`.
+   - `create or replace package body` keeps the grant.
+   - After changing the spec of a package with the role by hand, rerun [ut3_cbac_modify_objects_role_grants.sql](../source/ut3_cbac_modify_objects_role_grants.sql), or use `development/refresh_ut3.sh`.
 
 ## New finding: `get_cached_objects` branches on an argument's value
 
@@ -186,12 +190,27 @@ No change is planned.
 - **Approach:** put the access predicate into the `ut_suite_cache` query inside `ut_suite_cache_manager`. That is plain SQL; no macro is needed. The EXECUTE ANY / `a_skip_all_objects` decision comes in as a bind flag in the SQL text (rule 5 doesn't apply here, but the same style keeps one cursor):
   ```sql
   where ( :skip_access_check = 'Y'
-          or c.object_owner = sys_context('userenv','current_user')
           or exists (select 1 from all_objects a
                       where a.owner = c.object_owner and a.object_name = c.object_name
                         and a.object_type = 'PACKAGE') )
   ```
   Logical suites are then generated from accessible suites only, and the exemption goes away.
+- **Done in step 3.** `get_suite_items` and `get_cached_suite_info` take `a_skip_access_check`, and `get_filtered_cursor` is gone. `ut_suite_manager.skip_access_check` computes the flag: EXECUTE ANY PROCEDURE or `a_skip_all_objects`. Tags are now applied to accessible rows only, and logical suites are generated from those.
+
+#### Behaviour for users with partial access (open question 2, answered)
+
+The setup: `probe_user` has EXECUTE on `child_suite`, but not on `parent_suite`, its parent suite, nor on `lone_suite` (suitepath `logical.sub`). Measured on 19.20 on 2026-11-09, before and after step 3:
+
+| Case | Before step 3 | After step 3 |
+|---|---|---|
+| `get_suites_info` | listed logical suites `logical` and `logical.sub` with nothing accessible below them, and `parent_suite.child_suite` without a parent | no empty logical suites; `child_suite` under a generated logical suite `parent_suite` |
+| run `probe_owner.child_suite` | **0 tests, silently**: the accessible test was lost, because its parent suite was removed after the tree's logical suites were generated | runs `child_test` |
+| run `:parent_suite` | error "No suite packages found" | runs `child_test` |
+| run the whole schema | the accessible `child_test` was not run; empty `logical`/`sub` suites were printed | runs all accessible tests |
+| run `:logical` (nothing accessible below it) | empty run, 0 tests, no error | error "No suite packages found for path …", the same as for a path with no packages at all |
+| tag on the inaccessible parent only | 0 tests | 0 tests: tags of an inaccessible parent are not inherited |
+
+The new behaviour was accepted on 2026-11-09. It is covered by the context "Suites spread across packages, user without elevated privileges" in `test_annotation_cache`. Its 4 tests fail on the code before step 3 and pass after it.
 
 ### P2: chain of collection-to-collection transforms
 
@@ -289,7 +308,7 @@ Found in step 2, on 19.20 EE, 2026-11-09:
 
 1. **Rollback type is set twice. Fixed in step 2:** only `reconstruct_from_cache` sets it now. That covers `configure_execution_by_path` and `build_suites_from_annotations`.
 2. **Duplicated prologue.** `configure_execution_by_path` and `get_suites_info` both do "resolve schema names → refresh cache per schema → `get_schema_paths`". This could be one private procedure.
-3. **Two near-identical checks.** `can_skip_all_objects_scan` ([ut_suite_manager.pkb:376](../source/core/ut_suite_manager.pkb:376)) and the `user_has_execute_any_proc() or a_skip_all_objects` test in `get_filtered_cursor` cover almost the same check. After step 3, one function computes the skip flag.
+3. **Two near-identical checks. Partly fixed in step 3:** `skip_access_check` replaces the test in `get_filtered_cursor`. The owner needs no special case in the SQL predicate: `all_objects` always includes the user's own packages. `can_skip_all_objects_scan` stays, for `refresh_cache` and `suite_item_exists`.
 4. **`get_logical_suite` repeats constructor calls.** It holds 7 constructor calls that differ only in `items =>`. Choosing `items` first would cut it to 4.
 5. **Possible stale items on a bad suitepath (verify).** In `build_and_cache_suites` ([ut_suite_manager.pkb:398](../source/core/ut_suite_manager.pkb:398)), when `create_suite_item_list` raises `ex_string_too_small`, `save_object_cache` still runs with `l_suite_items`. That parameter is `out nocopy`, so it may hold partial or previous-object items.
 6. **Arbitrary `row_number` order.** `get_suite_items` deduplicates with `order by path, object_owner` inside a partition by the same columns. That is fine only because the duplicates are identical rows.
@@ -344,10 +363,15 @@ Notes:
    - The rows are still converted to records, because of the `ORA-00600` described under P6.
    - Verified on 2026-11-09 on 19.20 EE: install with no invalid objects, and the full run passed (1136 tests, 0 failed, 0 errored, 3 disabled).
    - Consequence for step 4: the main statement should return columns that are fetched into records, not `ut_suite_cache_row` objects. That also removes the last copy, the conversion in `reconstruct_from_cache`.
-3. **P1: access predicate into `get_suite_items`** (plain SQL in `ut_suite_cache_manager`).
-   - Remove `get_filtered_cursor` and the logical-suite exemption, and merge finding 3.
-   - Check the `build_suites_from_annotations(a_skip_all_objects)` path used by `test_suite_builder`.
-   - Answer open question 2 first with a test, because this step changes that behaviour by construction.
+3. **P1: access predicate into `get_suite_items`. Done.**
+   - The access check is plain SQL in `ut_suite_cache_manager`. `get_filtered_cursor` and the logical-suite exemption are gone.
+   - `build_suites_from_annotations(a_skip_all_objects)` passes its flag through `skip_access_check`.
+   - The behaviour change is described under P1.
+   - New tests: 4, in `test_annotation_cache`, with helpers in `annotation_cache_helper`.
+   - **Verified on 2026-11-09:**
+     - Setup: a fresh 19.20 container, then `development/install.sh` and `test/install_tests.sh`.
+     - Install: no invalid objects.
+     - Full run: 1140 tests, 0 failed, 0 errored, 3 disabled.
 4. **P2/P3/P4: one statement.** Merge `get_suite_items` → tags → logical suites → sort into one dynamic statement, and reduce `ut_suite_tag_filter` to `create_where_filter`. Rewrite the `apply` tests in `test_ut_suite_tag_filter` against the new entry point; don't keep `apply` as a test-only wrapper (YAGNI).
 5. **P7: merge `expand_paths` into the path CTE.** This is the riskiest step. Wildcard semantics and error messages are covered by `test_ut_run` / `test_ut_runner` in `ut3_user`. Do it last among the merges, with those suites as the safety net.
 6. **P9: Flow B on the same statement text.** Remove `get_cached_suite_info` and `get_suite_items_info` from the spec, and merge finding 2.
@@ -374,6 +398,6 @@ Notes:
 ## Open questions
 
 1. Should a package path whose tests are all excluded by tags raise "does not exist" (P5)?
-2. Can logical suites currently remain in the tree with no accessible children (P1)? If so, is that intended? Step 3 removes them by construction.
+2. ~~Can logical suites remain in the tree with no accessible children (P1)?~~ Answered: yes, they could. Accessible packages under an inaccessible parent suite were also lost. Both are fixed in step 3; see the table under P1.
 3. Is the 20-level limit on suitepath depth (P3) documented anywhere, or is it accidental?
 4. Would a `parse_time` filter in `get_objects_to_refresh` pay off (removed in step 0)? Only a measurement on a schema with many cached objects can tell. If it would, use the bind-safe form.

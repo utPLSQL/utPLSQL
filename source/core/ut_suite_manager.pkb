@@ -298,33 +298,12 @@ create or replace noneditionable package body ut_suite_manager is
     end loop;
   end reconstruct_from_cache;
 
-  function get_filtered_cursor(
-    a_unfiltered_rows in ut_suite_cache_rows,
-    a_skip_all_objects boolean  := false
-  )
-  return ut_suite_cache_rows is
-    l_result           ut_suite_cache_rows := ut_suite_cache_rows();
+  /*
+    Users with EXECUTE ANY PROCEDURE can run all packages, so their access does not need checking.
+  */
+  function skip_access_check(a_skip_all_objects boolean := false) return boolean is
   begin
-    if ut_metadata.user_has_execute_any_proc() or a_skip_all_objects then
-      l_result := a_unfiltered_rows;
-    else
-      select obj bulk collect into l_result
-      from (
-        select /*+ no_parallel */  value(c) as obj from table(a_unfiltered_rows) c
-          where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
-        union all
-        select /*+ no_parallel */ value(c) as obj from table(a_unfiltered_rows) c
-          where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
-          and ( exists
-           ( select 1
-               from all_objects a
-               where a.object_name = c.object_name
-               and a.owner       = c.object_owner
-               and a.object_type = 'PACKAGE'
-            )
-          or c.self_type = 'UT_LOGICAL_SUITE'));
-    end if;
-    return l_result;
+    return ut_metadata.user_has_execute_any_proc() or a_skip_all_objects;
   end;
 
   procedure reconcile_paths_and_suites(
@@ -357,19 +336,19 @@ create or replace noneditionable package body ut_suite_manager is
     a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
   ) return ut_suite_cache_rows is
-    l_unfiltered_rows    ut_suite_cache_rows;
+    l_accessible_rows    ut_suite_cache_rows;
     l_tag_filter_applied ut_suite_cache_rows;
-    l_filtered_rows      ut_suite_cache_rows;
+    l_suite_rows         ut_suite_cache_rows;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths);
+    l_accessible_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths, skip_access_check(a_skip_all_objects));
 
-    l_tag_filter_applied := ut_suite_tag_filter.apply(l_unfiltered_rows,a_tags);
-    l_filtered_rows := get_filtered_cursor(ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied),a_skip_all_objects);
-    reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
+    l_tag_filter_applied := ut_suite_tag_filter.apply(l_accessible_rows,a_tags);
+    l_suite_rows := ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied);
+    reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
 
-    ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
+    ut_suite_cache_manager.sort_and_randomize_tests(l_suite_rows,a_random_seed);
 
-    return l_filtered_rows;
+    return l_suite_rows;
   end;
 
   function can_skip_all_objects_scan(
@@ -566,8 +545,7 @@ create or replace noneditionable package body ut_suite_manager is
     l_schema_paths       ut_path_items;
     l_paths              ut_varchar2_list := a_paths;
     l_schema             varchar2(4000);
-    l_unfiltered_rows    ut_suite_cache_rows;
-    l_filtered_rows      ut_suite_cache_rows;
+    l_suite_rows         ut_suite_cache_rows;
 
   begin
     l_schema_names := resolve_schema_names(l_paths);
@@ -578,9 +556,8 @@ create or replace noneditionable package body ut_suite_manager is
       l_schema := l_schema_names.next(l_schema);
     end loop;
     l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_info(l_schema_paths);
-    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows);
-    l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_filtered_rows);
+    l_suite_rows := ut_suite_cache_manager.get_cached_suite_info(l_schema_paths, skip_access_check());
+    l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_suite_rows);
     open l_result for
       select /*+ no_parallel */ value(c)
         from table(l_all_suite_info) c
