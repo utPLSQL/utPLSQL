@@ -37,9 +37,9 @@ jobs:
       matrix:
         include:
           - id: 1
-            db_version_name: '19se'
-            oracle-sid: 'ORCLCDB'
-            oracle-version: "utplsqlv3/oracledb:19c-se2-small"
+            db_version_name: '19.20-ee'
+            oracle-sid: 'UTPLSQL'
+            oracle-version: "utplsqlv3/oracledb:19.20-utplsql"
             check-coding-style: true
             validate-utplsql-uninstall: true
           - id: 2
