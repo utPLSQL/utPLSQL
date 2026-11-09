@@ -32,9 +32,8 @@ create or replace noneditionable package ut_annotation_cache_macros authid defin
    *
    * @param a_object_owner owner of cached objects
    * @param a_object_type  type of cached objects
-   * @param a_parsed_after limit results to objects parsed after specified time only, if null - all cached objects are returned
    */
-  function get_cached_objects(a_object_owner varchar2, a_object_type varchar2, a_parsed_after timestamp := null) return varchar2 sql_macro;
+  function get_cached_objects(a_object_owner varchar2, a_object_type varchar2) return varchar2 sql_macro;
 
 end;
 /

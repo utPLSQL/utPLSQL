@@ -40,7 +40,7 @@ create or replace noneditionable package body ut_annotation_manager as
                 needs_refresh => 'N',
                 parse_time    => i.parse_time
               )
-         from (]'||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type, null )) i
+         from (]'||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type )) i
         where not exists (
                 select 1  from ]'||l_objects_view||q'[ o
                  where o.owner       = i.object_owner
@@ -80,20 +80,20 @@ create or replace noneditionable package body ut_annotation_manager as
                   parse_time    => c.parse_time
                 )
            from ]'||l_objects_view||' o
-           left join '||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type, :a_parsed_after ) c
+           left join '||l_ut_owner||q'[.ut_annotation_cache_macros.get_cached_objects( :a_object_owner, :a_object_type ) c
              on o.owner       = c.object_owner
             and o.object_name = c.object_name
             and o.object_type = c.object_type
           where o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
             and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-            and case when o.last_ddl_time < cast(c.parse_time as date) then 'N' else 'Y' end = 'Y'
+            and (c.parse_time is null or o.last_ddl_time >= cast(c.parse_time as date))
             and ]'
           || case
              when a_modified_after is null
                then ':a_modified_after is null'
              else 'o.last_ddl_time >= cast(:a_modified_after as date)'
              end
-        bulk collect into l_result using a_object_owner, a_object_type, a_modified_after, a_modified_after;
+        bulk collect into l_result using a_object_owner, a_object_type, a_modified_after;
     end if;
     ut_event_manager.trigger_event('get_objects_to_refresh - end (count='||l_result.count||')');
     return l_result;

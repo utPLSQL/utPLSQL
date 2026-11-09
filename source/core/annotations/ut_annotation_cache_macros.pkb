@@ -16,16 +16,13 @@ create or replace noneditionable package body ut_annotation_cache_macros as
   limitations under the License.
   */
 
-  function get_cached_objects(a_object_owner varchar2, a_object_type varchar2, a_parsed_after timestamp := null) return varchar2 sql_macro is
+  function get_cached_objects(a_object_owner varchar2, a_object_type varchar2) return varchar2 sql_macro is
   begin
     return q'[
       select /*+ NO_UNNEST NO_EXPAND */ i.object_owner, i.object_name, i.object_type, i.parse_time
         from &&ut3_owner..ut_annotation_cache_info i
        where i.object_owner = a_object_owner
-         and i.object_type  = a_object_type]'
-    ||case when a_parsed_after is not null then q'[
-         and i.parse_time > a_parsed_after]'
-    end;
+         and i.object_type  = a_object_type]';
   end;
 
 end;
