@@ -19,7 +19,6 @@ create or replace noneditionable package body ut_suite_manager is
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
   cursor c_cached_suites_cursor is select * from table(ut_suite_cache_rows());
   type tt_cached_suites         is table of c_cached_suites_cursor%rowtype;
-  type t_cached_suites_cursor   is ref cursor return c_cached_suites_cursor%rowtype;
   type t_item_levels is table of ut_suite_items index by binary_integer;
   ------------------
 
@@ -250,42 +249,46 @@ create or replace noneditionable package body ut_suite_manager is
     return l_result;
   end;
   
+  /*
+    Builds the suite hierarchy from cache rows sorted bottom-up (see ut_suite_cache_manager.sort_and_randomize_tests)
+    and propagates the rollback type of top level suites to their items.
+
+    The rows are converted to records with SQL before use. Building ut_test objects from the item attribute
+    of ut_suite_cache_row objects directly makes the test execution fail on Oracle 19.20 with
+    ORA-00600: [pfrobj.c: invalid RTTI for Object] in ut_executable.do_execute (seen in nested runs, test_ut_test).
+  */
   procedure reconstruct_from_cache(
     a_suites            in out nocopy ut_suite_items,
-    a_suite_data_cursor sys_refcursor
+    a_suite_rows        ut_suite_cache_rows
   ) is
-    c_bulk_limit        constant pls_integer := 1000;
     l_items_at_level    t_item_levels;
     l_rows              tt_cached_suites;
     l_level             pls_integer;
     l_prev_level        pls_integer;
     l_idx               integer;
   begin
-    loop
-      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+    select * bulk collect into l_rows from table(a_suite_rows);
 
-      l_idx := l_rows.first;
-      while l_idx is not null loop
-        l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
-        if l_level > 1 then
-          if not l_items_at_level.exists(l_level) then
-            l_items_at_level(l_level) := ut_suite_items();
-          end if;
-          l_items_at_level(l_level).extend;
-          pragma inline(get_logical_suite, 'YES');
-          l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
-        else
-          a_suites.extend;
-          pragma inline(get_logical_suite, 'YES');
-          a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+    l_idx := l_rows.first;
+    while l_idx is not null loop
+      l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+      if l_level > 1 then
+        if not l_items_at_level.exists(l_level) then
+          l_items_at_level(l_level) := ut_suite_items();
         end if;
-        if l_prev_level > l_level then
-          l_items_at_level(l_prev_level).delete;
-        end if;
-        l_prev_level := l_level;
-        l_idx := l_rows.next(l_idx);
-      end loop;
-      exit when a_suite_data_cursor%NOTFOUND;
+        l_items_at_level(l_level).extend;
+        pragma inline(get_logical_suite, 'YES');
+        l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+      else
+        a_suites.extend;
+        pragma inline(get_logical_suite, 'YES');
+        a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+      end if;
+      if l_prev_level > l_level then
+        l_items_at_level(l_prev_level).delete;
+      end if;
+      l_prev_level := l_level;
+      l_idx := l_rows.next(l_idx);
     end loop;
 
     reverse_list_order( a_suites );
@@ -293,7 +296,6 @@ create or replace noneditionable package body ut_suite_manager is
     for i in 1 .. a_suites.count loop
       a_suites( i ).set_rollback_type( a_suites( i ).get_rollback_type );
     end loop;
-    close a_suite_data_cursor;
   end reconstruct_from_cache;
 
   function get_filtered_cursor(
@@ -354,11 +356,10 @@ create or replace noneditionable package body ut_suite_manager is
     a_random_seed      positive,
     a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
-  ) return t_cached_suites_cursor is
+  ) return ut_suite_cache_rows is
     l_unfiltered_rows    ut_suite_cache_rows;
     l_tag_filter_applied ut_suite_cache_rows;
     l_filtered_rows      ut_suite_cache_rows;
-    l_result             t_cached_suites_cursor;
   begin
     l_unfiltered_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths);
 
@@ -368,9 +369,7 @@ create or replace noneditionable package body ut_suite_manager is
 
     ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
 
-    open l_result for
-      select * from table(l_filtered_rows);
-    return l_result;
+    return l_filtered_rows;
   end;
 
   function can_skip_all_objects_scan(
@@ -554,11 +553,6 @@ create or replace noneditionable package body ut_suite_manager is
       a_random_seed,
       a_tags
     );
-
-    --propagate rollback type to suite items after organizing suites into hierarchy
-    for i in 1 .. a_suites.count loop
-      a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
-    end loop;
 
     ut_event_manager.trigger_event('configure_execution_by_path - end');
   end configure_execution_by_path;

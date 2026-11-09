@@ -13,7 +13,7 @@ Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature
 | P3 | logical suites appended to a collection | open | CTE of the main statement |
 | P4 | sort by self-join of a collection | open | last CTE of the main statement |
 | P5 | paths reconciled against a collection | open | keep, over the single final result |
-| P6 | collection → ref cursor → collection | open | pass the collection, no cursor |
+| P6 | collection → ref cursor → collection | **done, partly** | collection passed, no cursor; rows still converted to records (ORA-00600) |
 | P7 | two scans of `ut_suite_cache` for path matching | open | one path-matching CTE |
 | P8 | list handed between the two cache modules | **done** | table SQL macro `ut_annotation_cache_macros.get_cached_objects` |
 | P9 | full rows loaded only to project scalars | open | Flow B reuses the main statement and projects |
@@ -201,7 +201,7 @@ No change is planned.
   - No predicate pushing across steps.
   - Unknown `table()` cardinality: only two statements carry a fixed `cardinality(c 500)` hint.
   - `value(c)` is moved around instead of columns.
-- **Approach:** one statement in `ut_suite_cache_manager`, with each step as a named CTE. It carries columns, not objects, and builds `ut_suite_cache_row` only in the final select. It is dynamic SQL because of the tag predicate (see the target design). `ut_suite_tag_filter` keeps only the predicate builder.
+- **Approach:** one statement in `ut_suite_cache_manager`, with each step as a named CTE. It carries columns, not objects, and the final select returns columns that the caller fetches into records for `reconstruct_from_cache`. Don't use `ut_suite_cache_row` objects here; see the `ORA-00600` under P6. It is dynamic SQL because of the tag predicate (see the target design). `ut_suite_tag_filter` keeps only the predicate builder.
 
 ### P3: enrich a collection with generated rows
 
@@ -230,7 +230,28 @@ No change is planned.
 
 - **Where:** `get_cached_suite_data` opens `select * from table(l_filtered_rows)` ([ut_suite_manager.pkb:371](../source/core/ut_suite_manager.pkb:371)). `reconstruct_from_cache` fetches it back in batches of 1000.
 - **What:** a fully materialised collection is wrapped in a cursor and unwrapped again. `limit 1000` saves no memory.
-- **Approach:** pass the collection straight to `reconstruct_from_cache`. This also removes the `c_cached_suites_cursor` / `tt_cached_suites` / `t_cached_suites_cursor` plumbing. Pure PL/SQL, no privilege change.
+- **Done in step 2, partly.**
+  - `get_cached_suite_data` returns the collection.
+  - `reconstruct_from_cache` takes it and converts it to records with one `select * bulk collect into` from `table()`.
+  - The ref cursor type `t_cached_suites_cursor` and the `limit 1000` batch loop are gone.
+- **Why the record conversion stays:** building the `ut_test` objects straight from the `ut_suite_cache_row` objects makes nested runs fail on 19.20. See [Records, not objects, for building the tree](#records-not-objects-for-building-the-tree). So the copy from the collection into `tt_cached_suites` records remains, and so do `c_cached_suites_cursor` and `tt_cached_suites`.
+
+#### Records, not objects, for building the tree
+
+Found in step 2, on 19.20 EE, 2026-11-09:
+
+- **Symptom:** `reconstruct_from_cache` read the rows straight from the `ut_suite_cache_rows` collection, and `get_logical_suite` built `ut_test(item => <row>.item, ...)` from `ut_suite_cache_row` objects. A nested run then failed with `ORA-00600: [pfrobj.c: invalid RTTI for Object]`.
+  - The run was `test_ut_test.application_info_on_execution`, which calls `ut3_develop.ut.run`.
+  - The error was raised in `UT3_DEVELOP.UT_EXECUTABLE.DO_EXECUTE` line 49, the call on the test's `item` (`ut_executable_test`, `authid current_user`). The location comes from the incident trace's PL/SQL call stack.
+  - It reproduced every time, and killed the whole test run.
+- **Variants that still failed:**
+  - the rows assigned to a local variable before the call;
+  - `pragma inline` removed;
+  - each row copied into a local `ut_suite_cache_row` variable;
+  - the collection kept in a package variable, so it is never freed;
+  - an extra `select value(c) bulk collect` round trip in `ut_suite_manager`, which has no CBAC role.
+- **Variant that worked:** the same rows, converted with `select * bulk collect into` a collection of `c_cached_suites_cursor%rowtype` records. With that, `test_ut_test` (27 tests) and the full run (1136 tests) passed.
+- **Rule for later steps:** build the suite tree from records whose columns SQL filled, not from attributes of `ut_suite_cache_row` objects. The cause looks like an Oracle defect; it was not narrowed down further.
 
 ### P7: two passes over `ut_suite_cache` for path resolution
 
@@ -266,7 +287,7 @@ No change is planned.
 
 ## Smaller findings seen along the way
 
-1. **Rollback type is set twice.** `reconstruct_from_cache` calls `set_rollback_type` on top-level suites ([ut_suite_manager.pkb:293](../source/core/ut_suite_manager.pkb:293)), then `configure_execution_by_path` does it again ([ut_suite_manager.pkb:559](../source/core/ut_suite_manager.pkb:559)).
+1. **Rollback type is set twice. Fixed in step 2:** only `reconstruct_from_cache` sets it now. That covers `configure_execution_by_path` and `build_suites_from_annotations`.
 2. **Duplicated prologue.** `configure_execution_by_path` and `get_suites_info` both do "resolve schema names → refresh cache per schema → `get_schema_paths`". This could be one private procedure.
 3. **Two near-identical checks.** `can_skip_all_objects_scan` ([ut_suite_manager.pkb:376](../source/core/ut_suite_manager.pkb:376)) and the `user_has_execute_any_proc() or a_skip_all_objects` test in `get_filtered_cursor` cover almost the same check. After step 3, one function computes the skip flag.
 4. **`get_logical_suite` repeats constructor calls.** It holds 7 constructor calls that differ only in `items =>`. Choosing `items` first would cut it to 4.
@@ -286,7 +307,7 @@ resolve paths, refresh cache   ──paths, tags──▶    get_suite_rows(a_pa
                                                        tagged_rows     tag predicate from the tag filter ← P2
                                                        with_logical    generated logical suites          ← P3
                                                        ordered         recursive sort / randomise        ← P4
-                                   ◀──rows──────     ut_suite_cache_rows, built once in the final select
+                                   ◀──rows──────     rows fetched as records (tt_cached_suites), not objects
 reconcile(paths, rows)                                                                                   ← P5
 reconstruct_from_cache(rows)       no ref cursor                                                         ← P6
 
@@ -319,7 +340,10 @@ Notes:
    - Verified on 19.20 EE (1136 tests), 21.3 XE (1143) and 23ai, all with 0 failed and 3 disabled.
    - The 19.20 and 23ai runs are from before the 21c `create_grants.sql` fix, and were not rerun locally after it.
    - **Not checked:** which tests make the difference between 1136 and 1143.
-2. **P6 + finding 1.** Pass the collection to `reconstruct_from_cache`, drop the cursor plumbing, and set the rollback type once. Pure PL/SQL.
+2. **P6 + finding 1. Done, partly.** `reconstruct_from_cache` takes the collection instead of a ref cursor, and the rollback type is set once.
+   - The rows are still converted to records, because of the `ORA-00600` described under P6.
+   - Verified on 2026-11-09 on 19.20 EE: install with no invalid objects, and the full run passed (1136 tests, 0 failed, 0 errored, 3 disabled).
+   - Consequence for step 4: the main statement should return columns that are fetched into records, not `ut_suite_cache_row` objects. That also removes the last copy, the conversion in `reconstruct_from_cache`.
 3. **P1: access predicate into `get_suite_items`** (plain SQL in `ut_suite_cache_manager`).
    - Remove `get_filtered_cursor` and the logical-suite exemption, and merge finding 3.
    - Check the `build_suites_from_annotations(a_skip_all_objects)` path used by `test_suite_builder`.
