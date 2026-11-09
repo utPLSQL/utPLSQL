@@ -19,11 +19,11 @@ create or replace noneditionable package body ut_annotation_cache_macros as
   function get_cached_objects(a_object_owner varchar2, a_object_type varchar2, a_parsed_after timestamp := null) return varchar2 sql_macro is
   begin
     return q'[
-      select i.object_owner, i.object_name, i.object_type, i.parse_time
+      (select /*+ NO_UNNEST */ i.object_owner, i.object_name, i.object_type, i.parse_time
         from &&ut3_owner..ut_annotation_cache_info i
        where i.object_owner = a_object_owner
          and i.object_type  = a_object_type
-         and (i.parse_time > a_parsed_after or a_parsed_after is null)]';
+         and (i.parse_time > a_parsed_after or a_parsed_after is null))]';
   end;
 
 end;
