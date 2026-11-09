@@ -174,5 +174,14 @@ create or replace package body main_helper is
     return l_result;
   end;
 
+  function get_sql_executions(a_sql_text_like varchar2) return number is
+    l_result number;
+  begin
+    select nvl(sum(s.executions), 0) into l_result
+      from v$sqlarea s
+     where s.sql_text like a_sql_text_like;
+    return l_result;
+  end;
+
 end;
 /

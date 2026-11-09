@@ -9,9 +9,9 @@ Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature
 | Pattern | What it is | Status | Approach |
 |---|---|---|---|
 | P1 | access filter applied to a collection by the caller | **done** | access predicate in `get_suite_items`, plain SQL in `ut_suite_cache_manager` (step 3) |
-| P2 | chain of collection → collection functions | open | one statement with named CTEs |
-| P3 | logical suites appended to a collection | open | CTE of the main statement |
-| P4 | sort by self-join of a collection | open | last CTE of the main statement |
+| P2 | chain of collection → collection functions | **done** | one statement with named CTEs: `get_suite_rows` (step 4) |
+| P3 | logical suites appended to a collection | **done** | CTE of the main statement (step 4) |
+| P4 | sort by self-join of a collection | **done** | recursive CTE of the main statement (step 4) |
 | P5 | paths reconciled against a collection | open | keep, over the single final result |
 | P6 | collection → ref cursor → collection | **done, partly** | collection passed, no cursor; rows still converted to records (ORA-00600) |
 | P7 | two scans of `ut_suite_cache` for path matching | open | one path-matching CTE |
@@ -80,6 +80,30 @@ Consolidated from the checks on 19.20 EE, 21.3 XE and 23ai Free (2026-11-09).
    - `create or replace package ut_suite_cache_manager` removed the package from `dba_code_role_privs`. Its SQL then failed with `ORA-00942`.
    - `create or replace package body` keeps the grant.
    - After changing the spec of a package with the role by hand, rerun [ut3_cbac_modify_objects_role_grants.sql](../source/ut3_cbac_modify_objects_role_grants.sql), or use `development/refresh_ut3.sh`.
+10. **A SQL macro can't build SQL from a variable's value.** Tested on 19.20, 2026-11-10, for the tag filter in `get_suite_rows`:
+    - The setup: a table macro `filter_by(a_rows dbms_tf.table_t, a_filter varchar2)` returning `'select * from a_rows where ' || a_filter`.
+    - A CTE name is accepted as the `TABLE_T` argument.
+    - The macro body received `a_filter` as NULL whether it was passed as a literal, a PL/SQL variable or a function call, so the condition was never added.
+    - A macro is therefore no way to run a predicate computed at run time in static SQL.
+11. **Serially reusable packages can't be called from SQL.** `pragma serially_reusable` makes any call during a SQL statement fail with `ORA-06534` (19.20, 2026-11-10). So `ut_suite_tag_filter`, whose `is_matching` runs inside `get_suite_rows`, keeps normal package state for its cache.
+
+12. **`dbms_utility.compile_schema` can't recompile a body that expands a macro in static SQL.** Seen on 19.20, 2026-11-10:
+    - Changing the spec of `ut_suite_tag_filter` invalidated the `ut_suite_cache_manager` body.
+    - `compile_schema`, run as SYS or as `UT3_DEVELOP`, left that body invalid: `ORA-62565` / `PLS-00201: identifier 'UT_ANNOTATION_CACHE_MACROS.GET_CACHED_OBJECTS' must be declared`.
+    - `alter package ut_suite_cache_manager compile body` (as SYS or `UT3_DEVELOP`) compiled it.
+    - So recompile such bodies with `alter package ... compile body`.
+
+#### Other statement-level findings (step 4, 19.20, 2026-11-10)
+
+- **No `xmltable` row generator next to a recursive CTE.**
+  - The logical-suite CTEs used `xmltable('1 to 20')` to generate level numbers. Together with the recursive sort CTE in the same statement, its hard parse never finished: `latch: shared pool`, killed after more than 5 minutes.
+  - A cut-down variant crashed the server process with `ORA-07445 [qmxtrProcCorrOpn]`, in the XML query rewrite.
+  - `select level from dual connect by level <= 20` parses in 0.3 s.
+  - Killed sessions stayed stuck in the parse and held a library cache pin on the package; only a database restart cleared them.
+- **Make the sibling order explicit.**
+  - `search depth first by line_no desc, ...` leaves siblings with equal `line_no` (packages without a suitepath, logical suites) in input order.
+  - The old code's input was sorted by path, as a side effect of `row_number() over (partition by path, ...)`, and tests depend on that order (`test_annotation_cache`).
+  - The search clause now ends with `path, object_owner`.
 
 ## New finding: `get_cached_objects` branches on an argument's value
 
@@ -220,7 +244,22 @@ The new behaviour was accepted on 2026-11-09. It is covered by the context "Suit
   - No predicate pushing across steps.
   - Unknown `table()` cardinality: only two statements carry a fixed `cardinality(c 500)` hint.
   - `value(c)` is moved around instead of columns.
-- **Approach:** one statement in `ut_suite_cache_manager`, with each step as a named CTE. It carries columns, not objects, and the final select returns columns that the caller fetches into records for `reconstruct_from_cache`. Don't use `ut_suite_cache_row` objects here; see the `ORA-00600` under P6. It is dynamic SQL because of the tag predicate (see the target design). `ut_suite_tag_filter` keeps only the predicate builder.
+- **Approach:** one static statement in `ut_suite_cache_manager`, with each step as a named CTE. `ut_suite_tag_filter.is_matching` evaluates the tag expression per test.
+- **Done in step 4:** `ut_suite_cache_manager.get_suite_rows(a_schema_paths, a_skip_access_check, a_tags, a_random_seed)`.
+  - **CTEs:** `matched_rows` (paths and access, columns only) → `propagate_tags_from_ancestors` (tests only) → `filter_by_tags` → `tagged_rows` (all matched rows when no tags are given) → `suitepaths` / `suitepath_part` / `logical_suites` → `all_items` → `items_for_sort` → `ordered` (recursive).
+  - **Static SQL.** The first version was dynamic SQL, because the tag expression was compiled into a SQL predicate and concatenated into the statement. Now it is static: `ut_suite_tag_filter.is_matching(tags, tag_expression)` returns 1 or 0 per test.
+    - `is_matching` takes the condition from `create_where_filter` and evaluates it in an anonymous PL/SQL block on a collection named `tags`. PL/SQL supports the same `member of`, `is empty` and `is null` conditions.
+    - Both functions are `deterministic`. That caches only calls from SQL, so `create_where_filter` also keeps the last expression and its condition in package variables. Repeated calls from `is_matching` then skip parsing the expression.
+    - **Tags are passed as text, not as a collection.** Oracle caches a `deterministic` function called from SQL only when every argument is a scalar. Measured on 19.20: with 1000 rows and 3 distinct values, the function ran 3 times with scalar arguments and 1000 times with a nested-table argument, whether built by a constructor, read from a column, or built by `cast(collect())`, even inside a scalar subquery.
+    - `propagate_tags_from_ancestors` therefore builds `listagg(distinct tag, ',') within group (order by tag)`, and `is_matching(a_tags varchar2, ...)` splits it back with `ut_utils.string_to_table`. Tags can't contain commas, because `--%tags` splits on them. `is_matching` then runs once per distinct set of tags.
+    - The test `is_matching_is_cached_in_sql` checks this. It counts how often the anonymous block inside `is_matching` runs (via `v$sqlarea`, through `ut3_tester_helper.main_helper.get_sql_executions`) while 1000 rows with 3 distinct tag sets are filtered. Compiled without `deterministic`, the block ran 1000 times and the test failed; with it, the test passes.
+    - An invalid tag expression raises `gc_invalid_tag_expression` from `is_matching`, so only when a test is evaluated. On a path without tests, the run reports "not found" instead.
+    - `create_where_filter` is private to `ut_suite_tag_filter`. Its tests now check `is_matching` results instead of the generated condition text.
+    - `ut_suite_tag_filter` is granted to the CBAC role, because `is_matching` is called from SQL in an invoker-rights package.
+  - **Final select:** reads the full rows of real items by `id` and builds the logical suites. It returns `ut_suite_cache_rows`, because `reconcile_paths_and_suites` (P5) joins a collection; `reconstruct_from_cache` converts that to records (P6).
+  - **Path matching:** `exists` against the paths replaces the join plus `row_number` deduplication. `(object_owner, path)` is unique in `ut_suite_cache`.
+  - **Removed:** `get_suite_items`, `get_cached_suite_rows` (and cursor `c_get_bulk_cache_suite`), `sort_and_randomize_tests`, `get_cached_suite_info`, and `ut_suite_tag_filter.apply` / `get_tags_suites`.
+  - **Both flows** call `get_suite_rows`; the suite-info flow passes no tags and no seed.
 
 ### P3: enrich a collection with generated rows
 
@@ -229,14 +268,14 @@ The new behaviour was accepted on 2026-11-09. It is covered by the context "Suit
 - **Notes:**
   - Path depth is capped by `xmltable('1 to 20')`. **Verify** what happens beyond 20 levels: logical parents above level 20 would be missing.
   - Levels are counted with `regexp_count(path, '\w+')`, which does not count `$` and `#`, both allowed in path parts.
-- **Approach:** a CTE of the main statement, placed after the access and tag filters.
+- **Approach:** a CTE of the main statement, placed after the access and tag filters. **Done in step 4.** The level generator is now `connect by level <= 20` instead of `xmltable` (see "Other statement-level findings"). The 20-level limit and the `\w+` counting are unchanged.
 
 ### P4: in/out collection reorder with a self-join
 
 - **Where:** `sort_and_randomize_tests` ([ut_suite_cache_manager.pkb:214](../source/core/ut_suite_cache_manager.pkb:214)).
 - **What:** a recursive CTE walks the hierarchy over `table(a_suite_rows)`, then joins back to `table(a_suite_rows)` to recover the objects. The result is copied and assigned back to the in/out parameter.
 - **Cost:** two scans of the collection plus one copy. `ut_utils.hash_suite_path` is called from SQL for each row (`ut_utils` is granted to the role).
-- **Approach:** the last CTE of the main statement, with `order by order1 desc` as the final `order by`.
+- **Approach:** the last CTE of the main statement, with `order by order1 desc` as the final `order by`. **Done in step 4**, with `path, object_owner` added as the last sort keys (see "Other statement-level findings").
 
 ### P5: validate by joining two collections
 
@@ -326,7 +365,7 @@ resolve paths, refresh cache   ──paths, tags──▶    get_suite_rows(a_pa
                                                        tagged_rows     tag predicate from the tag filter ← P2
                                                        with_logical    generated logical suites          ← P3
                                                        ordered         recursive sort / randomise        ← P4
-                                   ◀──rows──────     rows fetched as records (tt_cached_suites), not objects
+                                   ◀──rows──────     ut_suite_cache_rows; reconstruct_from_cache converts them to records
 reconcile(paths, rows)                                                                                   ← P5
 reconstruct_from_cache(rows)       no ref cursor                                                         ← P6
 
@@ -334,7 +373,7 @@ get_suites_info                ──paths──────▶      get_suite_i
                                                      the same statement text, no tags, no sort,
                                    ◀──cursor────     final select ut_suite_item_info, ordered            ← P9
 
-ut_suite_tag_filter: only create_where_filter (tag expression → SQL predicate). apply / get_tags_suites go.
+ut_suite_tag_filter: only create_where_filter (tag expression → SQL predicate). apply / get_tags_suites are gone (step 4).
 ut_annotation_cache_macros: unchanged; the only macro package.
 ```
 
@@ -372,7 +411,23 @@ Notes:
      - Setup: a fresh 19.20 container, then `development/install.sh` and `test/install_tests.sh`.
      - Install: no invalid objects.
      - Full run: 1140 tests, 0 failed, 0 errored, 3 disabled.
-4. **P2/P3/P4: one statement.** Merge `get_suite_items` → tags → logical suites → sort into one dynamic statement, and reduce `ut_suite_tag_filter` to `create_where_filter`. Rewrite the `apply` tests in `test_ut_suite_tag_filter` against the new entry point; don't keep `apply` as a test-only wrapper (YAGNI).
+4. **P2/P3/P4: one statement. Done.**
+   - `get_suite_rows` replaces four functions and the tag filter's `apply`; see P2.
+   - The #1324 regression test in `test_ut_suite_tag_filter` now creates a real package (suitepath, suite, context and test tags). It checks `get_suite_rows` with the same 8 tag expressions as before.
+   - Two Oracle-level problems came up and are fixed: the `xmltable` parse hang and crash, and the sibling order. See "Other statement-level findings".
+   - **Verified on 2026-11-10:**
+     - Setup: a fresh 19.20 container with install and test install.
+     - Install: no invalid objects.
+     - First full run: 11 failures, all from the sibling order.
+     - Final full run, on the same database with only the cache manager body recompiled: 1144 tests, 0 failed, 0 errored, 3 disabled.
+   - **Static SQL version, verified on 2026-11-10:**
+     - Setup: a fresh 19.20 container with install and test install.
+     - Install: no invalid objects.
+     - Full run: 1143 tests, 0 failed, 0 errored, 3 disabled. That is 1140 plus 3 new `is_matching` tests in `test_ut_suite_tag_filter`.
+   - **Text tags version, verified on 2026-11-10:**
+     - The same database after a full run, with only the `ut_suite_cache_manager` and test bodies recompiled.
+     - Full run: 1148 tests, 0 failed, 0 errored, 3 disabled. That is 1144 (1140 plus 4 `is_matching` tests) plus the 4 tests `test_tfs_junit_reporter` leaves behind.
+   - **Why 1144:** 1140 tests, plus 4 from packages that `test_tfs_junit_reporter` leaves behind when run twice on one database. Its `remove_test_package` doesn't drop `check_junit_in_context`, `check_junit_out_context` and `check_junit_inout_context`. That test bug predates this work.
 5. **P7: merge `expand_paths` into the path CTE.** This is the riskiest step. Wildcard semantics and error messages are covered by `test_ut_run` / `test_ut_runner` in `ut3_user`. Do it last among the merges, with those suites as the safety net.
 6. **P9: Flow B on the same statement text.** Remove `get_cached_suite_info` and `get_suite_items_info` from the spec, and merge finding 2.
 

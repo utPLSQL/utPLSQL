@@ -30,10 +30,28 @@ create or replace package test_ut_suite_tag_filter is
 
   --%endcontext
 
-  --%test( Test conversion of expression from tag into custom where filter for SQL)
-  procedure conv_from_tag_to_sql_filter;
+  --%test( Evaluates or, and and not in tag expressions)
+  procedure is_matching_or_and_not;
+
+  --%test( Evaluates tag expressions against a list of tags)
+  procedure is_matching_evaluates_tags;
+
+  --%test( Evaluates none and any for items without tags)
+  procedure is_matching_without_tags;
+
+  --%test( Evaluates each distinct set of tags once per SQL statement)
+  procedure is_matching_is_cached_in_sql;
+
+  --%test( Raises exception for an invalid tag expression)
+  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+  procedure is_matching_invalid_expression;
+
+  procedure create_tags_suite;
+  procedure drop_tags_suite;
 
   --%test( Regression for issue #1324 - corect filtering by tags with suitepath and contexts)
+  --%beforetest(create_tags_suite)
+  --%aftertest(drop_tags_suite)
   procedure filtering_is_correctly_applied_to_all_items;
 
 end test_ut_suite_tag_filter;

@@ -71,52 +71,136 @@ create or replace package body test_ut_suite_tag_filter is
     ut.fail('Expected exception but nothing was raised');
   end;
 
-  procedure conv_from_tag_to_sql_filter is
-    l_sql_filter varchar2(4000);
+  procedure is_matching_or_and_not is
   begin
-    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1');
-    ut.expect(l_sql_filter).to_equal(q'['test1' member of tags]');
-    
-    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1|test2');
-    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags or 'test2' member of tags)]');
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1', 'test1') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test2', 'test1') ).to_equal(0);
 
-    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1|!test2');
-    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags or not('test2' member of tags))]');  
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test2', 'test1|test2') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test3', 'test1|test2') ).to_equal(0);
 
-    l_sql_filter := ut3_develop.ut_suite_tag_filter.create_where_filter('test1&!test2');
-    ut.expect(l_sql_filter).to_equal(q'[('test1' member of tags and not('test2' member of tags))]');  
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test3', 'test1|!test2') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test2', 'test1|!test2') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1,test2', 'test1|!test2') ).to_equal(1);
+
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1', 'test1&!test2') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1,test2', 'test1&!test2') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test3', 'test1&!test2') ).to_equal(0);
+  end;
+
+  procedure is_matching_evaluates_tags is
+    l_tags varchar2(100) := 'db,slow';
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'slow') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'fast') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'slow&db') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'slow&!db') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'fast|db') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, '!fast') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, '(fast|slow)&!(db&fast)') ).to_equal(1);
+    --legacy notation: "," is or, "-" is not
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'fast,slow') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'fast,-slow') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'none') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(l_tags, 'any') ).to_equal(1);
+  end;
+
+  procedure is_matching_without_tags is
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'none') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'any') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, '!slow') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'slow') ).to_equal(0);
+  end;
+
+  procedure is_matching_is_cached_in_sql is
+    c_block  constant varchar2(100) := 'declare tags ut_varchar2_list := :a_tags;%''cache_probe'' member of tags%';
+    l_before number;
+    l_after  number;
+    l_count  integer;
+  begin
+    l_before := ut3_tester_helper.main_helper.get_sql_executions(c_block);
+    --1000 rows with 3 distinct sets of tags
+    select count(*) into l_count
+      from (select mod(level,3) k from dual connect by level <= 1000)
+     where ut3_develop.ut_suite_tag_filter.is_matching('t'||k||',x', 'cache_probe') = 0;
+    l_after := ut3_tester_helper.main_helper.get_sql_executions(c_block);
+    ut.expect( l_count ).to_equal(1000);
+    ut.expect( l_after - l_before ).to_be_less_or_equal(3);
+  end;
+
+  procedure is_matching_invalid_expression is
+    l_result integer;
+  begin
+    l_result := ut3_develop.ut_suite_tag_filter.is_matching('slow', 'slow&|db');
+  end;
+
+  procedure create_tags_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_tags_1324 as
+      --%suite
+      --%suitepath(some.path)
+      --%tags(slow)
+
+      --%context(tags_are_applied_in_contexts)
+      --%tags(context_tag)
+
+      --%test
+      --%tags(test_tag)
+      procedure create_new_mapping;
+
+      --%endcontext
+    end;]';
+    execute immediate q'[create or replace package body test_tags_1324 as
+      procedure create_new_mapping is begin null; end;
+    end;]';
+  end;
+
+  procedure drop_tags_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_tags_1324';
   end;
 
   procedure filtering_is_correctly_applied_to_all_items is
-      l_input_data ut3_develop.ut_suite_cache_rows;
-      l_expected   sys_refcursor;
-      l_actual     sys_refcursor;
+      l_paths    ut3_develop.ut_path_items;
+      l_suites   ut3_develop.ut_suite_items;
+      l_items    ut3_develop.ut_suite_cache_rows;
+      l_expected sys_refcursor;
+      l_actual   sys_refcursor;
+
+      --suite items selected by the tag expression, without the logical suites "some" and "some.path"
+      function get_items(a_tags varchar2) return ut3_develop.ut_suite_cache_rows is
+        l_rows   ut3_develop.ut_suite_cache_rows;
+        l_result ut3_develop.ut_suite_cache_rows;
+      begin
+        l_rows := ut3_develop.ut_suite_cache_manager.get_suite_rows( l_paths, true, a_tags );
+        select value(r) bulk collect into l_result from table(l_rows) r where r.self_type != 'UT_LOGICAL_SUITE';
+        return l_result;
+      end;
   begin
-      l_input_data := ut3_develop.ut_suite_cache_rows(
-          ut3_develop.ut_suite_cache_row(
-            1, 'UT_SUITE', 'some.path.test_tags', 'TEST_USER', 'TEST_TAGS', 'TEST_TAGS', 3, timestamp '2026-05-06 10:23:38.461299', NULL, NULL, 0, NULL,  null,  null,  null, null, null, null, null, null,
-            ut3_develop.ut_varchar2_rows('slow'), null),
-          ut3_develop.ut_suite_cache_row(
-            2, 'UT_SUITE_CONTEXT', 'some.path.test_tags.nested_context_#1', 'TEST_USER', 'TEST_TAGS', 'NESTED_CONTEXT_#1', 9, timestamp '2026-05-06 10:23:38.461299', 'tags_are_applied_in_contexts', NULL, 0, NULL, null,  null, null, null, null, null, null, null,
-            ut3_develop.ut_varchar2_rows('context_tag'), null),
-          ut3_develop.ut_suite_cache_row(
-            3, 'UT_TEST', 'some.path.test_tags.nested_context_#1.create_new_mapping', 'TEST_USER', 'TEST_TAGS', 'CREATE_NEW_MAPPING', 11, timestamp '2026-05-06 10:23:38.461299', NULL, NULL, 0, NULL, null,  null, null, null, null, null, null, null,
-            ut3_develop.ut_varchar2_rows('test_tag'), ut3_develop.ut_executable_test('UT_EXECUTABLE_TEST', 'test', 'TEST_USER', 'test_tags', 'create_new_mapping', NULL, NULL, NULL, NULL, NULL))
-      );
+      --refresh the suite cache of the schema
+      l_suites := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_tester.test_tags_1324'));
+      l_paths := ut3_develop.ut_suite_cache_manager.get_schema_paths(ut3_develop.ut_varchar2_list('ut3_tester.test_tags_1324'));
 
-      ut.expect(ut3_develop.ut_suite_tag_filter.apply( l_input_data, 'slow').count).to_equal(3 );
+      l_items := get_items('slow');
+      ut.expect( l_items.count ).to_equal(3);
 
-      open l_expected for select * from table( l_input_data );
-      open l_actual for select * from table( ut3_develop.ut_suite_tag_filter.apply( l_input_data, 'slow') );
-      ut.expect(l_actual).to_equal(l_expected).join_by('ID');
+      open l_expected for
+        select 'some.path.test_tags_1324' as path from dual union all
+        select 'some.path.test_tags_1324.nested_context_#1' from dual union all
+        select 'some.path.test_tags_1324.nested_context_#1.create_new_mapping' from dual;
+      open l_actual for select r.path from table( l_items ) r;
+      ut.expect(l_actual).to_equal(l_expected).unordered();
 
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!slow').count ).to_equal(0);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'bad').count ).to_equal(0);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!bad').count ).to_equal(3);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!context_tag').count ).to_equal(0);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'context_tag').count ).to_equal(3);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, '!test_tag').count ).to_equal(0);
-      ut.expect( ut3_develop.ut_suite_tag_filter.apply(l_input_data, 'test_tag').count ).to_equal(3);
+      ut.expect( get_items('!slow').count ).to_equal(0);
+      ut.expect( get_items('bad').count ).to_equal(0);
+      ut.expect( get_items('!bad').count ).to_equal(3);
+      ut.expect( get_items('!context_tag').count ).to_equal(0);
+      ut.expect( get_items('context_tag').count ).to_equal(3);
+      ut.expect( get_items('!test_tag').count ).to_equal(0);
+      ut.expect( get_items('test_tag').count ).to_equal(3);
   end;
 
 end test_ut_suite_tag_filter;

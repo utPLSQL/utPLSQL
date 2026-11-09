@@ -45,48 +45,25 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
   */
   procedure remove_missing_objs_from_cache(a_schema_name varchar2);
 
-  /*
-  *  We will sort a suites in hierarchical structure.
-  *  Sorting from bottom to top so when we consolidate
-  *  we will go in proper order.
-  */
-  procedure sort_and_randomize_tests(
-    a_suite_rows in out ut_suite_cache_rows,
-    a_random_seed  positive := null);
-
-  /*
-  * Retrieves suite items data from cache.
-  * Returned data is not filtered by user access rights.
-  * Not to be used publicly. Used internally for building suites at runtime.
-  */
-  function get_cached_suite_rows(
-    a_suites_filtered ut_suite_cache_rows 
-  ) return ut_suite_cache_rows;
-
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
-  
+
   /*
-  * Retrieves suite item rows from cache, with logical suites added.
+  * Retrieves suite items matching the paths from cache, with logical suites added for suitepaths without a package.
   * Returns only items of packages the invoking user can access, unless a_skip_access_check is true.
-  * Not to be used publicly. Used internally for building suites info.
+  * When a_tags is given, returns only items with a test matching the tag expression below them (or being one).
+  * The rows are sorted bottom up: children before parents, by line number or, when a_random_seed is given, randomly.
+  * Not to be used publicly. Used internally for building suites at runtime and suites info.
   */
-  function get_cached_suite_info(
+  function get_suite_rows(
     a_schema_paths       ut_path_items,
-    a_skip_access_check  boolean
+    a_skip_access_check  boolean,
+    a_tags               varchar2 := null,
+    a_random_seed        positive := null
   ) return ut_suite_cache_rows;
 
   function get_suite_items_info(
     a_suite_cache_items ut_suite_cache_rows
   ) return ut_suite_items_info;
-
-  /*
-  * Retrieves suite item rows matching the paths from cache.
-  * Returns only items of packages the invoking user can access, unless a_skip_access_check is true.
-  */
-  function get_suite_items (
-    a_schema_paths       ut_path_items,
-    a_skip_access_check  boolean
-  ) return ut_suite_cache_rows;
   
   /*
   * Retrieves list of cached suite packages.

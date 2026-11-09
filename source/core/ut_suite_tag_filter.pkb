@@ -28,6 +28,10 @@ create or replace noneditionable package body ut_suite_tag_filter is
   type t_precedence_table is table of number index by varchar2(1);
   g_precedence t_precedence_table;
 
+  --last tag expression and its condition, see create_where_filter
+  g_last_tag_expression varchar2(4000);
+  g_last_where_filter   varchar2(32767);
+
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list is
     l_tags_tokens ut_varchar2_list := ut_varchar2_list();
   begin
@@ -202,81 +206,37 @@ create or replace noneditionable package body ut_suite_tag_filter is
     return l_infix_stack.pop;
   end conv_postfix_to_infix_sql;
 
+  /*
+    Generates a condition on a collection named "tags" from a tag expression.
+    Raises ut_utils.gc_invalid_tag_expression for an invalid expression.
+  */
   function create_where_filter(a_tags varchar2
-  ) return varchar2 is
+  ) return varchar2 deterministic is
     l_tags varchar2(4000);
   begin
+    --deterministic caches results only for calls from SQL, so the last result is also kept for repeated calls from is_matching
+    if g_last_tag_expression = a_tags then
+      return g_last_where_filter;
+    end if;
     l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
     l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)),'tags');
     l_tags := replace(l_tags, '|',' or ');
     l_tags := replace(l_tags ,'&',' and ');
     l_tags := replace(l_tags ,'!','not');
+    g_last_tag_expression := a_tags;
+    g_last_where_filter   := l_tags;
     return l_tags;
   end;
 
-
-  /*
-    Having a base set of suites we will do a further filter down if there are
-    any tags defined.
-  */
-  function get_tags_suites (
-    a_suite_items ut_suite_cache_rows,
-    a_tags varchar2
-  ) return ut_suite_cache_rows is
-    l_results ut_suite_cache_rows;
-    l_sql varchar2(32000);
-    l_tags_filter_clause varchar2(4000):= create_where_filter(a_tags);
+  function is_matching(a_tags varchar2, a_tag_expression varchar2) return integer deterministic is
+    l_result integer;
   begin
-    l_sql :=
-    q'[
-      with
-        suites_mv as (
-          select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags as tags
-          from table(:suite_items) c
-        ),
-        propagate_tags_from_ancestors as (
-          select c.id, c.self_type, c.path, c.object_owner, cast(collect(c_tags.tag) as ut_varchar2_rows) as tags
-            from suites_mv c
-            left join suites_mv t
-              on t.self_type in ('UT_SUITE','UT_SUITE_CONTEXT')
-             and c.path like t.path||'.%' /* all descendants */
-             and c.object_owner = t.object_owner
-           outer apply (select column_value tag from table(c.tags) union select column_value tag from table(t.tags) ) c_tags
-           group by c.id, c.self_type, c.path, c.object_owner
-        ),
-        filter_by_tags as (
-          select *
-            from propagate_tags_from_ancestors x
-           where  ( ]'||l_tags_filter_clause||q'[ )
-        ),
-        only_items_with_tests as (
-          select item.obj
-            from suites_mv item
-           where exists (
-                   select 1
-                     from filter_by_tags tst
-                    where tst.self_type in ('UT_TEST')
-                      and (tst.path||'.' like item.path || '.%' /*all descendants and self*/ and item.object_owner = tst.object_owner)
-                 )
-        )
-        select obj from only_items_with_tests]';
-    execute immediate l_sql bulk collect into l_results using a_suite_items;
-
-    return l_results;
+    execute immediate
+      'declare tags ut_varchar2_list := :a_tags; begin :a_result := case when '||create_where_filter(a_tag_expression)||' then 1 else 0 end; end;'
+      using in ut_utils.string_to_table(a_tags, ','), out l_result;
+    return l_result;
   end;
 
-  function apply(
-    a_unfiltered_rows  ut_suite_cache_rows,
-    a_tags             varchar2 := null
-  ) return ut_suite_cache_rows is
-    l_suite_items     ut_suite_cache_rows := a_unfiltered_rows;
-  begin
-    if length(a_tags) > 0 then
-      l_suite_items := get_tags_suites(l_suite_items,a_tags);
-    end if;
-
-    return l_suite_items;
-  end;
 
 begin
     --Define operators precedence

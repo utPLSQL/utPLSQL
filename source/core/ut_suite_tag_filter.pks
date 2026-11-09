@@ -17,7 +17,8 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
   */
 
   /**
-   * Package that will filter suites by tags
+   * Package that evaluates tag expressions against the tags of suite items.
+   * is_matching is called from SQL by ut_suite_cache_manager.get_suite_rows to filter suites by tags.
    *
    */
 
@@ -41,15 +42,14 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
     return varchar2;  
   
   /*
-  * Generates a part where clause sql 
-  */  
-  function create_where_filter(a_tags varchar2) 
-    return varchar2;
-
-  function apply(
-    a_unfiltered_rows  ut_suite_cache_rows,
-    a_tags             varchar2 := null
-  ) return ut_suite_cache_rows;
+  * Returns 1 when the tags match the tag expression, 0 otherwise.
+  * a_tags is a comma-separated list of tags (tags cannot contain commas), null for no tags.
+  * Takes text, not a collection: Oracle caches results of a deterministic function called from SQL
+  * only when all arguments are scalars, so items with the same tags are evaluated once per statement.
+  * Raises ut_utils.gc_invalid_tag_expression for an invalid expression.
+  */
+  function is_matching(a_tags varchar2, a_tag_expression varchar2)
+    return integer deterministic;
 
 end ut_suite_tag_filter;
 /

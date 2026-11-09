@@ -19,55 +19,6 @@ create or replace noneditionable package body ut_suite_cache_manager is
   /*
   * Private code
   */
-  cursor c_get_bulk_cache_suite(cp_suite_items in ut_suite_cache_rows) is
-    with  
-      suite_items as (
-        select  /*+ cardinality(c 500) */ value(c) as obj
-          from table(cp_suite_items) c),
-      suitepaths as (
-        select distinct substr(c.obj.path,1,instr(c.obj.path,'.',-1)-1) as suitepath,
-                        c.obj.path as path,
-                        c.obj.object_owner as object_owner
-          from suite_items c
-         where c.obj.self_type = 'UT_SUITE'
-      ),
-        gen as (
-        select rownum as pos
-          from xmltable('1 to 20')
-      ),
-      suitepath_part AS (
-        select distinct
-                        substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
-                        object_owner
-          from suitepaths b
-               join gen g
-                 on g.pos <= regexp_count(b.suitepath, '\w+')
-      ),
-      logical_suite_data as (
-        select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
-               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
-               cast(null as &&ut3_owner..ut_executables) as x,
-               cast(null as &&ut3_owner..ut_varchar2_rows) as y,
-               cast(null as &&ut3_owner..ut_executable_test) as z
-          from suitepath_part p
-         where p.path
-           not in (select s.path from suitepaths s)
-      ),
-      logical_suites as (
-        select &&ut3_owner..ut_suite_cache_row(
-                 null,
-                 s.self_type, s.path, s.object_owner, s.object_name,
-                 s.object_name, null, null, null, null, 0,null,
-                 &&ut3_owner..ut_varchar2_rows(),
-                 s.x, s.x, s.x, s.x, s.x, s.x,
-                 s.y, null, s.z
-               ) as obj
-          from logical_suite_data s
-      )
-      select /*+ no_parallel */ obj from suite_items
-      union all
-      select /*+ no_parallel */ obj from logical_suites;
-
   function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
@@ -169,95 +120,6 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
   
   /*
-    Get a suite items rows that matching our criteria like
-    path,object_name etc.
-    We need to consider also an wildcard character on our procedures and object
-    names.
-    Were the path is populated we need to make sure we dont return duplicates
-    as the wildcard can produce multiple results from same path and
-    parents and child for each can be same resulting in duplicates
-    Only items of packages the invoking user can access are returned, unless a_skip_access_check is true.
-  */
-  function get_suite_items (
-    a_schema_paths       ut_path_items,
-    a_skip_access_check  boolean
-  ) return ut_suite_cache_rows is
-    l_suite_items        ut_suite_cache_rows := ut_suite_cache_rows();
-    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
-  begin
-    select obj bulk collect into  l_suite_items
-    from (
-    select  /*+ cardinality(c 500) no_expand */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num
-      from &&ut3_owner..ut_suite_cache c,
-      table(a_schema_paths)  sp
-      where c.object_owner = upper(sp.schema_name)
-      and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/
-        or
-        (
-          c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
-          and c.object_name like nvl(upper(sp.object_name),c.object_name)
-          and c.name like nvl(upper(sp.procedure_name),c.name)
-        ))
-        or
-        ( sp.suite_path is null
-        and c.object_name = nvl(upper(sp.object_name),c.object_name)
-        and c.name = nvl(upper(sp.procedure_name),c.name)))
-      and ( l_skip_access_check = 'Y'
-            or exists (
-                 select 1
-                   from all_objects a
-                  where a.owner       = c.object_owner
-                    and a.object_name = c.object_name
-                    and a.object_type = 'PACKAGE'
-               )
-          )
-    ) where r_num =1;
-    return l_suite_items;
-  end;
-      
-  /*
-    We will sort a suites in hierarchical structure.
-    Sorting from bottom to top so when we consolidate
-    we will go in proper order.
-    For random seed we will add an extra sort that can be null.
-    The object owner is irrelevant on joing via path as we already
-    resolved a list of test we want to use so as long they share a suitepath
-    they are correct.
-  */
-  procedure sort_and_randomize_tests(
-    a_suite_rows in out ut_suite_cache_rows,
-    a_random_seed  positive := null) 
-  is
-    l_suite_rows ut_suite_cache_rows;
-  begin
-    with
-    extract_parent_child as (
-        select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,
-          case when a_random_seed is null then s.line_no end line_no,
-          case when a_random_seed is not null then &&ut3_owner..ut_utils.hash_suite_path(s.path, a_random_seed) end random_seed
-          from table(a_suite_rows) s),        
-      t1(path,parent_path,object_owner,line_no,random_seed) as (
-        --Anchor member
-        select s.path, parent_path,s.object_owner,s.line_no,random_seed
-          from extract_parent_child s
-          where parent_path is null
-        union all
-        --Recursive member
-        select t2.path, t2.parent_path,t2.object_owner,t2.line_no,t2.random_seed
-          from t1,extract_parent_child t2
-          where t2.parent_path = t1.path
-           and t2.object_owner = t1.object_owner)
-      search depth first by line_no desc,random_seed desc nulls last set order1
-      select  value(i) as obj  
-        bulk collect into l_suite_rows 
-        from t1 c
-        join table(a_suite_rows) i on i.object_owner = c.object_owner and i.path = c.path
-        order by order1 desc;      
-        
-    a_suite_rows := l_suite_rows;
-  end;
-  
-  /*
   * Public code
   */
   
@@ -266,19 +128,151 @@ create or replace noneditionable package body ut_suite_cache_manager is
     return expand_paths(group_paths_by_schema(a_paths));
   end;
   
-  function get_cached_suite_rows(
-    a_suites_filtered ut_suite_cache_rows 
+  /*
+    Returns suite items for the paths in one statement, sorted bottom up, so that reconstruct_from_cache in ut_suite_manager
+    can build the suite hierarchy in a single pass. The statement:
+    - matched_rows:   cache rows matching the paths (all parents and children of a suite path, or the package / procedure),
+                      only for packages the invoking user can access, unless a_skip_access_check is true
+    - tagged_rows:    when tags are given, the rows having a test matching the tag expression below them (or being one);
+                      a test inherits the tags of the suites and contexts above it
+    - logical_suites: suites for the parts of the suitepaths that have no package behind them
+    - ordered:        the hierarchy sorted depth first by line number, or by a hash of the path when a_random_seed is given
+    The tag expression is evaluated per test by ut_suite_tag_filter.is_matching, so the statement is static SQL.
+  */
+  function get_suite_rows(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean,
+    a_tags               varchar2 := null,
+    a_random_seed        positive := null
   ) return ut_suite_cache_rows is
-    l_results         ut_suite_cache_rows := ut_suite_cache_rows();
-  begin     
+    l_results            ut_suite_cache_rows;
+    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
+  begin
+    with
+      matched_rows as (
+        select /*+ no_parallel */ c.id, c.self_type, c.path, c.object_owner, c.object_name, c.line_no, c.tags
+          from &&ut3_owner..ut_suite_cache c
+         where exists (
+                 select /*+ no_expand */ 1
+                   from table(a_schema_paths) sp
+                  where c.object_owner = upper(sp.schema_name)
+                    and ( ( sp.suite_path is not null
+                            and ( sp.suite_path||'.' like c.path||'.%' /* all parents and self */
+                                  or ( c.path||'.' like sp.suite_path||'.%' /* all children and self */
+                                       and c.object_name like nvl(upper(sp.object_name),c.object_name)
+                                       and c.name like nvl(upper(sp.procedure_name),c.name)
+                                     )
+                                )
+                          )
+                          or ( sp.suite_path is null
+                               and c.object_name = nvl(upper(sp.object_name),c.object_name)
+                               and c.name = nvl(upper(sp.procedure_name),c.name)
+                             )
+                        )
+               )
+           and ( l_skip_access_check = 'Y'
+                 or exists (
+                      select 1
+                        from all_objects a
+                       where a.owner       = c.object_owner
+                         and a.object_name = c.object_name
+                         and a.object_type = 'PACKAGE'
+                    )
+               )
+      ),
+      propagate_tags_from_ancestors as (
+        select c.id, c.self_type, c.path, c.object_owner, listagg(distinct c_tags.tag, ',') within group (order by c_tags.tag) as tags
+          from matched_rows c
+          left join matched_rows t
+            on t.self_type in ('UT_SUITE','UT_SUITE_CONTEXT')
+           and c.path like t.path||'.%' /* all descendants */
+           and c.object_owner = t.object_owner
+         outer apply (select column_value tag from table(c.tags) union select column_value tag from table(t.tags) ) c_tags
+         where c.self_type = 'UT_TEST'
+         group by c.id, c.self_type, c.path, c.object_owner
+      ),
+      filter_by_tags as (
+        select x.path, x.object_owner
+          from propagate_tags_from_ancestors x
+         where &&ut3_owner..ut_suite_tag_filter.is_matching(x.tags, a_tags) = 1
+      ),
+      tagged_rows as (
+        select /*+ no_expand */ item.*
+          from matched_rows item
+         where a_tags is null
+            or exists (
+                 select 1
+                   from filter_by_tags tst
+                  where tst.path||'.' like item.path || '.%' /* all descendants and self */
+                    and tst.object_owner = item.object_owner
+               )
+      ),
+      suitepaths as (
+        select distinct substr(c.path,1,instr(c.path,'.',-1)-1) as suitepath, c.path, c.object_owner
+          from tagged_rows c
+         where c.self_type = 'UT_SUITE'
+      ),
+      gen as (
+        --not xmltable('1 to 20'): together with the recursive "ordered" below it makes the parse hang or fail with ORA-07445 [qmxtrProcCorrOpn] on 19.20
+        select level as pos from dual connect by level <= 20
+      ),
+      suitepath_part as (
+        select distinct substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path, b.object_owner
+          from suitepaths b
+          join gen g
+            on g.pos <= regexp_count(b.suitepath, '\w+')
+      ),
+      logical_suites as (
+        select p.path, p.object_owner, upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name
+          from suitepath_part p
+         where p.path not in (select s.path from suitepaths s)
+      ),
+      all_items as (
+        select t.id, t.path, t.object_owner, t.object_name, t.line_no
+          from tagged_rows t
+        union all
+        select null as id, l.path, l.object_owner, l.object_name, null as line_no
+          from logical_suites l
+      ),
+      items_for_sort as (
+        select a.id, a.path, substr(a.path,1,instr(a.path,'.',-1,1)-1) as parent_path, a.object_owner, a.object_name,
+               case when a_random_seed is null then a.line_no end as line_no,
+               case when a_random_seed is not null then &&ut3_owner..ut_utils.hash_suite_path(a.path, a_random_seed) end as random_seed
+          from all_items a
+      ),
+      ordered(id, path, parent_path, object_owner, object_name, line_no, random_seed) as (
+        select s.id, s.path, s.parent_path, s.object_owner, s.object_name, s.line_no, s.random_seed
+          from items_for_sort s
+         where s.parent_path is null
+        union all
+        select s.id, s.path, s.parent_path, s.object_owner, s.object_name, s.line_no, s.random_seed
+          from ordered o
+          join items_for_sort s
+            on s.parent_path = o.path
+           and s.object_owner = o.object_owner
+      )
+      --path, object_owner: siblings with the same line number (packages, logical suites) keep the order of their paths
+      search depth first by line_no desc, random_seed desc nulls last, path, object_owner set order1
+    select /*+ no_parallel */
+           case
+             when o.id is not null then value(c)
+             else &&ut3_owner..ut_suite_cache_row(
+                    null, 'UT_LOGICAL_SUITE', o.path, o.object_owner, o.object_name, o.object_name,
+                    null, null, null, null, 0, null,
+                    &&ut3_owner..ut_varchar2_rows(),
+                    null, null, null, null, null, null,
+                    null, null, null
+                  )
+           end
+      bulk collect into l_results
+      from ordered o
+      left join &&ut3_owner..ut_suite_cache c
+        on c.id = o.id
+     order by o.order1 desc;
 
-    open c_get_bulk_cache_suite(a_suites_filtered);
-    fetch c_get_bulk_cache_suite bulk collect into l_results;
-    close c_get_bulk_cache_suite;
-      
     return l_results;
   end;
-    
+
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
   begin
@@ -412,14 +406,6 @@ create or replace noneditionable package body ut_suite_cache_manager is
            );
 
     commit;
-  end;
-
-  function get_cached_suite_info(
-    a_schema_paths       ut_path_items,
-    a_skip_access_check  boolean
-  ) return ut_suite_cache_rows is
-  begin
-    return get_cached_suite_rows(get_suite_items(a_schema_paths, a_skip_access_check));
   end;
 
   function get_suite_items_info(

@@ -250,7 +250,7 @@ create or replace noneditionable package body ut_suite_manager is
   end;
   
   /*
-    Builds the suite hierarchy from cache rows sorted bottom-up (see ut_suite_cache_manager.sort_and_randomize_tests)
+    Builds the suite hierarchy from cache rows sorted bottom-up (see ut_suite_cache_manager.get_suite_rows)
     and propagates the rollback type of top level suites to their items.
 
     The rows are converted to records with SQL before use. Building ut_test objects from the item attribute
@@ -336,17 +336,12 @@ create or replace noneditionable package body ut_suite_manager is
     a_tags             varchar2 := null,
     a_skip_all_objects boolean  := false
   ) return ut_suite_cache_rows is
-    l_accessible_rows    ut_suite_cache_rows;
-    l_tag_filter_applied ut_suite_cache_rows;
     l_suite_rows         ut_suite_cache_rows;
   begin
-    l_accessible_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths, skip_access_check(a_skip_all_objects));
-
-    l_tag_filter_applied := ut_suite_tag_filter.apply(l_accessible_rows,a_tags);
-    l_suite_rows := ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied);
+    l_suite_rows := ut_suite_cache_manager.get_suite_rows(
+      a_schema_paths, skip_access_check(a_skip_all_objects), a_tags, a_random_seed
+    );
     reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
-
-    ut_suite_cache_manager.sort_and_randomize_tests(l_suite_rows,a_random_seed);
 
     return l_suite_rows;
   end;
@@ -556,7 +551,7 @@ create or replace noneditionable package body ut_suite_manager is
       l_schema := l_schema_names.next(l_schema);
     end loop;
     l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-    l_suite_rows := ut_suite_cache_manager.get_cached_suite_info(l_schema_paths, skip_access_check());
+    l_suite_rows := ut_suite_cache_manager.get_suite_rows(l_schema_paths, skip_access_check());
     l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_suite_rows);
     open l_result for
       select /*+ no_parallel */ value(c)
