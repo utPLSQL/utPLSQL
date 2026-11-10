@@ -386,7 +386,7 @@ Found in step 2, on 19.20 EE, 2026-11-09:
 1. **Rollback type is set twice. Fixed in step 2:** only `reconstruct_from_cache` sets it now. That covers `configure_execution_by_path` and `build_suites_from_annotations`.
 2. **Duplicated prologue. Fixed in step 6:** `configure_execution_by_path` and `get_suites_info` both call the private `refresh_cache_for_paths`.
 3. **Two near-identical checks. Partly fixed in step 3:** `skip_access_check` replaces the test in `get_filtered_cursor`. The owner needs no special case in the SQL predicate: `all_objects` always includes the user's own packages. `can_skip_all_objects_scan` stays, for `refresh_cache` and `suite_item_exists`.
-4. **`get_logical_suite` repeats constructor calls.** It holds 7 constructor calls that differ only in `items =>`. Choosing `items` first would cut it to 4.
+4. **`get_logical_suite` repeated constructor calls. Fixed:** it chooses `items` first and has one constructor call per type (4 instead of 7). Measured on 19.20: `configure_execution_by_path` on a whole schema took 420–460 ms (before: 450–480) for UT3_TESTER and 1030–1050 ms (before: 1060–1080) for UT3_USER.
 5. **Possible stale items on a bad suitepath (verify).** In `build_and_cache_suites` ([ut_suite_manager.pkb:398](../source/core/ut_suite_manager.pkb:398)), when `create_suite_item_list` raises `ex_string_too_small`, `save_object_cache` still runs with `l_suite_items`. That parameter is `out nocopy`, so it may hold partial or previous-object items.
 6. **Arbitrary `row_number` order.** `get_suite_items` deduplicates with `order by path, object_owner` inside a partition by the same columns. That is fine only because the duplicates are identical rows.
 
