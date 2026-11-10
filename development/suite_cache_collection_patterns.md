@@ -2,7 +2,15 @@
 
 How `ut_suite_cache_manager` and its callers move suite data between SQL statements through PL/SQL collections instead of joining tables directly, why that happens, and how to simplify it with the two tools now on the branch: code based access control (CBAC) and table SQL macros.
 
-Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature/code_based_access_control` at commit `05ab7423`. Line references point to that commit. Apart from the macro checks under [Rules for SQL macros](#rules-for-sql-macros-verified), nothing was measured on a live database. Statements marked **verify** need a test or a trace before anyone acts on them.
+Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature/code_based_access_control` at commit `05ab7423`. Line references in the pattern catalogue point to that commit.
+
+**Status, 2026-11-10:**
+- Steps 0 to 6 and findings 2 to 4 are done.
+- The branch is pushed, with a PR open, so CI tests 19c, 21 XE and 23 Free.
+- Each local commit was checked with a full test run on 19.20.
+- Commits after the PR was opened are local and not pushed.
+- Finding 5 is verified and reported; it is not fixed.
+- Open question 1 is waiting for review.
 
 ## Status at a glance
 
@@ -134,55 +142,51 @@ Every `select value(c) ... bulk collect into ... from table(:coll) c` deep-copie
 
 ## Flows
 
+The flows below show the code after steps 0 to 6. Before the refactoring, Flow A read the cache twice, through `expand_paths` and `get_suite_items`. It then copied the rows 4 to 6 times, through 5 SQL statements over `table()` collections, before building the object tree. Flow B loaded full rows only to project them to 10 columns.
+
 ### Flow A: run (`ut_runner.run` → `ut_suite_manager.configure_execution_by_path`)
 
 ```
 a_paths (ut_varchar2_list)
- │ resolve_schema_names              PL/SQL loop, normalises paths                        [suite_manager:52]
- │ refresh_cache per schema          see Flow C
+ │ refresh_cache_for_paths                                                  ut_suite_manager
+ │   resolve_schema_names            PL/SQL, normalises paths
+ │   refresh_cache per schema        see Flow C
+ │   get_schema_paths                PL/SQL: splits paths into ut_path_items (wildcards kept)   ut_suite_cache_manager
  ▼
- get_schema_paths                                                                         [cache_manager:251]
- │ group_paths_by_schema             PL/SQL loop → ut_path_items                           [cache_manager:71]
- │ expand_paths                      SQL: table(paths) ⟕ ut_suite_cache → ut_path_items    [cache_manager:109]   ① scan of ut_suite_cache
+ get_cached_suite_data                                                      ut_suite_manager
+ │ can_skip_access_check(paths)      owner of every schema, or EXECUTE ANY PROCEDURE
+ │ get_suite_rows                                                           ut_suite_cache_manager
+ │   get_matched_ids                 SQL: ut_suite_cache, match_paths macro, all_objects        → ids (selected rows and parents)
+ │   select_suite_rows               SQL: tags (is_matching), logical suites, recursive sort    → ut_suite_cache_rows
+ │ reconcile_paths_and_suites        SQL: paths × final rows with match_paths → raise errors    ut_suite_cache_manager
  ▼
- get_cached_suite_data                                                                    [suite_manager:352]
- │ get_suite_items                   SQL: ut_suite_cache ⋈ table(paths) → rows            [cache_manager:180]   ② scan of ut_suite_cache, copy #1
- │ ut_suite_tag_filter.apply         dynamic SQL over table(rows) → rows                  [tag_filter:268]      copy #2 (only with tags)
- │ get_cached_suite_rows             SQL over table(rows) + generated logical suites       [cache_manager:256]   copy #3
- │ get_filtered_cursor               SQL over table(rows) ⋈ all_objects → rows            [suite_manager:299]   copy #4 (unless EXECUTE ANY)
- │ reconcile_paths_and_suites        SQL: table(paths) ⟕ table(rows) → raise errors        [suite_manager:328]
- │ sort_and_randomize_tests          recursive SQL over table(rows) ⋈ table(rows) → rows   [cache_manager:214]   copy #5
- │ open cursor for select * from table(rows)                                              [suite_manager:371]   copy #6 (fetch)
- ▼
- reconstruct_from_cache              bulk fetch limit 1000 → tt_cached_suites → object tree [suite_manager:253]
+ reconstruct_from_cache              select * bulk collect into records → object tree (ORA-00600 workaround, P6)
 ```
 
-The cache table is read twice with nearly the same matching rules. The result set is then copied 4 to 6 times, through 5 SQL statements over `table()` collections, before it becomes the object tree. Unchanged since the CBAC commits.
+Three SQL statements read the cache (one scan for the paths, one for the rows by id), and the rows are copied once into records.
 
-### Flow B: suite info (`ut_runner.get_suites_info`, `ut_runner.has_suites`, ...)
+### Flow B: suite info (`ut_runner.get_suites_info`)
 
 ```
-a_paths → resolve_schema_names → refresh_cache per schema → get_schema_paths (①)         [suite_manager:566]
- │ get_cached_suite_info = get_cached_suite_rows(get_suite_items(paths))  (②, copies #1, #2) [cache_manager:404]
- │ get_filtered_cursor                                                     (copy #3)
- │ get_suite_items_info              SQL over table(rows) → ut_suite_items_info            (copy #4, projection) [cache_manager:411]
+a_paths → refresh_cache_for_paths → can_skip_access_check(paths)                            ut_suite_manager
+ │ ut_suite_cache_manager.get_suites_info
+ │   select_suite_rows without executables (no tags, no seed)  → light ut_suite_cache_rows
+ │   get_suite_items_info             SQL projection → ut_suite_items_info
  ▼
  open cursor select value(c) from table(info) order by owner, name, line_no
 ```
 
-Full rows, with all six executable lists, are loaded and copied three times, only to be projected to 10 scalar columns at the end. Tags are not applied here and the rows are not sorted.
-
-### Flow C: cache refresh (`ut_suite_manager.refresh_cache`, [suite_manager:426](../source/core/ut_suite_manager.pkb:426))
+### Flow C: cache refresh (`ut_suite_manager.refresh_cache`)
 
 ```
 get_schema_parse_time(owner)                                    scalar
 ut_annotation_manager.get_annotated_objects(...)                sys_refcursor of ut_annotated_object
-build_and_cache_suites                                                                     [suite_manager:383]
+build_and_cache_suites
  │ fetch limit 10 → ut_annotated_objects
  │ per object: ut_suite_builder.create_suite_item_list → ut_suite_items (PL/SQL)
- │ per object: save_object_cache(ut_suite_items)                                          [cache_manager:279]
+ │ per object: save_object_cache(ut_suite_items)
  │             autonomous tx: 2 × insert ... select from table(a_suite_items) with treat()
-remove_missing_objs_from_cache(owner)                            one delete, macro (P8, done) [cache_manager:389]
+remove_missing_objs_from_cache(owner)   one delete, with the get_cached_objects macro (P8)
 ```
 
 ### Flow D: smaller lookups
@@ -391,7 +395,19 @@ Found in step 2, on 19.20 EE, 2026-11-09:
    - Owners running their own schema skip the `all_objects` lookup again, as before step 3.
    - `test_suite_builder` took 1.24 s (before: 1.50 s); the flows took the same time or less.
 4. **`get_logical_suite` repeated constructor calls. Fixed:** it chooses `items` first and has one constructor call per type (4 instead of 7). Measured on 19.20: `configure_execution_by_path` on a whole schema took 420–460 ms (before: 450–480) for UT3_TESTER and 1030–1050 ms (before: 1060–1080) for UT3_USER.
-5. **Possible stale items on a bad suitepath (verify).** In `build_and_cache_suites` ([ut_suite_manager.pkb:398](../source/core/ut_suite_manager.pkb:398)), when `create_suite_item_list` raises `ex_string_too_small`, `save_object_cache` still runs with `l_suite_items`. That parameter is `out nocopy`, so it may hold partial or previous-object items.
+5. **Partial items cached on a too long path. Verified on 19.20, 2026-11-10; not fixed.**
+   - **The code:** in `build_and_cache_suites`, when `create_suite_item_list` raises `ex_string_too_small` (a path over 1000 characters), `save_object_cache` still runs with `l_suite_items`.
+   - **No stale items from the previous package:** Oracle resets the `out nocopy` collection when the procedure is called.
+     - Probed with a package whose suitepath has 1199 characters, between two valid packages.
+     - The error happens in `build_suitepath` before any item is added, so nothing is cached for that package.
+   - **Partial items are cached when the error comes later:**
+     - Probed with a package whose suitepath fits (983 characters with the package name), with a context `c` and a test inside it, and a top-level test whose path has 1004 characters.
+     - The context and its test were cached, without the package's suite row and without the long test, together with a package row and a parse time.
+   - **Consequence:**
+     1. The first run raises "Suitepath exceeds 1000 CHAR on: …".
+     2. Later runs treat the package as cached and raise nothing.
+     3. The context has no parent suite, so the package is missing from `get_suites_info`, and running it fails with "Suite package … does not exist", until the package is changed.
+   - **Possible fix:** save an empty item list when `create_suite_item_list` fails, so the package is not cached and the error is raised on every run.
 6. **Arbitrary `row_number` order.** `get_suite_items` deduplicates with `order by path, object_owner` inside a partition by the same columns. That is fine only because the duplicates are identical rows.
 
 ## Target design
@@ -497,7 +513,7 @@ Notes:
 
 ## Open questions
 
-1. Should a package path whose tests are all excluded by tags raise "does not exist" (P5)?
+1. Should a package path whose tests are all excluded by tags raise "does not exist" (P5)? That's the behaviour today; review it after the other work is done.
 2. ~~Can logical suites remain in the tree with no accessible children (P1)?~~ Answered: yes, they could. Accessible packages under an inaccessible parent suite were also lost. Both are fixed in step 3; see the table under P1.
-3. Is the 20-level limit on suitepath depth (P3) documented anywhere, or is it accidental?
-4. Would a `parse_time` filter in `get_objects_to_refresh` pay off (removed in step 0)? Only a measurement on a schema with many cached objects can tell. If it would, use the bind-safe form.
+3. ~~Is the 20-level limit on suitepath depth (P3) documented?~~ It is intended and is now documented in the user guide (annotations, "Suitepath limits"), together with the 1000-character limit on full paths. Verified on 19.20: a suite with a 21-level suitepath is not run in a schema run and not listed by `get_suites_info`.
+4. ~~Would a `parse_time` filter in `get_objects_to_refresh` pay off?~~ Not pursued (decided 2026-11-10).
