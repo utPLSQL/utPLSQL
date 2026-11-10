@@ -266,6 +266,10 @@ create or replace package test_ut_run is
     --%throws(-20219)
     procedure invalid_tag_expression;
 
+    --%test(Raises an error for an invalid tag expression when the path selects no tests)
+    --%throws(-20219)
+    procedure invalid_tag_expression_no_tests;
+
     --%test(Runs tests matching the tags from packages selected by a wildcard, skipping packages without such tests)
     procedure tag_run_pkg_wildcard;
 

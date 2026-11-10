@@ -338,6 +338,7 @@ Multiple tags are separated by comma.
 ### Tag Expressions
 
 Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
+An invalid tag expression raises an error (ORA-20219) before any test runs.
 
 Two reserved keywords, `any` and `none`, can be used when creating a tag expression to run tests.
 - `any` keyword represents tests and suites with any tags

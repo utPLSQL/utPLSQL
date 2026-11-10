@@ -1301,6 +1301,13 @@ procedure tag_exclude_run_fun_pth_lst_lg is
 
   end;
 
+  procedure invalid_tag_expression_no_tests is
+    l_results   ut3_develop.ut_varchar2_list;
+  begin
+    --the package does not exist, so no test is there to evaluate the tag expression on
+    l_results := ut3_tester_helper.run_helper.run('ut3_tester_helper.no_such_test_package', a_tags => '(development|end_to_end))');
+  end;
+
   procedure tag_run_pkg_wildcard is
     l_results clob;
   begin

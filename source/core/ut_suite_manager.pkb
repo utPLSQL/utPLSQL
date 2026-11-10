@@ -458,8 +458,13 @@ create or replace noneditionable package body ut_suite_manager is
     a_random_seed positive   := null,
     a_tags        varchar2 := null
   ) is
+    l_tags_match  integer;
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
+    --raise an error for an invalid tag expression even when the paths select no tests to evaluate it on
+    if a_tags is not null then
+      l_tags_match := ut_suite_tag_filter.is_matching(null, a_tags);
+    end if;
     a_suites := ut_suite_items();
 
     add_suites_for_paths(
