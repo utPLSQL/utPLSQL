@@ -266,6 +266,18 @@ create or replace package test_ut_run is
     --%throws(-20219)
     procedure invalid_tag_expression;
 
+    --%test(Runs tests matching the tags from packages selected by a wildcard, skipping packages without such tests)
+    procedure tag_run_pkg_wildcard;
+
+    --%test(Runs tests matching the tags from tests selected by a wildcard, skipping the other tests)
+    procedure tag_run_proc_wildcard;
+
+    --%test(Runs tests matching the tags from suitepaths selected by a wildcard, skipping suites without such tests)
+    procedure tag_run_suitepath_wildcard;
+
+    --%test(Raises an error naming the wildcard path when the tags exclude all tests it selects)
+    procedure tag_run_wildcard_none_left;
+
   --%endcontext
 
   --%context(ut3_info context)

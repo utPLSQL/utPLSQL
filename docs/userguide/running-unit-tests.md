@@ -46,6 +46,8 @@ The examples below illustrate different ways and options to invoke `ut.run` proc
 You can use a wildcard character `*` to call tests by part of their name or to call tests that are located on paths matched by part of path string.
 Wildcard character can be placed anywhere on the path and can occur mutliple times.
 Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
+A path with a wildcard selects every matching suite or test that you can run and that matches the tags (see [Run by Tags](#run-by-tags)).
+Matches that you can't run, or that the tags exclude, are skipped. The run fails with a "does not exist" error only when nothing is left.
 
 ```sql linenums="1"
 alter session set current_schema=hr;

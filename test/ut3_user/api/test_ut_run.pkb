@@ -1296,9 +1296,63 @@ procedure tag_exclude_run_fun_pth_lst_lg is
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%'); 
 
     l_results := ut3_tester_helper.run_helper.run(a_tags => '(development|end_to_end))');
-    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');  
-    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');     
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_match('^\s*invalid_tag_expression \[[,\.0-9]+ sec\]\s*$','m');
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like('%(FAILED -%');
 
+  end;
+
+  procedure tag_run_pkg_wildcard is
+    l_results clob;
+  begin
+    --test_tag_pkg_3 has no test tagged fast
+    l_results := ut3_tester_helper.main_helper.table_to_clob(
+      ut3_tester_helper.run_helper.run('ut3_tester_helper.test_tag_pkg_*', a_tags => 'fast')
+    );
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_tag_pkg_1.test1 executed%' );
+    ut.expect( l_results ).to_be_like( '%test_tag_pkg_2.test3 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_1.test2 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_2.test4 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_3%' );
+  end;
+
+  procedure tag_run_proc_wildcard is
+    l_results clob;
+  begin
+    --test_tag_pkg_1.test2 is not tagged fast
+    l_results := ut3_tester_helper.main_helper.table_to_clob(
+      ut3_tester_helper.run_helper.run('ut3_tester_helper.test_tag_pkg_1.test*', a_tags => 'fast')
+    );
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_tag_pkg_1.test1 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_1.test2 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_3%' );
+  end;
+
+  procedure tag_run_suitepath_wildcard is
+    l_results clob;
+  begin
+    --suitepath suite3 (test_tag_pkg_3) has no test tagged fast
+    l_results := ut3_tester_helper.main_helper.table_to_clob(
+      ut3_tester_helper.run_helper.run('ut3_tester_helper:suite*', a_tags => 'fast')
+    );
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_tag_pkg_1.test1 executed%' );
+    ut.expect( l_results ).to_be_like( '%test_tag_pkg_2.test3 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_1.test2 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_2.test4 executed%' );
+    ut.expect( l_results ).not_to_be_like( '%test_tag_pkg_3%' );
+  end;
+
+  procedure tag_run_wildcard_none_left is
+    l_results ut3_develop.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run('ut3_tester_helper.test_tag_pkg_*', a_tags => 'nonexisting');
+    ut.fail('Expected exception ORA-20204 was not raised');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-20204: Suite package ut3_tester_helper.test_tag_pkg_* does not exist%');
   end;
 
   procedure set_application_info is
