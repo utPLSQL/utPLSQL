@@ -17,9 +17,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
   */
 
   /*
-  * Private code
+  * Public code
   */
-  function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
+
+  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
     l_path_item          ut_path_item;
@@ -45,94 +46,49 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
   
   /*
-    First SQL queries for objects where procedure is null or its only wildcard.
-    We split that due to fact that we can use func min to combine rows.
-    
-    Second union is responsible expanding paths where the procedure filter is given
-    We cannot select min here as filter can cover only half of tests within
-    package. Even if the filter doesnt return anything we still capture a proc filter
-    name for error reporting later on.
-    
-    Third SQL cover scenario where a suitapath only is populated and wildcard is given
-    
-    Fourth SQL cover scenario where suitepath is populated with no filters
-  */   
-  function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
-    l_schema_paths ut_path_items:= ut_path_items();
-  begin   
-    with 
-      schema_paths as (
-      select * from table(a_schema_paths)
-    ),    
-      paths_for_object as ( 
-      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
-        null as procedure_name
-        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c
-        on ( c.object_owner = upper(sp.schema_name)
-        and c.object_name like  replace(upper(sp.object_name),'*','%'))
-        where sp.suite_path is null and sp.object_name is not null
-        and ( sp.procedure_name is null or sp.procedure_name = '*')
-        group by sp.schema_name,nvl(c.object_name,sp.object_name)
-      ),
-      paths_for_procedures as (
-      select /*+ no_parallel */ path as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
-        nvl(c.name,sp.procedure_name) as procedure_name
-        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c
-        on ( c.object_owner = upper(sp.schema_name)
-        and c.object_name like  replace(upper(sp.object_name),'*','%')
-        and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
-        where sp.suite_path is null and sp.object_name is not null
-        and (sp.procedure_name is not null and sp.procedure_name != '*')      
-      ),
-      paths_for_suite_path_with_ast as (
-      select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-        from schema_paths sp left outer join &&ut3_owner..ut_suite_cache c on
-        ( c.object_owner = upper(sp.schema_name) 
-        --and c.path like replace(sp.suite_path,'*','%'))
-        and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[[:alnum:]$#_]*')))
-        where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
-      ),
-      straigth_suite_paths as (
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-       from schema_paths sp
-       where 
-       (sp.suite_path is not null and instr(sp.suite_path,'*') = 0)
-       or 
-       (sp.suite_path is null and sp.object_name is null)
-    ),
-    all_suitepaths_together as (
-    select * from paths_for_object
-    union all
-    select * from paths_for_procedures
-    union all
-    select * from paths_for_suite_path_with_ast
-    union all 
-    select * from straigth_suite_paths
-    )
-    select &&ut3_owner..ut_path_item(schema_name,object_name,procedure_name,suite_path)
-      bulk collect into l_schema_paths
-      from 
-      (select schema_name,object_name,procedure_name,suite_path,
-      row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) as r_num
-      from all_suitepaths_together)
-      where r_num = 1 ;
-    return l_schema_paths;
-  end;
-  
-  /*
-  * Public code
+    Returns ids of the cache rows the paths select (wildcards included, see ut_suite_cache_macros.match_paths)
+    and of their parents, only for packages the invoking user can access, unless a_skip_access_check is true.
+    A separate statement, as a SQL macro cannot be used inside a WITH clause (ORA-64630).
   */
-  
-  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
+  function get_matched_ids(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
+  ) return ut_integer_list is
+    l_results            ut_integer_list;
+    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
   begin
-    return expand_paths(group_paths_by_schema(a_paths));
+    --all_objects is used only in the main query: in a WITH clause of a statement with a SQL macro it raises ORA-00942
+    with
+      path_items as (
+        select rownum as path_id, sp.schema_name, sp.object_name, sp.procedure_name, sp.suite_path
+          from table(a_schema_paths) sp
+      ),
+      schema_items as (
+        --only scalar columns: a table argument of a SQL macro cannot have collection columns (ORA-62558)
+        select /*+ no_parallel */ c.id, c.object_owner, c.object_name, c.name, c.path
+          from &&ut3_owner..ut_suite_cache c
+         where c.object_owner in (select upper(p.schema_name) from path_items p)
+      )
+    select /*+ no_parallel */ distinct r.id
+      bulk collect into l_results
+      from (&&ut3_owner..ut_suite_cache_macros.match_paths(schema_items, path_items)) m
+      join schema_items s
+        on s.object_owner = m.object_owner
+       and s.path = m.path
+      join schema_items r
+        on r.object_owner = s.object_owner
+       and ( r.path = s.path or substr(s.path, 1, length(r.path) + 1) = r.path || '.' /* the selected row or its parent */ )
+     where l_skip_access_check = 'Y'
+        or ( exists ( select 1 from all_objects a where a.owner = s.object_owner and a.object_name = s.object_name and a.object_type = 'PACKAGE' )
+             and exists ( select 1 from all_objects a where a.owner = r.object_owner and a.object_name = r.object_name and a.object_type = 'PACKAGE' )
+           );
+    return l_results;
   end;
-  
+
   /*
-    Returns suite items for the paths in one statement, sorted bottom up, so that reconstruct_from_cache in ut_suite_manager
+    Returns suite items for the paths, sorted bottom up, so that reconstruct_from_cache in ut_suite_manager
     can build the suite hierarchy in a single pass. The statement:
-    - matched_rows:   cache rows matching the paths (all parents and children of a suite path, or the package / procedure),
-                      only for packages the invoking user can access, unless a_skip_access_check is true
+    - matched_rows:   the rows from get_matched_ids
     - tagged_rows:    when tags are given, the rows having a test matching the tag expression below them (or being one);
                       a test inherits the tags of the suites and contexts above it
     - logical_suites: suites for the parts of the suitepaths that have no package behind them
@@ -146,39 +102,13 @@ create or replace noneditionable package body ut_suite_cache_manager is
     a_random_seed        positive := null
   ) return ut_suite_cache_rows is
     l_results            ut_suite_cache_rows;
-    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
+    l_matched_ids        ut_integer_list := get_matched_ids(a_schema_paths, a_skip_access_check);
   begin
     with
       matched_rows as (
         select /*+ no_parallel */ c.id, c.self_type, c.path, c.object_owner, c.object_name, c.line_no, c.tags
           from &&ut3_owner..ut_suite_cache c
-         where exists (
-                 select /*+ no_expand */ 1
-                   from table(a_schema_paths) sp
-                  where c.object_owner = upper(sp.schema_name)
-                    and ( ( sp.suite_path is not null
-                            and ( sp.suite_path||'.' like c.path||'.%' /* all parents and self */
-                                  or ( c.path||'.' like sp.suite_path||'.%' /* all children and self */
-                                       and c.object_name like nvl(upper(sp.object_name),c.object_name)
-                                       and c.name like nvl(upper(sp.procedure_name),c.name)
-                                     )
-                                )
-                          )
-                          or ( sp.suite_path is null
-                               and c.object_name = nvl(upper(sp.object_name),c.object_name)
-                               and c.name = nvl(upper(sp.procedure_name),c.name)
-                             )
-                        )
-               )
-           and ( l_skip_access_check = 'Y'
-                 or exists (
-                      select 1
-                        from all_objects a
-                       where a.owner       = c.object_owner
-                         and a.object_name = c.object_name
-                         and a.object_type = 'PACKAGE'
-                    )
-               )
+         where c.id in (select m.column_value from table(l_matched_ids) m)
       ),
       propagate_tags_from_ancestors as (
         select c.id, c.self_type, c.path, c.object_owner, listagg(distinct c_tags.tag, ',') within group (order by c_tags.tag) as tags
@@ -271,6 +201,40 @@ create or replace noneditionable package body ut_suite_cache_manager is
      order by o.order1 desc;
 
     return l_results;
+  end;
+
+  procedure reconcile_paths_and_suites(
+    a_schema_paths ut_path_items,
+    a_suite_rows   ut_suite_cache_rows
+  ) is
+  begin
+    for i in (
+      with
+        path_items as (
+          select /*+ materialize */ rownum as path_id, sp.schema_name, sp.object_name, sp.procedure_name, sp.suite_path
+            from table(a_schema_paths) sp
+        ),
+        suite_items as (
+          select r.object_owner, r.object_name, r.name, r.path
+            from table(a_suite_rows) r
+        )
+      select /*+ no_parallel */ p.schema_name, p.object_name, p.procedure_name, p.suite_path
+        from path_items p
+       where not exists (
+               select 1
+                 from (&&ut3_owner..ut_suite_cache_macros.match_paths(suite_items, path_items)) m
+                where m.path_id = p.path_id
+             )
+       order by p.path_id
+    ) loop
+      if i.suite_path is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||i.schema_name||':'||i.suite_path|| '.');
+      elsif i.procedure_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||i.schema_name||'.'||i.object_name|| '.'||i.procedure_name||' does not exist');
+      elsif i.object_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||i.schema_name||'.'||i.object_name|| ' does not exist');
+      end if;
+    end loop;
   end;
 
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is

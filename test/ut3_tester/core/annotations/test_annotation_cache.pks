@@ -294,6 +294,19 @@ create or replace package test_annotation_cache is
     --%throws(-20204)
     procedure user_hidden_path_not_found;
 
+    --%test(Runs only granted packages matched by a package name with wildcards)
+    procedure user_runs_granted_by_wildcard;
+
+    --%test(Runs only tests of granted packages matched by procedure name with wildcards)
+    procedure user_runs_granted_tests_by_wildcard;
+
+    --%test(Runs granted packages below a suitepath with wildcards)
+    procedure user_runs_granted_by_path_wildcard;
+
+    --%test(Raises an error for a suitepath with wildcards without granted packages below it)
+    --%throws(-20204)
+    procedure user_hidden_path_wildcard_not_found;
+
   --%endcontext
 
 end;

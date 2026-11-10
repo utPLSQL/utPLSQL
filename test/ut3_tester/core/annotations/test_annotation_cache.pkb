@@ -554,6 +554,55 @@ create or replace package body test_annotation_cache is
     rollback;
   end;
 
+  procedure user_runs_granted_by_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches child_suite (granted) and lone_suite (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.*l*_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%lone_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_granted_tests_by_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches child_suite.child_test (granted) and lone_suite.lone_test (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.*l*_suite.*_test' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%lone_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_granted_by_path_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches parent_suite (not granted) and parent_suite.child_suite (granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:parent*' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_hidden_path_wildcard_not_found is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches only hidden_path.sub.lone_suite (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:hidden*' );
+    rollback;
+  exception
+    when others then
+      rollback;
+      raise;
+  end;
+
   procedure user_hidden_path_not_found is
     l_actual clob;
     pragma autonomous_transaction;

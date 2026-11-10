@@ -45,6 +45,10 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
   */
   procedure remove_missing_objs_from_cache(a_schema_name varchar2);
 
+  /*
+  * Splits run paths (schema[.package[.procedure]] or schema:suitepath, wildcards allowed) into their parts.
+  * Wildcards are resolved by get_suite_rows.
+  */
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items;
 
   /*
@@ -60,6 +64,15 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
     a_tags               varchar2 := null,
     a_random_seed        positive := null
   ) return ut_suite_cache_rows;
+
+  /*
+  * Raises ut_utils.gc_suite_package_not_found for the first path that selects none of the suite rows
+  * (as returned by get_suite_rows), with the same matching rules as get_suite_rows.
+  */
+  procedure reconcile_paths_and_suites(
+    a_schema_paths ut_path_items,
+    a_suite_rows   ut_suite_cache_rows
+  );
 
   function get_suite_items_info(
     a_suite_cache_items ut_suite_cache_rows

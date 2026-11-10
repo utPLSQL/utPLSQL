@@ -12,9 +12,9 @@ Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature
 | P2 | chain of collection → collection functions | **done** | one statement with named CTEs: `get_suite_rows` (step 4) |
 | P3 | logical suites appended to a collection | **done** | CTE of the main statement (step 4) |
 | P4 | sort by self-join of a collection | **done** | recursive CTE of the main statement (step 4) |
-| P5 | paths reconciled against a collection | open | keep, over the single final result |
+| P5 | paths reconciled against a collection | **done** | `ut_suite_cache_manager.reconcile_paths_and_suites`, same matching rule as P7 |
 | P6 | collection → ref cursor → collection | **done, partly** | collection passed, no cursor; rows still converted to records (ORA-00600) |
-| P7 | two scans of `ut_suite_cache` for path matching | open | one path-matching CTE |
+| P7 | two scans of `ut_suite_cache` for path matching | **done** | table SQL macro `ut_suite_cache_macros.match_paths` (step 5) |
 | P8 | list handed between the two cache modules | **done** | table SQL macro `ut_annotation_cache_macros.get_cached_objects` |
 | P9 | full rows loaded only to project scalars | open | Flow B reuses the main statement and projects |
 | P10 | PL/SQL objects inserted through `table()` | keep | legitimate |
@@ -92,6 +92,10 @@ Consolidated from the checks on 19.20 EE, 21.3 XE and 23ai Free (2026-11-09).
     - `compile_schema`, run as SYS or as `UT3_DEVELOP`, left that body invalid: `ORA-62565` / `PLS-00201: identifier 'UT_ANNOTATION_CACHE_MACROS.GET_CACHED_OBJECTS' must be declared`.
     - `alter package ut_suite_cache_manager compile body` (as SYS or `UT3_DEVELOP`) compiled it.
     - So recompile such bodies with `alter package ... compile body`.
+13. **Restrictions on table SQL macros with `dbms_tf.table_t` arguments.** Seen on 19.20, 2026-11-10, in step 5:
+    - **No macro inside a `WITH` clause:** `ORA-64630: use of SQL macro inside WITH clause is not supported`. CTEs can be macro arguments, and the macro can be called from the main query or a subquery of it.
+    - **No collection columns in a table argument:** `ORA-62558: Unsupported data types (TABLE) for polymorphic table function`. Pass a CTE with the scalar columns only.
+    - **No `all_objects` in a CTE of the statement:** with `all_objects` (or `sys.all_objects`) in any CTE of a statement that calls the macro, the statement compiles but fails at run time with `ORA-00942`. That happened even for the owner, and in a definer-rights package. The same predicate in the main query's `where` works.
 
 #### Other statement-level findings (step 4, 19.20, 2026-11-10)
 
@@ -279,8 +283,9 @@ The new behaviour was accepted on 2026-11-09. It is covered by the context "Suit
 
 ### P5: validate by joining two collections
 
-- **Where:** `reconcile_paths_and_suites` ([ut_suite_manager.pkb:328](../source/core/ut_suite_manager.pkb:328)).
+- **Where (before step 5):** `reconcile_paths_and_suites` in `ut_suite_manager`.
 - **What:** expanded paths are left-joined to the final rows to find paths that matched nothing. The first one raises an error.
+- **Done in step 5:** `ut_suite_cache_manager.reconcile_paths_and_suites(a_schema_paths, a_suite_rows)` checks the raw paths, wildcards included, against the final rows with `ut_suite_cache_macros.match_paths`, the same rule `get_suite_rows` uses. The error messages are unchanged.
 - **Note:** this runs **after** the tag and access filters. As the code reads, a package path whose tests are all excluded by tags raises "Suite package ... does not exist". **Verify** whether this is intended and covered by tests (open question 1). Any reordering must keep this behaviour.
 - **Approach:** keep it as one small check over the single final collection. It is cheap once P2 is done.
 
@@ -318,6 +323,27 @@ Found in step 2, on 19.20 EE, 2026-11-09:
 - **Cost:** two scans, and three places that encode "how a path matches a cache row" (`expand_paths`, `get_suite_items`, `reconcile_paths_and_suites`), each slightly differently. This is the hardest part of the code to reason about.
 - **Note:** the `where` clause of `get_suite_items` mixes `and`/`or` without full parentheses. It works because `null || '.%'` can't match a real path, not because of the structure.
 - **Approach:** one "path → matching cache rows" CTE in the main statement, with one definition of the matching rules. `group_paths_by_schema` stays a PL/SQL parser, and its `ut_path_items` stays a bind (P11). `reconcile` uses the same CTE (paths with no match).
+- **Done in step 5.**
+  - `expand_paths` is gone, and `get_schema_paths` only splits paths into schema, package, procedure and suitepath; it no longer reads the cache.
+  - **One rule:** the table SQL macro `ut_suite_cache_macros.match_paths(a_items, a_paths)` is the only definition of which items a path selects:
+    - a schema: all its items;
+    - a package or `package.*`: the package's items;
+    - `package.procedure`: the items with that name;
+    - `:suitepath`: that item and everything below it;
+    - `:suite*path`: items whose path starts with a match of the pattern.
+  - **Two users of the rule:** `get_suite_rows`, through the new private `get_matched_ids`, and `reconcile_paths_and_suites`.
+  - **`get_matched_ids`** is a separate statement, because a macro cannot be used inside a `WITH` clause (rule 13). It returns the ids of the selected rows and their parents. The statement of `get_suite_rows` then starts from those ids.
+  - **The access check comes before parents are added.** A wildcard selects only packages the user can access, and only accessible parents are added.
+  - **Behaviour changes:**
+    - **Wildcards for users with partial access work.** Before, `owner.*_suite`, `owner.*_suite.*_test` or `owner:parent*` raised "does not exist" as soon as the wildcard also matched a package the user can't access, or one dropped but still in the cache. `expand_paths` didn't check access and returned one path per match.
+    - **`_` in package and procedure names is no longer a `LIKE` wildcard.**
+    - **`.` and `$` in suitepath patterns are literal.**
+    - **A suitepath without `*` is compared exactly**, not with `LIKE`.
+  - **New macro package:** `ut_suite_cache_macros` is definer rights (rule 2). It is in `install.sql` and `uninstall_objects.sql`, and is granted to the CBAC role and, in `create_grants.sql`, to the framework users (rule 4). `ut_integer_list` is also granted to the role.
+  - **Tests:**
+    - before the change (commit `a7ba8c8a`): overlapping paths in one call;
+    - with it: four tests in `test_annotation_cache` for wildcards run by a user with partial access. They fail on the code before step 5.
+    - The path wildcard tests of `test_suite_manager` (`-- %test`) were already active: the parser accepts `-- %`.
 
 ### P8: list handed over between two cache modules (done)
 
@@ -428,7 +454,10 @@ Notes:
      - The same database after a full run, with only the `ut_suite_cache_manager` and test bodies recompiled.
      - Full run: 1148 tests, 0 failed, 0 errored, 3 disabled. That is 1144 (1140 plus 4 `is_matching` tests) plus the 4 tests `test_tfs_junit_reporter` leaves behind.
    - **Why 1144:** 1140 tests, plus 4 from packages that `test_tfs_junit_reporter` leaves behind when run twice on one database. Its `remove_test_package` doesn't drop `check_junit_in_context`, `check_junit_out_context` and `check_junit_inout_context`. That test bug predates this work.
-5. **P7: merge `expand_paths` into the path CTE.** This is the riskiest step. Wildcard semantics and error messages are covered by `test_ut_run` / `test_ut_runner` in `ut3_user`. Do it last among the merges, with those suites as the safety net.
+5. **P7: path resolution in one place. Done.** See P7 and P5. The tests were reviewed first:
+   - **Already covered:** paths by schema, package, procedure and suitepath; procedures inside contexts; `$` and `#` in names; wildcards at the end, front, middle and multiple, for package, procedure and suitepath; paths that match nothing.
+   - **Added before the change:** overlapping paths in one call.
+   - **Added with the change:** wildcards for a user with partial access.
 6. **P9: Flow B on the same statement text.** Remove `get_cached_suite_info` and `get_suite_items_info` from the spec, and merge finding 2.
 
 ## Bigger options to consider separately

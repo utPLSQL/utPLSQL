@@ -68,6 +68,7 @@ grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 --On Oracle 21c XE, expanding a macro requires the calling user to have execute privilege on it.
 --The macros only return SQL text; the tables they reference stay accessible only through the code based access control role.
 grant execute on &&ut3_owner..ut_annotation_cache_macros to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_cache_macros to &ut3_user;
 
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;

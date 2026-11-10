@@ -47,10 +47,12 @@ grant execute on &&ut3_owner..ut_test             to &&ut3_owner._cbac_modify_ob
 grant execute on &&ut3_owner..ut_executables      to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_executable_test  to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_varchar2_rows    to &&ut3_owner._cbac_modify_objects_role;
+grant execute on &&ut3_owner..ut_integer_list     to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_path_item        to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_object_name      to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_utils            to &&ut3_owner._cbac_modify_objects_role;
 grant execute on &&ut3_owner..ut_suite_tag_filter to &&ut3_owner._cbac_modify_objects_role;
+grant execute on &&ut3_owner..ut_suite_cache_macros to &&ut3_owner._cbac_modify_objects_role;
 
 grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_annotation_cache_manager;
 grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_annotation_manager;

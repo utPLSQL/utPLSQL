@@ -114,6 +114,8 @@ drop package ut_suite_tag_filter;
 
 drop package ut_suite_cache_manager;
 
+drop package ut_suite_cache_macros;
+
 drop table ut_suite_cache purge;
 
 drop type ut_suite_cache_rows force;

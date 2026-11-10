@@ -306,30 +306,6 @@ create or replace noneditionable package body ut_suite_manager is
     return ut_metadata.user_has_execute_any_proc() or a_skip_all_objects;
   end;
 
-  procedure reconcile_paths_and_suites(
-    a_schema_paths     ut_path_items,
-    a_filtered_rows    ut_suite_cache_rows
-  ) is
-  begin
-    for i in ( select  /*+ no_parallel */ sp.schema_name,sp.object_name,sp.procedure_name,
-        sp.suite_path,sc.path
-      from table(a_schema_paths) sp left outer join
-      table(a_filtered_rows) sc on
-        (( upper(sp.schema_name) = upper(sc.object_owner) and upper(sp.object_name) = upper(sc.object_name)
-           and nvl(upper(sp.procedure_name),sc.name) = sc.name )
-        or (sc.path = sp.suite_path))
-        where sc.path is null)
-    loop
-      if i.suite_path is not null then
-        raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||i.schema_name||':'||i.suite_path|| '.');
-      elsif i.procedure_name is not null then
-        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||i.schema_name||'.'||i.object_name|| '.'||i.procedure_name||' does not exist');
-      elsif i.object_name is not null then
-        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||i.schema_name||'.'||i.object_name|| ' does not exist');
-      end if;
-    end loop;
-  end;
-
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
@@ -341,7 +317,7 @@ create or replace noneditionable package body ut_suite_manager is
     l_suite_rows := ut_suite_cache_manager.get_suite_rows(
       a_schema_paths, skip_access_check(a_skip_all_objects), a_tags, a_random_seed
     );
-    reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
+    ut_suite_cache_manager.reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
 
     return l_suite_rows;
   end;
