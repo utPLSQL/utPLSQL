@@ -66,15 +66,6 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
   ) return ut_suite_cache_rows;
 
   /*
-  * Raises ut_utils.gc_suite_package_not_found for the first path that selects none of the suite rows
-  * (as returned by get_suite_rows), with the same matching rules as get_suite_rows.
-  */
-  procedure reconcile_paths_and_suites(
-    a_schema_paths ut_path_items,
-    a_suite_rows   ut_suite_cache_rows
-  );
-
-  /*
   * Retrieves information about the suite items matching the paths, as get_suite_rows does without tags.
   * Not to be used publicly. Used internally for ut_runner.get_suites_info.
   */

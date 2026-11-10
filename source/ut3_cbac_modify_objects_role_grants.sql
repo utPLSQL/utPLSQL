@@ -14,9 +14,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Code based access control for the invoker rights packages ut_annotation_cache_manager, ut_annotation_manager and ut_suite_cache_manager.
+  Code based access control for the invoker rights packages ut_annotation_cache_manager, ut_annotation_manager,
+  ut_suite_cache_manager and ut_suite_manager.
   The packages access the annotation and suite cache tables through the role <framework owner>_cbac_modify_objects_role,
-  directly or through the SQL macros of ut_annotation_cache_macros,
+  directly or through the SQL macros of ut_annotation_cache_macros and ut_suite_cache_macros,
   so the users calling the framework do not need any privileges on those tables.
   The types and packages used in SQL statements of those packages are granted to the role too,
   so they do not need to be granted to the users calling the framework.
@@ -57,4 +58,5 @@ grant execute on &&ut3_owner..ut_suite_cache_macros to &&ut3_owner._cbac_modify_
 grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_annotation_cache_manager;
 grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_annotation_manager;
 grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_suite_cache_manager;
+grant &&ut3_owner._cbac_modify_objects_role to package &&ut3_owner..ut_suite_manager;
 

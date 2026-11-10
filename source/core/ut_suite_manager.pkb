@@ -277,6 +277,45 @@ create or replace noneditionable package body ut_suite_manager is
     return true;
   end;
 
+  /*
+    Raises ut_utils.gc_suite_package_not_found for the first path that selects none of the suite rows
+    (as returned by ut_suite_cache_manager.get_suite_rows), with the same matching rule:
+    the SQL macro ut_suite_cache_macros.match_paths.
+  */
+  procedure reconcile_paths_and_suites(
+    a_schema_paths ut_path_items,
+    a_suite_rows   ut_suite_cache_rows
+  ) is
+  begin
+    for i in (
+      with
+        path_items as (
+          select /*+ materialize */ rownum as path_id, sp.schema_name, sp.object_name, sp.procedure_name, sp.suite_path
+            from table(a_schema_paths) sp
+        ),
+        suite_items as (
+          select r.object_owner, r.object_name, r.name, r.path
+            from table(a_suite_rows) r
+        )
+      select /*+ no_parallel */ p.schema_name, p.object_name, p.procedure_name, p.suite_path
+        from path_items p
+       where not exists (
+               select 1
+                 from (&&ut3_owner..ut_suite_cache_macros.match_paths(suite_items, path_items)) m
+                where m.path_id = p.path_id
+             )
+       order by p.path_id
+    ) loop
+      if i.suite_path is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||i.schema_name||':'||i.suite_path|| '.');
+      elsif i.procedure_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||i.schema_name||'.'||i.object_name|| '.'||i.procedure_name||' does not exist');
+      elsif i.object_name is not null then
+        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||i.schema_name||'.'||i.object_name|| ' does not exist');
+      end if;
+    end loop;
+  end;
+
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
@@ -287,7 +326,7 @@ create or replace noneditionable package body ut_suite_manager is
     l_suite_rows := ut_suite_cache_manager.get_suite_rows(
       a_schema_paths, can_skip_access_check(a_schema_paths), a_tags, a_random_seed
     );
-    ut_suite_cache_manager.reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
+    reconcile_paths_and_suites(a_schema_paths, l_suite_rows);
 
     return l_suite_rows;
   end;
