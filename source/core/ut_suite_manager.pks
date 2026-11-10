@@ -72,8 +72,7 @@ create or replace noneditionable package ut_suite_manager authid current_user is
     a_annotated_objects sys_refcursor,
     a_path              varchar2 := null,
     a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
+    a_procedure_name    varchar2 := null
   ) return ut_suite_items;
 
 

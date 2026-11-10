@@ -259,34 +259,37 @@ create or replace noneditionable package body ut_suite_manager is
   end reconstruct_from_cache;
 
   /*
-    Users with EXECUTE ANY PROCEDURE can run all packages, so their access does not need checking.
+    A user can run all packages of a schema they own, and of any schema with EXECUTE ANY PROCEDURE,
+    so the access to those packages does not need checking.
   */
-  function skip_access_check(a_skip_all_objects boolean := false) return boolean is
+  function can_skip_access_check(a_owner_name varchar2) return boolean is
   begin
-    return ut_metadata.user_has_execute_any_proc() or a_skip_all_objects;
+    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
+  end;
+
+  function can_skip_access_check(a_schema_paths ut_path_items) return boolean is
+  begin
+    for i in 1 .. a_schema_paths.count loop
+      if not can_skip_access_check(a_schema_paths(i).schema_name) then
+        return false;
+      end if;
+    end loop;
+    return true;
   end;
 
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
-    a_tags             varchar2 := null,
-    a_skip_all_objects boolean  := false
+    a_tags             varchar2 := null
   ) return ut_suite_cache_rows is
     l_suite_rows         ut_suite_cache_rows;
   begin
     l_suite_rows := ut_suite_cache_manager.get_suite_rows(
-      a_schema_paths, skip_access_check(a_skip_all_objects), a_tags, a_random_seed
+      a_schema_paths, can_skip_access_check(a_schema_paths), a_tags, a_random_seed
     );
     ut_suite_cache_manager.reconcile_paths_and_suites(a_schema_paths,l_suite_rows);
 
     return l_suite_rows;
-  end;
-
-  function can_skip_all_objects_scan(
-    a_owner_name         varchar2
-  ) return boolean is
-  begin
-    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(
@@ -347,7 +350,7 @@ create or replace noneditionable package body ut_suite_manager is
 
     build_and_cache_suites(l_owner_name, l_annotations_cursor);
 
-    if can_skip_all_objects_scan(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
+    if can_skip_access_check(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
       ut_suite_cache_manager.remove_missing_objs_from_cache( l_owner_name );
     end if;
 
@@ -400,8 +403,7 @@ create or replace noneditionable package body ut_suite_manager is
     a_annotated_objects sys_refcursor,
     a_path              varchar2 := null,
     a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
+    a_procedure_name    varchar2 := null
   ) return ut_suite_items is
     l_suites             ut_suite_items := ut_suite_items();
     l_schema_paths       ut_path_items;
@@ -413,8 +415,7 @@ create or replace noneditionable package body ut_suite_manager is
       get_cached_suite_data(
         l_schema_paths,
         null,
-        null,
-        a_skip_all_objects
+        null
       )
     );
     return l_suites;
@@ -476,8 +477,9 @@ create or replace noneditionable package body ut_suite_manager is
   ) return sys_refcursor is
     l_result             sys_refcursor;
     l_all_suite_info     ut_suite_items_info;
+    l_schema_paths       ut_path_items := refresh_cache_for_paths(a_paths);
   begin
-    l_all_suite_info := ut_suite_cache_manager.get_suites_info(refresh_cache_for_paths(a_paths), skip_access_check());
+    l_all_suite_info := ut_suite_cache_manager.get_suites_info(l_schema_paths, can_skip_access_check(l_schema_paths));
     open l_result for
       select /*+ no_parallel */ value(c)
         from table(l_all_suite_info) c
@@ -500,7 +502,7 @@ create or replace noneditionable package body ut_suite_manager is
 
     refresh_cache(l_owner_name);
     l_item_exists := ut_suite_cache_manager.suite_item_exists( l_owner_name, l_package_name, l_procedure_name );
-    if not can_skip_all_objects_scan( l_owner_name ) and l_package_name is not null then
+    if not can_skip_access_check( l_owner_name ) and l_package_name is not null then
       select /*+ no_parallel */ count(1)
         into l_count
         from dual c

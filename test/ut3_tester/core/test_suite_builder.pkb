@@ -20,8 +20,7 @@ create or replace package body test_suite_builder is
       a_owner_name => 'UT3_TESTER',
       a_annotated_objects => l_cursor,
       a_path => null,
-      a_object_name => a_package_name,
-      a_skip_all_objects => true
+      a_object_name => a_package_name
     );
     l_suite  := treat( l_suites(l_suites.first) as ut3_develop.ut_logical_suite);
  
