@@ -146,6 +146,28 @@ create or replace package body run_helper is
     ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER_HELPER','PROCEDURE');
   end;
 
+  procedure setup_cache_context_disabled is
+    pragma autonomous_transaction;
+  begin
+    --the procedures that cleanup_cache drops
+    setup_cache_objects();
+    execute immediate q'[create or replace package ut3_user.dummy_test_package as
+        --%suite(dummy_test_suite)
+        --%suitepath(some.path)
+
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+
+        --%context(dummy_context)
+
+        --%test(disabled_test)
+        --%disabled(not ready)
+        procedure disabled_test_procedure;
+
+        --%endcontext
+      end;]';
+  end;
+
   procedure cleanup_cache is
     pragma autonomous_transaction;
   begin
