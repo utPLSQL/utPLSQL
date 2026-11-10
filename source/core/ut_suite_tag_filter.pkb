@@ -30,7 +30,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
 
   --last tag expression and its condition, see create_where_filter
   g_last_tag_expression varchar2(4000);
-  g_last_where_filter   varchar2(32767);
+  g_last_tags_filter   varchar2(32767);
 
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list is
     l_tags_tokens ut_varchar2_list := ut_varchar2_list();
@@ -210,29 +210,33 @@ create or replace noneditionable package body ut_suite_tag_filter is
     Generates a condition on a collection named "tags" from a tag expression.
     Raises ut_utils.gc_invalid_tag_expression for an invalid expression.
   */
-  function create_where_filter(a_tags varchar2
-  ) return varchar2 deterministic is
-    l_tags varchar2(4000);
+  function create_where_filter(a_tag_expression varchar2, a_tags_var_name varchar2) return varchar2 is
+    l_tags_filter varchar2(4000);
   begin
-    --deterministic caches results only for calls from SQL, so the last result is also kept for repeated calls from is_matching
-    if g_last_tag_expression = a_tags then
-      return g_last_where_filter;
+    -- if calculated already, return previously calculated value. Cache of input tag filter expression evaluation
+    if g_last_tag_expression = a_tag_expression then
+      return g_last_tags_filter;
     end if;
-    l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
-    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)),'tags');
-    l_tags := replace(l_tags, '|',' or ');
-    l_tags := replace(l_tags ,'&',' and ');
-    l_tags := replace(l_tags ,'!','not');
-    g_last_tag_expression := a_tags;
-    g_last_where_filter   := l_tags;
-    return l_tags;
+    l_tags_filter := replace(replace_legacy_tag_notation(a_tag_expression),' ');
+    l_tags_filter := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags_filter)),a_tags_var_name);
+    l_tags_filter := replace(l_tags_filter, '|',' or ');
+    l_tags_filter := replace(l_tags_filter ,'&',' and ');
+    l_tags_filter := replace(l_tags_filter ,'!','not');
+    g_last_tag_expression := a_tag_expression;
+    g_last_tags_filter    := l_tags_filter;
+    return l_tags_filter;
   end;
 
   function is_matching(a_tags varchar2, a_tag_expression varchar2) return integer deterministic is
-    l_result integer;
+    l_result        integer;
+    c_tags_col_name varchar2(10) := 'l_tags';
   begin
     execute immediate
-      'declare tags ut_varchar2_list := :a_tags; begin :a_result := case when '||create_where_filter(a_tag_expression)||' then 1 else 0 end; end;'
+      'declare ' ||
+      '  '||c_tags_col_name||' ut_varchar2_list := :a_tags; ' ||
+      'begin ' ||
+      '  :a_result := case when '||create_where_filter(a_tag_expression, c_tags_col_name)||' then 1 else 0 end; ' ||
+      'end;'
       using in ut_utils.string_to_table(a_tags, ','), out l_result;
     return l_result;
   end;
