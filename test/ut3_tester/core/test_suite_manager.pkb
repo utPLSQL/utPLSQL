@@ -502,6 +502,36 @@ end test2_multi_wildcard;]';
 
   end;
 
+  function count_tests(a_items ut3_develop.ut_suite_items) return integer is
+    l_count integer := 0;
+  begin
+    for i in 1 .. a_items.count loop
+      if a_items(i) is of (ut3_develop.ut_test) then
+        l_count := l_count + 1;
+      else
+        l_count := l_count + count_tests(treat(a_items(i) as ut3_develop.ut_logical_suite).items);
+      end if;
+    end loop;
+    return l_count;
+  end;
+
+  procedure test_overlapping_paths is
+    c_owner          varchar2(128) := sys_context('USERENV', 'CURRENT_USER');
+    l_expected_items ut3_develop.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    --Arrange
+    l_expected_items := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_owner||':tests'));
+    --Act - the packages are part of the suitepath
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(
+      ut3_develop.ut_varchar2_list(c_owner||':tests', c_owner||'.test_package_1', c_owner||'.test_package_2')
+    );
+    --Assert
+    ut.expect(count_tests(l_expected_items)).to_be_greater_than(0);
+    ut.expect(l_objects_to_run.count).to_equal(1);
+    ut.expect(count_tests(l_objects_to_run)).to_equal(count_tests(l_expected_items));
+  end;
+
   procedure test_top2_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_2';
     l_objects_to_run ut3_develop.ut_suite_items;
