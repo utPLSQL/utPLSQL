@@ -114,7 +114,8 @@ create or replace package body test_ut_suite_tag_filter is
   end;
 
   procedure is_matching_is_cached_in_sql is
-    c_block  constant varchar2(100) := 'declare tags ut_varchar2_list := :a_tags;%''cache_probe'' member of tags%';
+    --the anonymous block run by is_matching for the expression 'cache_probe'
+    c_block  constant varchar2(100) := 'declare %ut_varchar2_list := :a_tags;%''cache_probe'' member of %';
     l_before number;
     l_after  number;
     l_count  integer;
@@ -126,7 +127,8 @@ create or replace package body test_ut_suite_tag_filter is
      where ut3_develop.ut_suite_tag_filter.is_matching('t'||k||',x', 'cache_probe') = 0;
     l_after := ut3_tester_helper.main_helper.get_sql_executions(c_block);
     ut.expect( l_count ).to_equal(1000);
-    ut.expect( l_after - l_before ).to_be_less_or_equal(3);
+    --at least one execution, so the pattern above still matches the block
+    ut.expect( l_after - l_before ).to_be_between(1, 3);
   end;
 
   procedure is_matching_invalid_expression is
