@@ -71,6 +71,15 @@ create or replace package body test_ut_suite_tag_filter is
     ut.fail('Expected exception but nothing was raised');
   end;
 
+  procedure conversion_throws_when_unmatched_rb is
+    l_postfix ut3_develop.ut_varchar2_list;
+    l_input_token ut3_develop.ut_varchar2_list;
+  begin
+    l_input_token := ut3_develop.ut_varchar2_list('(','a',')',')');
+    l_postfix := ut3_develop.ut_suite_tag_filter.shunt_logical_expression(l_input_token);
+    ut.fail('Expected exception but nothing was raised');
+  end;
+
   procedure is_matching_or_and_not is
   begin
     ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1', 'test1') ).to_equal(1);

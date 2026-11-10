@@ -138,6 +138,10 @@ create or replace noneditionable package body ut_suite_tag_filter is
           l_rnp_tokens.extend;
           l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
         end loop;
+        --no open bracket left on the stack: unmatched right bracket
+        if l_operator_stack.peek is null then
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg);
+        end if;
         l_operator_stack.pop; --Pop the open bracket and discard it
         l_expect_operand := false;
         l_expect_operator:= true;

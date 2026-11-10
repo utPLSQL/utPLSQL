@@ -28,6 +28,10 @@ create or replace package test_ut_suite_tag_filter is
   --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
   procedure conversion_throws_when_lb_rb;
 
+  --%test(Conversion raises exception when a right bracket has no left bracket)
+  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+  procedure conversion_throws_when_unmatched_rb;
+
   --%endcontext
 
   --%test( Evaluates or, and and not in tag expressions)
