@@ -181,6 +181,19 @@ create or replace package test_ut_run is
 
   --%endcontext
 
+  --%context(run with paths in several schemas)
+
+    --%beforeall(create_ut3_user_tests, create_test_suite_in_ut3_user)
+    --%afterall(drop_test_suite_in_ut3_user, drop_ut3_user_tests)
+
+    --%test(Runs the suites of each schema together, in order of schema names)
+    procedure run_groups_suites_by_schema;
+
+  --%endcontext
+
+  procedure create_test_suite_in_ut3_user;
+  procedure drop_test_suite_in_ut3_user;
+
   --%context(run with tags)
   --%displayname(Call ut.run with #tags)
 

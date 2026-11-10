@@ -93,7 +93,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
                       a test inherits the tags of the suites and contexts above it
     - logical_suites: suites for the parts of the suitepaths that have no package behind them,
                       or whose package the user can't access (with a warning in that case)
-    - ordered:        the hierarchy sorted depth first by line number, or by a hash of the path when a_random_seed is given
+    - ordered:        the hierarchy sorted depth first by schema, then by line number, or by a hash of the path when a_random_seed is given
     The tag expression is evaluated per test by ut_suite_tag_filter.is_matching, so the statement is static SQL.
     Without a_with_executables, the rows have no executables (before/after lists, test item), which only a run needs.
   */
@@ -185,8 +185,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
             on s.parent_path = o.path
            and s.object_owner = o.object_owner
       )
-      --path, object_owner: siblings with the same line number (packages, logical suites) keep the order of their paths
-      search depth first by line_no desc, random_seed desc nulls last, path, object_owner set order1
+      --object_owner first: a run can span several schemas, so top level items are grouped by schema
+      --(below the top level all items of a subtree have the same owner)
+      --path: siblings with the same line number (packages, logical suites) keep the order of their paths
+      search depth first by object_owner, line_no desc, random_seed desc nulls last, path set order1
     select /*+ no_parallel */
            case
              when o.id is not null and l_with_executables = 'Y' then value(c)

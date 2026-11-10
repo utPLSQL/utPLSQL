@@ -279,7 +279,7 @@ A path that selects only packages you can't execute fails with a "does not exist
 ### Default order
 
 When unit tests are executed without random order, they are ordered by:
-- schema name
+- schema name: when a run includes several schemas, the suites of each schema run together, in order of schema names
 - suite path or test package name if `--%suitepath` was not specified for that package  
 - `--%test` line number in package
  

@@ -23,6 +23,45 @@ create or replace package body test_ut_run is
     ut3_tester_helper.run_helper.drop_ut3_user_tests();
   end;
 
+  --a suite on suitepath "tests", as test_package_1 in ut3_tester_helper (see run_helper.create_ut3_user_tests)
+  procedure create_test_suite_in_ut3_user is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_suite_in_ut3_user is
+      --%suite
+      --%suitepath(tests)
+
+      --%test
+      procedure test1;
+    end;]';
+    execute immediate q'[create or replace package body test_suite_in_ut3_user is
+      procedure test1 is
+      begin
+        dbms_output.put_line('test_suite_in_ut3_user.test1 executed');
+      end;
+    end;]';
+  end;
+
+  procedure drop_test_suite_in_ut3_user is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_suite_in_ut3_user';
+  end;
+
+  procedure run_groups_suites_by_schema is
+    l_results clob;
+  begin
+    --Act - ut3_user:tests sorts between ut3_tester_helper:tests and ut3_tester_helper:tests2 by path
+    l_results := ut3_tester_helper.main_helper.table_to_clob(
+      ut3_tester_helper.run_helper.run(
+        ut3_develop.ut_varchar2_list('ut3_user:tests', 'ut3_tester_helper:tests', 'ut3_tester_helper:tests2'),
+        a_tags => null
+      )
+    );
+    --Assert - UT3_TESTER_HELPER comes before UT3_USER
+    ut.expect( l_results ).to_be_like( '%test_package_2.test1 executed%test_package_3.test1 executed%test_suite_in_ut3_user.test1 executed%' );
+  end;
+
   procedure ut_version is
   begin
     ut.expect(ut3_develop.ut.version()).to_match('^v\d+\.\d+\.\d+\.\d+(-\w+)?$');
