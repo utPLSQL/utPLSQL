@@ -2249,6 +2249,115 @@ end;]';
   end;
 
   --%test(Path validation does not fail on Estonian NLS_SORT - fix #1252)
+  /*
+    Names that differ only where a "_" or "." is:
+    tst_char_a / tstxchar_a, test_a / testxa, chars.sub_a / chars.subxa, chars.sub / chars_sub
+  */
+  procedure create_char_test_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package tst_char_a is
+      --%suite
+      --%suitepath(chars.sub_a)
+
+      --%test
+      procedure test_a;
+
+      --%test
+      procedure testxa;
+    end;]';
+    execute immediate q'[create or replace package tstxchar_a is
+      --%suite
+      --%suitepath(chars.subxa)
+
+      --%test
+      procedure test_a;
+    end;]';
+    execute immediate q'[create or replace package tst_char_b is
+      --%suite
+      --%suitepath(chars_sub)
+
+      --%test
+      procedure test_b;
+    end;]';
+  end;
+
+  procedure drop_char_test_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package tst_char_a';
+    execute immediate 'drop package tstxchar_a';
+    execute immediate 'drop package tst_char_b';
+  end;
+
+  --returns the paths of all tests, sorted and separated by commas
+  function get_test_paths(a_items ut3_develop.ut_suite_items) return varchar2 is
+    l_paths ut3_develop.ut_varchar2_list := ut3_develop.ut_varchar2_list();
+    l_result varchar2(32767);
+
+    procedure add_test_paths(a_suite_items ut3_develop.ut_suite_items) is
+    begin
+      for i in 1 .. a_suite_items.count loop
+        if a_suite_items(i) is of (ut3_develop.ut_test) then
+          l_paths.extend;
+          l_paths(l_paths.last) := a_suite_items(i).path;
+        else
+          add_test_paths(treat(a_suite_items(i) as ut3_develop.ut_logical_suite).items);
+        end if;
+      end loop;
+    end;
+  begin
+    add_test_paths(a_items);
+    select listagg(column_value, ',') within group (order by column_value) into l_result from table(l_paths);
+    return l_result;
+  end;
+
+  procedure underscore_in_package_name is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(
+      ut3_develop.ut_varchar2_list(sys_context('USERENV', 'CURRENT_USER')||'.tst_char_a')
+    );
+    --Assert
+    ut.expect(get_test_paths(l_objects_to_run)).to_equal('chars.sub_a.tst_char_a.test_a,chars.sub_a.tst_char_a.testxa');
+  end;
+
+  procedure underscore_in_procedure_name is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(
+      ut3_develop.ut_varchar2_list(sys_context('USERENV', 'CURRENT_USER')||'.tst_char_a.test_a')
+    );
+    --Assert
+    ut.expect(get_test_paths(l_objects_to_run)).to_equal('chars.sub_a.tst_char_a.test_a');
+  end;
+
+  procedure underscore_in_suitepath is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(
+      ut3_develop.ut_varchar2_list(sys_context('USERENV', 'CURRENT_USER')||':chars.sub_a')
+    );
+    --Assert
+    ut.expect(get_test_paths(l_objects_to_run)).to_equal('chars.sub_a.tst_char_a.test_a,chars.sub_a.tst_char_a.testxa');
+  end;
+
+  procedure dot_in_suitepath_wildcard is
+    l_objects_to_run ut3_develop.ut_suite_items;
+  begin
+    --Act
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(
+      ut3_develop.ut_varchar2_list(sys_context('USERENV', 'CURRENT_USER')||':chars.sub*')
+    );
+    --Assert
+    ut.expect(get_test_paths(l_objects_to_run)).to_equal(
+      'chars.sub_a.tst_char_a.test_a,chars.sub_a.tst_char_a.testxa,chars.subxa.tstxchar_a.test_a'
+    );
+  end;
+
   procedure path_validate_nls_sort is
     l_schema_names   ut3_develop.ut_varchar2_rows;
   begin

@@ -240,6 +240,28 @@ create or replace package test_suite_manager is
 
   --%endcontext
 
+  --%context(literal_characters)
+  --%displayname(Characters other than * in a path match only themselves)
+
+  --%beforeall
+  procedure create_char_test_packages;
+  --%afterall
+  procedure drop_char_test_packages;
+
+  --%test(Underscore in a package name is not a wildcard)
+  procedure underscore_in_package_name;
+
+  --%test(Underscore in a procedure name is not a wildcard)
+  procedure underscore_in_procedure_name;
+
+  --%test(Underscore in a suitepath is not a wildcard)
+  procedure underscore_in_suitepath;
+
+  --%test(Dot in a suitepath with a wildcard is not a wildcard)
+  procedure dot_in_suitepath_wildcard;
+
+  --%endcontext
+
   --%context(paths validation)
 
   --%test(Path validation does not fail on Estonian NLS_SORT - fix #1252)
