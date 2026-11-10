@@ -94,15 +94,18 @@ create or replace noneditionable package body ut_suite_cache_manager is
     - logical_suites: suites for the parts of the suitepaths that have no package behind them
     - ordered:        the hierarchy sorted depth first by line number, or by a hash of the path when a_random_seed is given
     The tag expression is evaluated per test by ut_suite_tag_filter.is_matching, so the statement is static SQL.
+    Without a_with_executables, the rows have no executables (before/after lists, test item), which only a run needs.
   */
-  function get_suite_rows(
+  function select_suite_rows(
     a_schema_paths       ut_path_items,
     a_skip_access_check  boolean,
-    a_tags               varchar2 := null,
-    a_random_seed        positive := null
+    a_tags               varchar2,
+    a_random_seed        positive,
+    a_with_executables   boolean
   ) return ut_suite_cache_rows is
     l_results            ut_suite_cache_rows;
     l_matched_ids        ut_integer_list := get_matched_ids(a_schema_paths, a_skip_access_check);
+    l_with_executables   varchar2(1) := case when a_with_executables then 'Y' else 'N' end;
   begin
     with
       matched_rows as (
@@ -185,7 +188,16 @@ create or replace noneditionable package body ut_suite_cache_manager is
       search depth first by line_no desc, random_seed desc nulls last, path, object_owner set order1
     select /*+ no_parallel */
            case
-             when o.id is not null then value(c)
+             when o.id is not null and l_with_executables = 'Y' then value(c)
+             when o.id is not null then
+               --without the executables, which only a run needs
+               &&ut3_owner..ut_suite_cache_row(
+                 c.id, c.self_type, c.path, c.object_owner, c.object_name, c.name,
+                 c.line_no, c.parse_time, c.description, c.rollback_type, c.disabled_flag, c.disabled_reason,
+                 null,
+                 null, null, null, null, null, null,
+                 null, c.tags, null
+               )
              else &&ut3_owner..ut_suite_cache_row(
                     null, 'UT_LOGICAL_SUITE', o.path, o.object_owner, o.object_name, o.object_name,
                     null, null, null, null, 0, null,
@@ -201,6 +213,41 @@ create or replace noneditionable package body ut_suite_cache_manager is
      order by o.order1 desc;
 
     return l_results;
+  end;
+
+  function get_suite_rows(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean,
+    a_tags               varchar2 := null,
+    a_random_seed        positive := null
+  ) return ut_suite_cache_rows is
+  begin
+    return select_suite_rows(a_schema_paths, a_skip_access_check, a_tags, a_random_seed, a_with_executables => true);
+  end;
+
+  function get_suite_items_info(
+    a_suite_cache_items ut_suite_cache_rows
+  ) return ut_suite_items_info is
+    l_results      ut_suite_items_info;
+  begin
+    select /*+ no_parallel */ &&ut3_owner..ut_suite_item_info(
+             c.object_owner, c.object_name, c.name,
+             c.description, c.self_type, c.line_no,
+             c.path, c.disabled_flag, c.disabled_reason, c.tags
+             )
+      bulk collect into l_results
+      from table(a_suite_cache_items) c;
+      return l_results;
+  end;
+
+  function get_suites_info(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
+  ) return ut_suite_items_info is
+  begin
+    return get_suite_items_info(
+      select_suite_rows(a_schema_paths, a_skip_access_check, a_tags => null, a_random_seed => null, a_with_executables => false)
+    );
   end;
 
   procedure reconcile_paths_and_suites(
@@ -370,21 +417,6 @@ create or replace noneditionable package body ut_suite_cache_manager is
            );
 
     commit;
-  end;
-
-  function get_suite_items_info(
-    a_suite_cache_items ut_suite_cache_rows
-  ) return ut_suite_items_info is
-    l_results      ut_suite_items_info;
-  begin
-    select /*+ no_parallel */ &&ut3_owner..ut_suite_item_info(
-             c.object_owner, c.object_name, c.name,
-             c.description, c.self_type, c.line_no,
-             c.path, c.disabled_flag, c.disabled_reason, c.tags
-             )
-      bulk collect into l_results
-      from table(a_suite_cache_items) c;
-      return l_results;
   end;
 
   function get_cached_packages(

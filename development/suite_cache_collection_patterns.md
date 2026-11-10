@@ -16,7 +16,7 @@ Revised on 2026-11-09 for the CBAC + SQL macro strategy, against branch `feature
 | P6 | collection → ref cursor → collection | **done, partly** | collection passed, no cursor; rows still converted to records (ORA-00600) |
 | P7 | two scans of `ut_suite_cache` for path matching | **done** | table SQL macro `ut_suite_cache_macros.match_paths` (step 5) |
 | P8 | list handed between the two cache modules | **done** | table SQL macro `ut_annotation_cache_macros.get_cached_objects` |
-| P9 | full rows loaded only to project scalars | open | Flow B reuses the main statement and projects |
+| P9 | full rows loaded only to project scalars | **done** | `get_suites_info` on the same statement, rows without executables (step 6) |
 | P10 | PL/SQL objects inserted through `table()` | keep | legitimate |
 | P11 | short scalar lists joined in SQL | keep | legitimate |
 | new | `get_cached_objects` branched on an argument's value | **done** | parameter removed (step 0) |
@@ -357,6 +357,18 @@ Found in step 2, on 19.20 EE, 2026-11-09:
 - **Where:** Flow B: `get_cached_suite_info` → `get_filtered_cursor` → `get_suite_items_info`.
 - **What:** `ut_suite_cache_row` objects, with all executable lists, are built and copied only to produce `ut_suite_item_info`.
 - **Approach:** after P1/P2/P7, Flow B runs the same statement text as Flow A, without tags or randomisation. It differs only in the final select (`ut_suite_item_info(...)`, ordered by owner, name and line). The statement is built in one private function, and the two flows add their own final select (DRY). `get_cached_suite_info` and `get_suite_items_info` then leave the spec (Interface Segregation).
+- **Done in step 6.**
+  - The statement is the private `select_suite_rows(..., a_with_executables)`. `get_suite_rows` calls it with the executables. The new public `get_suites_info(a_schema_paths, a_skip_access_check)` calls it without them: real rows are then built from scalar columns and tags, without `value(c)` and the executable lists.
+  - `get_suite_items_info` (the projection to `ut_suite_item_info`) is private. `ut_suite_manager.get_suites_info` calls `ut_suite_cache_manager.get_suites_info` and only adds the ordering.
+  - **Tests first** (commit `a373b85b`): `get_suites_info` for a package with a context and a disabled test, and for a procedure path. The existing tests already covered packages without and with tags, and suitepaths.
+  - **Measured on 19.20, whole schemas, 5 runs each after one warm-up run:**
+
+    | Call | Before (ms) | After (ms) |
+    |---|---|---|
+    | `get_suites_info` UT3_TESTER (470 items) | 300–320 | 250 |
+    | `get_suites_info` UT3_USER (818 items) | 780–990 | 700–740 |
+    | `configure_execution_by_path` UT3_TESTER | 490–500 | 450–480 |
+    | `configure_execution_by_path` UT3_USER | 1150–1320 | 1060–1080 |
 
 ### P10: PL/SQL-built objects written through `table()` (legitimate)
 
@@ -372,7 +384,7 @@ Found in step 2, on 19.20 EE, 2026-11-09:
 ## Smaller findings seen along the way
 
 1. **Rollback type is set twice. Fixed in step 2:** only `reconstruct_from_cache` sets it now. That covers `configure_execution_by_path` and `build_suites_from_annotations`.
-2. **Duplicated prologue.** `configure_execution_by_path` and `get_suites_info` both do "resolve schema names → refresh cache per schema → `get_schema_paths`". This could be one private procedure.
+2. **Duplicated prologue. Fixed in step 6:** `configure_execution_by_path` and `get_suites_info` both call the private `refresh_cache_for_paths`.
 3. **Two near-identical checks. Partly fixed in step 3:** `skip_access_check` replaces the test in `get_filtered_cursor`. The owner needs no special case in the SQL predicate: `all_objects` always includes the user's own packages. `can_skip_all_objects_scan` stays, for `refresh_cache` and `suite_item_exists`.
 4. **`get_logical_suite` repeats constructor calls.** It holds 7 constructor calls that differ only in `items =>`. Choosing `items` first would cut it to 4.
 5. **Possible stale items on a bad suitepath (verify).** In `build_and_cache_suites` ([ut_suite_manager.pkb:398](../source/core/ut_suite_manager.pkb:398)), when `create_suite_item_list` raises `ex_string_too_small`, `save_object_cache` still runs with `l_suite_items`. That parameter is `out nocopy`, so it may hold partial or previous-object items.
@@ -458,7 +470,7 @@ Notes:
    - **Already covered:** paths by schema, package, procedure and suitepath; procedures inside contexts; `$` and `#` in names; wildcards at the end, front, middle and multiple, for package, procedure and suitepath; paths that match nothing.
    - **Added before the change:** overlapping paths in one call.
    - **Added with the change:** wildcards for a user with partial access.
-6. **P9: Flow B on the same statement text.** Remove `get_cached_suite_info` and `get_suite_items_info` from the spec, and merge finding 2.
+6. **P9: Flow B on the same statement text. Done.** See P9. Finding 2 is merged too.
 
 ## Bigger options to consider separately
 

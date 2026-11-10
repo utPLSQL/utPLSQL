@@ -394,6 +394,26 @@ create or replace noneditionable package body ut_suite_manager is
     ut_event_manager.trigger_event('refresh_cache - end');
   end;
 
+  /*
+    Resolves the schema names of the paths, refreshes the suite cache of those schemas
+    and returns the paths split into their parts.
+  */
+  function refresh_cache_for_paths(
+    a_paths ut_varchar2_list
+  ) return ut_path_items is
+    l_paths        ut_varchar2_list := a_paths;
+    l_schema_names ut_varchar2_rows;
+    l_schema       varchar2(4000);
+  begin
+    l_schema_names := resolve_schema_names(l_paths);
+    l_schema := l_schema_names.first;
+    while l_schema is not null loop
+      refresh_cache(upper(l_schema_names(l_schema)));
+      l_schema := l_schema_names.next(l_schema);
+    end loop;
+    return ut_suite_cache_manager.get_schema_paths(l_paths);
+  end;
+
   procedure add_suites_for_paths(
     a_schema_paths   ut_path_items,
     a_suites         in out nocopy ut_suite_items,
@@ -477,28 +497,12 @@ create or replace noneditionable package body ut_suite_manager is
     a_random_seed positive   := null,
     a_tags        varchar2 := null
   ) is
-    l_paths              ut_varchar2_list := a_paths;
-    l_schema_names       ut_varchar2_rows;
-    l_schema_paths       ut_path_items;
-    l_schema             varchar2(4000);
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
     a_suites := ut_suite_items();
-    --resolve schema names from paths and group paths by schema name
-    l_schema_names := resolve_schema_names(l_paths);
 
-    --refresh cache
-    l_schema := l_schema_names.first;
-    while l_schema is not null loop
-      refresh_cache(upper(l_schema_names(l_schema)));
-      l_schema := l_schema_names.next(l_schema);
-    end loop;
-
-    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-
-    --We will get a single list of paths rather than loop by loop.
     add_suites_for_paths(
-      l_schema_paths,
+      refresh_cache_for_paths(a_paths),
       a_suites,
       a_random_seed,
       a_tags
@@ -512,23 +516,8 @@ create or replace noneditionable package body ut_suite_manager is
   ) return sys_refcursor is
     l_result             sys_refcursor;
     l_all_suite_info     ut_suite_items_info;
-    l_schema_names       ut_varchar2_rows;
-    l_schema_paths       ut_path_items;
-    l_paths              ut_varchar2_list := a_paths;
-    l_schema             varchar2(4000);
-    l_suite_rows         ut_suite_cache_rows;
-
   begin
-    l_schema_names := resolve_schema_names(l_paths);
-    --refresh cache
-    l_schema := l_schema_names.first;
-    while l_schema is not null loop
-      refresh_cache(upper(l_schema_names(l_schema)));
-      l_schema := l_schema_names.next(l_schema);
-    end loop;
-    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-    l_suite_rows := ut_suite_cache_manager.get_suite_rows(l_schema_paths, skip_access_check());
-    l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_suite_rows);
+    l_all_suite_info := ut_suite_cache_manager.get_suites_info(refresh_cache_for_paths(a_paths), skip_access_check());
     open l_result for
       select /*+ no_parallel */ value(c)
         from table(l_all_suite_info) c

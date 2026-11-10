@@ -74,8 +74,13 @@ create or replace noneditionable package ut_suite_cache_manager authid current_u
     a_suite_rows   ut_suite_cache_rows
   );
 
-  function get_suite_items_info(
-    a_suite_cache_items ut_suite_cache_rows
+  /*
+  * Retrieves information about the suite items matching the paths, as get_suite_rows does without tags.
+  * Not to be used publicly. Used internally for ut_runner.get_suites_info.
+  */
+  function get_suites_info(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
   ) return ut_suite_items_info;
   
   /*
