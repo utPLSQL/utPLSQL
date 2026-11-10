@@ -18,7 +18,7 @@ create or replace package annotation_cache_helper as
   procedure create_run_function_for_users;
   procedure drop_run_function_for_users;
 
-  function run_tests_as(a_user varchar2, a_path varchar2 := 'ut3_cache_test_owner') return clob;
+  function run_tests_as(a_user varchar2, a_path varchar2 := 'ut3_cache_test_owner', a_tags varchar2 := null) return clob;
   function get_suites_info_as(a_user varchar2) return clob;
 
 end;

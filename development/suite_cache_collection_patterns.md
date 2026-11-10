@@ -244,6 +244,8 @@ The setup: `probe_user` has EXECUTE on `child_suite`, but not on `parent_suite`,
 
 The new behaviour was accepted on 2026-11-09. It is covered by the context "Suites spread across packages, user without elevated privileges" in `test_annotation_cache`. Its 4 tests fail on the code before step 3 and pass after it.
 
+Reviewed again on 2026-11-10 (option D of four: drop the child, run it without the parent, skip it, or run it with a warning). The child still runs, and the logical suite that takes the place of the inaccessible parent now carries a run warning naming that parent: its beforeall/afterall, rollback setting and tags don't apply. `select_suite_rows` finds the parent by joining the logical suites back to `ut_suite_cache`. Documented in the user guide ("Running tests owned by other users"); tested by `user_warned_about_hidden_parent` and `user_runs_child_without_parent_tags`.
+
 ### P2: chain of collection-to-collection transforms
 
 - **Where:** Flow A, copies #1 → #5. Each step is a function `f(ut_suite_cache_rows) return ut_suite_cache_rows` with one `select ... from table(:coll)`.

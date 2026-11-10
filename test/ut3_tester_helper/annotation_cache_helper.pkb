@@ -92,7 +92,7 @@ create or replace package body annotation_cache_helper as
 
   /*
     Suites spread across packages, only child_suite is granted:
-      parent_suite                    package parent_suite, not granted
+      parent_suite                    package parent_suite, not granted, tagged parent_tag
       parent_suite.child_suite        package child_suite, granted
       hidden_path.sub.lone_suite      package lone_suite, not granted, below logical suites hidden_path and hidden_path.sub
   */
@@ -102,6 +102,7 @@ create or replace package body annotation_cache_helper as
     execute immediate
       'create or replace package ut3_cache_test_owner.parent_suite authid definer is
         --%suite
+        --%tags(parent_tag)
 
         --%test
         procedure parent_test;
@@ -182,11 +183,11 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace function ' || a_user || '.call_ut_run(a_path varchar2 := ''ut3_cache_test_owner'') return clob is
+      'create or replace function ' || a_user || '.call_ut_run(a_path varchar2 := ''ut3_cache_test_owner'', a_tags varchar2 := null) return clob is
         l_data    ut3_develop.ut_varchar2_list;
         l_results clob;
       begin
-        select * bulk collect into l_data from table (ut3_develop.ut.run( a_path ));
+        select * bulk collect into l_data from table (ut3_develop.ut.run( a_path, a_tags => a_tags ));
         return ut3_tester_helper.main_helper.table_to_clob( l_data );
       end;
       ';
@@ -232,10 +233,10 @@ create or replace package body annotation_cache_helper as
     drop_run_function_for_user( 'ut3_develop' );
   end;
 
-  function run_tests_as(a_user varchar2, a_path varchar2 := 'ut3_cache_test_owner') return clob is
+  function run_tests_as(a_user varchar2, a_path varchar2 := 'ut3_cache_test_owner', a_tags varchar2 := null) return clob is
     l_results clob;
   begin
-    execute immediate 'begin :x := '||a_user||'.call_ut_run(:a_path); end;' using out l_results, a_path;
+    execute immediate 'begin :x := '||a_user||'.call_ut_run(:a_path, :a_tags); end;' using out l_results, a_path, a_tags;
     return l_results;
   end;
 

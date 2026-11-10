@@ -284,6 +284,12 @@ create or replace package test_annotation_cache is
     --%test(Runs a granted package whose parent suite is in a package that is not granted)
     procedure user_runs_child_of_hidden_suite;
 
+    --%test(Warns that the parent suite in a package that is not granted is not run)
+    procedure user_warned_about_hidden_parent;
+
+    --%test(Does not apply tags of the parent suite in a package that is not granted)
+    procedure user_runs_child_without_parent_tags;
+
     --%test(Runs a granted package when its parent suitepath is given)
     procedure user_runs_hidden_suite_path;
 

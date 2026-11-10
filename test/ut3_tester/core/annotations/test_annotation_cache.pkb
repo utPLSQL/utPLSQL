@@ -529,6 +529,36 @@ create or replace package body test_annotation_cache is
     rollback;
   end;
 
+  procedure user_warned_about_hidden_parent is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.child_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like(
+      '%Warnings:%parent_suite%Suite ut3_cache_test_owner.parent_suite is not run, as it does not exist or you have no EXECUTE privilege on it.%'
+    );
+    ut.expect( l_actual ).to_be_like( '%1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%' );
+    rollback;
+  end;
+
+  procedure user_runs_child_without_parent_tags is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - child_suite inherits parent_tag only when parent_suite is accessible
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner', '!parent_tag' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_cache_test_owner', 'ut3_cache_test_owner', '!parent_tag' );
+    --Assert
+    ut.expect( l_actual ).not_to_be_like( '%child_test%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
   procedure user_runs_hidden_suite_path is
     l_actual clob;
     pragma autonomous_transaction;

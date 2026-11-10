@@ -91,7 +91,8 @@ create or replace noneditionable package body ut_suite_cache_manager is
     - matched_rows:   the rows from get_matched_ids
     - tagged_rows:    when tags are given, the rows having a test matching the tag expression below them (or being one);
                       a test inherits the tags of the suites and contexts above it
-    - logical_suites: suites for the parts of the suitepaths that have no package behind them
+    - logical_suites: suites for the parts of the suitepaths that have no package behind them,
+                      or whose package the user can't access (with a warning in that case)
     - ordered:        the hierarchy sorted depth first by line number, or by a hash of the path when a_random_seed is given
     The tag expression is evaluated per test by ut_suite_tag_filter.is_matching, so the statement is static SQL.
     Without a_with_executables, the rows have no executables (before/after lists, test item), which only a run needs.
@@ -201,7 +202,14 @@ create or replace noneditionable package body ut_suite_cache_manager is
              else &&ut3_owner..ut_suite_cache_row(
                     null, 'UT_LOGICAL_SUITE', o.path, o.object_owner, o.object_name, o.object_name,
                     null, null, null, null, 0, null,
-                    &&ut3_owner..ut_varchar2_rows(),
+                    case
+                      when h.id is null then &&ut3_owner..ut_varchar2_rows()
+                      else &&ut3_owner..ut_varchar2_rows(
+                             'Suite ' || lower(h.object_owner || '.' || h.object_name)
+                             || ' is not run, as it does not exist or you have no EXECUTE privilege on it.'
+                             || ' Its beforeall/afterall, rollback setting and tags are not applied to the suites below it.'
+                           )
+                    end,
                     null, null, null, null, null, null,
                     null, null, null
                   )
@@ -210,6 +218,12 @@ create or replace noneditionable package body ut_suite_cache_manager is
       from ordered o
       left join &&ut3_owner..ut_suite_cache c
         on c.id = o.id
+      --a package suite that get_matched_ids left out as not accessible, replaced by a logical suite
+      left join &&ut3_owner..ut_suite_cache h
+        on o.id is null
+       and h.object_owner = o.object_owner
+       and h.path = o.path
+       and h.self_type = 'UT_SUITE'
      order by o.order1 desc;
 
     return l_results;

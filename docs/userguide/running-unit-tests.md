@@ -263,6 +263,16 @@ select
   from dual;
 ```
 
+## Running tests owned by other users
+
+To run tests in another schema, you need the EXECUTE privilege on its test packages, or the EXECUTE ANY PROCEDURE privilege.
+Packages that you can't execute are skipped.
+
+If such a package is a parent suite (by `--%suitepath`) of a package that you can execute, the child package still runs.
+A logical suite with the same name takes the parent's place, so the parent's `--%beforeall`/`--%afterall`, `--%rollback` and `--%tags` don't apply to the child.
+The run reports a warning that names the skipped parent suite.
+
+A path that selects only packages you can't execute fails with a "does not exist" error.
   
 ## Order of test execution
 
