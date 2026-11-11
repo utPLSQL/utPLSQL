@@ -5,43 +5,43 @@ create or replace package test_ut_suite_tag_filter is
 
   --%context( Conversion to Reverse Polish Notation)
 
-  --%test( Test conversion of expression into Reverse Polish Notation)
-  procedure test_conversion_to_rpn;
+    --%test( Test conversion of expression into Reverse Polish Notation)
+    procedure test_conversion_to_rpn;
 
-  --%test( Operator is followed by operator)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure test_conversion_opr_by_opr;  
+    --%test( Operator is followed by operator)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure test_conversion_opr_by_opr;
 
-  --%test( Operand is followed by operand)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure test_conversion_oprd_by_opd;
+    --%test( Operand is followed by operand)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure test_conversion_oprd_by_opd;
 
-  --%test( Left Bracket is followed by operator)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure test_conversion_lb_by_oper;
+    --%test( Left Bracket is followed by operator)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure test_conversion_lb_by_oper;
 
-  --%test( Right Bracket is followed by operand)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure test_conversion_rb_by_oprd;
+    --%test( Right Bracket is followed by operand)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure test_conversion_rb_by_oprd;
 
-  --%test(Conversion raises exception when empty brackets)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure conversion_throws_when_lb_rb;
+    --%test(Conversion raises exception when empty brackets)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure conversion_throws_when_lb_rb;
 
-  --%test(Conversion raises exception when a right bracket has no left bracket)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure conversion_throws_when_unmatched_rb;
+    --%test(Conversion raises exception when a right bracket has no left bracket)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure conversion_throws_when_unmatched_rb;
 
-  --%test(Conversion raises exception for an empty list of tokens)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure conversion_throws_when_empty;
+    --%test(Conversion raises exception for an empty list of tokens)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure conversion_throws_when_empty;
 
-  --%test(Conversion raises exception when the expression ends with an operator)
-  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
-  procedure conversion_throws_when_trailing_opr;
+    --%test(Conversion raises exception when the expression ends with an operator)
+    --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+    procedure conversion_throws_when_trailing_opr;
 
-  --%test(Tokenizing an empty string returns no tokens)
-  procedure tokenize_empty_string;
+    --%test(Tokenizing an empty string returns no tokens)
+    procedure tokenize_empty_string;
 
   --%endcontext
 
@@ -69,8 +69,8 @@ create or replace package test_ut_suite_tag_filter is
   --%test( Matches any tags when the tag expression is empty or made of spaces and tabs)
   procedure is_matching_empty_expression;
 
-  --%test( Returns null for an empty tag expression made of spaces and tabs)
-  procedure empty_to_null_for_blank_expression;
+  --%test( Removes spaces and tabs from a tag expression, returning null for one made only of them)
+  procedure remove_whitespace_from_expression;
 
   --%test( Evaluates a tag containing a quote)
   procedure is_matching_tag_with_quote;

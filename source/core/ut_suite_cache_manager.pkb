@@ -108,7 +108,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
     l_matched_ids        ut_integer_list := get_matched_ids(a_schema_paths, a_skip_access_check);
     l_with_executables   varchar2(1) := case when a_with_executables then 'Y' else 'N' end;
     --an expression of spaces and tabs only is no tag filter
-    l_tags               varchar2(32767) := ut_suite_tag_filter.empty_to_null(a_tags);
+    l_tags               varchar2(32767) := ut_suite_tag_filter.remove_whitespace(a_tags);
   begin
     with
       matched_rows as (

@@ -27,14 +27,12 @@ create or replace noneditionable package body ut_suite_tag_filter is
   type t_precedence_table is table of number index by varchar2(1);
   g_precedence t_precedence_table;
 
-  --last tag expression and its postfix notation, see get_postfix_expression
   g_last_tag_expression varchar2(32767);
   g_last_postfix        ut_varchar2_list;
 
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list is
     l_tags_tokens ut_varchar2_list := ut_varchar2_list();
   begin
-    --Tokenize a string into operators and tags
     if a_tags is not null then
       select regexp_substr(a_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
       bulk collect into l_tags_tokens
@@ -44,29 +42,22 @@ create or replace noneditionable package body ut_suite_tag_filter is
     return l_tags_tokens;
   end;
 
-  --tags cannot contain whitespace, so spaces and tabs in a tag expression only separate its tokens
   function remove_whitespace(a_tag_expression varchar2) return varchar2 is
   begin
     return replace(replace(a_tag_expression, ' '), chr(9));
   end;
 
-  function empty_to_null(a_tag_expression varchar2) return varchar2 is
-  begin
-    return case when remove_whitespace(a_tag_expression) is not null then a_tag_expression end;
-  end;
-
   /*
-    To support a legact tag notation
+    To support a legacy tag notation
     , = OR
     - = NOT
-    we will perform a replace of that characters into
+    we replace those characters into
     new notation.
     | = OR
     & = AND
     !  = NOT
   */
-  function replace_legacy_tag_notation(a_tags varchar2
-  ) return varchar2 is
+  function replace_legacy_tag_notation(a_tags varchar2) return varchar2 is
     l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
     l_tags_include varchar2(4000);
     l_tags_exclude varchar2(4000);
@@ -80,7 +71,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
       from table(l_tags) t
       where t.column_value not like '-%';
 
-      select '('||listagg( replace(t.column_value,'-','!'),' & ')
+      select '('||listagg( replace(t.column_value,'-','!'),'&')
         within group( order by column_value)||')'
       into l_tags_exclude
       from table(l_tags) t
@@ -90,7 +81,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
       l_return_tag:=
         case
           when l_tags_include <> '()' and l_tags_exclude <> '()'
-            then l_tags_include || ' & ' || l_tags_exclude
+            then l_tags_include || '&' || l_tags_exclude
           when l_tags_include <> '()'
             then l_tags_include
           when l_tags_exclude <> '()'
@@ -114,7 +105,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
     l_idx pls_integer;
   begin
     l_idx := a_tags.first;
-    --Exuecute modified shunting algorithm
+    --Execute modified shunting algorithm
     WHILE (l_idx is not null) loop
       l_token := a_tags(l_idx);
       if (l_token member of gc_operators and l_token member of gc_binary_operators) then
@@ -198,7 +189,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
       return g_last_postfix;
     end if;
     l_postfix := shunt_logical_expression(
-      tokenize_tags_string( remove_whitespace( replace_legacy_tag_notation(a_tag_expression) ) )
+      tokenize_tags_string( replace_legacy_tag_notation( a_tag_expression ) )
     );
     g_last_tag_expression := a_tag_expression;
     g_last_postfix        := l_postfix;
@@ -241,13 +232,13 @@ create or replace noneditionable package body ut_suite_tag_filter is
   end;
 
   function is_matching(a_tags varchar2, a_tag_expression varchar2) return integer deterministic is
+    l_tag_expression varchar2(32767) := remove_whitespace(a_tag_expression);
   begin
-    if empty_to_null(a_tag_expression) is null then
-      return 1;
-    end if;
     return
       case
-        when evaluate_postfix( get_postfix_expression(a_tag_expression), ut_utils.string_to_table(a_tags, ',') )
+        when l_tag_expression is null
+        then 1
+        when evaluate_postfix( get_postfix_expression(l_tag_expression), ut_utils.string_to_table(a_tags, ',') )
         then 1
         else 0
       end;

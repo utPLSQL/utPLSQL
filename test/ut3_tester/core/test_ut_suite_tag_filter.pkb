@@ -205,14 +205,13 @@ create or replace package body test_ut_suite_tag_filter is
     ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, ' '||c_tab||' ') ).to_equal(1);
   end;
 
-  procedure empty_to_null_for_blank_expression is
+  procedure remove_whitespace_from_expression is
     c_tab constant varchar2(1) := chr(9);
   begin
-    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(null) ).to_be_null();
-    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' ') ).to_be_null();
-    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' '||c_tab||c_tab||' ') ).to_be_null();
-    --a non-empty expression is returned unchanged
-    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' slow & db ') ).to_equal(' slow & db ');
+    ut.expect( ut3_develop.ut_suite_tag_filter.remove_whitespace(null) ).to_be_null();
+    ut.expect( ut3_develop.ut_suite_tag_filter.remove_whitespace(' ') ).to_be_null();
+    ut.expect( ut3_develop.ut_suite_tag_filter.remove_whitespace(' '||c_tab||c_tab||' ') ).to_be_null();
+    ut.expect( ut3_develop.ut_suite_tag_filter.remove_whitespace(' slow &'||c_tab||'db ') ).to_equal('slow&db');
   end;
 
   procedure is_matching_tag_with_quote is
