@@ -32,6 +32,17 @@ create or replace package test_ut_suite_tag_filter is
   --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
   procedure conversion_throws_when_unmatched_rb;
 
+  --%test(Conversion raises exception for an empty list of tokens)
+  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+  procedure conversion_throws_when_empty;
+
+  --%test(Conversion raises exception when the expression ends with an operator)
+  --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
+  procedure conversion_throws_when_trailing_opr;
+
+  --%test(Tokenizing an empty string returns no tokens)
+  procedure tokenize_empty_string;
+
   --%endcontext
 
   --%test( Evaluates or, and and not in tag expressions)
@@ -43,12 +54,42 @@ create or replace package test_ut_suite_tag_filter is
   --%test( Evaluates none and any for items without tags)
   procedure is_matching_without_tags;
 
-  --%test( Evaluates each distinct set of tags once per SQL statement)
-  procedure is_matching_is_cached_in_sql;
+  --%test( Applies operator precedence, brackets and double negation)
+  procedure is_matching_operator_precedence;
+
+  --%test( Combines none and any with other tags)
+  procedure is_matching_none_and_any_combined;
+
+  --%test( Compares tags and the none and any keywords case sensitively)
+  procedure is_matching_is_case_sensitive;
+
+  --%test( Ignores spaces and tabs in the tag expression)
+  procedure is_matching_ignores_whitespace;
+
+  --%test( Matches any tags when the tag expression is empty or made of spaces and tabs)
+  procedure is_matching_empty_expression;
+
+  --%test( Returns null for an empty tag expression made of spaces and tabs)
+  procedure empty_to_null_for_blank_expression;
+
+  --%test( Evaluates a tag containing a quote)
+  procedure is_matching_tag_with_quote;
+
+  --%test( Evaluates an expression with many tags)
+  procedure is_matching_many_tags;
+
+  --%test( Follows three-valued logic for an empty element in the list of tags)
+  procedure is_matching_null_tag_element;
+
+  --%test( Evaluates the current expression after the expression changes or an invalid expression is given)
+  procedure is_matching_follows_expression_change;
 
   --%test( Raises exception for an invalid tag expression)
   --%throws(ut3_develop.ut_utils.gc_invalid_tag_expression)
   procedure is_matching_invalid_expression;
+
+  --%test( Raises exception for an incomplete tag expression)
+  procedure is_matching_incomplete_expression;
 
   procedure create_tags_suite;
   procedure drop_tags_suite;

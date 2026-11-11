@@ -24,7 +24,7 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
 
   /*
   * Return table of tokens character by character
-  */   
+  */
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list;
 
   /*
@@ -35,14 +35,14 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
   function shunt_logical_expression(a_tags in ut_varchar2_list) return ut_varchar2_list;
 
   /*
-  * Function that converts postfix notation into infix and creating a string of sql filter 
-  * that checking a tags collections for tags according to posted logic.
-  */  
-  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list,a_tags_column_name in varchar2)
-    return varchar2;  
-  
+  * Returns null for a tag expression made only of spaces and tabs, as such an expression is no tag filter.
+  * Returns any other tag expression unchanged.
+  */
+  function empty_to_null(a_tag_expression varchar2) return varchar2;
+
   /*
   * Returns 1 when the tags match the tag expression, 0 otherwise.
+  * An empty tag expression (see empty_to_null) matches any tags.
   * a_tags is a comma-separated list of tags (tags cannot contain commas), null for no tags.
   * Takes text, not a collection: Oracle caches results of a deterministic function called from SQL
   * only when all arguments are scalars, so items with the same tags are evaluated once per statement.

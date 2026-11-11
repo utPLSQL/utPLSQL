@@ -80,6 +80,25 @@ create or replace package body test_ut_suite_tag_filter is
     ut.fail('Expected exception but nothing was raised');
   end;
 
+  procedure conversion_throws_when_empty is
+    l_postfix ut3_develop.ut_varchar2_list;
+  begin
+    l_postfix := ut3_develop.ut_suite_tag_filter.shunt_logical_expression(ut3_develop.ut_varchar2_list());
+    ut.fail('Expected exception but nothing was raised');
+  end;
+
+  procedure conversion_throws_when_trailing_opr is
+    l_postfix ut3_develop.ut_varchar2_list;
+  begin
+    l_postfix := ut3_develop.ut_suite_tag_filter.shunt_logical_expression(ut3_develop.ut_varchar2_list('a','|'));
+    ut.fail('Expected exception but nothing was raised');
+  end;
+
+  procedure tokenize_empty_string is
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.tokenize_tags_string(null).count ).to_equal(0);
+  end;
+
   procedure is_matching_or_and_not is
   begin
     ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('test1', 'test1') ).to_equal(1);
@@ -122,28 +141,148 @@ create or replace package body test_ut_suite_tag_filter is
     ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'slow') ).to_equal(0);
   end;
 
-  procedure is_matching_is_cached_in_sql is
-    --the anonymous block run by is_matching for the expression 'cache_probe'
-    c_block  constant varchar2(100) := 'declare %ut_varchar2_list := :a_tags;%''cache_probe'' member of %';
-    l_before number;
-    l_after  number;
-    l_count  integer;
+  procedure is_matching_operator_precedence is
   begin
-    l_before := ut3_tester_helper.main_helper.get_sql_executions(c_block);
-    --1000 rows with 3 distinct sets of tags
-    select count(*) into l_count
-      from (select mod(level,3) k from dual connect by level <= 1000)
-     where ut3_develop.ut_suite_tag_filter.is_matching('t'||k||',x', 'cache_probe') = 0;
-    l_after := ut3_tester_helper.main_helper.get_sql_executions(c_block);
-    ut.expect( l_count ).to_equal(1000);
-    --at least one execution, so the pattern above still matches the block
-    ut.expect( l_after - l_before ).to_be_between(1, 3);
+    --"&" binds stronger than "|"
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'a|b&c') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('b', 'a|b&c') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('b,c', 'a|b&c') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('c', 'b&c|a') ).to_equal(0);
+    --brackets
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', '(a|b)&c') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,c', '(a|b)&c') ).to_equal(1);
+    --"!" binds stronger than "&"
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('b', '!a&b') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,b', '!a&b') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', '!(a&b)') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,b', '!(a&b)') ).to_equal(0);
+    --double negation
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', '!!a') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('b', '!!a') ).to_equal(0);
+  end;
+
+  procedure is_matching_none_and_any_combined is
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', 'none|slow') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'none|slow') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db', 'none|slow') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', '!none') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, '!none') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, '!any') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', 'any&!slow') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db', 'any&!slow') ).to_equal(1);
+  end;
+
+  procedure is_matching_is_case_sensitive is
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('Slow', 'slow') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', 'SLOW') ).to_equal(0);
+    --upper case keywords are tags, not the none and any keywords
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, 'NONE') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', 'ANY') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('ANY', 'ANY') ).to_equal(1);
+  end;
+
+  procedure is_matching_ignores_whitespace is
+    c_tab constant varchar2(1) := chr(9);
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db,slow', ' slow & db ') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db,slow', ' ( fast | slow ) & ! db ') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db,slow', c_tab||'slow'||c_tab||'&'||c_tab||'db'||c_tab) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db,slow', 'slow'||c_tab||'&'||c_tab||'!'||c_tab||'db') ).to_equal(0);
+    --legacy notation
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('db,slow', 'fast, slow') ).to_equal(1);
+  end;
+
+  procedure is_matching_empty_expression is
+    c_tab constant varchar2(1) := chr(9);
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', null) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, null) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', ' ') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, '   ') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', c_tab) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(null, ' '||c_tab||' ') ).to_equal(1);
+  end;
+
+  procedure empty_to_null_for_blank_expression is
+    c_tab constant varchar2(1) := chr(9);
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(null) ).to_be_null();
+    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' ') ).to_be_null();
+    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' '||c_tab||c_tab||' ') ).to_be_null();
+    --a non-empty expression is returned unchanged
+    ut.expect( ut3_develop.ut_suite_tag_filter.empty_to_null(' slow & db ') ).to_equal(' slow & db ');
+  end;
+
+  procedure is_matching_tag_with_quote is
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(q'[it's]', q'[it's]') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', q'[slow&!it's]') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', q'[it's]') ).to_equal(0);
+  end;
+
+  procedure is_matching_many_tags is
+    c_tag_prefix constant varchar2(30) := 'a_long_tag_name_for_testing_';
+    l_expression varchar2(32767);
+  begin
+    --80 tags of 31 characters, joined with "|": a condition with "member of" for each tag would be over 4000 characters
+    for i in 1 .. 80 loop
+      l_expression := l_expression || case when i > 1 then '|' end || c_tag_prefix || lpad(i, 3, '0');
+    end loop;
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching(c_tag_prefix||'080', l_expression) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow,'||c_tag_prefix||'001', l_expression) ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('slow', l_expression) ).to_equal(0);
+  end;
+
+  procedure is_matching_null_tag_element is
+  begin
+    --'a,,b' has a null element, so "x member of" it is unknown (null) instead of false when x is not in the list
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', 'a') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', 'x') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', '!x') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', 'a|!x') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', 'a&!x') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a,,b', '!a&!x') ).to_equal(0);
+  end;
+
+  procedure is_matching_follows_expression_change is
+    l_result integer;
+  begin
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'a') ).to_equal(1);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'b') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'a') ).to_equal(1);
+    begin
+      l_result := ut3_develop.ut_suite_tag_filter.is_matching('a', 'a&');
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect( sqlcode ).to_equal( ut3_develop.ut_utils.gc_invalid_tag_expression );
+    end;
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'b') ).to_equal(0);
+    ut.expect( ut3_develop.ut_suite_tag_filter.is_matching('a', 'a') ).to_equal(1);
   end;
 
   procedure is_matching_invalid_expression is
     l_result integer;
   begin
     l_result := ut3_develop.ut_suite_tag_filter.is_matching('slow', 'slow&|db');
+  end;
+
+  procedure is_matching_incomplete_expression is
+    --legacy notation turns ',' into an empty expression
+    l_expressions ut3_develop.ut_varchar2_list := ut3_develop.ut_varchar2_list('slow|', 'slow&!', '!', '(slow', ',');
+    l_result      integer;
+  begin
+    for i in 1 .. l_expressions.count loop
+      begin
+        l_result := ut3_develop.ut_suite_tag_filter.is_matching('slow', l_expressions(i));
+        ut.fail('Expected exception for tag expression "'||l_expressions(i)||'" but nothing was raised');
+      exception
+        when others then
+          ut.expect( sqlcode, 'Tag expression "'||l_expressions(i)||'"' ).to_equal( ut3_develop.ut_utils.gc_invalid_tag_expression );
+      end;
+    end loop;
   end;
 
   procedure create_tags_suite is

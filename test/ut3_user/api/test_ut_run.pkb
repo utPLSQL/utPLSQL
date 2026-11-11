@@ -1401,6 +1401,19 @@ procedure tag_exclude_run_fun_pth_lst_lg is
       ut.expect(sqlerrm).to_be_like('%ORA-20204: Suite package ut3_tester_helper.test_tag_pkg_* does not exist%');
   end;
 
+  procedure blank_tags_run_all_tests is
+    l_expected ut3_develop.ut_varchar2_list;
+    l_actual   ut3_develop.ut_varchar2_list;
+  begin
+    l_expected := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests,:tests2'));
+    l_actual   := ut3_tester_helper.run_helper.run(ut3_develop.ut_varchar2_list(':tests,:tests2'), a_tags => ' '||chr(9)||' ');
+
+    remove_time_from_results(l_expected);
+    remove_time_from_results(l_actual);
+    ut.expect( ut3_tester_helper.main_helper.table_to_clob(l_actual) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect( anydata.convertCollection(l_actual) ).to_equal( anydata.convertCollection(l_expected) );
+  end;
+
   procedure set_application_info is
   begin
     dbms_application_info.set_module( gc_module, gc_action );

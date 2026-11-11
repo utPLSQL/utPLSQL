@@ -51,8 +51,5 @@ create or replace package main_helper is
 
   function make_source(a_lines ut3_develop.ut_varchar2_list) return dbms_preprocessor.source_lines_t;
 
-  --number of executions of SQL statements and PL/SQL blocks whose text is like a_sql_text_like
-  function get_sql_executions(a_sql_text_like varchar2) return number;
-
 end;
 /

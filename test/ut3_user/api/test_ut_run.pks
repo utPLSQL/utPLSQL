@@ -295,6 +295,9 @@ create or replace package test_ut_run is
     --%test(Raises an error naming the wildcard path when the tags exclude all tests it selects)
     procedure tag_run_wildcard_none_left;
 
+    --%test(Runs the same tests as without tags when the tag expression is made of spaces and tabs)
+    procedure blank_tags_run_all_tests;
+
   --%endcontext
 
   --%context(ut3_info context)

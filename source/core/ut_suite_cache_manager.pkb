@@ -107,6 +107,8 @@ create or replace noneditionable package body ut_suite_cache_manager is
     l_results            ut_suite_cache_rows;
     l_matched_ids        ut_integer_list := get_matched_ids(a_schema_paths, a_skip_access_check);
     l_with_executables   varchar2(1) := case when a_with_executables then 'Y' else 'N' end;
+    --an expression of spaces and tabs only is no tag filter
+    l_tags               varchar2(32767) := ut_suite_tag_filter.empty_to_null(a_tags);
   begin
     with
       matched_rows as (
@@ -128,12 +130,12 @@ create or replace noneditionable package body ut_suite_cache_manager is
       filter_by_tags as (
         select x.path, x.object_owner
           from propagate_tags_from_ancestors x
-         where &&ut3_owner..ut_suite_tag_filter.is_matching(x.tags, a_tags) = 1
+         where &&ut3_owner..ut_suite_tag_filter.is_matching(x.tags, l_tags) = 1
       ),
       tagged_rows as (
         select /*+ no_expand */ item.*
           from matched_rows item
-         where a_tags is null
+         where l_tags is null
             or exists (
                  select 1
                    from filter_by_tags tst
