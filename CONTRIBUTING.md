@@ -37,6 +37,7 @@ Not able to contribute code? You can also support the project through [sponsorsh
 	* Types in packages, objects start with `t_`
 	* Nested Tables start with `tt_`
 * varchar2 lengths are set in characters not bytes
+* Comments should not be added to explain what the code does; the code itself should make that clear. Use a comment to give the reason for the code, or background that isn't obvious from the code or easy to find with an internet search, and only where it adds real value.
 * Every source file carries the Apache license header.
 * Don't edit version strings (`v3.x.x.xxxx`) in `source/`, `VERSION` or `BUILD_NO` by hand. CI rewrites them (`.github/scripts/update_project_version.sh`).
 
