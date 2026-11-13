@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -673,6 +673,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-tests-owned-by-other-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running tests owned by other users
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#order-of-test-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1070,11 +1081,11 @@ Most of the time you will want to use <code>ut.run</code> as <code>ut_runner.run
 * map your project source files and test files into database objects </p>
 <p>You may download the latest release of the command line client from <a href="https://github.com/utPLSQL/utPLSQL-cli/releases/latest">here</a> or do it automatically using the command below (Unix).</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/bin/bash</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release &quot;zip&quot; file</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;/browser_download_url/ { print $2 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;.zip\&quot;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/&quot;//g&#39;</span><span class="k">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release &quot;zip&quot; file</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOWNLOAD_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>utplsql-cli.zip
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded &quot;zip&quot; file</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Get the url to latest release "zip" file</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">DOWNLOAD_URL</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>--silent<span class="w"> </span>https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'/browser_download_url/ { print $2 }'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">".zip\""</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">'s/"//g'</span><span class="k">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Download the latest release "zip" file</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>curl<span class="w"> </span>-Lk<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">DOWNLOAD_URL</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-o<span class="w"> </span>utplsql-cli.zip
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Extract downloaded "zip" file</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>unzip<span class="w"> </span>-q<span class="w"> </span>utplsql-cli.zip
 </span></code></pre></div>
 <h2 id="utrun">ut.run<a class="headerlink" href="#utrun" title="Permanent link">&para;</a></h2>
@@ -1088,7 +1099,10 @@ The <strong>functions</strong> can only be used in SELECT statements. They execu
 <p>The examples below illustrate different ways and options to invoke <code>ut.run</code> procedures.
 You can use a wildcard character <code>*</code> to call tests by part of their name or to call tests that are located on paths matched by part of path string.
 Wildcard character can be placed anywhere on the path and can occur mutliple times.
-Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.</p>
+Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
+Only <code>*</code> is a wildcard. All other characters, including <code>_</code>, <code>.</code> and <code>$</code>, match only themselves.
+A path with a wildcard selects every matching suite or test that you can run and that matches the tags (see <a href="#run-by-tags">Run by Tags</a>).
+Matches that you can't run, or that the tags exclude, are skipped. The run fails with a "does not exist" error only when nothing is left.</p>
 <p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
 <span class="normal"><a href="#__codelineno-1-2">2</a></span>
 <span class="normal"><a href="#__codelineno-1-3">3</a></span>
@@ -1105,7 +1119,7 @@ Executes all tests in current schema (<em>HR</em>).</p>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span>
 <span class="normal"><a href="#__codelineno-2-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">begin</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">);</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'HR'</span><span class="p">);</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests in specified schema (<em>HR</em>).</p>
@@ -1114,7 +1128,7 @@ Executes all tests in specified schema (<em>HR</em>).</p>
 <span class="normal"><a href="#__codelineno-3-3">3</a></span>
 <span class="normal"><a href="#__codelineno-3-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="k">begin</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com.my_org.my_project&#39;</span><span class="p">);</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr:com.my_org.my_project'</span><span class="p">);</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Executes all tests from all packages that are on the <em>com.my_org.my_project</em> suitepath.
@@ -1124,7 +1138,7 @@ Check the <a href="annotations.html">annotations documentation</a> to find out a
 <span class="normal"><a href="#__codelineno-4-3">3</a></span>
 <span class="normal"><a href="#__codelineno-4-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">begin</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:com*&#39;</span><span class="p">);</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr:com*'</span><span class="p">);</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Executes all tests in schema <code>hr</code> from all packages that are on suitepath starting with <code>com</code>.</p>
@@ -1133,7 +1147,7 @@ Check the <a href="annotations.html">annotations documentation</a> to find out a
 <span class="normal"><a href="#__codelineno-5-3">3</a></span>
 <span class="normal"><a href="#__codelineno-5-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">begin</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr:co*.my_*.my_*&#39;</span><span class="p">);</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr:co*.my_*.my_*'</span><span class="p">);</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Executes all tests in schema <code>hr</code> from all packages that starting with <code>my_</code> and all tests starting with <code>my_*</code> that are on suitepath starting with <code>co</code> .</p>
@@ -1142,7 +1156,7 @@ Check the <a href="annotations.html">annotations documentation</a> to find out a
 <span class="normal"><a href="#__codelineno-6-3">3</a></span>
 <span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="k">begin</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">);</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">);</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests from package <em>hr.test_apply_bonus</em>. </p>
@@ -1151,7 +1165,7 @@ Executes all tests from package <em>hr.test_apply_bonus</em>. </p>
 <span class="normal"><a href="#__codelineno-7-3">3</a></span>
 <span class="normal"><a href="#__codelineno-7-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="k">begin</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_cannot_be_negative&#39;</span><span class="p">);</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus.bonus_cannot_be_negative'</span><span class="p">);</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes single test procedure <em>hr.test_apply_bonus.bonus_cannot_be_negative</em>.</p>
@@ -1160,7 +1174,7 @@ Executes single test procedure <em>hr.test_apply_bonus.bonus_cannot_be_negative<
 <span class="normal"><a href="#__codelineno-8-3">3</a></span>
 <span class="normal"><a href="#__codelineno-8-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">begin</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="s1">&#39;cust&#39;</span><span class="p">));</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="s1">'cust'</span><span class="p">));</span>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em> (passing individual items to be executed as elements of the ut_varchar2_list table type).</p>
@@ -1169,7 +1183,7 @@ Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from 
 <span class="normal"><a href="#__codelineno-9-3">3</a></span>
 <span class="normal"><a href="#__codelineno-9-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">begin</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust&#39;</span><span class="p">));</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus,cust'</span><span class="p">));</span>
 </span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em> (passing all items as a comma-separated-list of values into a single element of the ut_varchar2_list table type).</p>
@@ -1178,7 +1192,7 @@ Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from 
 <span class="normal"><a href="#__codelineno-10-3">3</a></span>
 <span class="normal"><a href="#__codelineno-10-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="k">begin</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus,cust&#39;</span><span class="p">);</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus,cust'</span><span class="p">);</span>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from schema <em>cust</em> (no explicit ut_varchar2_list table type).</p>
@@ -1189,7 +1203,7 @@ Executes all tests from package <em>hr.test_apply_bonus</em> and all tests from 
 <span class="normal"><a href="#__codelineno-11-3">3</a></span>
 <span class="normal"><a href="#__codelineno-11-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="k">begin</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test*&#39;</span><span class="p">);</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test*'</span><span class="p">);</span>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests in schema <code>hr</code> located in packages starting with name <code>test</code>.</p>
@@ -1198,7 +1212,7 @@ Executes all tests in schema <code>hr</code> located in packages starting with n
 <span class="normal"><a href="#__codelineno-12-3">3</a></span>
 <span class="normal"><a href="#__codelineno-12-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">begin</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus.bonus_*&#39;</span><span class="p">);</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus.bonus_*'</span><span class="p">);</span>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes test procedures with names starting with <code>bonus</code> in package <code>hr.test_apply_bonus</code> .</p>
@@ -1211,7 +1225,7 @@ You can execute any set of tests with any of the predefined reporters.</p>
 <span class="normal"><a href="#__codelineno-13-3">3</a></span>
 <span class="normal"><a href="#__codelineno-13-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="k">begin</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">());</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">());</span>
 </span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
 Executes all tests from package <em>HR.TEST_APPLY_BONUS</em> and provide outputs to DBMS_OUTPUT using the JUnit reporter. </p>
@@ -1227,7 +1241,7 @@ Functions provide output as a pipelined stream and therefore need to be executed
 At the end of the run, the transaction is automatically rolled-back and all uncommitted changes are reverted.   </p>
 </blockquote>
 <p>Example.
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">()));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">()));</span>
 </span></code></pre></div></td></tr></table></div></p>
 <h2 id="ut_runnerrun-procedures">ut_runner.run procedures<a class="headerlink" href="#ut_runnerrun-procedures" title="Permanent link">&para;</a></h2>
 <p>The <code>ut_runner</code> package provides an API for integrating utPLSQL with other products. Maven, Jenkins, SQL Develper, PL/SQL Developer, TOAD and others can leverage this API to call utPLSQL.</p>
@@ -1265,9 +1279,9 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="k">declare</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">  </span><span class="n">l_reporter</span><span class="w">      </span><span class="n">ut_realtime_reporter</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">ut_realtime_reporter</span><span class="p">();</span>
 </span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="k">begin</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="w"> </span><span class="p">);</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="w"> </span><span class="s1">'d8a79e85915640a6a4e1698fdf90ba74'</span><span class="w"> </span><span class="p">);</span>
 </span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span><span class="n">l_reporter</span><span class="p">.</span><span class="n">output_buffer</span><span class="p">.</span><span class="n">init</span><span class="p">();</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;ut3_tester&#39;</span><span class="p">,</span><span class="s1">&#39;ut3_user&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">ut_reporters</span><span class="p">(</span><span class="w"> </span><span class="n">l_reporter</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">  </span><span class="n">ut_runner</span><span class="p">.</span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">ut_varchar2_list</span><span class="w"> </span><span class="p">(</span><span class="s1">'ut3_tester'</span><span class="p">,</span><span class="s1">'ut3_user'</span><span class="p">),</span><span class="w"> </span><span class="n">ut_reporters</span><span class="p">(</span><span class="w"> </span><span class="n">l_reporter</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
 </span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="k">end</span><span class="p">;</span>
 </span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="o">/</span>
 </span></code></pre></div></td></tr></table></div></p>
@@ -1287,7 +1301,7 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 </span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span>
 </span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span>
 </span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">         </span><span class="n">ut_realtime_reporter</span><span class="p">()</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">           </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">           </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">'d8a79e85915640a6a4e1698fdf90ba74'</span><span class="p">)</span>
 </span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">           </span><span class="p">.</span><span class="n">get_lines</span><span class="p">()</span>
 </span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">  </span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
@@ -1305,14 +1319,21 @@ Outputs of multiple reporters can be consumed in parallel. This allows for live 
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a>
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="k">select</span>
 </span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="n">ut_realtime_reporter</span><span class="p">()</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">      </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">&#39;d8a79e85915640a6a4e1698fdf90ba74&#39;</span><span class="p">)</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">      </span><span class="p">.</span><span class="n">set_reporter_id</span><span class="p">(</span><span class="s1">'d8a79e85915640a6a4e1698fdf90ba74'</span><span class="p">)</span>
 </span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">      </span><span class="p">.</span><span class="n">get_lines_cursor</span><span class="p">()</span>
 </span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
+<h2 id="running-tests-owned-by-other-users">Running tests owned by other users<a class="headerlink" href="#running-tests-owned-by-other-users" title="Permanent link">&para;</a></h2>
+<p>To run tests in another schema, you need the EXECUTE privilege on its test packages, or the EXECUTE ANY PROCEDURE privilege.
+Packages that you can't execute are skipped.</p>
+<p>If such a package is a parent suite (by <code>--%suitepath</code>) of a package that you can execute, the child package still runs.
+A logical suite with the same name takes the parent's place, so the parent's <code>--%beforeall</code>/<code>--%afterall</code>, <code>--%rollback</code> and <code>--%tags</code> don't apply to the child.
+The run reports a warning that names the skipped parent suite.</p>
+<p>A path that selects only packages you can't execute fails with a "does not exist" error.</p>
 <h2 id="order-of-test-execution">Order of test execution<a class="headerlink" href="#order-of-test-execution" title="Permanent link">&para;</a></h2>
 <h3 id="default-order">Default order<a class="headerlink" href="#default-order" title="Permanent link">&para;</a></h3>
 <p>When unit tests are executed without random order, they are ordered by:
-- schema name
+- schema name: when a run includes several schemas, the suites of each schema run together, in order of schema names
 - suite path or test package name if <code>--%suitepath</code> was not specified for that package<br />
 - <code>--%test</code> line number in package</p>
 <h3 id="random-order">Random order<a class="headerlink" href="#random-order" title="Permanent link">&para;</a></h3>
@@ -1327,17 +1348,17 @@ This is needed to maintain visibility and accessibility of common setup/cleanup 
 <span class="normal"><a href="#__codelineno-18-3">3</a></span>
 <span class="normal"><a href="#__codelineno-18-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="k">begin</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
 </span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div></p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>When running with random order, the default report (<code>ut_documentation_reporter</code>) will include information about the random test run seed.
 Example output:
 <div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>...
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>Finished in .12982 seconds
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>35 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>Tests were executed with random order seed &#39;302980531&#39;.
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>Tests were executed with random order seed '302980531'.
 </span></code></pre></div></p>
 <p>If you want to re-run tests using previously generated seed, you may do so by running them with parameter <code>a_random_test_order_seed</code>
 Example:
@@ -1346,10 +1367,10 @@ Example:
 <span class="normal"><a href="#__codelineno-21-3">3</a></span>
 <span class="normal"><a href="#__codelineno-21-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="k">begin</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">);</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">);</span>
 </span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div></p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">a_random_test_order_seed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">302980531</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p><strong>Note</strong></p>
 <blockquote>
@@ -1359,11 +1380,14 @@ Example:
 <p>In addition to the path, you can filter the tests to be run by specifying tags. Tags are defined in the test / context / suite with the <code>--%tags</code>-annotation (<a href="annotations.html#tags">Read more</a>).<br />
 Multiple tags are separated by comma. </p>
 <h3 id="tag-expressions">Tag Expressions<a class="headerlink" href="#tag-expressions" title="Permanent link">&para;</a></h3>
-<p>Tag expressions are boolean expressions created by combining tags with the <code>!</code>, <code>&amp;</code>, <code>|</code> operators. Tag expressions can be grouped using <code>(</code> and <code>)</code> braces. Grouping tag expressions affects operator precedence.</p>
+<p>Tag expressions are boolean expressions created by combining tags with the <code>!</code>, <code>&amp;</code>, <code>|</code> operators. Tag expressions can be grouped using <code>(</code> and <code>)</code> braces. Grouping tag expressions affects operator precedence.
+An invalid tag expression raises an error (ORA-20219) before any test runs.
+Spaces and tabs in a tag expression are ignored. A tag expression made only of spaces and tabs doesn't filter the tests, the same as no tag expression.</p>
 <p>Two reserved keywords, <code>any</code> and <code>none</code>, can be used when creating a tag expression to run tests.
 - <code>any</code> keyword represents tests and suites with any tags
 - <code>none</code> keyword represents tests and suites without tags</p>
-<p>These keywords may be combined with other expressions just like normal tags.</p>
+<p>These keywords may be combined with other expressions just like normal tags.
+The keywords are lowercase only. Like tags, they are case sensitive, so <code>NONE</code> or <code>Any</code> in a tag expression is an ordinary tag name, not a keyword.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When specifying <code>none</code>, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.</p>
@@ -1573,26 +1597,26 @@ Given a test package <code>ut_sample_test</code> defined below </p>
 </span><span id="__span-23-34"><a id="__codelineno-23-34" name="__codelineno-23-34"></a><span class="k">end</span><span class="w"> </span><span class="n">ut_sample_test</span><span class="p">;</span>
 </span><span id="__span-23-35"><a id="__codelineno-23-35" name="__codelineno-23-35"></a><span class="o">/</span>
 </span></code></pre></div></td></tr></table></div>
-<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;ut_sample_test&#39;</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;api&#39;</span><span class="p">));</span>
+<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'ut_sample_test'</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'api'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 The above call will execute all tests from <code>ut_sample_test</code> package as the whole suite is tagged with <code>api</code></p>
-<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;fast&amp;complex&#39;</span><span class="p">));</span>
+<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'fast&amp;complex'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 The above call will execute only the <code>ut_sample_test.ut_refcursors1</code> test, as only the test <code>ut_refcursors1</code> is tagged with <code>complex</code> and <code>fast</code></p>
-<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;fast&#39;</span><span class="p">));</span>
+<p><div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'fast'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 The above call will execute both <code>ut_sample_test.ut_refcursors1</code> and <code>ut_sample_test.ut_test</code> tests, as both tests are tagged with <code>fast</code></p>
 <h3 id="excluding-testssuites-by-tags">Excluding tests/suites by tags<a class="headerlink" href="#excluding-testssuites-by-tags" title="Permanent link">&para;</a></h3>
 <p>It is possible to exclude parts of test suites with tags.
 In order to do so, prefix the tag name to exclude with a <code>!</code> (exclamation) sign when invoking the test run which is equivalent of <code>-</code> (dash) in legacy notation.
 Examples (based on above sample test suite)</p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;(api|fast)&amp;!complex&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'(api|fast)&amp;!complex'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>or </p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-28-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;(api|fast)&amp;!complex&amp;!test1&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-28-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'(api|fast)&amp;!complex&amp;!test1'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>which is equivalent of exclusion on whole expression</p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-29-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;(api|fast)&amp;!(complex|test1)&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-29-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'(api|fast)&amp;!(complex|test1)'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The above calls  will execute all suites/contexts/tests that are marked with any of tags <code>api</code> or <code>fast</code> except those suites/contexts/tests that are marked as <code>complex</code> and except those suites/contexts/tests that are marked as <code>test1</code>. 
 Given the above example package <code>ut_sample_test</code>, only <code>ut_sample_test.ut_test</code> will be executed.  </p>
@@ -1682,16 +1706,16 @@ Given the above example package <code>ut_sample_test</code>, only <code>ut_sampl
 </span><span id="__span-30-41"><a id="__codelineno-30-41" name="__codelineno-30-41"></a><span class="k">end</span><span class="w"> </span><span class="n">ut_sample_test</span><span class="p">;</span>
 </span><span id="__span-30-42"><a id="__codelineno-30-42" name="__codelineno-30-42"></a><span class="o">/</span>
 </span></code></pre></div></td></tr></table></div>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-31-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;ut_sample_test&#39;</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-31-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'ut_sample_test'</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'none'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The above call will execute tests <code>ut_test_no_tag</code></p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-32-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;ut_sample_test&#39;</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;any&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-32-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'ut_sample_test'</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'any'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The above call will execute tests <code>ut_test</code> and <code>ut_refcursors1</code></p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-33-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;ut_sample_test&#39;</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;none|simple&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-33-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_path</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'ut_sample_test'</span><span class="p">,</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'none|simple'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The above call will execute tests <code>ut_test_no_tag</code> and <code>ut_test</code> </p>
-<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-34-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;none|!simple&#39;</span><span class="p">));</span>
+<div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-34-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1"></a><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">table</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">a_tags</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'none|!simple'</span><span class="p">));</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The above call will execute tests <code>ut_test_no_tag</code> and <code>ut_refcursors1</code> </p>
 <h2 id="keeping-uncommitted-data-after-test-run">Keeping uncommitted data after test-run<a class="headerlink" href="#keeping-uncommitted-data-after-test-run" title="Permanent link">&para;</a></h2>
@@ -1708,7 +1732,7 @@ Setting this flag to true has following side-effects:</p>
 <span class="normal"><a href="#__codelineno-35-3">3</a></span>
 <span class="normal"><a href="#__codelineno-35-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1"></a><span class="k">set</span><span class="w"> </span><span class="n">serveroutput</span><span class="w"> </span><span class="k">on</span>
 </span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2"></a><span class="k">begin</span>
-</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">a_force_manual_rollback</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">a_force_manual_rollback</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
 </span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div></p>
 <p><strong>Note:</strong></p>
@@ -1723,7 +1747,7 @@ Setting this flag to true has following side-effects:</p>
 <div class="language-sql highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-36-1">1</a></span>
 <span class="normal"><a href="#__codelineno-36-2">2</a></span>
 <span class="normal"><a href="#__codelineno-36-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1"></a><span class="k">begin</span>
-</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;hr.test_apply_bonus&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;Windows-1251&#39;</span><span class="p">);</span>
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2"></a><span class="w">  </span><span class="n">ut</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="s1">'hr.test_apply_bonus'</span><span class="p">,</span><span class="w"> </span><span class="n">ut_junit_reporter</span><span class="p">(),</span><span class="w"> </span><span class="n">a_client_character_set</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">'Windows-1251'</span><span class="p">);</span>
 </span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3"></a><span class="k">end</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div></p>
 
@@ -1748,7 +1772,7 @@ Setting this flag to true has following side-effects:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="September 28, 2026 17:15:58 UTC">September 28, 2026 17:15:58</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="November 11, 2026 17:18:50 UTC">November 11, 2026 17:18:50</span>
   </span>
 
     
@@ -2037,10 +2061,10 @@ Setting this flag to true has following side-effects:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

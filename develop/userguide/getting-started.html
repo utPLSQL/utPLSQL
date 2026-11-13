@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1108,8 +1108,8 @@ This way, we assure we don't jump ahead too much and produce code that is untest
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Failures:
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  1) basic_usage
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      ORA-04067: not executed, package body &quot;UT3_USER.TEST_BETWNSTR&quot; does not exist
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>      ORA-06508: PL/SQL: could not find program unit being called: &quot;UT3_USER.TEST_BETWNSTR&quot;
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      ORA-04067: not executed, package body "UT3_USER.TEST_BETWNSTR" does not exist
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>      ORA-06508: PL/SQL: could not find program unit being called: "UT3_USER.TEST_BETWNSTR"
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>      ORA-06512: at line 6
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>Finished in .509673 seconds
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)
@@ -1128,7 +1128,7 @@ This way, we assure we don't jump ahead too much and produce code that is untest
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">basic_usage</span><span class="w"> </span><span class="k">is</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">  </span><span class="k">begin</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;1234567&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">&#39;2345&#39;</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">'1234567'</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">'2345'</span><span class="p">);</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="k">end</span><span class="p">;</span>
@@ -1142,8 +1142,8 @@ This way, we assure we don't jump ahead too much and produce code that is untest
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Failures:
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  1) basic_usage
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>      ORA-04063: package body &quot;UT3_USER.TEST_BETWNSTR&quot; has errors
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>      ORA-06508: PL/SQL: could not find program unit being called: &quot;UT3_USER.TEST_BETWNSTR&quot;
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>      ORA-04063: package body "UT3_USER.TEST_BETWNSTR" has errors
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>      ORA-06508: PL/SQL: could not find program unit being called: "UT3_USER.TEST_BETWNSTR"
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>      ORA-06512: at line 6
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>Finished in .415851 seconds
 </span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)
@@ -1172,8 +1172,8 @@ Looks like we need to define the function we want to test.</p>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Failures:
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 </span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  1) basic_usage
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      Actual: &#39;234&#39; (varchar2) was expected to equal: &#39;2345&#39; (varchar2) 
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>      at &quot;&quot;UT3_USER.TEST_BETWNSTR&quot;&quot;, line 5 
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      Actual: '234' (varchar2) was expected to equal: '2345' (varchar2) 
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>      at ""UT3_USER.TEST_BETWNSTR"", line 5 
 </span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
 </span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>Finished in .375178 seconds
 </span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
@@ -1269,12 +1269,12 @@ Once defined we can start implementing tests for those behaviors and adjust the 
 </span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15"></a>
 </span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">basic_usage</span><span class="w"> </span><span class="k">is</span>
 </span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17"></a><span class="w">  </span><span class="k">begin</span>
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;1234567&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">&#39;2345&#39;</span><span class="p">);</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">'1234567'</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">'2345'</span><span class="p">);</span>
 </span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
 </span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20"></a>
 </span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21"></a><span class="w">  </span><span class="k">procedure</span><span class="w"> </span><span class="n">zero_start_position</span><span class="w"> </span><span class="k">is</span>
 </span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22"></a><span class="w">  </span><span class="k">begin</span>
-</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;1234567&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">&#39;12345&#39;</span><span class="p">);</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23"></a><span class="w">    </span><span class="n">ut</span><span class="p">.</span><span class="n">expect</span><span class="p">(</span><span class="w"> </span><span class="n">betwnstr</span><span class="p">(</span><span class="w"> </span><span class="s1">'1234567'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">).</span><span class="n">to_equal</span><span class="p">(</span><span class="s1">'12345'</span><span class="p">);</span>
 </span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24"></a><span class="w">  </span><span class="k">end</span><span class="p">;</span>
 </span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25"></a>
 </span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26"></a><span class="k">end</span><span class="p">;</span>
@@ -1289,8 +1289,8 @@ Once defined we can start implementing tests for those behaviors and adjust the 
 </span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>Failures:
 </span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
 </span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  1) zero_start_position
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>      Actual: &#39;123456&#39; (varchar2) was expected to equal: &#39;12345&#39; (varchar2) 
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>      at &quot;&quot;UT3_USER.TEST_BETWNSTR&quot;&quot;, line 10 
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>      Actual: '123456' (varchar2) was expected to equal: '12345' (varchar2) 
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>      at ""UT3_USER.TEST_BETWNSTR"", line 10 
 </span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
 </span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>Finished in .232584 seconds
 </span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>2 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
@@ -1664,10 +1664,10 @@ Once defined we can start implementing tests for those behaviors and adjust the 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.code.select"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
