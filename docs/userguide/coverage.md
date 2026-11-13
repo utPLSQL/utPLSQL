@@ -99,6 +99,45 @@ If parameter `a_source_file_mappings` or `a_source_files` is provided, then cove
 
 The default behavior of coverage reporting can be altered using invocation parameters.
 
+### Coverage gate (fail-under threshold)
+
+If you want your pipeline to fail when code coverage drops below a minimum, use the
+`ut_coverage_gate` API after a run with coverage. The gate compares the line coverage
+of the run against the threshold and raises `ORA-20218` when coverage is below it —
+no need to parse XML reports outside the database.
+
+Coverage must be actively gathered while the tests run. Wrap the run between
+`ut_runner.coverage_start` / `ut_runner.coverage_stop` and pass the same run id
+when reading the data back:
+
+```sql linenums="1"
+declare
+  l_run_id raw(32) := sys_guid();
+  l_data   ut_coverage.t_coverage;
+begin
+  ut_runner.coverage_start(l_run_id);
+  ut.run('HR');
+  ut_runner.coverage_stop();
+
+  l_data := ut_coverage.get_coverage_data(
+    ut_coverage_options(
+      coverage_run_id => l_run_id,
+      schema_names    => ut_varchar2_rows('HR')));
+  DBMS_OUTPUT.PUT_LINE('Coverage: ' || ut_coverage_gate.coverage_pct(l_data) || '%');
+
+  -- Fails with ORA-20218 when below 80%
+  ut_coverage_gate.assert_coverage(l_data, 80);
+end;
+/
+-- ORA-20218: Coverage 62.50% is below required 80.00%  -> CI fails via exit code
+```
+
+Notes:
+- The percentage uses the same formula as the Cobertura reporter: `covered / (covered + uncovered)`, `0` when there is nothing to cover. Partially covered lines are reported separately and do not count as covered.
+- A null or negative threshold disables the gate (documented no-op). An optional custom message can be prepended: `assert_coverage(l_data, 80, 'Nightly build')`.
+- Keep the `coverage_run_id` you started with: after `ut.run` returns, `ut_coverage.get_coverage_run_id()` is reset, so reuse the id you passed to `coverage_start`.
+- When a coverage reporter is used (e.g. `ut_coverage_html_reporter`), coverage is gathered automatically; the gate then simply reads the data of that run.
+
 ### Schema based Coverage
 
 To gather coverage for all objects in the **current schema** execute tests with coverage report as argument.

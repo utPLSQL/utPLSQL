@@ -208,6 +208,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/coverage/ut_coverage.pks'
 @@install_component.sql 'core/coverage/ut_coverage_block.pks'
 @@install_component.sql 'core/coverage/ut_coverage_profiler.pks'
+@@install_component.sql 'core/coverage/ut_coverage_gate.pks'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tps'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_helper_block.pkb'
@@ -215,6 +216,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/coverage/ut_coverage.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_block.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_profiler.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_gate.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tpb'
 
 --core type bodies

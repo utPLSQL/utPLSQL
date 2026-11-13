@@ -124,6 +124,8 @@ create &action_type. synonym &ut3_user.ut_tap_reporter for &&ut3_owner..ut_tap_r
 create &action_type. synonym &ut3_user.ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create &action_type. synonym &ut3_user.ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create &action_type. synonym &ut3_user.ut_coverage_cobertura_reporter for &&ut3_owner..ut_coverage_cobertura_reporter;
+--coverage gate
+create &action_type. synonym &ut3_user.ut_coverage_gate for &&ut3_owner..ut_coverage_gate;
 --reporters - debug
 create &action_type. synonym &ut3_user.ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 --reporters - base types

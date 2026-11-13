@@ -88,6 +88,8 @@ drop type ut_realtime_reporter force;
 
 drop package ut_coverage;
 
+drop package ut_coverage_gate;
+
 drop package ut_coverage_helper;
 
 drop table ut_coverage_sources_tmp purge;
