@@ -166,6 +166,7 @@ If the installing user and utPLSQL owner is one and the same, the user must have
   - ALTER SESSION
   - CREATE TRIGGER
   - CREATE ROLE
+  - CREATE ANY CONTEXT (needed only for the installation, see [Installing utPLSQL](#installing-utplsql))
   
 In addition, the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
@@ -196,6 +197,13 @@ You may install utPLSQL from any account that has sufficient privileges to creat
 The installation uses code based access control (CBAC) to give utPLSQL packages access to internal utPLSQL tables without granting those tables to users.
 It creates the role `<utPLSQL schema>_cbac_modify_objects_role` (for example `ut3_cbac_modify_objects_role`), unless it already exists, and grants it to the utPLSQL schema and to utPLSQL packages.
 The installing user therefore needs the `CREATE ROLE` privilege. Each utPLSQL schema gets its own role. The role is dropped when utPLSQL is uninstalled.
+
+The installation also creates the application context `<utPLSQL schema>_info` (for example `ut3_info`), which makes information about the running test available through [`sys_context`](annotations.md#sys_context).
+The installing user therefore needs the `CREATE ANY CONTEXT` privilege.
+This privilege is needed only while installing, not when running tests.
+Because it is a powerful `ANY` privilege, `create_utplsql_owner.sql` deliberately does not grant it to the utPLSQL schema.
+If you install utPLSQL as the utPLSQL schema owner, grant `CREATE ANY CONTEXT` to that user before the installation and revoke it afterwards.
+The headless installation runs as `SYSDBA` and needs no additional grant.
 
 Example invocation:
 ```bash
