@@ -19,7 +19,6 @@ create or replace noneditionable package body ut_suite_manager is
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
   cursor c_cached_suites_cursor is select * from table(ut_suite_cache_rows());
   type tt_cached_suites         is table of c_cached_suites_cursor%rowtype;
-  type t_cached_suites_cursor   is ref cursor return c_cached_suites_cursor%rowtype;
   type t_item_levels is table of ut_suite_items index by binary_integer;
   ------------------
 
@@ -143,91 +142,51 @@ create or replace noneditionable package body ut_suite_manager is
     a_items_at_level    t_item_levels
   ) return ut_suite_item is
     l_result ut_suite_item;
+    l_items  ut_suite_items;
   begin
+      --the items one level below, collected before the parent (rows are sorted bottom up)
+      l_items := case when a_prev_level > a_level then a_items_at_level(a_prev_level) else ut_suite_items() end;
       case a_rows( a_idx ).self_type
         when 'UT_SUITE' then
           l_result :=
-            case when a_prev_level > a_level then
-                ut_suite(
-                  self_type => a_rows( a_idx ).self_type,
-                  object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                  name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                  rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                  line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  items => a_items_at_level(a_prev_level),
-                  before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
-                )
-            else
-                ut_suite(
-                  self_type => a_rows( a_idx ).self_type,
-                  object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                  name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                  rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                  line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  items => ut_suite_items(),
-                  before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
-                )
-            end;
+            ut_suite(
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => l_items,
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
+            );
         when 'UT_SUITE_CONTEXT' then
           l_result :=
-            case when a_prev_level > a_level then
-              ut_suite_context(
-                self_type => a_rows( a_idx ).self_type,
-                object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => a_items_at_level(a_prev_level),
-                before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
-              )
-            else
-              ut_suite_context(
-                self_type => a_rows( a_idx ).self_type,
-                object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => ut_suite_items(),
-                before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
-              )
-            end;
+            ut_suite_context(
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => l_items,
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
+            );
         when 'UT_LOGICAL_SUITE' then
           l_result :=
-            case when a_prev_level > a_level then
-              ut_logical_suite(
-                self_type => a_rows( a_idx ).self_type,
-                object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => a_items_at_level(a_prev_level), tags => null
-              )
-            else
-              ut_logical_suite(
-                self_type => a_rows( a_idx ).self_type,
-                object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
-                name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
-                rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
-                line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
-                start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
-                results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => ut_suite_items(), tags => null
-              )
-            end;
+            ut_logical_suite(
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag, disabled_reason  => a_rows(a_idx).disabled_reason,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => l_items, tags => null
+            );
         when 'UT_TEST' then
           l_result :=
             ut_test(
@@ -250,42 +209,46 @@ create or replace noneditionable package body ut_suite_manager is
     return l_result;
   end;
   
+  /*
+    Builds the suite hierarchy from cache rows sorted bottom-up (see ut_suite_cache_manager.get_suite_rows)
+    and propagates the rollback type of top level suites to their items.
+
+    The rows are converted to records with SQL before use. Building ut_test objects from the item attribute
+    of ut_suite_cache_row objects directly makes the test execution fail on Oracle 19.20 with
+    ORA-00600: [pfrobj.c: invalid RTTI for Object] in ut_executable.do_execute (seen in nested runs, test_ut_test).
+  */
   procedure reconstruct_from_cache(
     a_suites            in out nocopy ut_suite_items,
-    a_suite_data_cursor sys_refcursor
+    a_suite_rows        ut_suite_cache_rows
   ) is
-    c_bulk_limit        constant pls_integer := 1000;
     l_items_at_level    t_item_levels;
     l_rows              tt_cached_suites;
     l_level             pls_integer;
     l_prev_level        pls_integer;
     l_idx               integer;
   begin
-    loop
-      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+    select * bulk collect into l_rows from table(a_suite_rows);
 
-      l_idx := l_rows.first;
-      while l_idx is not null loop
-        l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
-        if l_level > 1 then
-          if not l_items_at_level.exists(l_level) then
-            l_items_at_level(l_level) := ut_suite_items();
-          end if;
-          l_items_at_level(l_level).extend;
-          pragma inline(get_logical_suite, 'YES');
-          l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
-        else
-          a_suites.extend;
-          pragma inline(get_logical_suite, 'YES');
-          a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+    l_idx := l_rows.first;
+    while l_idx is not null loop
+      l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+      if l_level > 1 then
+        if not l_items_at_level.exists(l_level) then
+          l_items_at_level(l_level) := ut_suite_items();
         end if;
-        if l_prev_level > l_level then
-          l_items_at_level(l_prev_level).delete;
-        end if;
-        l_prev_level := l_level;
-        l_idx := l_rows.next(l_idx);
-      end loop;
-      exit when a_suite_data_cursor%NOTFOUND;
+        l_items_at_level(l_level).extend;
+        pragma inline(get_logical_suite, 'YES');
+        l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+      else
+        a_suites.extend;
+        pragma inline(get_logical_suite, 'YES');
+        a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+      end if;
+      if l_prev_level > l_level then
+        l_items_at_level(l_prev_level).delete;
+      end if;
+      l_prev_level := l_level;
+      l_idx := l_rows.next(l_idx);
     end loop;
 
     reverse_list_order( a_suites );
@@ -293,52 +256,56 @@ create or replace noneditionable package body ut_suite_manager is
     for i in 1 .. a_suites.count loop
       a_suites( i ).set_rollback_type( a_suites( i ).get_rollback_type );
     end loop;
-    close a_suite_data_cursor;
   end reconstruct_from_cache;
 
-  function get_filtered_cursor(
-    a_unfiltered_rows in ut_suite_cache_rows,
-    a_skip_all_objects boolean  := false
-  )
-  return ut_suite_cache_rows is
-    l_result           ut_suite_cache_rows := ut_suite_cache_rows();
+  /*
+    A user can run all packages of a schema they own, and of any schema with EXECUTE ANY PROCEDURE,
+    so the access to those packages does not need checking.
+  */
+  function can_skip_access_check(a_owner_name varchar2) return boolean is
   begin
-    if ut_metadata.user_has_execute_any_proc() or a_skip_all_objects then
-      l_result := a_unfiltered_rows;
-    else
-      select obj bulk collect into l_result
-      from (
-        select /*+ no_parallel */  value(c) as obj from table(a_unfiltered_rows) c
-          where sys_context( 'userenv', 'current_user' ) = upper(c.object_owner)
-        union all
-        select /*+ no_parallel */ value(c) as obj from table(a_unfiltered_rows) c
-          where sys_context( 'userenv', 'current_user' ) != upper(c.object_owner)
-          and ( exists
-           ( select 1
-               from all_objects a
-               where a.object_name = c.object_name
-               and a.owner       = c.object_owner
-               and a.object_type = 'PACKAGE'
-            )
-          or c.self_type = 'UT_LOGICAL_SUITE'));
-    end if;
-    return l_result;
+    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
   end;
 
+  function can_skip_access_check(a_schema_paths ut_path_items) return boolean is
+  begin
+    for i in 1 .. a_schema_paths.count loop
+      if not can_skip_access_check(a_schema_paths(i).schema_name) then
+        return false;
+      end if;
+    end loop;
+    return true;
+  end;
+
+  /*
+    Raises ut_utils.gc_suite_package_not_found for the first path that selects none of the suite rows
+    (as returned by ut_suite_cache_manager.get_suite_rows), with the same matching rule:
+    the SQL macro ut_suite_cache_macros.match_paths.
+  */
   procedure reconcile_paths_and_suites(
-    a_schema_paths     ut_path_items,
-    a_filtered_rows    ut_suite_cache_rows
+    a_schema_paths ut_path_items,
+    a_suite_rows   ut_suite_cache_rows
   ) is
   begin
-    for i in ( select  /*+ no_parallel */ sp.schema_name,sp.object_name,sp.procedure_name,
-        sp.suite_path,sc.path
-      from table(a_schema_paths) sp left outer join
-      table(a_filtered_rows) sc on
-        (( upper(sp.schema_name) = upper(sc.object_owner) and upper(sp.object_name) = upper(sc.object_name)
-           and nvl(upper(sp.procedure_name),sc.name) = sc.name )
-        or (sc.path = sp.suite_path))
-        where sc.path is null)
-    loop
+    for i in (
+      with
+        path_items as (
+          select /*+ materialize */ rownum as path_id, sp.schema_name, sp.object_name, sp.procedure_name, sp.suite_path
+            from table(a_schema_paths) sp
+        ),
+        suite_items as (
+          select r.object_owner, r.object_name, r.name, r.path
+            from table(a_suite_rows) r
+        )
+      select /*+ no_parallel */ p.schema_name, p.object_name, p.procedure_name, p.suite_path
+        from path_items p
+       where not exists (
+               select 1
+                 from (&&ut3_owner..ut_suite_cache_macros.match_paths(suite_items, path_items)) m
+                where m.path_id = p.path_id
+             )
+       order by p.path_id
+    ) loop
       if i.suite_path is not null then
         raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||i.schema_name||':'||i.suite_path|| '.');
       elsif i.procedure_name is not null then
@@ -352,32 +319,16 @@ create or replace noneditionable package body ut_suite_manager is
   function get_cached_suite_data(
     a_schema_paths     ut_path_items,
     a_random_seed      positive,
-    a_tags             varchar2 := null,
-    a_skip_all_objects boolean  := false
-  ) return t_cached_suites_cursor is
-    l_unfiltered_rows    ut_suite_cache_rows;
-    l_tag_filter_applied ut_suite_cache_rows;
-    l_filtered_rows      ut_suite_cache_rows;
-    l_result             t_cached_suites_cursor;
+    a_tags             varchar2 := null
+  ) return ut_suite_cache_rows is
+    l_suite_rows         ut_suite_cache_rows;
   begin
-    l_unfiltered_rows := ut_suite_cache_manager.get_suite_items(a_schema_paths);
+    l_suite_rows := ut_suite_cache_manager.get_suite_rows(
+      a_schema_paths, can_skip_access_check(a_schema_paths), a_tags, a_random_seed
+    );
+    reconcile_paths_and_suites(a_schema_paths, l_suite_rows);
 
-    l_tag_filter_applied := ut_suite_tag_filter.apply(l_unfiltered_rows,a_tags);
-    l_filtered_rows := get_filtered_cursor(ut_suite_cache_manager.get_cached_suite_rows(l_tag_filter_applied),a_skip_all_objects);
-    reconcile_paths_and_suites(a_schema_paths,l_filtered_rows);
-
-    ut_suite_cache_manager.sort_and_randomize_tests(l_filtered_rows,a_random_seed);
-
-    open l_result for
-      select * from table(l_filtered_rows);
-    return l_result;
-  end;
-
-  function can_skip_all_objects_scan(
-    a_owner_name         varchar2
-  ) return boolean is
-  begin
-    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
+    return l_suite_rows;
   end;
 
   procedure build_and_cache_suites(
@@ -438,11 +389,31 @@ create or replace noneditionable package body ut_suite_manager is
 
     build_and_cache_suites(l_owner_name, l_annotations_cursor);
 
-    if can_skip_all_objects_scan(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
+    if can_skip_access_check(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
       ut_suite_cache_manager.remove_missing_objs_from_cache( l_owner_name );
     end if;
 
     ut_event_manager.trigger_event('refresh_cache - end');
+  end;
+
+  /*
+    Resolves the schema names of the paths, refreshes the suite cache of those schemas
+    and returns the paths split into their parts.
+  */
+  function refresh_cache_for_paths(
+    a_paths ut_varchar2_list
+  ) return ut_path_items is
+    l_paths        ut_varchar2_list := a_paths;
+    l_schema_names ut_varchar2_rows;
+    l_schema       varchar2(4000);
+  begin
+    l_schema_names := resolve_schema_names(l_paths);
+    l_schema := l_schema_names.first;
+    while l_schema is not null loop
+      refresh_cache(upper(l_schema_names(l_schema)));
+      l_schema := l_schema_names.next(l_schema);
+    end loop;
+    return ut_suite_cache_manager.get_schema_paths(l_paths);
   end;
 
   procedure add_suites_for_paths(
@@ -471,8 +442,7 @@ create or replace noneditionable package body ut_suite_manager is
     a_annotated_objects sys_refcursor,
     a_path              varchar2 := null,
     a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
+    a_procedure_name    varchar2 := null
   ) return ut_suite_items is
     l_suites             ut_suite_items := ut_suite_items();
     l_schema_paths       ut_path_items;
@@ -484,8 +454,7 @@ create or replace noneditionable package body ut_suite_manager is
       get_cached_suite_data(
         l_schema_paths,
         null,
-        null,
-        a_skip_all_objects
+        null
       )
     );
     return l_suites;
@@ -528,37 +497,21 @@ create or replace noneditionable package body ut_suite_manager is
     a_random_seed positive   := null,
     a_tags        varchar2 := null
   ) is
-    l_paths              ut_varchar2_list := a_paths;
-    l_schema_names       ut_varchar2_rows;
-    l_schema_paths       ut_path_items;
-    l_schema             varchar2(4000);
+    l_tags_match  integer;
   begin
     ut_event_manager.trigger_event('configure_execution_by_path - start');
+    --raise an error for an invalid tag expression even when the paths select no tests to evaluate it on
+    if a_tags is not null then
+      l_tags_match := ut_suite_tag_filter.is_matching(null, a_tags);
+    end if;
     a_suites := ut_suite_items();
-    --resolve schema names from paths and group paths by schema name
-    l_schema_names := resolve_schema_names(l_paths);
 
-    --refresh cache
-    l_schema := l_schema_names.first;
-    while l_schema is not null loop
-      refresh_cache(upper(l_schema_names(l_schema)));
-      l_schema := l_schema_names.next(l_schema);
-    end loop;
-
-    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-
-    --We will get a single list of paths rather than loop by loop.
     add_suites_for_paths(
-      l_schema_paths,
+      refresh_cache_for_paths(a_paths),
       a_suites,
       a_random_seed,
       a_tags
     );
-
-    --propagate rollback type to suite items after organizing suites into hierarchy
-    for i in 1 .. a_suites.count loop
-      a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
-    end loop;
 
     ut_event_manager.trigger_event('configure_execution_by_path - end');
   end configure_execution_by_path;
@@ -568,25 +521,9 @@ create or replace noneditionable package body ut_suite_manager is
   ) return sys_refcursor is
     l_result             sys_refcursor;
     l_all_suite_info     ut_suite_items_info;
-    l_schema_names       ut_varchar2_rows;
-    l_schema_paths       ut_path_items;
-    l_paths              ut_varchar2_list := a_paths;
-    l_schema             varchar2(4000);
-    l_unfiltered_rows    ut_suite_cache_rows;
-    l_filtered_rows      ut_suite_cache_rows;
-
+    l_schema_paths       ut_path_items := refresh_cache_for_paths(a_paths);
   begin
-    l_schema_names := resolve_schema_names(l_paths);
-    --refresh cache
-    l_schema := l_schema_names.first;
-    while l_schema is not null loop
-      refresh_cache(upper(l_schema_names(l_schema)));
-      l_schema := l_schema_names.next(l_schema);
-    end loop;
-    l_schema_paths := ut_suite_cache_manager.get_schema_paths(l_paths);
-    l_unfiltered_rows := ut_suite_cache_manager.get_cached_suite_info(l_schema_paths);
-    l_filtered_rows := get_filtered_cursor(l_unfiltered_rows);
-    l_all_suite_info := ut_suite_cache_manager.get_suite_items_info(l_filtered_rows);
+    l_all_suite_info := ut_suite_cache_manager.get_suites_info(l_schema_paths, can_skip_access_check(l_schema_paths));
     open l_result for
       select /*+ no_parallel */ value(c)
         from table(l_all_suite_info) c
@@ -609,7 +546,7 @@ create or replace noneditionable package body ut_suite_manager is
 
     refresh_cache(l_owner_name);
     l_item_exists := ut_suite_cache_manager.suite_item_exists( l_owner_name, l_package_name, l_procedure_name );
-    if not can_skip_all_objects_scan( l_owner_name ) and l_package_name is not null then
+    if not can_skip_access_check( l_owner_name ) and l_package_name is not null then
       select /*+ no_parallel */ count(1)
         into l_count
         from dual c

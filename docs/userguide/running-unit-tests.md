@@ -46,6 +46,9 @@ The examples below illustrate different ways and options to invoke `ut.run` proc
 You can use a wildcard character `*` to call tests by part of their name or to call tests that are located on paths matched by part of path string.
 Wildcard character can be placed anywhere on the path and can occur mutliple times.
 Schema name cannot contain a wildcard character whether is in a suitepath call or call by object name.
+Only `*` is a wildcard. All other characters, including `_`, `.` and `$`, match only themselves.
+A path with a wildcard selects every matching suite or test that you can run and that matches the tags (see [Run by Tags](#run-by-tags)).
+Matches that you can't run, or that the tags exclude, are skipped. The run fails with a "does not exist" error only when nothing is left.
 
 ```sql linenums="1"
 alter session set current_schema=hr;
@@ -260,13 +263,23 @@ select
   from dual;
 ```
 
+## Running tests owned by other users
+
+To run tests in another schema, you need the EXECUTE privilege on its test packages, or the EXECUTE ANY PROCEDURE privilege.
+Packages that you can't execute are skipped.
+
+If such a package is a parent suite (by `--%suitepath`) of a package that you can execute, the child package still runs.
+A logical suite with the same name takes the parent's place, so the parent's `--%beforeall`/`--%afterall`, `--%rollback` and `--%tags` don't apply to the child.
+The run reports a warning that names the skipped parent suite.
+
+A path that selects only packages you can't execute fails with a "does not exist" error.
   
 ## Order of test execution
 
 ### Default order
 
 When unit tests are executed without random order, they are ordered by:
-- schema name
+- schema name: when a run includes several schemas, the suites of each schema run together, in order of schema names
 - suite path or test package name if `--%suitepath` was not specified for that package  
 - `--%test` line number in package
  
@@ -325,12 +338,15 @@ Multiple tags are separated by comma.
 ### Tag Expressions
 
 Tag expressions are boolean expressions created by combining tags with the `!`, `&`, `|` operators. Tag expressions can be grouped using `(` and `)` braces. Grouping tag expressions affects operator precedence.
+An invalid tag expression raises an error (ORA-20219) before any test runs.
+Spaces and tabs in a tag expression are ignored. A tag expression made only of spaces and tabs doesn't filter the tests, the same as no tag expression.
 
 Two reserved keywords, `any` and `none`, can be used when creating a tag expression to run tests.
 - `any` keyword represents tests and suites with any tags
 - `none` keyword represents tests and suites without tags
 
 These keywords may be combined with other expressions just like normal tags.
+The keywords are lowercase only. Like tags, they are case sensitive, so `NONE` or `Any` in a tag expression is an ordinary tag name, not a keyword.
 
 !!! note
     When specifying `none`, be aware that it will exclude any tests/suites/contexts contained within a tagged suite.

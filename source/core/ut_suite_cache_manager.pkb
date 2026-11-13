@@ -17,77 +17,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
   */
 
   /*
-  * Private code
+  * Public code
   */
-  cursor c_get_bulk_cache_suite(cp_suite_items in ut_suite_cache_rows) is
-    with  
-      suite_items as (
-        select  /*+ cardinality(c 500) */ value(c) as obj
-          from table(cp_suite_items) c),
-      suitepaths as (
-        select distinct substr(c.obj.path,1,instr(c.obj.path,'.',-1)-1) as suitepath,
-                        c.obj.path as path,
-                        c.obj.object_owner as object_owner
-          from suite_items c
-         where c.obj.self_type = 'UT_SUITE'
-      ),
-        gen as (
-        select rownum as pos
-          from xmltable('1 to 20')
-      ),
-      suitepath_part AS (
-        select distinct
-                        substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
-                        object_owner
-          from suitepaths b
-               join gen g
-                 on g.pos <= regexp_count(b.suitepath, '\w+')
-      ),
-      logical_suite_data as (
-        select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
-               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
-               cast(null as ut_executables) as x,
-               cast(null as ut_varchar2_rows) as y,
-               cast(null as ut_executable_test) as z
-          from suitepath_part p
-         where p.path
-           not in (select s.path from suitepaths s)
-      ),
-      logical_suites as (
-        select ut_suite_cache_row(
-                 null,
-                 s.self_type, s.path, s.object_owner, s.object_name,
-                 s.object_name, null, null, null, null, 0,null,
-                 ut_varchar2_rows(),
-                 s.x, s.x, s.x, s.x, s.x, s.x,
-                 s.y, null, s.z
-               ) as obj
-          from logical_suite_data s
-      )
-      select /*+ no_parallel */ obj from suite_items
-      union all
-      select /*+ no_parallel */ obj from logical_suites;
 
-  function get_missing_cache_objects(a_object_owner varchar2) return ut_varchar2_rows is
-    l_result       ut_varchar2_rows;
-    l_data         ut_annotation_objs_cache_info;
-  begin
-    l_data := ut_annotation_cache_manager.get_cached_objects_list(a_object_owner, 'PACKAGE');
-
-    select /*+ no_parallel */ i.object_name
-           bulk collect into l_result
-      from ut_suite_cache_package i
-     where not exists (
-       select 1 from table(l_data) o
-        where o.object_owner = i.object_owner
-          and o.object_name = i.object_name
-          and o.object_type = 'PACKAGE'
-       )
-       and i.object_owner = a_object_owner;
-    return l_result;
-  end;
-
-  function group_paths_by_schema(a_paths ut_varchar2_list) return ut_path_items is
+  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
     c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
     l_results            ut_path_items := ut_path_items();
     l_path_item          ut_path_item;
@@ -113,184 +46,234 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
   
   /*
-    First SQL queries for objects where procedure is null or its only wildcard.
-    We split that due to fact that we can use func min to combine rows.
-    
-    Second union is responsible expanding paths where the procedure filter is given
-    We cannot select min here as filter can cover only half of tests within
-    package. Even if the filter doesnt return anything we still capture a proc filter
-    name for error reporting later on.
-    
-    Third SQL cover scenario where a suitapath only is populated and wildcard is given
-    
-    Fourth SQL cover scenario where suitepath is populated with no filters
-  */   
-  function expand_paths(a_schema_paths ut_path_items) return ut_path_items is
-    l_schema_paths ut_path_items:= ut_path_items();
-  begin   
-    with 
-      schema_paths as (
-      select * from table(a_schema_paths)
-    ),    
-      paths_for_object as ( 
-      select /*+ no_parallel */ min(path) as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
-        null as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c
-        on ( c.object_owner = upper(sp.schema_name)
-        and c.object_name like  replace(upper(sp.object_name),'*','%'))
-        where sp.suite_path is null and sp.object_name is not null
-        and ( sp.procedure_name is null or sp.procedure_name = '*')
-        group by sp.schema_name,nvl(c.object_name,sp.object_name)
-      ),
-      paths_for_procedures as (
-      select /*+ no_parallel */ path as suite_path,sp.schema_name as schema_name,nvl(c.object_name,sp.object_name) as object_name,
-        nvl(c.name,sp.procedure_name) as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c
-        on ( c.object_owner = upper(sp.schema_name)
-        and c.object_name like  replace(upper(sp.object_name),'*','%')
-        and c.name like nvl(replace(upper(sp.procedure_name),'*','%'), c.name))
-        where sp.suite_path is null and sp.object_name is not null
-        and (sp.procedure_name is not null and sp.procedure_name != '*')      
-      ),
-      paths_for_suite_path_with_ast as (
-      select /*+ no_parallel */ nvl(c.path,sp.suite_path) as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-        from schema_paths sp left outer join ut_suite_cache c on
-        ( c.object_owner = upper(sp.schema_name) 
-        --and c.path like replace(sp.suite_path,'*','%'))
-        and regexp_like(c.path,'^'||replace(sp.suite_path,'*','[[:alnum:]$#_]*')))
-        where sp.suite_path is not null and instr(sp.suite_path,'*') > 0
-      ),
-      straigth_suite_paths as (
-      select /*+ no_parallel */ sp.suite_path as suite_path,sp.schema_name,sp.object_name,sp.procedure_name as procedure_name
-       from schema_paths sp
-       where 
-       (sp.suite_path is not null and instr(sp.suite_path,'*') = 0)
-       or 
-       (sp.suite_path is null and sp.object_name is null)
-    ),
-    all_suitepaths_together as (
-    select * from paths_for_object
-    union all
-    select * from paths_for_procedures
-    union all
-    select * from paths_for_suite_path_with_ast
-    union all 
-    select * from straigth_suite_paths
-    )
-    select ut_path_item(schema_name,object_name,procedure_name,suite_path)
-      bulk collect into l_schema_paths
-      from 
-      (select schema_name,object_name,procedure_name,suite_path,
-      row_number() over ( partition by schema_name,object_name,procedure_name,suite_path order by 1) as r_num
-      from all_suitepaths_together)
-      where r_num = 1 ;
-    return l_schema_paths;
-  end;
-  
-  /*
-    Get a suite items rows that matching our criteria like
-    path,object_name etc.
-    We need to consider also an wildcard character on our procedures and object
-    names.
-    Were the path is populated we need to make sure we dont return duplicates
-    as the wildcard can produce multiple results from same path and 
-    parents and child for each can be same resulting in duplicates    
-  */  
-  function get_suite_items (
-    a_schema_paths ut_path_items
-  ) return ut_suite_cache_rows is
-    l_suite_items ut_suite_cache_rows := ut_suite_cache_rows();
-  begin
-    select obj bulk collect into  l_suite_items
-    from (
-    select  /*+ cardinality(c 500) */ value(c) as obj,row_number() over ( partition by path,object_owner order by path,object_owner asc) as r_num  
-      from ut_suite_cache c,
-      table(a_schema_paths)  sp
-      where c.object_owner = upper(sp.schema_name)
-      and ((sp.suite_path is not null and sp.suite_path||'.' like  c.path||'.%' /*all parents and self*/               
-        or
-        ( 
-          c.path||'.' like sp.suite_path||'.%'	/*all children and self*/
-          and c.object_name like nvl(upper(sp.object_name),c.object_name)						 
-          and c.name like nvl(upper(sp.procedure_name),c.name) 
-        ))          
-        or
-        ( sp.suite_path is null
-        and c.object_name = nvl(upper(sp.object_name),c.object_name)					 
-        and c.name = nvl(upper(sp.procedure_name),c.name)))) where r_num =1;        
-    return l_suite_items;
-  end;
-      
-  /*
-    We will sort a suites in hierarchical structure.
-    Sorting from bottom to top so when we consolidate
-    we will go in proper order.
-    For random seed we will add an extra sort that can be null.
-    The object owner is irrelevant on joing via path as we already
-    resolved a list of test we want to use so as long they share a suitepath
-    they are correct.
+    Returns ids of the cache rows the paths select (wildcards included, see ut_suite_cache_macros.match_paths)
+    and of their parents, only for packages the invoking user can access, unless a_skip_access_check is true.
+    A separate statement, as a SQL macro cannot be used inside a WITH clause (ORA-64630).
   */
-  procedure sort_and_randomize_tests(
-    a_suite_rows in out ut_suite_cache_rows,
-    a_random_seed  positive := null) 
-  is
-    l_suite_rows ut_suite_cache_rows;
+  function get_matched_ids(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
+  ) return ut_integer_list is
+    l_results            ut_integer_list;
+    l_skip_access_check  varchar2(1) := case when a_skip_access_check then 'Y' else 'N' end;
   begin
+    --all_objects is used only in the main query: in a WITH clause of a statement with a SQL macro it raises ORA-00942
     with
-    extract_parent_child as (
-        select s.path, substr(s.path,1,instr(s.path,'.',-1,1)-1) as parent_path,s.object_owner,
-          case when a_random_seed is null then s.line_no end line_no,
-          case when a_random_seed is not null then ut_utils.hash_suite_path(s.path, a_random_seed) end random_seed
-          from table(a_suite_rows) s),        
-      t1(path,parent_path,object_owner,line_no,random_seed) as (
-        --Anchor member
-        select s.path, parent_path,s.object_owner,s.line_no,random_seed
-          from extract_parent_child s
-          where parent_path is null
-        union all
-        --Recursive member
-        select t2.path, t2.parent_path,t2.object_owner,t2.line_no,t2.random_seed
-          from t1,extract_parent_child t2
-          where t2.parent_path = t1.path
-           and t2.object_owner = t1.object_owner)
-      search depth first by line_no desc,random_seed desc nulls last set order1
-      select  value(i) as obj  
-        bulk collect into l_suite_rows 
-        from t1 c
-        join table(a_suite_rows) i on i.object_owner = c.object_owner and i.path = c.path
-        order by order1 desc;      
-        
-    a_suite_rows := l_suite_rows;
-  end;
-  
-  /*
-  * Public code
-  */
-  
-  function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
-  begin
-    return expand_paths(group_paths_by_schema(a_paths));
-  end;
-  
-  function get_cached_suite_rows(
-    a_suites_filtered ut_suite_cache_rows 
-  ) return ut_suite_cache_rows is
-    l_results         ut_suite_cache_rows := ut_suite_cache_rows();
-  begin     
-
-    open c_get_bulk_cache_suite(a_suites_filtered);
-    fetch c_get_bulk_cache_suite bulk collect into l_results;
-    close c_get_bulk_cache_suite;
-      
+      path_items as (
+        select rownum as path_id, sp.schema_name, sp.object_name, sp.procedure_name, sp.suite_path
+          from table(a_schema_paths) sp
+      ),
+      schema_items as (
+        --only scalar columns: a table argument of a SQL macro cannot have collection columns (ORA-62558)
+        select /*+ no_parallel */ c.id, c.object_owner, c.object_name, c.name, c.path
+          from &&ut3_owner..ut_suite_cache c
+         where c.object_owner in (select upper(p.schema_name) from path_items p)
+      )
+    select /*+ no_parallel */ distinct r.id
+      bulk collect into l_results
+      from (&&ut3_owner..ut_suite_cache_macros.match_paths(schema_items, path_items)) m
+      join schema_items s
+        on s.object_owner = m.object_owner
+       and s.path = m.path
+      join schema_items r
+        on r.object_owner = s.object_owner
+       and ( r.path = s.path or substr(s.path, 1, length(r.path) + 1) = r.path || '.' /* the selected row or its parent */ )
+     where l_skip_access_check = 'Y'
+        or ( exists ( select 1 from all_objects a where a.owner = s.object_owner and a.object_name = s.object_name and a.object_type = 'PACKAGE' )
+             and exists ( select 1 from all_objects a where a.owner = r.object_owner and a.object_name = r.object_name and a.object_type = 'PACKAGE' )
+           );
     return l_results;
   end;
-    
+
+  /*
+    Returns suite items for the paths, sorted bottom up, so that reconstruct_from_cache in ut_suite_manager
+    can build the suite hierarchy in a single pass. The statement:
+    - matched_rows:   the rows from get_matched_ids
+    - tagged_rows:    when tags are given, the rows having a test matching the tag expression below them (or being one);
+                      a test inherits the tags of the suites and contexts above it
+    - logical_suites: suites for the parts of the suitepaths that have no package behind them,
+                      or whose package the user can't access (with a warning in that case)
+    - ordered:        the hierarchy sorted depth first by schema, then by line number, or by a hash of the path when a_random_seed is given
+    The tag expression is evaluated per test by ut_suite_tag_filter.is_matching, so the statement is static SQL.
+    Without a_with_executables, the rows have no executables (before/after lists, test item), which only a run needs.
+  */
+  function select_suite_rows(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean,
+    a_tags               varchar2,
+    a_random_seed        positive,
+    a_with_executables   boolean
+  ) return ut_suite_cache_rows is
+    l_results            ut_suite_cache_rows;
+    l_matched_ids        ut_integer_list := get_matched_ids(a_schema_paths, a_skip_access_check);
+    l_with_executables   varchar2(1) := case when a_with_executables then 'Y' else 'N' end;
+    --an expression of spaces and tabs only is no tag filter
+    l_tags               varchar2(32767) := ut_suite_tag_filter.remove_whitespace(a_tags);
+  begin
+    with
+      matched_rows as (
+        select /*+ no_parallel */ c.id, c.self_type, c.path, c.object_owner, c.object_name, c.line_no, c.tags
+          from &&ut3_owner..ut_suite_cache c
+         where c.id in (select m.column_value from table(l_matched_ids) m)
+      ),
+      propagate_tags_from_ancestors as (
+        select c.id, c.self_type, c.path, c.object_owner, listagg(distinct c_tags.tag, ',') within group (order by c_tags.tag) as tags
+          from matched_rows c
+          left join matched_rows t
+            on t.self_type in ('UT_SUITE','UT_SUITE_CONTEXT')
+           and c.path like t.path||'.%' /* all descendants */
+           and c.object_owner = t.object_owner
+         outer apply (select column_value tag from table(c.tags) union select column_value tag from table(t.tags) ) c_tags
+         where c.self_type = 'UT_TEST'
+         group by c.id, c.self_type, c.path, c.object_owner
+      ),
+      filter_by_tags as (
+        select x.path, x.object_owner
+          from propagate_tags_from_ancestors x
+         where &&ut3_owner..ut_suite_tag_filter.is_matching(x.tags, l_tags) = 1
+      ),
+      tagged_rows as (
+        select /*+ no_expand */ item.*
+          from matched_rows item
+         where l_tags is null
+            or exists (
+                 select 1
+                   from filter_by_tags tst
+                  where tst.path||'.' like item.path || '.%' /* all descendants and self */
+                    and tst.object_owner = item.object_owner
+               )
+      ),
+      suitepaths as (
+        select distinct substr(c.path,1,instr(c.path,'.',-1)-1) as suitepath, c.path, c.object_owner
+          from tagged_rows c
+         where c.self_type = 'UT_SUITE'
+      ),
+      gen as (
+        --not xmltable('1 to 20'): together with the recursive "ordered" below it makes the parse hang or fail with ORA-07445 [qmxtrProcCorrOpn] on 19.20
+        select level as pos from dual connect by level <= 20
+      ),
+      suitepath_part as (
+        select distinct substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path, b.object_owner
+          from suitepaths b
+          join gen g
+            on g.pos <= regexp_count(b.suitepath, '\w+')
+      ),
+      logical_suites as (
+        select p.path, p.object_owner, upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name
+          from suitepath_part p
+         where p.path not in (select s.path from suitepaths s)
+      ),
+      all_items as (
+        select t.id, t.path, t.object_owner, t.object_name, t.line_no
+          from tagged_rows t
+        union all
+        select null as id, l.path, l.object_owner, l.object_name, null as line_no
+          from logical_suites l
+      ),
+      items_for_sort as (
+        select a.id, a.path, substr(a.path,1,instr(a.path,'.',-1,1)-1) as parent_path, a.object_owner, a.object_name,
+               case when a_random_seed is null then a.line_no end as line_no,
+               case when a_random_seed is not null then &&ut3_owner..ut_utils.hash_suite_path(a.path, a_random_seed) end as random_seed
+          from all_items a
+      ),
+      ordered(id, path, parent_path, object_owner, object_name, line_no, random_seed) as (
+        select s.id, s.path, s.parent_path, s.object_owner, s.object_name, s.line_no, s.random_seed
+          from items_for_sort s
+         where s.parent_path is null
+        union all
+        select s.id, s.path, s.parent_path, s.object_owner, s.object_name, s.line_no, s.random_seed
+          from ordered o
+          join items_for_sort s
+            on s.parent_path = o.path
+           and s.object_owner = o.object_owner
+      )
+      --object_owner first: a run can span several schemas, so top level items are grouped by schema
+      --(below the top level all items of a subtree have the same owner)
+      --path: siblings with the same line number (packages, logical suites) keep the order of their paths
+      search depth first by object_owner, line_no desc, random_seed desc nulls last, path set order1
+    select /*+ no_parallel */
+           case
+             when o.id is not null and l_with_executables = 'Y' then value(c)
+             when o.id is not null then
+               --without the executables, which only a run needs
+               &&ut3_owner..ut_suite_cache_row(
+                 c.id, c.self_type, c.path, c.object_owner, c.object_name, c.name,
+                 c.line_no, c.parse_time, c.description, c.rollback_type, c.disabled_flag, c.disabled_reason,
+                 null,
+                 null, null, null, null, null, null,
+                 null, c.tags, null
+               )
+             else &&ut3_owner..ut_suite_cache_row(
+                    null, 'UT_LOGICAL_SUITE', o.path, o.object_owner, o.object_name, o.object_name,
+                    null, null, null, null, 0, null,
+                    case
+                      when h.id is null then &&ut3_owner..ut_varchar2_rows()
+                      else &&ut3_owner..ut_varchar2_rows(
+                             'Suite ' || lower(h.object_owner || '.' || h.object_name)
+                             || ' is not run, as it does not exist or you have no EXECUTE privilege on it.'
+                             || ' Its beforeall/afterall, rollback setting and tags are not applied to the suites below it.'
+                           )
+                    end,
+                    null, null, null, null, null, null,
+                    null, null, null
+                  )
+           end
+      bulk collect into l_results
+      from ordered o
+      left join &&ut3_owner..ut_suite_cache c
+        on c.id = o.id
+      --a package suite that get_matched_ids left out as not accessible, replaced by a logical suite
+      left join &&ut3_owner..ut_suite_cache h
+        on o.id is null
+       and h.object_owner = o.object_owner
+       and h.path = o.path
+       and h.self_type = 'UT_SUITE'
+     order by o.order1 desc;
+
+    return l_results;
+  end;
+
+  function get_suite_rows(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean,
+    a_tags               varchar2 := null,
+    a_random_seed        positive := null
+  ) return ut_suite_cache_rows is
+  begin
+    return select_suite_rows(a_schema_paths, a_skip_access_check, a_tags, a_random_seed, a_with_executables => true);
+  end;
+
+  function get_suite_items_info(
+    a_suite_cache_items ut_suite_cache_rows
+  ) return ut_suite_items_info is
+    l_results      ut_suite_items_info;
+  begin
+    select /*+ no_parallel */ &&ut3_owner..ut_suite_item_info(
+             c.object_owner, c.object_name, c.name,
+             c.description, c.self_type, c.line_no,
+             c.path, c.disabled_flag, c.disabled_reason, c.tags
+             )
+      bulk collect into l_results
+      from table(a_suite_cache_items) c;
+      return l_results;
+  end;
+
+  function get_suites_info(
+    a_schema_paths       ut_path_items,
+    a_skip_access_check  boolean
+  ) return ut_suite_items_info is
+  begin
+    return get_suite_items_info(
+      select_suite_rows(a_schema_paths, a_skip_access_check, a_tags => null, a_random_seed => null, a_with_executables => false)
+    );
+  end;
+
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
   begin
     select /*+ no_parallel */ min(t.parse_time)
       into l_cache_parse_time
-      from ut_suite_cache_schema t
+      from &&ut3_owner..ut_suite_cache_schema t
      where object_owner = upper(a_schema_name);
     return l_cache_parse_time;
   end;
@@ -308,11 +291,8 @@ create or replace noneditionable package body ut_suite_cache_manager is
   begin
     if a_suite_items is null or a_suite_items.count = 0 then
 
-      delete from ut_suite_cache t
-       where t.object_owner = l_object_owner
-         and t.object_name = l_object_name;
-
-      delete from ut_suite_cache_package t
+      --rows of ut_suite_cache are removed by the "on delete cascade" foreign key
+      delete from &&ut3_owner..ut_suite_cache_package t
        where t.object_owner = l_object_owner
          and t.object_name = l_object_name;
 
@@ -320,38 +300,38 @@ create or replace noneditionable package body ut_suite_cache_manager is
 
       select /*+ no_parallel */ min(parse_time)
         into l_cached_parse_time
-        from ut_suite_cache_package t
+        from &&ut3_owner..ut_suite_cache_package t
        where t.object_name = l_object_name
          and t.object_owner = l_object_owner;
 
       if a_parse_time > l_cached_parse_time or l_cached_parse_time is null then
 
-        update /*+ no_parallel */ ut_suite_cache_schema t
+        update /*+ no_parallel */ &&ut3_owner..ut_suite_cache_schema t
            set t.parse_time = greatest(t.parse_time,a_parse_time)
          where object_owner = l_object_owner;
 
         if sql%rowcount = 0 then
-          insert /*+ no_parallel */ into ut_suite_cache_schema
+          insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache_schema
             (object_owner, parse_time)
           values (l_object_owner, a_parse_time);
         end if;
 
-        update  /*+ no_parallel */ ut_suite_cache_package t
+        update  /*+ no_parallel */ &&ut3_owner..ut_suite_cache_package t
            set t.parse_time = a_parse_time
          where t.object_owner = l_object_owner
            and t.object_name = l_object_name;
 
         if sql%rowcount = 0 then
-          insert /*+ no_parallel */ into ut_suite_cache_package
+          insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache_package
             (object_owner, object_name, parse_time)
           values (l_object_owner, l_object_name, a_parse_time );
         end if;
 
-        delete from ut_suite_cache t
+        delete from &&ut3_owner..ut_suite_cache t
         where t.object_owner = l_object_owner
           and t.object_name  = l_object_name;
 
-        insert /*+ no_parallel */ into ut_suite_cache t
+        insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache t
             (
                 id, self_type, path, object_owner, object_name, name,
                 line_no, parse_time, description,
@@ -363,10 +343,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
                 item
             )
           with suites as (
-               select treat(value(x) as ut_suite) i
+               select treat(value(x) as &&ut3_owner..ut_suite) i
                  from table(a_suite_items) x
                 where x.self_type in( 'UT_SUITE', 'UT_SUITE_CONTEXT' ) )
-          select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
+          select /*+ no_parallel */ &&ut3_owner..ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
                  upper(s.i.object_owner) as object_owner, upper(s.i.object_name) as object_name, upper(s.i.name) as name,
                  s.i.line_no as line_no, s.i.parse_time as parse_time, s.i.description as description,
                  s.i.rollback_type as rollback_type, s.i.disabled_flag as disabled_flag,s.i.disabled_reason as disabled_reason, s.i.warnings as warnings,
@@ -377,7 +357,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
                  null item
           from suites s;
 
-        insert /*+ no_parallel */ into ut_suite_cache t
+        insert /*+ no_parallel */ into &&ut3_owner..ut_suite_cache t
           (
             id, self_type, path, object_owner, object_name, name,
             line_no, parse_time, description,
@@ -389,10 +369,10 @@ create or replace noneditionable package body ut_suite_cache_manager is
             item
           )
           with tests as (
-               select treat(value(x) as ut_test) t
+               select treat(value(x) as &&ut3_owner..ut_test) t
                  from table ( a_suite_items ) x
                 where x.self_type in ( 'UT_TEST' ) )
-        select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
+        select /*+ no_parallel */ &&ut3_owner..ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
                upper(s.t.object_owner) as object_owner, upper(s.t.object_name) as object_name, upper(s.t.name) as name,
                s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
                s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.disabled_reason as disabled_reason, s.t.warnings as warnings,
@@ -409,44 +389,18 @@ create or replace noneditionable package body ut_suite_cache_manager is
   end;
 
   procedure remove_missing_objs_from_cache(a_schema_name varchar2) is
-    l_objects ut_varchar2_rows;
     pragma autonomous_transaction;
   begin
-    l_objects := get_missing_cache_objects(a_schema_name);
-
-    if l_objects is not empty then
-      delete /*+ no_parallel */ from ut_suite_cache i
-       where i.object_owner = a_schema_name
-         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
-
-      delete /*+ no_parallel */ from ut_suite_cache_package i
-       where i.object_owner = a_schema_name
-         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
-    end if;
+    --rows of ut_suite_cache are removed by the "on delete cascade" foreign key
+    delete /*+ no_parallel */ from &&ut3_owner..ut_suite_cache_package i
+     where i.object_owner = a_schema_name
+       and not exists (
+             select 1
+               from (&&ut3_owner..ut_annotation_cache_macros.get_cached_objects(a_schema_name, 'PACKAGE')) o
+              where o.object_name = i.object_name
+           );
 
     commit;
-  end;
-
-  function get_cached_suite_info(
-    a_schema_paths     ut_path_items
-  ) return ut_suite_cache_rows is
-  begin
-    return get_cached_suite_rows(get_suite_items(a_schema_paths));
-  end;
-
-  function get_suite_items_info(
-    a_suite_cache_items ut_suite_cache_rows
-  ) return ut_suite_items_info is
-    l_results      ut_suite_items_info;
-  begin
-    select /*+ no_parallel */ ut_suite_item_info(
-             c.object_owner, c.object_name, c.name,
-             c.description, c.self_type, c.line_no,
-             c.path, c.disabled_flag, c.disabled_reason, c.tags
-             )
-      bulk collect into l_results
-      from table(a_suite_cache_items) c;
-      return l_results;
   end;
 
   function get_cached_packages(
@@ -454,9 +408,9 @@ create or replace noneditionable package body ut_suite_cache_manager is
   ) return ut_object_names is
     l_results ut_object_names;
   begin
-    select /*+ no_parallel */ ut_object_name( c.object_owner, c.object_name )
+    select /*+ no_parallel */ &&ut3_owner..ut_object_name( c.object_owner, c.object_name )
       bulk collect into l_results
-      from ut_suite_cache_package c
+      from &&ut3_owner..ut_suite_cache_package c
       join table ( a_schema_names ) s
         on c.object_owner = upper(s.column_value);
     return l_results;
@@ -473,7 +427,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
                   and c.name = a_procedure_name
@@ -482,7 +436,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
                );
@@ -490,7 +444,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
       select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache c
+                 from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                );
     end if;

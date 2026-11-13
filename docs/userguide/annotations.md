@@ -1704,6 +1704,10 @@ end test_payment_set_off;
 When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `--%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
 The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `--%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
 
+!!! note "Suitepath limits"
+    - A suitepath can have at most 20 levels (elements separated by dots), for example `org.utplsql.example` has 3. Suites with a deeper suitepath are not run and not listed.
+    - The full path of every suite item (suitepath, package, contexts and test name) can be at most 1000 characters long. Longer paths raise an error when the suites are built.
+
 An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
 ```sql linenums="1"
 create or replace package payments as

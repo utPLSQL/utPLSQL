@@ -276,5 +276,44 @@ create or replace package test_annotation_cache is
 
   --%endcontext
 
+  --%context(Suites spread across packages, user without elevated privileges)
+    --%beforeall(annotation_cache_helper.enable_ddl_trigger)
+    --%beforeall(annotation_cache_helper.setup_suite_hierarchy)
+    --%afterall(annotation_cache_helper.cleanup_suite_hierarchy)
+
+    --%test(Runs a granted package whose parent suite is in a package that is not granted)
+    procedure user_runs_child_of_hidden_suite;
+
+    --%test(Warns that the parent suite in a package that is not granted is not run)
+    procedure user_warned_about_hidden_parent;
+
+    --%test(Does not apply tags of the parent suite in a package that is not granted)
+    procedure user_runs_child_without_parent_tags;
+
+    --%test(Runs a granted package when its parent suitepath is given)
+    procedure user_runs_hidden_suite_path;
+
+    --%test(Lists no logical suites without granted packages below them)
+    procedure user_no_empty_logical_suites;
+
+    --%test(Raises an error for a suitepath without granted packages below it)
+    --%throws(-20204)
+    procedure user_hidden_path_not_found;
+
+    --%test(Runs only granted packages matched by a package name with wildcards)
+    procedure user_runs_granted_by_wildcard;
+
+    --%test(Runs only tests of granted packages matched by procedure name with wildcards)
+    procedure user_runs_granted_tests_by_wildcard;
+
+    --%test(Runs granted packages below a suitepath with wildcards)
+    procedure user_runs_granted_by_path_wildcard;
+
+    --%test(Raises an error for a suitepath with wildcards without granted packages below it)
+    --%throws(-20204)
+    procedure user_hidden_path_wildcard_not_found;
+
+  --%endcontext
+
 end;
 /

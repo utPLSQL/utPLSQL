@@ -2,7 +2,7 @@
 set -e
 
 #goto git root directory
-git rev-parse && cd "$(git rev-parse --show-cdup)"
+git rev-parse && cd "$(git rev-parse --show-toplevel)"
 
 . development/env.sh
 

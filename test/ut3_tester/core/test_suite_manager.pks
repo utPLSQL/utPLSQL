@@ -15,6 +15,9 @@ create or replace package test_suite_manager is
   --%test(Prepare runner for the top 2 package by package user.package_name)
   procedure test_top2_by_name;
 
+  --%test(Prepare runner includes each suite item once when given paths overlap)
+  procedure test_overlapping_paths;
+
   --%test(Prepare runner for the top2 package by name cur user)
   procedure test_top2_bt_name_cur_user;
 
@@ -211,7 +214,7 @@ create or replace package test_suite_manager is
   --%test(Execute test_packages using a procedure name with wildcard in the front)
   procedure test_wild_card_front_prc_name;
 
-  -- %test(Execute test_packages using a path name with wildcard in the front)
+  --%test(Execute test_packages using a path name with wildcard in the front)
   procedure test_wild_card_front_path_name;
 
   --%test(Execute test_packages using a object_name with wildcard in the middle)
@@ -220,7 +223,7 @@ create or replace package test_suite_manager is
   --%test(Execute test_packages using a procedure name with wildcard in the middle)
   procedure test_wild_card_mid_prc_name;
 
-  -- %test(Execute test_packages using a path name with wildcard in the middle)
+  --%test(Execute test_packages using a path name with wildcard in the middle)
   procedure test_wild_card_mid_path_name;
 
   --%test(Execute test_packages using a object_name with multiple wildcards)
@@ -229,11 +232,33 @@ create or replace package test_suite_manager is
   --%test(Execute test_packages using a procedure name with multiple wildcards)
   procedure test_wild_card_mul_prc_name;
 
-  -- %test(Execute test_packages using a path name with multiple wildcards)
+  --%test(Execute test_packages using a path name with multiple wildcards)
   procedure test_wild_card_mul_path_name;
 
-  -- %test(Execute test_packages using a path name with multiple wildcards on different level)
+  --%test(Execute test_packages using a path name with multiple wildcards on different level)
   procedure tst_wild_card_mul_lv_path_name;
+
+  --%endcontext
+
+  --%context(literal_characters)
+  --%displayname(Characters other than * in a path match only themselves)
+
+  --%beforeall
+  procedure create_char_test_packages;
+  --%afterall
+  procedure drop_char_test_packages;
+
+  --%test(Underscore in a package name is not a wildcard)
+  procedure underscore_in_package_name;
+
+  --%test(Underscore in a procedure name is not a wildcard)
+  procedure underscore_in_procedure_name;
+
+  --%test(Underscore in a suitepath is not a wildcard)
+  procedure underscore_in_suitepath;
+
+  --%test(Dot in a suitepath with a wildcard is not a wildcard)
+  procedure dot_in_suitepath_wildcard;
 
   --%endcontext
 

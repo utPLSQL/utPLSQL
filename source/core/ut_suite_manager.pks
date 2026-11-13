@@ -20,6 +20,13 @@ create or replace noneditionable package ut_suite_manager authid current_user is
    * Resposible for building hierarhy of sutes from individual suites created by suite_builder
    */
 
+  /*
+   * The package runs with invoker rights. It calls the SQL macros of ut_suite_cache_macros in SQL statements
+   * through the code based access control role <framework owner>_cbac_modify_objects_role granted to the package,
+   * so the references to framework objects in those statements are qualified with the framework owner.
+   * The owner is filled in by the SQL*Plus substitution variable ut3_owner when the package body is installed by install.sql.
+   */
+
   /**
    * @private
    *
@@ -72,8 +79,7 @@ create or replace noneditionable package ut_suite_manager authid current_user is
     a_annotated_objects sys_refcursor,
     a_path              varchar2 := null,
     a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
+    a_procedure_name    varchar2 := null
   ) return ut_suite_items;
 
 

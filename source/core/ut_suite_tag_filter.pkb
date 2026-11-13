@@ -17,40 +17,47 @@ create or replace noneditionable package body ut_suite_tag_filter is
   */
 
   /**
-  * Constants use in postfix and infix transformations
+  * Constants used in the conversion to postfix notation
   */
   gc_operators constant ut_varchar2_list := ut_varchar2_list('|','&','!');
   gc_unary_operators constant ut_varchar2_list := ut_varchar2_list('!'); -- right side associative operator
   gc_binary_operators constant ut_varchar2_list := ut_varchar2_list('|','&'); -- left side associative operator
-  gc_reserved_tag_words constant ut_varchar2_list := ut_varchar2_list('none','any');
   gc_exception_msg constant varchar2(200) := 'Invalid tag expression';
 
   type t_precedence_table is table of number index by varchar2(1);
   g_precedence t_precedence_table;
 
+  g_last_tag_expression varchar2(32767);
+  g_last_postfix        ut_varchar2_list;
+
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list is
     l_tags_tokens ut_varchar2_list := ut_varchar2_list();
   begin
-    --Tokenize a string into operators and tags
-    select regexp_substr(a_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
-    bulk collect into l_tags_tokens
-    from dual connect by regexp_substr (a_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
+    if a_tags is not null then
+      select regexp_substr(a_tags,'([^!()|&]+)|([!()|&])', 1, level) as string_parts
+      bulk collect into l_tags_tokens
+      from dual connect by regexp_substr (a_tags, '([^!()|&]+)|([!()|&])', 1, level) is not null;
+    end if;
 
     return l_tags_tokens;
   end;
 
+  function remove_whitespace(a_tag_expression varchar2) return varchar2 is
+  begin
+    return replace(replace(a_tag_expression, ' '), chr(9));
+  end;
+
   /*
-    To support a legact tag notation
+    To support a legacy tag notation
     , = OR
     - = NOT
-    we will perform a replace of that characters into
+    we replace those characters into
     new notation.
     | = OR
     & = AND
     !  = NOT
   */
-  function replace_legacy_tag_notation(a_tags varchar2
-  ) return varchar2 is
+  function replace_legacy_tag_notation(a_tags varchar2) return varchar2 is
     l_tags ut_varchar2_list := ut_utils.string_to_table(a_tags,',');
     l_tags_include varchar2(4000);
     l_tags_exclude varchar2(4000);
@@ -64,7 +71,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
       from table(l_tags) t
       where t.column_value not like '-%';
 
-      select '('||listagg( replace(t.column_value,'-','!'),' & ')
+      select '('||listagg( replace(t.column_value,'-','!'),'&')
         within group( order by column_value)||')'
       into l_tags_exclude
       from table(l_tags) t
@@ -74,7 +81,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
       l_return_tag:=
         case
           when l_tags_include <> '()' and l_tags_exclude <> '()'
-            then l_tags_include || ' & ' || l_tags_exclude
+            then l_tags_include || '&' || l_tags_exclude
           when l_tags_include <> '()'
             then l_tags_include
           when l_tags_exclude <> '()'
@@ -98,7 +105,7 @@ create or replace noneditionable package body ut_suite_tag_filter is
     l_idx pls_integer;
   begin
     l_idx := a_tags.first;
-    --Exuecute modified shunting algorithm
+    --Execute modified shunting algorithm
     WHILE (l_idx is not null) loop
       l_token := a_tags(l_idx);
       if (l_token member of gc_operators and l_token member of gc_binary_operators) then
@@ -134,6 +141,10 @@ create or replace noneditionable package body ut_suite_tag_filter is
           l_rnp_tokens.extend;
           l_rnp_tokens(l_rnp_tokens.last) := l_operator_stack.pop;
         end loop;
+        --no open bracket left on the stack: unmatched right bracket
+        if l_operator_stack.peek is null then
+          raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg);
+        end if;
         l_operator_stack.pop; --Pop the open bracket and discard it
         l_expect_operand := false;
         l_expect_operator:= true;
@@ -150,6 +161,11 @@ create or replace noneditionable package body ut_suite_tag_filter is
       l_idx := a_tags.next(l_idx);
     end loop;
 
+    --an empty expression, or one ending with an operator or a left bracket, is incomplete
+    if not(l_expect_operator) then
+      raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg);
+    end if;
+
     while l_operator_stack.peek is not null loop
         if l_operator_stack.peek in ('(',')') then
           raise_application_error(ut_utils.gc_invalid_tag_expression, gc_exception_msg);
@@ -161,122 +177,73 @@ create or replace noneditionable package body ut_suite_tag_filter is
     return l_rnp_tokens;
   end shunt_logical_expression;
 
-  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list,a_tags_column_name in varchar2)
-    return varchar2 is
-    l_infix_stack ut_stack := ut_stack();
-    l_right_side varchar2(32767);
-    l_left_side varchar2(32767);
-    l_infix_exp varchar2(32767);
-    l_member_token varchar2(20) := ' member of '||a_tags_column_name;
-    l_idx pls_integer;
+  /*
+    Returns a tag expression in postfix notation (Reverse Polish Notation).
+    is_matching is called for each test with the same expression, so the result for the last expression is cached.
+    Raises ut_utils.gc_invalid_tag_expression for an invalid expression.
+  */
+  function get_postfix_expression(a_tag_expression varchar2) return ut_varchar2_list is
+    l_postfix ut_varchar2_list;
   begin
-    l_idx := a_postfix_exp.first;
-    while ( l_idx is not null) loop
-      --If the token we got is a none or any keyword
-      if a_postfix_exp(l_idx) member of gc_reserved_tag_words then
-
-        l_infix_stack.push(
-          case
-            when a_postfix_exp(l_idx) = 'none' then '('||a_tags_column_name||' is empty or '||a_tags_column_name||' is null)'
-          else a_tags_column_name||' is not empty'
-          end
-          );
-      --If token is operand but also single tag
-      elsif regexp_count(a_postfix_exp(l_idx),'[!()|&]') = 0 then
-        l_infix_stack.push(q'[']'||a_postfix_exp(l_idx)||q'[']'||l_member_token);
-      --If token is unary operator not
-      elsif a_postfix_exp(l_idx) member of gc_unary_operators then
-        l_right_side := l_infix_stack.pop;
-        l_infix_exp := a_postfix_exp(l_idx)||'('||l_right_side||')';
-        l_infix_stack.push(l_infix_exp);
-      --If token is binary operator
-      elsif a_postfix_exp(l_idx) member of gc_binary_operators then
-        l_right_side := l_infix_stack.pop;
-        l_left_side := l_infix_stack.pop;
-        l_infix_exp := '('||l_left_side||a_postfix_exp(l_idx)||l_right_side||')';
-        l_infix_stack.push(l_infix_exp);
-      end if;
-      l_idx := a_postfix_exp.next(l_idx);
-    end loop;
-
-    return l_infix_stack.pop;
-  end conv_postfix_to_infix_sql;
-
-  function create_where_filter(a_tags varchar2
-  ) return varchar2 is
-    l_tags varchar2(4000);
-  begin
-    l_tags := replace(replace_legacy_tag_notation(a_tags),' ');
-    l_tags := conv_postfix_to_infix_sql(shunt_logical_expression(tokenize_tags_string(l_tags)),'tags');
-    l_tags := replace(l_tags, '|',' or ');
-    l_tags := replace(l_tags ,'&',' and ');
-    l_tags := replace(l_tags ,'!','not');
-    return l_tags;
+    if g_last_tag_expression = a_tag_expression then
+      return g_last_postfix;
+    end if;
+    l_postfix := shunt_logical_expression(
+      tokenize_tags_string( replace_legacy_tag_notation( a_tag_expression ) )
+    );
+    g_last_tag_expression := a_tag_expression;
+    g_last_postfix        := l_postfix;
+    return l_postfix;
   end;
-
 
   /*
-    Having a base set of suites we will do a further filter down if there are
-    any tags defined.
+    Evaluates a valid postfix expression against a list of tags, using a stack of operand values.
+    The values follow the three-valued logic of SQL: "x member of a_tags" is null when a_tags has a null element
+    and no element x, and "not null" is null, as in a SQL condition.
   */
-  function get_tags_suites (
-    a_suite_items ut_suite_cache_rows,
-    a_tags varchar2
-  ) return ut_suite_cache_rows is
-    l_results ut_suite_cache_rows;
-    l_sql varchar2(32000);
-    l_tags_filter_clause varchar2(4000):= create_where_filter(a_tags);
+  function evaluate_postfix(a_postfix ut_varchar2_list, a_tags ut_varchar2_list) return boolean is
+    type t_boolean_stack is table of boolean index by pls_integer;
+    l_stack t_boolean_stack;
+    l_top   pls_integer := 0;
+    l_token varchar2(32767);
   begin
-    l_sql :=
-    q'[
-      with
-        suites_mv as (
-          select c.id,value(c) as obj,c.path as path,c.self_type,c.object_owner,c.tags as tags
-          from table(:suite_items) c
-        ),
-        propagate_tags_from_ancestors as (
-          select c.id, c.self_type, c.path, c.object_owner, cast(collect(c_tags.tag) as ut_varchar2_rows) as tags
-            from suites_mv c
-            left join suites_mv t
-              on t.self_type in ('UT_SUITE','UT_SUITE_CONTEXT')
-             and c.path like t.path||'.%' /* all descendants */
-             and c.object_owner = t.object_owner
-           outer apply (select column_value tag from table(c.tags) union select column_value tag from table(t.tags) ) c_tags
-           group by c.id, c.self_type, c.path, c.object_owner
-        ),
-        filter_by_tags as (
-          select *
-            from propagate_tags_from_ancestors x
-           where  ( ]'||l_tags_filter_clause||q'[ )
-        ),
-        only_items_with_tests as (
-          select item.obj
-            from suites_mv item
-           where exists (
-                   select 1
-                     from filter_by_tags tst
-                    where tst.self_type in ('UT_TEST')
-                      and (tst.path||'.' like item.path || '.%' /*all descendants and self*/ and item.object_owner = tst.object_owner)
-                 )
-        )
-        select obj from only_items_with_tests]';
-    execute immediate l_sql bulk collect into l_results using a_suite_items;
-
-    return l_results;
+    for i in 1 .. a_postfix.count loop
+      l_token := a_postfix(i);
+      case l_token
+        when '!' then
+          l_stack(l_top) := not l_stack(l_top);
+        when '&' then
+          l_top := l_top - 1;
+          l_stack(l_top) := l_stack(l_top) and l_stack(l_top + 1);
+        when '|' then
+          l_top := l_top - 1;
+          l_stack(l_top) := l_stack(l_top) or l_stack(l_top + 1);
+        else
+          l_top := l_top + 1;
+          l_stack(l_top) :=
+            case l_token
+              when 'none' then a_tags is empty
+              when 'any'  then a_tags is not empty
+              else l_token member of a_tags
+            end;
+      end case;
+    end loop;
+    return l_stack(1);
   end;
 
-  function apply(
-    a_unfiltered_rows  ut_suite_cache_rows,
-    a_tags             varchar2 := null
-  ) return ut_suite_cache_rows is
-    l_suite_items     ut_suite_cache_rows := a_unfiltered_rows;
+  function is_matching(a_tags varchar2, a_tag_expression varchar2) return integer deterministic is
+    l_tag_expression varchar2(32767) := remove_whitespace(a_tag_expression);
   begin
-    if length(a_tags) > 0 then
-      l_suite_items := get_tags_suites(l_suite_items,a_tags);
-    end if;
-
-    return l_suite_items;
+    return
+      case
+        when l_tag_expression is null
+        then 1
+        when evaluate_postfix( get_postfix_expression(l_tag_expression), ut_utils.string_to_table(a_tags, ',') )
+        then 1
+        else 0
+      end;
   end;
+
 
 begin
     --Define operators precedence

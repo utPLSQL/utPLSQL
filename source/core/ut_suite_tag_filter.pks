@@ -17,13 +17,14 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
   */
 
   /**
-   * Package that will filter suites by tags
+   * Package that evaluates tag expressions against the tags of suite items.
+   * is_matching is called from SQL by ut_suite_cache_manager.get_suite_rows to filter suites by tags.
    *
    */
 
   /*
   * Return table of tokens character by character
-  */   
+  */
   function tokenize_tags_string(a_tags in varchar2) return ut_varchar2_list;
 
   /*
@@ -34,22 +35,22 @@ create or replace noneditionable package ut_suite_tag_filter authid definer is
   function shunt_logical_expression(a_tags in ut_varchar2_list) return ut_varchar2_list;
 
   /*
-  * Function that converts postfix notation into infix and creating a string of sql filter 
-  * that checking a tags collections for tags according to posted logic.
-  */  
-  function conv_postfix_to_infix_sql(a_postfix_exp in ut_varchar2_list,a_tags_column_name in varchar2)
-    return varchar2;  
-  
-  /*
-  * Generates a part where clause sql 
-  */  
-  function create_where_filter(a_tags varchar2) 
-    return varchar2;
+  * Returns the tag expression without spaces and tabs.
+  * Tags cannot contain whitespace, so it only separates the tokens of an expression.
+  * An expression made only of spaces and tabs becomes null, which is no tag filter.
+  */
+  function remove_whitespace(a_tag_expression varchar2) return varchar2;
 
-  function apply(
-    a_unfiltered_rows  ut_suite_cache_rows,
-    a_tags             varchar2 := null
-  ) return ut_suite_cache_rows;
+  /*
+  * Returns 1 when the tags match the tag expression, 0 otherwise.
+  * An empty tag expression (see remove_whitespace) matches any tags.
+  * a_tags is a comma-separated list of tags (tags cannot contain commas), null for no tags.
+  * Takes text, not a collection: Oracle caches results of a deterministic function called from SQL
+  * only when all arguments are scalars, so items with the same tags are evaluated once per statement.
+  * Raises ut_utils.gc_invalid_tag_expression for an invalid expression.
+  */
+  function is_matching(a_tags varchar2, a_tag_expression varchar2)
+    return integer deterministic;
 
 end ut_suite_tag_filter;
 /

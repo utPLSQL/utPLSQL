@@ -233,6 +233,9 @@ create or replace package body test_tfs_junit_reporter as
     execute immediate 'drop package check_junit_reporting';
     execute immediate 'drop package check_junit_rep_suitepath';
     execute immediate 'drop package check_junit_flat_suitepath';
+    execute immediate 'drop package check_junit_in_context';
+    execute immediate 'drop package check_junit_out_context';
+    execute immediate 'drop package check_junit_inout_context';
   end;
 
   procedure check_encoding_included is

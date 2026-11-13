@@ -90,6 +90,67 @@ create or replace package body annotation_cache_helper as
     end;
   end;
 
+  /*
+    Suites spread across packages, only child_suite is granted:
+      parent_suite                    package parent_suite, not granted, tagged parent_tag
+      parent_suite.child_suite        package child_suite, granted
+      hidden_path.sub.lone_suite      package lone_suite, not granted, below logical suites hidden_path and hidden_path.sub
+  */
+  procedure setup_suite_hierarchy is
+    pragma autonomous_transaction;
+  begin
+    execute immediate
+      'create or replace package ut3_cache_test_owner.parent_suite authid definer is
+        --%suite
+        --%tags(parent_tag)
+
+        --%test
+        procedure parent_test;
+        end;';
+    execute immediate
+      'create or replace package body ut3_cache_test_owner.parent_suite is
+        procedure parent_test is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        end;';
+    execute immediate
+      'create or replace package ut3_cache_test_owner.child_suite authid definer is
+        --%suite
+        --%suitepath(parent_suite)
+
+        --%test
+        procedure child_test;
+        end;';
+    execute immediate
+      'create or replace package body ut3_cache_test_owner.child_suite is
+        procedure child_test is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        end;';
+    execute immediate
+      'create or replace package ut3_cache_test_owner.lone_suite authid definer is
+        --%suite
+        --%suitepath(hidden_path.sub)
+
+        --%test
+        procedure lone_test;
+        end;';
+    execute immediate
+      'create or replace package body ut3_cache_test_owner.lone_suite is
+        procedure lone_test is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
+        end;';
+    execute immediate 'grant execute on ut3_cache_test_owner.child_suite to ut3_no_extra_priv_user';
+  end;
+
+  procedure cleanup_suite_hierarchy is
+    pragma autonomous_transaction;
+  begin
+    for i in ( select column_value as package_name from table(ut3_develop.ut_varchar2_list('parent_suite','child_suite','lone_suite')) ) loop
+      begin
+        execute immediate 'drop package ut3_cache_test_owner.'||i.package_name;
+      exception
+        when others then
+          null;
+      end;
+    end loop;
+  end;
+
   procedure cleanup_new_suite is
     pragma autonomous_transaction;
   begin
@@ -122,21 +183,34 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace function ' || a_user || '.call_ut_run return clob is
+      'create or replace function ' || a_user || '.call_ut_run(a_path varchar2 := ''ut3_cache_test_owner'', a_tags varchar2 := null) return clob is
         l_data    ut3_develop.ut_varchar2_list;
         l_results clob;
       begin
-        select * bulk collect into l_data from table (ut3_develop.ut.run( ''ut3_cache_test_owner'' ));
+        select * bulk collect into l_data from table (ut3_develop.ut.run( a_path, a_tags => a_tags ));
         return ut3_tester_helper.main_helper.table_to_clob( l_data );
       end;
       ';
     execute immediate 'grant execute on ' || a_user || '.call_ut_run to public ';
+    execute immediate
+      'create or replace function ' || a_user || '.call_suites_info return clob is
+        l_data    ut3_develop.ut_varchar2_list;
+      begin
+        select i.item_type || '' '' || i.path
+          bulk collect into l_data
+          from table (ut3_develop.ut_runner.get_suites_info( ''UT3_CACHE_TEST_OWNER'' )) i
+         order by i.path;
+        return ut3_tester_helper.main_helper.table_to_clob( l_data );
+      end;
+      ';
+    execute immediate 'grant execute on ' || a_user || '.call_suites_info to public ';
   end;
 
   procedure drop_run_function_for_user(a_user varchar2) is
     pragma autonomous_transaction;
   begin
     execute immediate 'drop function ' || a_user || '.call_ut_run';
+    execute immediate 'drop function ' || a_user || '.call_suites_info';
   end;
 
   procedure create_run_function_for_users is
@@ -159,10 +233,17 @@ create or replace package body annotation_cache_helper as
     drop_run_function_for_user( 'ut3_develop' );
   end;
 
-  function run_tests_as(a_user varchar2) return clob is
+  function run_tests_as(a_user varchar2, a_path varchar2 := 'ut3_cache_test_owner', a_tags varchar2 := null) return clob is
     l_results clob;
   begin
-    execute immediate 'begin :x := '||a_user||'.call_ut_run; end;' using out l_results;
+    execute immediate 'begin :x := '||a_user||'.call_ut_run(:a_path, :a_tags); end;' using out l_results, a_path, a_tags;
+    return l_results;
+  end;
+
+  function get_suites_info_as(a_user varchar2) return clob is
+    l_results clob;
+  begin
+    execute immediate 'begin :x := '||a_user||'.call_suites_info; end;' using out l_results;
     return l_results;
   end;
 end;

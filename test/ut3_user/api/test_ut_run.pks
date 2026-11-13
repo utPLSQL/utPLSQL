@@ -181,6 +181,19 @@ create or replace package test_ut_run is
 
   --%endcontext
 
+  --%context(run with paths in several schemas)
+
+    --%beforeall(create_ut3_user_tests, create_test_suite_in_ut3_user)
+    --%afterall(drop_test_suite_in_ut3_user, drop_ut3_user_tests)
+
+    --%test(Runs the suites of each schema together, in order of schema names)
+    procedure run_groups_suites_by_schema;
+
+  --%endcontext
+
+  procedure create_test_suite_in_ut3_user;
+  procedure drop_test_suite_in_ut3_user;
+
   --%context(run with tags)
   --%displayname(Call ut.run with #tags)
 
@@ -265,6 +278,25 @@ create or replace package test_ut_run is
     --%test(Testing invalid tag expression)
     --%throws(-20219)
     procedure invalid_tag_expression;
+
+    --%test(Raises an error for an invalid tag expression when the path selects no tests)
+    --%throws(-20219)
+    procedure invalid_tag_expression_no_tests;
+
+    --%test(Runs tests matching the tags from packages selected by a wildcard, skipping packages without such tests)
+    procedure tag_run_pkg_wildcard;
+
+    --%test(Runs tests matching the tags from tests selected by a wildcard, skipping the other tests)
+    procedure tag_run_proc_wildcard;
+
+    --%test(Runs tests matching the tags from suitepaths selected by a wildcard, skipping suites without such tests)
+    procedure tag_run_suitepath_wildcard;
+
+    --%test(Raises an error naming the wildcard path when the tags exclude all tests it selects)
+    procedure tag_run_wildcard_none_left;
+
+    --%test(Runs the same tests as without tags when the tag expression is made of spaces and tabs)
+    procedure blank_tags_run_all_tests;
 
   --%endcontext
 

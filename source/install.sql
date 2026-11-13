@@ -36,33 +36,37 @@ alter session set current_schema = &&ut3_owner;
 
 create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context;
 
+@@create_cbac_role.sql
+
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
 
 --common utilities
+-- spec
 @@install_component.sql 'core/types/ut_varchar2_list.tps'
 @@install_component.sql 'core/types/ut_varchar2_rows.tps'
 @@install_component.sql 'core/types/ut_integer_list.tps'
 @@install_component.sql 'core/types/ut_object_name.tps'
-@@install_component.sql 'core/types/ut_object_name.tpb'
 @@install_component.sql 'core/types/ut_object_names.tps'
 @@install_component.sql 'core/types/ut_key_value_pair.tps'
 @@install_component.sql 'core/types/ut_key_value_pairs.tps'
 @@install_component.sql 'core/types/ut_reporter_info.tps'
 @@install_component.sql 'core/types/ut_reporters_info.tps'
 @@install_component.sql 'core/types/ut_stack.tps'
-@@install_component.sql 'core/types/ut_stack.tpb'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
 @@install_component.sql 'core/ut_savepoint_seq.sql'
+@@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
+@@install_component.sql 'api/ut_suite_item_info.tps'
+@@install_component.sql 'api/ut_suite_items_info.tps'
+-- body
+@@install_component.sql 'core/types/ut_object_name.tpb'
+@@install_component.sql 'core/types/ut_stack.tpb'
 @@install_component.sql 'core/ut_utils.pkb'
 @@install_component.sql 'core/ut_metadata.pkb'
-@@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
-
-@@install_component.sql 'api/ut_suite_item_info.tps'
 @@install_component.sql 'api/ut_suite_item_info.tpb'
-@@install_component.sql 'api/ut_suite_items_info.tps'
+
 
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
@@ -71,8 +75,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/events/ut_event_manager.pkb'
 
 --core types
+-- spec
 @@install_component.sql 'core/types/ut_run_info.tps'
-@@install_component.sql 'core/types/ut_run_info.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tps'
 @@install_component.sql 'core/types/ut_expectation_results.tps'
 @@install_component.sql 'core/types/ut_results_counter.tps'
@@ -93,7 +97,6 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/types/ut_reporters.tps'
 @@install_component.sql 'core/types/ut_path_item.tps'
 @@install_component.sql 'core/types/ut_path_items.tps'
-
 @@install_component.sql 'expectations/json_objects_specs.sql'
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
@@ -101,18 +104,24 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
+-- body
+@@install_component.sql 'core/types/ut_run_info.tpb'
+
 
 --session_context
+-- spec
 @@install_component.sql  'core/session_context/ut_session_context.pks'
-@@install_component.sql  'core/session_context/ut_session_context.pkb'
 @@install_component.sql  'core/session_context/ut_session_info.tps'
+-- body
+@@install_component.sql  'core/session_context/ut_session_context.pkb'
 @@install_component.sql  'core/session_context/ut_session_info.tpb'
 
---output buffer table
+--output buffer
+-- tables
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_clob_buffer_tmp.sql'
---output buffer base api
+-- base api
 @@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
 @@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
@@ -129,7 +138,6 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 
 --annotations
 @@install_component.sql 'core/annotations/ut_trigger_check.pks'
-@@install_component.sql 'core/annotations/ut_trigger_check.pkb'
 @@install_component.sql 'core/annotations/ut_annotation.tps'
 @@install_component.sql 'core/annotations/ut_annotations.tps'
 @@install_component.sql 'core/annotations/ut_annotated_object.tps'
@@ -140,12 +148,11 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/annotations/ut_annotation_cache_schema.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_info.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_macros.pks'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
-@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pks'
-@@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'
-@@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
+
 
 --suite builder
 @@install_component.sql 'core/types/ut_suite_cache_row.tps'
@@ -156,14 +163,27 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/ut_suite_cache.sql'
 
 @@install_component.sql 'core/ut_suite_tag_filter.pks'
-@@install_component.sql 'core/ut_suite_tag_filter.pkb'
+@@install_component.sql 'core/ut_suite_cache_macros.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
-@@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'
-@@install_component.sql 'core/ut_suite_builder.pkb'
 --suite manager
 @@install_component.sql 'core/ut_suite_manager.pks'
+
+--code based access control
+@@ut3_cbac_modify_objects_role_grants.sql
+
+--bodies
+@@install_component.sql 'core/annotations/ut_trigger_check.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_cache_macros.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
+@@install_component.sql 'core/ut_suite_tag_filter.pkb'
+@@install_component.sql 'core/ut_suite_cache_macros.pkb'
+@@install_component.sql 'core/ut_suite_cache_manager.pkb'
+@@install_component.sql 'core/ut_suite_builder.pkb'
 @@install_component.sql 'core/ut_suite_manager.pkb'
+
 
 --expectations execution state interface
 @@install_component.sql 'core/ut_expectation_processor.pks'

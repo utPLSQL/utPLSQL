@@ -517,5 +517,134 @@ create or replace package body test_annotation_cache is
     cache_populated_for_packages( ut_varchar2_rows( 'GRANTED_TEST_SUITE', 'NOT_GRANTED_TEST_SUITE' ) );
   end;
 
+  procedure user_runs_child_of_hidden_suite is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.child_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%parent_suite%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_warned_about_hidden_parent is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.child_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like(
+      '%Warnings:%parent_suite%Suite ut3_cache_test_owner.parent_suite is not run, as it does not exist or you have no EXECUTE privilege on it.%'
+    );
+    ut.expect( l_actual ).to_be_like( '%1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%' );
+    rollback;
+  end;
+
+  procedure user_runs_child_without_parent_tags is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - child_suite inherits parent_tag only when parent_suite is accessible
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner', '!parent_tag' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_cache_test_owner', 'ut3_cache_test_owner', '!parent_tag' );
+    --Assert
+    ut.expect( l_actual ).not_to_be_like( '%child_test%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_hidden_suite_path is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:parent_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_no_empty_logical_suites is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.get_suites_info_as( 'ut3_no_extra_priv_user' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%UT_TEST parent_suite.child_suite.child_test%' );
+    ut.expect( l_actual ).not_to_be_like( '%hidden_path%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_granted_by_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches child_suite (granted) and lone_suite (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.*l*_suite' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%lone_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_granted_tests_by_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches child_suite.child_test (granted) and lone_suite.lone_test (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner.*l*_suite.*_test' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%lone_test%' );
+    rollback;
+  end;
+
+  procedure user_runs_granted_by_path_wildcard is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches parent_suite (not granted) and parent_suite.child_suite (granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:parent*' );
+    --Assert
+    ut.expect( l_actual ).to_be_like( '%child_test%1 tests, 0 failed%' );
+    ut.expect( l_actual ).not_to_be_like( '%parent_test%' );
+    rollback;
+  end;
+
+  procedure user_hidden_path_wildcard_not_found is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act - matches only hidden_path.sub.lone_suite (not granted)
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:hidden*' );
+    rollback;
+  exception
+    when others then
+      rollback;
+      raise;
+  end;
+
+  procedure user_hidden_path_not_found is
+    l_actual clob;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( 'ut3_no_extra_priv_user', 'ut3_cache_test_owner:hidden_path' );
+    rollback;
+  exception
+    when others then
+      rollback;
+      raise;
+  end;
+
 end;
 /

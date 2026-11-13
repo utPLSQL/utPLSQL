@@ -70,6 +70,18 @@ create or replace package test_ut_runner is
   --%aftertest(cleanup_cache)
   procedure test_get_suites_info_by_path;
 
+  procedure setup_cache_context_disabled;
+
+  --%test(get_suites_info returns contexts and disabled tests)
+  --%beforetest(setup_cache_context_disabled)
+  --%aftertest(cleanup_cache)
+  procedure test_get_suites_info_context;
+
+  --%test(get_suites_info returns a test and its parents for a procedure path)
+  --%beforetest(setup_cache_objects)
+  --%aftertest(cleanup_cache)
+  procedure test_get_suites_info_by_proc;
+
   --%test(get_reporters_list returns a cursor containing all built-in reporters and information about output-reporter)
   --%beforetest(setup_cache_objects)
   --%aftertest(cleanup_cache)

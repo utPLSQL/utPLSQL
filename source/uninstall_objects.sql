@@ -114,6 +114,8 @@ drop package ut_suite_tag_filter;
 
 drop package ut_suite_cache_manager;
 
+drop package ut_suite_cache_macros;
+
 drop table ut_suite_cache purge;
 
 drop type ut_suite_cache_rows force;
@@ -239,6 +241,8 @@ drop package ut_annotation_manager;
 drop package ut_annotation_parser;
 
 drop package ut_annotation_cache_manager;
+
+drop package ut_annotation_cache_macros;
 
 drop table ut_annotation_cache cascade constraints purge;
 
@@ -436,5 +440,17 @@ begin
 
   dbms_output.put_line('&&line_separator');
   dbms_output.put_line(i || ' packages dropped');
+end;
+/
+
+declare
+  e_role_not_exists exception;
+  pragma exception_init(e_role_not_exists, -1919);
+begin
+  execute immediate 'drop role &&ut3_owner._cbac_modify_objects_role';
+  dbms_output.put_line('Role ' || upper('&&ut3_owner._cbac_modify_objects_role') || ' dropped');
+exception
+  when e_role_not_exists then
+    dbms_output.put_line('Role ' || upper('&&ut3_owner._cbac_modify_objects_role') || ' does not exist');
 end;
 /

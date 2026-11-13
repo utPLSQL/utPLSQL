@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #goto git root directory
-git rev-parse && cd "$(git rev-parse --show-cdup)"
+git rev-parse && cd "$(git rev-parse --show-toplevel)"
 
 . ./development/env.sh
 
@@ -28,6 +28,7 @@ drop user ut3_no_extra_priv_user cascade;
 drop user ut3_select_catalog_user cascade;
 drop user ut3_select_any_table_user cascade;
 drop user ut3_execute_any_proc_user cascade;
+drop role ${UT3_DEVELOP_SCHEMA}_cbac_modify_objects_role;
 
 set serveroutput on
 begin
