@@ -86,6 +86,25 @@ create or replace noneditionable package body ut_metadata as
        order by line]'
       bulk collect into g_source_cache
       using a_owner, a_object_name;
+
+      declare
+        l_text all_source.text%type;
+        l_source t_cache;
+      begin
+        l_source := t_cache();
+        for i in 1..g_source_cache.count loop
+          if l_text is null then
+            l_text := g_source_cache(i);
+          end if;
+          if instr(g_source_cache(i), chr(10)) > 0 then
+            l_source.extend;
+            l_source(l_source.count) := l_text;
+            l_text := null;
+          end if;
+        end loop;
+
+        g_source_cache := l_source;
+      end;
     end if;
 
     if g_source_cache.exists(a_line_no) then
