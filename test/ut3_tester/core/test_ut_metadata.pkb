@@ -1,5 +1,4 @@
-create or replace package body test_ut_metadata
-is
+create or replace package body test_ut_metadata is
 
   procedure test_over_varchar2_limit
   is

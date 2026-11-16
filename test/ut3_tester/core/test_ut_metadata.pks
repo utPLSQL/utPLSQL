@@ -1,5 +1,4 @@
-create or replace package test_ut_metadata
-is
+create or replace package test_ut_metadata is
   --%suite(ut_metadata)
   --%suitepath(utplsql.ut3_tester.core)
 
