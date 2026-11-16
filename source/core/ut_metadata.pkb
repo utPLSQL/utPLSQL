@@ -77,34 +77,25 @@ create or replace noneditionable package body ut_metadata as
     if not nvl(c_key = g_cached_object, false) then
       g_cached_object := c_key;
       execute immediate
-      'select /*+ no_parallel */ trim(text) text
-        from '||l_view_name||q'[ s
-       where s.owner = :a_owner
-         and s.name = :a_object_name
-         /*skip the declarations, consider only definitions*/
-         and s.type not in ('PACKAGE', 'TYPE')
-       order by line]'
+      'with v_source as (
+        select /*+ no_parallel */ s.line
+          , nvl(
+              max(case when instr(s.text, chr(10)) > 0 then s.line else null end)
+                  over (order by s.line rows between unbounded preceding and 1 preceding )
+              , 0) + 1 first_line
+          , s.text
+         from '||l_view_name||q'[ s
+        where s.owner = :a_owner
+          and s.name = :a_object_name
+          /*skip the declarations, consider only definitions*/
+          and s.type not in ('PACKAGE', 'TYPE')
+        order by s.line)
+      select trim(s.text)
+       from v_source s
+      where s.line = s.first_line
+      order by s.line]'
       bulk collect into g_source_cache
       using a_owner, a_object_name;
-
-      declare
-        l_text all_source.text%type;
-        l_source t_cache;
-      begin
-        l_source := t_cache();
-        for i in 1..g_source_cache.count loop
-          if l_text is null then
-            l_text := g_source_cache(i);
-          end if;
-          if instr(g_source_cache(i), chr(10)) > 0 then
-            l_source.extend;
-            l_source(l_source.count) := l_text;
-            l_text := null;
-          end if;
-        end loop;
-
-        g_source_cache := l_source;
-      end;
     end if;
 
     if g_source_cache.exists(a_line_no) then
