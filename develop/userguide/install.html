@@ -1271,6 +1271,7 @@ Installing uPLSQL into a shared schema is really not recommended as you loose is
 <li>ALTER SESSION</li>
 <li>CREATE TRIGGER</li>
 <li>CREATE ROLE</li>
+<li>CREATE ANY CONTEXT (needed only for the installation, see <a href="#installing-utplsql">Installing utPLSQL</a>)</li>
 </ul>
 <p>In addition, the user must be granted the execute privilege on <code>DBMS_LOCK</code> and <code>DBMS_CRYPTO</code> packages.</p>
 <p>utPLSQL is using <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_PROFILER.html">DBMS_PROFILER tables</a> for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.</p>
@@ -1294,6 +1295,12 @@ You may install utPLSQL from any account that has sufficient privileges to creat
 <p>The installation uses code based access control (CBAC) to give utPLSQL packages access to internal utPLSQL tables without granting those tables to users.
 It creates the role <code>&lt;utPLSQL schema&gt;_cbac_modify_objects_role</code> (for example <code>ut3_cbac_modify_objects_role</code>), unless it already exists, and grants it to the utPLSQL schema and to utPLSQL packages.
 The installing user therefore needs the <code>CREATE ROLE</code> privilege. Each utPLSQL schema gets its own role. The role is dropped when utPLSQL is uninstalled.</p>
+<p>The installation also creates the application context <code>&lt;utPLSQL schema&gt;_info</code> (for example <code>ut3_info</code>), which makes information about the running test available through <a href="annotations.html#sys_context"><code>sys_context</code></a>.
+The installing user therefore needs the <code>CREATE ANY CONTEXT</code> privilege.
+This privilege is needed only while installing, not when running tests.
+Because it is a powerful <code>ANY</code> privilege, <code>create_utplsql_owner.sql</code> deliberately does not grant it to the utPLSQL schema.
+If you install utPLSQL as the utPLSQL schema owner, grant <code>CREATE ANY CONTEXT</code> to that user before the installation and revoke it afterwards.
+The headless installation runs as <code>SYSDBA</code> and needs no additional grant.</p>
 <p>Example invocation:
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sqlplus<span class="w"> </span>admin/admins_password@database<span class="w"> </span>@install.sql<span class="w"> </span>ut3<span class="w">  </span>
@@ -1393,7 +1400,7 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="November 8, 2026 23:17:22 UTC">November 8, 2026 23:17:22</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="November 13, 2026 19:34:58 UTC">November 13, 2026 19:34:58</span>
   </span>
 
     
@@ -1420,6 +1427,11 @@ The only requirement is that utPLSQL v3 needs to be installed in a different sch
 
     
     <nav>
+      
+        <a href="https://github.com/vasipallyn" class="md-author" title="@vasipallyn">
+          
+          <img src="https://avatars.githubusercontent.com/u/207942208?v=4&size=72" alt="vasipallyn">
+        </a>
       
         <a href="https://github.com/jgebal" class="md-author" title="@jgebal">
           
