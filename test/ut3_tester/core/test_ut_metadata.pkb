@@ -96,8 +96,8 @@ create or replace package body test_ut_metadata is
 
   procedure test_over_varchar2_limit_trim_first_4000_lf
   is
-    l_actual all_source.text%type;
-    l_expect all_source.text%type;
+    l_actual varchar2(32767);
+    l_expect varchar2(32767);
   begin
     l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_lf;
     l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE_LF', 15);
@@ -105,8 +105,8 @@ create or replace package body test_ut_metadata is
   end;
 
   procedure test_over_varchar2_limit_trim_first_4000_crlf is
-    l_actual all_source.text%type;
-    l_expect all_source.text%type;
+    l_actual varchar2(32767);
+    l_expect varchar2(32767);
   begin
     l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_crlf;
     l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE_CRLF', 15);
@@ -115,8 +115,8 @@ create or replace package body test_ut_metadata is
 
   procedure test_over_varchar2_limit_trim_first_4000_cr
   is
-    l_actual all_source.text%type;
-    l_expect all_source.text%type;
+    l_actual varchar2(32767);
+    l_expect varchar2(32767);
   begin
     l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_cr;
     l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE_LF', 15);
