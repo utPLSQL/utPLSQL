@@ -13,20 +13,21 @@ A clear and concise description of what the bug is.
 **Provide version info**
 Information about utPLSQL and Database version, 
 ```sql
-set serveroutput on
-declare
-  l_version varchar2(255);
-  l_compatibility varchar2(255);
-begin
-  dbms_utility.db_version( l_version, l_compatibility );
-  dbms_output.put_line( l_version );
-  dbms_output.put_line( l_compatibility );
-end;
-/
-select substr(ut.version(),1,60) as ut_version from dual;
-select * from v$version;
+with
+  function version_compatibility return varchar2 as
+    l_ver  varchar2(100);
+    l_comp varchar2(100);
+  begin
+    dbms_utility.db_version(l_ver, l_comp);
+    return l_comp;
+  end;
+select product, version, version_full, version_compatibility,
+       sys_context('userenv', 'current_edition_name') active_edition,
+       substr(dbms_utility.port_string,1,60) as cpu_type_and_os
+  from product_component_version;
+
 select * from nls_session_parameters;
-select substr(dbms_utility.port_string,1,60) as port_string from dual;
+
 ```
 
 **Information about client software**
