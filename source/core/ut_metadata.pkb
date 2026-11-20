@@ -77,22 +77,23 @@ create or replace noneditionable package body ut_metadata as
     if not nvl(c_key = g_cached_object, false) then
       g_cached_object := c_key;
       execute immediate
-      'with v_source as (
-        select /*+ no_parallel */ s.line
-          , nvl(
-              max(case when instr(s.text, chr(10)) > 0 then s.line else null end)
-                  over (order by s.line rows between unbounded preceding and 1 preceding )
-              , 0) + 1 first_line
-          , s.text
-         from '||l_view_name||q'[ s
-        where s.owner = :a_owner
-          and s.name = :a_object_name
-          /*skip the declarations, consider only definitions*/
-          and s.type not in ('PACKAGE', 'TYPE')
-        order by s.line)
+      'with
+          all_source_filter as (
+              select /*+ no_parallel */
+                      lag(
+                        case when substr(text, -1) = chr(10) then 1 else 0 end
+                        , 1
+                      ) over (partition by owner, name, type order by line) prev_line_end,
+                      a.*
+              from '||l_view_name||q'[ a
+          )
       select trim(s.text)
-       from v_source s
-      where s.line = s.first_line
+        from all_source_filter s
+              where s.owner = :a_owner
+                and s.name = :a_object_name
+                /*skip the declarations, consider only definitions*/
+                and s.type not in ('PACKAGE', 'TYPE')
+                and nvl(s.prev_line_end, 1) > 0
       order by s.line]'
       bulk collect into g_source_cache
       using a_owner, a_object_name;
