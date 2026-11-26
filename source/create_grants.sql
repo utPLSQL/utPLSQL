@@ -73,6 +73,7 @@ grant execute on &&ut3_owner..ut_suite_cache_macros to &ut3_user;
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
+grant execute on &&ut3_owner..ut_anydata_list to &ut3_user;
 grant execute on &&ut3_owner..ut_integer_list to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;

@@ -29,7 +29,10 @@ create or replace noneditionable type body ut_junit_reporter is
 
     function get_path(a_path_with_name varchar2, a_name varchar2) return varchar2 is
     begin
-      return regexp_substr(a_path_with_name, '(.*)\.' ||a_name||'$',subexpression=>1);
+      if substr(a_path_with_name, -length(a_name) - 1) = '.' || a_name then
+        return substr(a_path_with_name, 1, length(a_path_with_name) - length(a_name) - 1);
+      end if;
+      return null;
     end;
 
     procedure print_test_elements(a_test ut_test) is

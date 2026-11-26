@@ -21,7 +21,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
   */
 
   function get_schema_paths(a_paths in ut_varchar2_list) return ut_path_items is
-    c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+))?$';
+    c_package_path_regex constant varchar2(100) := '^([[:alnum:]$#_]+)(\.([[:alnum:]$#_\*]+))?(\.([[:alnum:]$#_\*]+(\[[0-9]+\])?))?$';
     l_results            ut_path_items := ut_path_items();
     l_path_item          ut_path_item;
     i                    pls_integer;
@@ -430,7 +430,7 @@ create or replace noneditionable package body ut_suite_cache_manager is
                  from &&ut3_owner..ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
-                  and c.name = a_procedure_name
+                  and ( c.name = a_procedure_name or substr(c.name, 1, length(a_procedure_name) + 1) = a_procedure_name || '[' )
                );
     elsif a_package_name is not null then
       select /*+ no_parallel */ count( 1 ) into l_count from dual

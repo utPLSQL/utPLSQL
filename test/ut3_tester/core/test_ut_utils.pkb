@@ -372,6 +372,48 @@ end;';
     ut.expect(anydata.convertcollection(l_list_to_be_empty)).to_be_empty;
   end;
 
+  procedure test_case_descr_appends is
+  begin
+    ut.expect(
+      ut3_develop.ut_utils.get_test_case_description(
+        'A test', ut3_develop.ut_varchar2_list(null, null), ut3_develop.ut_varchar2_list('1', '2')
+      )
+    ).to_equal('A test (1, 2)');
+  end;
+
+  procedure test_case_descr_placeholders is
+  begin
+    ut.expect(
+      ut3_develop.ut_utils.get_test_case_description(
+        'Amount {1}, kind {a_kind}, unknown {3}',
+        ut3_develop.ut_varchar2_list(null, 'A_KIND'), ut3_develop.ut_varchar2_list('100', q'['VIP']')
+      )
+    ).to_equal(q'[Amount 100, kind 'VIP', unknown {3}]');
+  end;
+
+  procedure test_case_descr_shortens is
+  begin
+    ut.expect(
+      ut3_develop.ut_utils.get_test_case_description(
+        'Long {1}', ut3_develop.ut_varchar2_list(null), ut3_develop.ut_varchar2_list(rpad('x', 101, 'x'))
+      )
+    ).to_equal('Long ' || rpad('x', 100, 'x') || '...');
+    ut.expect(
+      ut3_develop.ut_utils.get_test_case_description(
+        'Long', ut3_develop.ut_varchar2_list(null, null), ut3_develop.ut_varchar2_list(rpad('x', 100, 'x'), 'y')
+      )
+    ).to_equal('Long (' || rpad('x', 100, 'x') || ', y)');
+  end;
+
+  procedure test_case_descr_null is
+  begin
+    ut.expect(
+      ut3_develop.ut_utils.get_test_case_description(
+        null, ut3_develop.ut_varchar2_list(null), ut3_develop.ut_varchar2_list('1')
+      )
+    ).to_be_null();
+  end;
+
   procedure replace_multiline_comments
   is
     l_source   clob;

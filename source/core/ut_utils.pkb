@@ -232,6 +232,31 @@ create or replace noneditionable package body ut_utils is
     return l_result;
   end;
 
+  function get_test_case_description(
+    a_description varchar2, a_names ut_varchar2_list, a_values ut_varchar2_list
+  ) return varchar2 is
+    c_max_value_length constant integer := 100;
+    l_result   varchar2(32767) := a_description;
+    l_appendix varchar2(32767);
+    l_value    varchar2(32767);
+  begin
+    for i in 1 .. a_values.count loop
+      -- long values would make the description unreadable
+      l_value := substr(a_values(i), 1, c_max_value_length) || case when length(a_values(i)) > c_max_value_length then '...' end;
+      l_appendix := l_appendix || case when i > 1 then ', ' end || l_value;
+      if regexp_like(a_description, '\{[[:alnum:]_$#]+\}') then
+        l_result := replace(l_result, '{' || i || '}', l_value);
+        if a_names(i) is not null then
+          l_result := replace(replace(l_result, '{' || a_names(i) || '}', l_value), '{' || lower(a_names(i)) || '}', l_value);
+        end if;
+      end if;
+    end loop;
+    if not regexp_like(a_description, '\{[[:alnum:]_$#]+\}') then
+      l_result := a_description || case when a_description is not null and l_appendix is not null then ' (' || l_appendix || ')' end;
+    end if;
+    return substrb(l_result, 1, gc_max_storage_varchar2_len);
+  end;
+
   function string_table_to_table(a_list ut_varchar2_list, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list is
     l_result ut_varchar2_list;
   begin

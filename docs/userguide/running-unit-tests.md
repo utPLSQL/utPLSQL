@@ -118,6 +118,15 @@ Executes single test procedure _hr.test_apply_bonus.bonus_cannot_be_negative_.
 ```sql linenums="1"
 set serveroutput on
 begin
+  ut.run('hr.test_apply_bonus.bonus_for_amount[2]');
+end;
+```
+Executes only the second test case of the test procedure _hr.test_apply_bonus.bonus_for_amount_, see [Testcase](annotations.md#testcase).
+
+
+```sql linenums="1"
+set serveroutput on
+begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus','cust'));
 end;
 ```

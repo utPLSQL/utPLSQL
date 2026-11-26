@@ -31,7 +31,9 @@ create or replace noneditionable package body ut_suite_manager is
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
         if l_path is null or not (
-          regexp_like(l_path, '^[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+){0,2}$') or regexp_like(l_path, '^([[:alnum:]$#_]+)?:[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+)*$')) then
+          regexp_like(l_path, '^[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+){0,2}$')
+          or regexp_like(l_path, '^[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+){1,2}\[[0-9]+\]$')
+          or regexp_like(l_path, '^([[:alnum:]$#_]+)?:[[:alnum:]$#_\*]+(\.[[:alnum:]$#_\*]+)*(\[[0-9]+\])?$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -88,6 +90,10 @@ create or replace noneditionable package body ut_suite_manager is
               raise;
             end if;
         end;
+      end if;
+      if a_paths(i) not like '%:%' and instr(a_paths(i), '[') > 0
+        and not regexp_like(a_paths(i), '^[^.]+\.[^.]+\.[^.]+\[[0-9]+\]$') then
+        raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || a_paths(i));
       end if;
       l_schema_names.extend;
       l_schema_names(l_schema_names.last) := l_schema;

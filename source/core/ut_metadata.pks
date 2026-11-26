@@ -64,6 +64,34 @@ create or replace noneditionable package ut_metadata authid current_user as
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
     return boolean;
 
+  type t_parameter is record (
+    procedure_name varchar2(128 char),
+    overload       varchar2(40 char),
+    parameter_name varchar2(128 char),
+    defaulted      varchar2(1 char),
+    data_type      varchar2(128 char),
+    type_owner     varchar2(128 char),
+    type_name      varchar2(128 char),
+    type_subname   varchar2(128 char)
+  );
+  type tt_parameters is table of t_parameter;
+
+  /**
+   * Returns the parameters of the procedures of a package (or of one procedure), ordered by procedure, overload and position.
+   * A procedure or overload without parameters has one entry with a null parameter_name.
+   */
+  function get_package_parameters(
+    a_owner_name varchar2, a_package_name varchar2, a_procedure_name varchar2 := null
+  ) return tt_parameters;
+
+  /**
+   * Returns the return type (data_type, type_owner, type_name) of a packaged function that can be called without arguments,
+   * or a record with all fields null when there is no such function.
+   */
+  function get_function_return_type(
+    a_owner_name varchar2, a_package_name varchar2, a_function_name varchar2
+  ) return t_parameter;
+
   /**
    * Return the text of the source line for a given object (body). It excludes package spec and type spec
    */

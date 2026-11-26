@@ -30,6 +30,20 @@ create or replace noneditionable type ut_executable under ut_event_item(
   * Used for ordering of executables, as Oracle doesn not guarantee ordering of items in a nested table.
   */
   seq_no                integer,
+  /**
+  * Arguments passed to the procedure: the JSON array or object of a --%testcase, e.g. ["VIP", 2000],
+  * or for a row of a --%testcasesource cursor the generated argument list that reads its values
+  */
+  call_arguments        varchar2(4000 char),
+  /**
+  * Function of a --%testcasesource annotation
+  */
+  call_source           varchar2(4000 char),
+  /**
+  * Number of the test case (element or row) the call_source function returned; null for the test that is not yet split
+  * into its test cases. The values of the test case are kept in ut_test_case_values.
+  */
+  call_source_row       integer,
 	constructor function ut_executable( self in out nocopy ut_executable, a_owner varchar2, a_package varchar2, a_procedure_name varchar2, a_executable_type varchar2) return self as result,
   member function form_name(a_skip_current_user_schema boolean := false) return varchar2,
   member procedure do_execute(

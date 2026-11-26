@@ -270,6 +270,10 @@ drop package ut_file_mapper;
 
 drop package ut_metadata;
 
+drop package ut_test_case_values;
+
+drop package ut_test_case_json;
+
 drop package ut_ansiconsole_helper;
 
 begin
@@ -399,6 +403,8 @@ drop type ut_integer_list force;
 drop type ut_varchar2_list force;
 
 drop type ut_varchar2_rows force;
+
+drop type ut_anydata_list force;
 
 drop package ut_coverage_profiler;
 

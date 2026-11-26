@@ -121,5 +121,10 @@ create or replace noneditionable type body ut_suite_item as
     end if;
   end;
 
+  member function has_test_case_source(self in ut_suite_item) return boolean is
+  begin
+    return false;
+  end;
+
 end;
 /

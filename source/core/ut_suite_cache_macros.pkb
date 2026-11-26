@@ -29,10 +29,11 @@ create or replace noneditionable package body ut_suite_cache_macros as
                and i.object_name like replace(replace(upper(p.object_name), '_', '\_'), '*', '%') escape '\'
                and ( p.procedure_name is null or p.procedure_name = '*'
                      or i.name like replace(replace(upper(p.procedure_name), '_', '\_'), '*', '%') escape '\'
+                     or i.name like replace(replace(upper(p.procedure_name), '_', '\_'), '*', '%') || '[%' escape '\'
                    )
              )
           or ( instr(p.suite_path, '*') = 0
-               and ( i.path = p.suite_path or substr(i.path, 1, length(p.suite_path) + 1) = p.suite_path || '.' )
+               and ( i.path = p.suite_path or substr(i.path, 1, length(p.suite_path) + 1) in (p.suite_path || '.', p.suite_path || '[') )
              )
           or ( instr(p.suite_path, '*') > 0
                and regexp_like(

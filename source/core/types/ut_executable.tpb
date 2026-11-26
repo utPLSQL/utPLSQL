@@ -55,13 +55,51 @@ create or replace noneditionable type body ut_executable is
     a_ignored_exception_names in ut_varchar2_rows := null,
     a_ignored_exception_numbers in ut_varchar2_rows :=null)
   return boolean is
-    l_statement                   varchar2(4000);
+    l_statement                   varchar2(32767);
+    l_call                        varchar2(32767);
+    l_values                      ut_anydata_list;
+    l_json                        clob;
+    l_call_error                  varchar2(32767);
+    l_parse_error                 varchar2(32767);
     l_status                      number;
     l_cursor_number               number;
     l_completed_without_errors    boolean := true;
     l_failed_with_invalid_pck     boolean := true;
     l_start_transaction_id        varchar2(250);
     l_end_transaction_id          varchar2(250);
+
+    /*
+      Unpacks the argument values of a --%testcasesource test case, bound as :ut_values.
+      Object types and collections need a variable of their type; other values are read by the call itself.
+    */
+    function get_test_case_call(a_values ut_anydata_list, a_call varchar2) return varchar2 is
+      l_declarations varchar2(32767);
+      l_unpacking    varchar2(32767);
+      l_type         anytype;
+      l_typecode     pls_integer;
+    begin
+      for i in 1 .. a_values.count loop
+        -- the type code, as gettypename raises no_data_found for an NCLOB
+        l_typecode := a_values(i).gettype(l_type);
+        if l_typecode in (dbms_types.typecode_object, dbms_types.typecode_namedcollection, dbms_types.typecode_varray, dbms_types.typecode_table) then
+          l_declarations := l_declarations ||
+            '      l_ut_value_' || i || ' "' || replace(a_values(i).gettypename(), '.', '"."') || '";' || chr(10);
+          l_unpacking := l_unpacking ||
+            '      l_ut_rc := l_ut_values(' || i || ').' ||
+            case when l_typecode = dbms_types.typecode_object then 'getobject' else 'getcollection' end ||
+            '(l_ut_value_' || i || ');' || chr(10);
+        end if;
+      end loop;
+      return
+        'declare' || chr(10) ||
+        '      l_ut_values ' || ut_utils.ut_owner || '.ut_anydata_list := :ut_values;' || chr(10) ||
+        '      l_ut_rc     pls_integer;' || chr(10) ||
+        l_declarations ||
+        '    begin' || chr(10) ||
+        l_unpacking ||
+        '      ' || a_call || chr(10) ||
+        '    end;';
+    end;
 
     function is_defined return boolean is
       l_result boolean := false;
@@ -86,7 +124,7 @@ create or replace noneditionable type body ut_executable is
 
       if not ut_metadata.package_valid(self.owner_name, self.object_name) then
         self.error_stack := l_message_part || 'package '||upper(self.owner_name||'.'||self.object_name)||' does not exist or is invalid.';
-      elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
+      elsif not ut_metadata.procedure_exists(upper(self.owner_name), upper(self.object_name), upper(self.procedure_name)) then
         self.error_stack := l_message_part || 'procedure '||upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name)||' does not exist.';
       else
         l_result := false;
@@ -119,6 +157,32 @@ create or replace noneditionable type body ut_executable is
 
     l_completed_without_errors := is_defined();
     if l_completed_without_errors then
+      begin
+        if self.call_source is not null then
+          l_json := ut_test_case_values.get_json(a_item.path);
+          if l_json is null then
+            l_call := self.form_name( a_skip_current_user_schema => true ) || '(' || self.call_arguments || ');';
+            -- without its values (e.g. package state was reset) the test case errors when it reads them, instead of breaking the run
+            l_values := coalesce(ut_test_case_values.get_values(a_item.path), ut_anydata_list());
+            l_call := get_test_case_call(l_values, l_call);
+          end if;
+        elsif self.call_arguments is not null then
+          -- the arguments of a --%testcase are JSON
+          l_json := self.call_arguments;
+        else
+          l_call := self.form_name( a_skip_current_user_schema => true ) || ';';
+        end if;
+        if l_json is not null then
+          l_call := ut_test_case_json.get_call(
+            self.owner_name, self.object_name, self.procedure_name, self.form_name( a_skip_current_user_schema => true ), l_json
+          );
+        end if;
+      exception
+        when others then
+          -- JSON values that don't fit the parameters are an error of this test case, not of the run
+          l_call_error := dbms_utility.format_error_stack;
+          l_call := 'null;';
+      end;
       l_statement :=
       'declare' || chr(10) ||
       '  l_error_stack                varchar2(32767);' || chr(10) ||
@@ -126,7 +190,7 @@ create or replace noneditionable type body ut_executable is
       '  l_ignored_exception_detected integer := 0;' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
-      '    ' || self.form_name( a_skip_current_user_schema => true ) || ';' || chr(10) ||
+      '    ' || l_call || chr(10) ||
       '  exception' || chr(10) ||
               case when a_ignored_exception_names is not empty then
       '    when ' || ut_utils.table_to_clob( a_ignored_exception_names, ' or ' ) || ' then ' || chr(10) ||
@@ -161,6 +225,11 @@ create or replace noneditionable type body ut_executable is
       **/
       begin
         dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
+        if l_call_error is null and l_values is not null then
+          dbms_sql.bind_variable(l_cursor_number, 'ut_values', l_values);
+        elsif l_call_error is null and l_json is not null then
+          dbms_sql.bind_variable(l_cursor_number, 'ut_json', l_json);
+        end if;
         dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
         dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
         dbms_sql.bind_variable(l_cursor_number, 'a_ignored_exception_detected', to_number(null));
@@ -171,10 +240,13 @@ create or replace noneditionable type body ut_executable is
         dbms_sql.close_cursor(l_cursor_number);
       exception 
         when ut_utils.ex_invalid_package then
+          l_parse_error := dbms_utility.format_error_stack;
           l_failed_with_invalid_pck := is_invalid();
           dbms_sql.close_cursor(l_cursor_number);
-          if not l_failed_with_invalid_pck then 
-            raise;
+          if not l_failed_with_invalid_pck then
+            -- the call itself doesn't compile, e.g. arguments that don't fit the parameters;
+            -- that is an error of this executable, not of the whole run
+            self.error_stack := l_parse_error;
           end if;
         when others then
          dbms_sql.close_cursor(l_cursor_number);
@@ -182,6 +254,7 @@ create or replace noneditionable type body ut_executable is
       end;
       
       save_dbms_output;
+      self.error_stack := coalesce(l_call_error, self.error_stack);
 
       l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
       if self.error_stack like '%ORA-04068%' or self.error_stack like '%ORA-04061%' then

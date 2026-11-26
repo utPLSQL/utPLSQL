@@ -45,6 +45,7 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 -- spec
 @@install_component.sql 'core/types/ut_varchar2_list.tps'
 @@install_component.sql 'core/types/ut_varchar2_rows.tps'
+@@install_component.sql 'core/types/ut_anydata_list.tps'
 @@install_component.sql 'core/types/ut_integer_list.tps'
 @@install_component.sql 'core/types/ut_object_name.tps'
 @@install_component.sql 'core/types/ut_object_names.tps'
@@ -55,6 +56,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/types/ut_stack.tps'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
+@@install_component.sql 'core/ut_test_case_values.pks'
+@@install_component.sql 'core/ut_test_case_json.pks'
 @@install_component.sql 'core/ut_savepoint_seq.sql'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'api/ut_suite_item_info.tps'
@@ -64,6 +67,8 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 @@install_component.sql 'core/types/ut_stack.tpb'
 @@install_component.sql 'core/ut_utils.pkb'
 @@install_component.sql 'core/ut_metadata.pkb'
+@@install_component.sql 'core/ut_test_case_values.pkb'
+@@install_component.sql 'core/ut_test_case_json.pkb'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
 @@install_component.sql 'api/ut_suite_item_info.tpb'
 

@@ -125,6 +125,10 @@ create or replace noneditionable package ut_utils authid definer is
   ex_invalid_tag_expression exception;
   gc_invalid_tag_expression constant pls_integer := -20219;
   pragma exception_init (ex_invalid_tag_expression, -20219);  
+
+  -- the query of a --%testcasesource annotation returns a column that can't be passed to the test
+  gc_invalid_test_case_source constant pls_integer := -20220;
+
   
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
@@ -134,6 +138,8 @@ create or replace noneditionable package ut_utils authid definer is
   gc_date_format              constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ss';
   gc_timestamp_format         constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
+  -- the format of date and time strings in test cases (--%testcase, --%testcasesource); a fixed decimal point, unlike gc_timestamp_format
+  gc_test_case_timestamp_format constant varchar2(100) := 'syyyy-mm-dd"T"hh24:mi:ss.ff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
   gc_empty_string             constant varchar2(5) := 'EMPTY';
 
@@ -234,6 +240,21 @@ create or replace noneditionable package ut_utils authid definer is
    * @return table of varchar2 values
    */
   function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
+
+  /**
+   *
+   * Builds the description of a test case of a --%testcase or --%testcasesource test.
+   * {1}, {2}, ... in the description are replaced with the values, {<name>} with the value of that name.
+   * Without placeholders, the values separated by commas are appended in brackets. A null description stays null.
+   * Values longer than 100 characters are shortened.
+   *
+   * @param a_description the description of the test
+   * @param a_names       names of the values (parameter or column names), elements may be null
+   * @param a_values      the values, as shown in the description
+   */
+  function get_test_case_description(
+    a_description varchar2, a_names ut_varchar2_list, a_values ut_varchar2_list
+  ) return varchar2;
 
   /**
    *

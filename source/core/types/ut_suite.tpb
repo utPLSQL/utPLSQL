@@ -34,6 +34,66 @@ create or replace noneditionable type body ut_suite  as
     l_suite_savepoint varchar2(30);
     l_no_errors boolean;
 
+    function has_test_case_sources return boolean is
+    begin
+      for i in 1 .. self.items.count loop
+        if self.items(i).has_test_case_source() then
+          return true;
+        end if;
+      end loop;
+      return false;
+    end;
+
+    -- the --%testcasesource functions run after beforeall, so they see the data that beforeall created
+    procedure execute_with_test_case_sources is
+      l_items ut_suite_items := ut_suite_items();
+      l_test  ut_test;
+      l_cases ut_suite_items;
+
+      procedure add_item(a_item ut_suite_item) is
+      begin
+        l_items.extend;
+        l_items(l_items.last) := a_item;
+      end;
+    begin
+      for i in 1 .. self.items.count loop
+        if self.items(i).has_test_case_source() and not self.items(i).get_disabled_flag() then
+          l_test := treat(self.items(i) as ut_test);
+          l_cases := null;
+          begin
+            l_cases := l_test.get_source_test_cases();
+          exception
+            when others then
+              l_test.mark_as_errored('The --%testcasesource function failed.' || chr(10) || dbms_utility.format_error_stack);
+              add_item(l_test);
+          end;
+          if l_cases is not null then
+            if l_cases.count = 0 then
+              self.put_warning('The --%testcasesource function returned no test cases.', l_test.name, l_test.line_no);
+            end if;
+            for j in 1 .. l_cases.count loop
+              begin
+                l_cases(j).do_execute();
+              exception
+                when others then
+                  -- don't keep the values of the test cases that won't run
+                  for k in j .. l_cases.count loop
+                    ut_test_case_values.remove_values(l_cases(k).path);
+                  end loop;
+                  raise;
+              end;
+              ut_test_case_values.remove_values(l_cases(j).path);
+              add_item(l_cases(j));
+            end loop;
+          end if;
+        else
+          self.items(i).do_execute();
+          add_item(self.items(i));
+        end if;
+      end loop;
+      self.items := l_items;
+    end;
+
     procedure propagate_error(a_error_stack_trace varchar2) is
     begin
       for i in 1..self.items.count loop
@@ -62,9 +122,13 @@ create or replace noneditionable type body ut_suite  as
       end loop;
 
       if l_no_errors then
-        for i in 1 .. self.items.count loop
-          self.items(i).do_execute();
-        end loop;
+        if has_test_case_sources() then
+          execute_with_test_case_sources();
+        else
+          for i in 1 .. self.items.count loop
+            self.items(i).do_execute();
+          end loop;
+        end if;
       end if;
 
       for i in 1 .. after_all_list.count loop

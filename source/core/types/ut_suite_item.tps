@@ -89,7 +89,11 @@ create or replace noneditionable type ut_suite_item force under ut_event_item (
   not instantiable member function get_error_stack_traces return ut_varchar2_list,
   not instantiable member function get_serveroutputs return clob,
   member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2),
-  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2, a_procedure_name varchar2, a_line_no integer)
+  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2, a_procedure_name varchar2, a_line_no integer),
+  /**
+  * True for a test with a --%testcasesource query that is not yet split into its test cases.
+  */
+  member function has_test_case_source(self in ut_suite_item) return boolean
 )
 not final not instantiable
 /

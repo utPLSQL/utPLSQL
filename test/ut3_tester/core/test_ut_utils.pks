@@ -124,6 +124,22 @@ create or replace package test_ut_utils is
 
   --%endcontext
 
+  --%context(get_test_case_description)
+
+  --%test(Appends the arguments when the description has no placeholders)
+  procedure test_case_descr_appends;
+
+  --%test(Replaces placeholders by position and by name)
+  procedure test_case_descr_placeholders;
+
+  --%test(Shortens values longer than 100 characters and appends the values when no appendix is given)
+  procedure test_case_descr_shortens;
+
+  --%test(Keeps a null description null)
+  procedure test_case_descr_null;
+
+  --%endcontext
+
   --%test(replace_multiline_comments - replaces multi-line comments with empty lines)
   procedure replace_multiline_comments;
 

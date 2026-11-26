@@ -33,6 +33,7 @@ prompt Install user tests
 @@ut3_user/expectations/test_expectations_json.pks
 @@ut3_user/api/test_ut_runner.pks
 @@ut3_user/api/test_ut_run.pks
+@@ut3_user/api/test_ut_test_cases.pks
 @@ut3_user/reporters.pks
 @@ut3_user/reporters/test_tfs_junit_reporter.pks
 @@ut3_user/reporters/test_teamcity_reporter.pks
@@ -74,6 +75,7 @@ set define off
 @@ut3_user/expectations/test_expectations_json.pkb
 @@ut3_user/api/test_ut_runner.pkb
 @@ut3_user/api/test_ut_run.pkb
+@@ut3_user/api/test_ut_test_cases.pkb
 @@ut3_user/reporters.pkb
 @@ut3_user/reporters/test_tfs_junit_reporter.pkb
 @@ut3_user/reporters/test_teamcity_reporter.pkb
