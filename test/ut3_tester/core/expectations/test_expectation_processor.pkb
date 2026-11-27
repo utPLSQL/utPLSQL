@@ -1,6 +1,8 @@
 create or replace package body test_expectation_processor is
 
   gc_user constant varchar2(128) := sys_context('userenv','current_schema');
+  gc_long_line_package constant varchar2(128) := 'TEST_EXPECTATION_LONG_LINE';
+  gc_long_line constant varchar2(4000) := 'ut.expect(1).to_equal(2); /*'||rpad('*', 3900, '*')||'*/';
 
   procedure who_called_expectation is
     l_stack_trace varchar2(4000);
@@ -99,6 +101,70 @@ handle    number  name
       ut.expect(
         ut3_develop.ut_expectation_processor.who_called_expectation(l_stack_trace)
         ).to_be_like('at "SCOTT.TEST_BETWNSTR.BASIC_USAGE", line 7 %');
+  end;
+
+  procedure create_long_line_package is
+  begin
+    execute immediate 'create or replace package '||gc_long_line_package||' is
+  procedure long_line;
+end;';
+    execute immediate 'create or replace package body '||gc_long_line_package||' is
+  procedure long_line is
+  begin
+    '||gc_long_line||'
+  end;
+end;';
+  end;
+
+  procedure drop_long_line_package is
+  begin
+    execute immediate 'drop package '||gc_long_line_package;
+  end;
+
+  procedure who_called_exp_long_line is
+    l_stack_trace varchar2(4000);
+    l_result      varchar2(32767);
+  begin
+    l_stack_trace := q'[----- PL/SQL Call Stack -----
+  object      line  object
+  handle    number  name
+0x80e701d8        26  UT3_DEVELOP.UT_EXPECTATION_RESULT
+0x85e10150       112  UT3_DEVELOP.UT_EXPECTATION
+0x8b54bad8        21  UT3_DEVELOP.UT_EXPECTATION_NUMBER
+0x85cfd238         4  package body ]'||gc_user||'.'||gc_long_line_package||q'[
+0x85def380         6  anonymous block
+]';
+    l_result := ut3_develop.ut_expectation_processor.who_called_expectation(l_stack_trace);
+
+    ut.expect( l_result ).to_equal(
+      'at "'||gc_user||'.'||gc_long_line_package||'", line 4 '
+      || substr( gc_long_line, 1, 500 - length('[...]') ) || '[...]'
+      || chr(10) || 'at "anonymous block", line 6'
+    );
+  end;
+
+  procedure who_called_exp_long_stack is
+    l_stack_trace varchar2(32767);
+    l_result      varchar2(32767);
+  begin
+    l_stack_trace := q'[----- PL/SQL Call Stack -----
+  object      line  object
+  handle    number  name
+0x80e701d8        26  UT3_DEVELOP.UT_EXPECTATION_RESULT
+0x85e10150       112  UT3_DEVELOP.UT_EXPECTATION
+0x8b54bad8        21  UT3_DEVELOP.UT_EXPECTATION_NUMBER
+0x85cfd238         4  package body ]'||gc_user||'.'||gc_long_line_package||chr(10);
+    -- distinct callers, so the stack after the first frame is long
+    for i in 1 .. 100 loop
+      l_stack_trace := l_stack_trace
+        || '0x85cfd238      '||to_char(1000 + i)||'  package body '||gc_user||'.'||gc_long_line_package||chr(10);
+    end loop;
+
+    l_result := ut3_develop.ut_expectation_processor.who_called_expectation(l_stack_trace);
+
+    ut.expect( lengthb( l_result ) ).to_be_less_or_equal( 4000 );
+    ut.expect( l_result ).to_be_like( 'at "'||gc_user||'.'||gc_long_line_package||'", line 4 ut.expect(1).to_equal(2); /*%' );
+    ut.expect( l_result ).to_be_like( '%[...]' );
   end;
 
 end;
