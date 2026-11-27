@@ -149,12 +149,14 @@ create or replace noneditionable package body ut_expectation_processor as
   end;
 
   function who_called_expectation(a_call_stack varchar2) return varchar2 is
-    l_caller_stack_line          varchar2(4000);
-    l_call_stack                 varchar2(4000);
+    c_max_source_line_len        constant integer := 500;
+    l_caller_stack_line          varchar2(32767);
+    l_call_stack                 varchar2(32767);
     l_line_no                    integer;
     l_owner                      varchar2(1000);
     l_object_name                varchar2(1000);
-    l_result                     varchar2(4000);
+    l_source_line                varchar2(32767);
+    l_result                     varchar2(32767);
     -- format_call_stack reports not only package name, but also the procedure name
     function cut_header_and_expectations( a_stack varchar2 ) return varchar2 is
     begin
@@ -191,13 +193,21 @@ create or replace noneditionable package body ut_expectation_processor as
       l_line_no          := to_number( regexp_substr( l_caller_stack_line, ', line (\d+)', subexpression => 1 ) );
       l_owner            := regexp_substr( l_caller_stack_line, 'at "([[:alnum:]$#_]+)\.(([[:alnum:]$#_]+)(\.([[:alnum:]$#_]+))?)", line (\d+)', subexpression => 1 );
       l_object_name      := regexp_substr( l_caller_stack_line, 'at "([[:alnum:]$#_]+)\.(([[:alnum:]$#_]+)(\.([[:alnum:]$#_]+))?)", line (\d+)', subexpression => 3 );
+      l_source_line := rtrim(ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no),chr(10));
+      if length( l_source_line ) > c_max_source_line_len then
+        l_source_line := substr( l_source_line, 1, c_max_source_line_len - ut_utils.gc_more_data_string_len ) || ut_utils.gc_more_data_string;
+      end if;
       l_result :=
-        l_caller_stack_line || ' ' || rtrim(ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no),chr(10))
+        l_caller_stack_line || ' ' || l_source_line
         || replace( l_call_stack, l_caller_stack_line );
     else
       l_result := l_call_stack;
     end if;
-    return rtrim(l_result,chr(10));
+    l_result := rtrim(l_result,chr(10));
+    if lengthb( l_result ) > ut_utils.gc_max_storage_varchar2_len then
+      l_result := substrb( l_result, 1, ut_utils.gc_max_storage_varchar2_len - ut_utils.gc_more_data_string_len ) || ut_utils.gc_more_data_string;
+    end if;
+    return l_result;
   end;
 
   procedure add_warning(a_messsage varchar2) is

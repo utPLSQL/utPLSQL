@@ -19,5 +19,21 @@ create or replace package test_expectation_processor is
 
   --%endcontext
 
+  --%context(who_called_expectation_long_lines)
+
+  --%beforeall
+  procedure create_long_line_package;
+
+  --%afterall
+  procedure drop_long_line_package;
+
+  --%test(truncates a long source line of the calling code - regression for #1397)
+  procedure who_called_exp_long_line;
+
+  --%test(limits caller info to 4000 bytes when the call stack is long - regression for #1397)
+  procedure who_called_exp_long_stack;
+
+  --%endcontext
+
 end;
 /
