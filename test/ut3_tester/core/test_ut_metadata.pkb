@@ -69,7 +69,7 @@ create or replace package body test_ut_metadata is
 
   procedure clear_cache is
   begin
-    ut3_develop.UT_METADATA.RESET_SOURCE_DEFINITION_CACHE();
+    ut3_develop.ut_metadata.reset_source_definition_cache();
   end;
 
   procedure create_table is
