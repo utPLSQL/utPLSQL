@@ -84,16 +84,16 @@ create or replace noneditionable package body ut_metadata as
                         case when substr(text, -1) = chr(10) then 1 else 0 end
                         , 1
                       ) over (partition by owner, name, type order by line) prev_line_end,
-                      a.*
+                      line, text
               from '||l_view_name||q'[ a
+                    where a.owner = :a_owner
+                      and a.name = :a_object_name
+                      /*skip the declarations, consider only definitions*/
+                      and a.type not in ('PACKAGE', 'TYPE')
           )
       select trim(s.text)
         from all_source_filter s
-              where s.owner = :a_owner
-                and s.name = :a_object_name
-                /*skip the declarations, consider only definitions*/
-                and s.type not in ('PACKAGE', 'TYPE')
-                and nvl(s.prev_line_end, 1) > 0
+              where nvl(s.prev_line_end, 1) > 0
       order by s.line]'
       bulk collect into g_source_cache
       using a_owner, a_object_name;
