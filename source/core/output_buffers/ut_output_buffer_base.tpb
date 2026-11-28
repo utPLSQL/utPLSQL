@@ -35,6 +35,8 @@ create or replace noneditionable type body ut_output_buffer_base is
     commit;
     dbms_lock.allocate_unique( self.output_id, self.lock_handle);
     self.is_closed := 0;
+    self.buffered_texts := ut_varchar2_rows();
+    self.buffered_item_types := ut_varchar2_rows();
   end;
 
   member procedure lock_buffer(a_timeout_sec number := null) is
@@ -49,6 +51,7 @@ create or replace noneditionable type body ut_output_buffer_base is
   member procedure close(self in out nocopy ut_output_buffer_base) is
     l_status integer;
   begin
+    self.flush;
     l_status := dbms_lock.release( self.lock_handle );
     if l_status != 0 then
       raise_application_error(-20000, 'Cannot release lock for output buffer of reporter. Lock_handle = '||self.lock_handle||' status = '||l_status);
@@ -64,6 +67,18 @@ create or replace noneditionable type body ut_output_buffer_base is
        where a.output_id = self.output_id;
       commit;
     end;
+
+  member procedure flush(self in out nocopy ut_output_buffer_base) is
+  begin
+    if self.buffered_texts is not null and self.buffered_texts.count > 0 then
+      forall i in 1 .. self.buffered_texts.count
+        insert /*+ no_parallel */ into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+        values (self.output_id, ut_output_buffer_tmp_seq.nextval, self.buffered_texts(i), self.buffered_item_types(i));
+      self.buffered_texts := ut_varchar2_rows();
+      self.buffered_item_types := ut_varchar2_rows();
+      commit;
+    end if;
+  end;
 
   member function timeout_producer_not_started( a_producer_started boolean, a_already_waited_sec number, a_init_wait_sec number ) return boolean
   is

@@ -54,7 +54,7 @@ create or replace noneditionable type body ut_suite_item as
     l_savepoint varchar2(30);
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto then
-      l_savepoint := ut_utils.gen_savepoint_name();
+      l_savepoint := 'ut_test_sp';
       execute immediate 'savepoint ' || l_savepoint;
     end if;
     return l_savepoint;
