@@ -6,19 +6,16 @@ create or replace package body test_ut_metadata is
 
   c_pks_lf constant varchar2(1000) :=
       'create or replace package test_package1 is'||c_lf
-    ||''||c_lf
     ||'        procedure test_max_length;'||c_lf
     ||'end;'
     ;
   c_pkg_lf constant varchar2(20000) :=
       q'[create or replace package body test_package1 is]'||c_lf
-    ||q'[    procedure test_max_length]'||c_lf
-    ||q'[    is]'||c_lf
-    ||q'[      l_actual varchar2(4000);]'||c_lf
-    ||q'[      l_expect varchar2(4000);]'||c_lf
+    ||q'[    procedure test_max_length is]'||c_lf
     ||q'[    begin]'||c_lf
-    ||q'[      l_expect := 'varchar2 limit text]'||rpad('*', 4000, '*')||q'[';]'||c_lf
-    ||q'[      ut.expect(l_actual).to_equal(l_expect);]'||c_lf
+    ||q'[      /* long comment over 4000 characters 1]'||rpad('*', 8000, '*')||'*/'||c_lf
+    ||substrb(q'[      /* long comment 3999 and linebreak]'||rpad('*', 4000, '*'), 1, 3997)||'*/'||c_lf
+    ||q'[      dbms_output.put_line('test_max_length called.');]'||c_lf
     ||q'[    end;]'||c_lf
     ||q'[  end;]'
     ;
@@ -28,8 +25,16 @@ create or replace package body test_ut_metadata is
     l_actual varchar2(32767);
     l_expect varchar2(32767);
   begin
-    l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_lf;
-    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 8);
+    l_expect := trim(substrb(q'[      /* long comment over 4000 characters 1]'||rpad('*', 8000, '*')||'*/'||c_lf, 1, 4000));
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 4);
+    ut.expect(l_actual).to_equal(l_expect);
+
+    l_expect := trim(substrb(q'[      /* long comment 3999 and linebreak]'||rpad('*', 4000, '*'), 1, 3997)||'*/'||c_lf);
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 5);
+    ut.expect(l_actual).to_equal(l_expect);
+
+    l_expect := 'dbms_output.put_line(''test_max_length called.'');'||c_lf;
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 6);
     ut.expect(l_actual).to_equal(l_expect);
   end;
 
@@ -37,8 +42,16 @@ create or replace package body test_ut_metadata is
     l_actual varchar2(32767);
     l_expect varchar2(32767);
   begin
-    l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_crlf;
-    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 8);
+    l_expect := trim(substrb(q'[      /* long comment over 4000 characters 1]'||rpad('*', 8000, '*')||'*/'||c_crlf, 1, 4000));
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 4);
+    ut.expect(l_actual).to_equal(l_expect);
+
+    l_expect := trim(substrb(q'[      /* long comment 3999 and linebreak]'||rpad('*', 4000, '*'), 1, 3997)||'*/'||c_cr);
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 5);
+    ut.expect(l_actual).to_equal(l_expect);
+
+    l_expect := 'dbms_output.put_line(''test_max_length called.'');'||c_crlf;
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 6);
     ut.expect(l_actual).to_equal(l_expect);
   end;
 
@@ -47,8 +60,16 @@ create or replace package body test_ut_metadata is
     l_actual varchar2(32767);
     l_expect varchar2(32767);
   begin
+    l_expect := trim(substrb(q'[      /* long comment over 4000 characters 1]'||rpad('*', 8000, '*')||'*/'||c_cr, 1, 4000));
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 4);
+    ut.expect(l_actual).to_equal(l_expect);
+
+    l_expect := trim(substrb(q'[      /* long comment 3999 and linebreak]'||rpad('*', 4000, '*'), 1, 3997)||'*/'||c_cr);
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 5);
+    ut.expect(l_actual).to_equal(l_expect);
+
     l_expect := 'ut.expect(l_actual).to_equal(l_expect);'||c_cr;
-    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 8);
+    l_actual := ut3_develop.ut_metadata.get_source_definition_line('UT3_TESTER', 'TEST_PACKAGE1', 6);
     ut.expect(l_actual).to_equal(l_expect);
   end;
 
